@@ -1,56 +1,62 @@
-Return-Path: <linux-erofs+bounces-3366-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3367-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4E9D9FF8864
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Apr 2026 08:23:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95260FF8867
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Apr 2026 08:43:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4g59Kx5Q9Lz2ySf;
-	Wed, 29 Apr 2026 18:23:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=222.66.158.135
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777450997;
-	cv=none; b=OfTIeux04glWUNepAxrZ2Sxm5Q9nUqZT1mU66HDD+KoWjmtciH+tdwFSRhJYhskvn8W/l0wgSE3ApL3fCXfL2QTgy92AHNTfNI4XmzNlkV4vUzXr1iUJ7WEQ0YvEYYuwa/n9w3UJ9LtLgVnyfxMXK/qYwB9kU0auA6b75YQ1w9zI6QxpXIde7JBMbSqjDUpYdUKzGJ5n0IJOGfzBVWs+7L9MMqf4rzoE6DgDsepx8tQ7h+NEwZaLP1+Vau6XhBROahUIpynv6Bu4u6IOQW2IBxe2ysUWVcD+hF4z6mdSARA+P46LO6BhUZEufXszl7yKwlrHOVebqCaLSDa16CsBIA==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1777450997; c=relaxed/relaxed;
-	bh=erMdAkk//4FIKnol/gaYF5mdQ1a0G/RcxiKGXNU+OMU=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XMhs5erv2uHAePMHCpzdSmrKdYttNSupFWJmlulJOcR7OvwwSfUPc03r9bazIjquipRwAbtcJS16QtMINkQio1xpiB39AEeLS/KbeMM8N43Aj4+j8QJ4R4CcH6kdxCl61HffXbbSyy6RESnlF6tcp1Do8OzkSHnnjG5Da2kRi687zD14nyt3/t+cM5+/A+BKTs6jYsun6xZMcnfcdJdHVzYcWl51ZRGekOx653hJA6AcWlKdQmwgK8PySs1V1HwBaAPo2+PzfKQRmlaWJfID6hy392B4eNeeCGZ5AXkc7MRi//MB1vrmVDX/qvjy6CQGlhE5VcRLwTNmD8dwSPUwkA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=unisoc.com; dkim=pass (2048-bit key; unprotected) header.d=unisoc.com header.i=@unisoc.com header.a=rsa-sha256 header.s=default header.b=aAisdaeV; dkim-atps=neutral; spf=pass (client-ip=222.66.158.135; helo=shsqr01.spreadtrum.com; envelope-from=zhiguo.niu@unisoc.com; receiver=lists.ozlabs.org) smtp.mailfrom=unisoc.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=unisoc.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4g59nF0JGWz2ySW;
+	Wed, 29 Apr 2026 18:43:29 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=103.117.158.51 arc.chain=zohomail.in
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777452208;
+	cv=pass; b=IM3yr4hjRfNEPArY+ZOV61irHAStduOtyIPuV+jQCeNwHicdd09h3zq8ICKwvHx8eDLdAMT0RXro8/eEmNdAdkRi8VTWTTALdqi5MnxFmDzHym6Ki0VJpxmtit57TFcUAJcp3iknEIKbDKmp4XSSKdyYRlyr+/Y1sy9yzQwGkz/APs+0DkWu9JPt8VScALCpmkdtF3MgbLIYBZM/PfoXl7D12cKeMh1//SSzrJIlCgVyDceuRSutrfTnQTGpzs5OPSG9qTLI7Vz8/mYF1LN+LinXZSUXbbT4/6SLJHRaMoceIsQOa0sCXWL2fvG2WvEoqHadonQCQkoTcNn72pOtnA==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1777452208; c=relaxed/relaxed;
+	bh=S9cnjeOA+5FPoko9S7SlEwgDVh12VYYlZRkVqJFz88k=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=XAMlHrKuka1zAJWx89ZCl2efNNQeZCWtcQqmjT5ZFtRLJ2r3s7nltHF3XBA7rjjNjzRZFdcroYbEjXjZzSMHczDXM7U4m7tAe7fBL2yfshU8B09oxNq1d5gnNCYSTiKz30KAA/GN9lN3HqDSBJGLVFbV1VUUVwvZ3cLPFL3FfAlfGAwxruHDyBOcheJthbJvJE7/zf3FdYPqZMMklwoqpmcwDcfwgwbNmcATo5z1AiVLLl7NEkgB1JwSfxCVqjSO025BvHj9TOvg3c5qiwyfaAe+q9sLYDscpyk/gmjtGEywc1NtQR7GD6DA7tSHVqOHZuiTX53rPqOFVkq3bMkKQQ==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in; dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=XKkhi7gP; dkim-atps=neutral; spf=pass (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org) smtp.mailfrom=vnsh.in
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=vnsh.in
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=unisoc.com header.i=@unisoc.com header.a=rsa-sha256 header.s=default header.b=aAisdaeV;
+	dkim=pass (1024-bit key; unprotected) header.d=vnsh.in header.i=ch@vnsh.in header.a=rsa-sha256 header.s=zoho header.b=XKkhi7gP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=unisoc.com (client-ip=222.66.158.135; helo=shsqr01.spreadtrum.com; envelope-from=zhiguo.niu@unisoc.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 1360 seconds by postgrey-1.37 at boromir; Wed, 29 Apr 2026 18:23:13 AEST
-Received: from SHSQR01.spreadtrum.com (unknown [222.66.158.135])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=vnsh.in (client-ip=103.117.158.51; helo=sender-of-o51.zoho.in; envelope-from=ch@vnsh.in; receiver=lists.ozlabs.org)
+Received: from sender-of-o51.zoho.in (sender-of-o51.zoho.in [103.117.158.51])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4g59Ks5XHFz2ySW
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Apr 2026 18:23:08 +1000 (AEST)
-Received: from SHSQR01.spreadtrum.com (localhost [127.0.0.2] (may be forged))
-	by SHSQR01.spreadtrum.com with ESMTP id 63T80XoP096162
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Apr 2026 16:00:33 +0800 (+08)
-	(envelope-from Zhiguo.Niu@unisoc.com)
-Received: from dlp.unisoc.com ([10.29.3.86])
-	by SHSQR01.spreadtrum.com with ESMTP id 63T7wJHV074988;
-	Wed, 29 Apr 2026 15:58:19 +0800 (+08)
-	(envelope-from Zhiguo.Niu@unisoc.com)
-Received: from SHDLP.spreadtrum.com (BJMBX02.spreadtrum.com [10.0.64.8])
-	by dlp.unisoc.com (SkyGuard) with ESMTPS id 4g58jm0DQKz2L0psS;
-	Wed, 29 Apr 2026 15:55:24 +0800 (CST)
-Received: from bj08434pcu.spreadtrum.com (10.0.73.87) by
- BJMBX02.spreadtrum.com (10.0.64.8) with Microsoft SMTP Server (TLS) id
- 15.0.1497.48; Wed, 29 Apr 2026 15:58:17 +0800
-From: Zhiguo Niu <zhiguo.niu@unisoc.com>
-To: <hsiangkao@linux.alibaba.com>
-CC: <niuzhiguo84@gmail.com>, <zhiguo.niu@unisoc.com>, <ke.wang@unisoc.com>,
-        <linux-erofs@lists.ozlabs.org>
-Subject: [PATCH] erofs-utils: mkfs: also handle last compacted 2B pack in z_erofs_drop_inline_pcluster
-Date: Wed, 29 Apr 2026 15:59:25 +0800
-Message-ID: <1777449565-22154-1-git-send-email-zhiguo.niu@unisoc.com>
-X-Mailer: git-send-email 1.9.1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4g59nB69Dfz2yD6
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Apr 2026 18:43:26 +1000 (AEST)
+ARC-Seal: i=1; a=rsa-sha256; t=1777452202; cv=none; 
+	d=zohomail.in; s=zohoarc; 
+	b=O/kT3g/WgUHN1C+qaw2KpR9/dVaWGXtXXVttxziu0p3CQR69GP5vgVV+lP8jMF9xaeqe0fYCgkLqKwGoeScvBPcuQLP6lJy/dyW93WoLLjyCFUtNv/kh6puAlG7i5swsPyfwf1mNoy0tQMvfCltqFagN0QDrAbyVM51xuVvkn1Q=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.in; s=zohoarc; 
+	t=1777452202; h=Content-Transfer-Encoding:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
+	bh=S9cnjeOA+5FPoko9S7SlEwgDVh12VYYlZRkVqJFz88k=; 
+	b=d+j5EpTdywqZPD1jSJ+D4vn2n8x4X7Qje0ZPYCu6fSWq5jlMKPJclba5siGWjVGzuhUA979mqI2Qoc/6eNYB/BfLvMeAZNswQeLMnJ6+hu801y5xGn5QQQokvkemEYJ8dkKWilinCW24AvkkQpQ64iaU9FUkQzpRGs6YMNiu2JE=
+ARC-Authentication-Results: i=1; mx.zohomail.in;
+	dkim=pass  header.i=vnsh.in;
+	spf=pass  smtp.mailfrom=ch@vnsh.in;
+	dmarc=pass header.from=<ch@vnsh.in>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1777452202;
+	s=zoho; d=vnsh.in; i=ch@vnsh.in;
+	h=From:From:To:To:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
+	bh=S9cnjeOA+5FPoko9S7SlEwgDVh12VYYlZRkVqJFz88k=;
+	b=XKkhi7gPRCsCq/qSAFT3YKahVLbhh8dOo3SLW7T8UbfaaXChNAPG+54N9MuIFNE1
+	yM4vPn4uLMDItTY0dGMFrgqU8rKTgoS/H+Xffl2YQBMXjBIdPRmr6bRnSXQwv8yGoLY
+	WAz5DUb02O88zXSAXwuu5cJNwAPsD6e9k49i5/Ak=
+Received: by mx.zoho.in with SMTPS id 1777452199963113.4652072774378;
+	Wed, 29 Apr 2026 14:13:19 +0530 (IST)
+From: Vansh Choudhary <ch@vnsh.in>
+To: linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: tests: add test for malformed PAX mtime parsing
+Date: Wed, 29 Apr 2026 14:13:19 +0530
+Message-ID: <20260429084319.41980-1-ch@vnsh.in>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <f2afe93e-245c-4856-b277-634271f596a0@linux.alibaba.com>
+References: <f2afe93e-245c-4856-b277-634271f596a0@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,90 +68,110 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.0.73.87]
-X-ClientProxiedBy: SHCAS01.spreadtrum.com (10.0.1.201) To
- BJMBX02.spreadtrum.com (10.0.64.8)
-X-MAIL:SHSQR01.spreadtrum.com 63T7wJHV074988
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=unisoc.com;
-	s=default; t=1777449537;
-	bh=erMdAkk//4FIKnol/gaYF5mdQ1a0G/RcxiKGXNU+OMU=;
-	h=From:To:CC:Subject:Date;
-	b=aAisdaeVg4ks5j+K952UCWzU8LLkIVh5YABCGJ2FbknaI6bXmBtrO/W0CgutN6j2k
-	 gpX1MzaRQjiErv43F46EdNZISl3i+mFv3S/+IlK+MUIjQ2dtMveUMM0iok0jq9tus0
-	 SD9vvtgQATpDRKwqb3Uuq4k92PoGMujckijal74QKV8lgdyr6u/CKSSWJeTxxFY0Bs
-	 KG4jyBQbtkADnaYPKjp4oot9+tWCOLdqAJ38nK9Xq7onUfXwPxs6Ap1RGhZh+y/i8z
-	 hhbQyzkxvvHNK5clHoo/liuZoRCv40NqehI5Gqfyvwax7uGDhE9S2jM5oEWbCX35Hy
-	 ASV3p6WCCbsdA==
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-With ztailpacking enabled, the current process assumes that a compacted_4b_end
-always exists in the compacted pack. However, in some specific files, the
-compacted pack may not have a compacted_4b_end. This leads to an incorrect
-modification of the last compacted_2B entry, resulting in incorrect modification
-of its clusterofs. In subsequent fsck operations, incorrect parameters will
-affect the decompression of the penultimate pcluster.
+This is a regression test for "erofs-utils: lib: tar: fix
+fractional PAX mtime parsing".
 
-This patch determines whether the last entry of the current compacted pack
-belongs to compacted 2B or 4B and then updates the correct bits accordingly.
-
-Fixes: a7c1f0575ef8 ("erofs-utils: lib: refine tailpcluster compression approach")
-Signed-off-by: Zhiguo Niu <zhiguo.niu@unisoc.com>
+Signed-off-by: Vansh Choudhary <ch@vnsh.in>
 ---
- lib/compress.c | 38 +++++++++++++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+ tests/Makefile.am   |  3 +++
+ tests/erofs/031     | 60 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/031.out |  2 ++
+ 3 files changed, 65 insertions(+)
+ create mode 100755 tests/erofs/031
+ create mode 100644 tests/erofs/031.out
 
-diff --git a/lib/compress.c b/lib/compress.c
-index 62d2672..0eb464b 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -1223,19 +1223,35 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index cd1971a..36fbe92 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -129,6 +129,9 @@ TESTS += erofs/029
+ # 030 - regression test for NULL dentry on hardlink-to-root tar entry
+ TESTS += erofs/030
  
- 		di->di_advise = cpu_to_le16(type);
- 	} else if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
--		/* handle the last compacted 4B pack */
-+		/* handle the last compacted pack */
- 		unsigned int eofs, base, pos, v, lo;
- 		u8 *out;
--
--		eofs = inode->extent_isize -
--			(4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
--		base = round_down(eofs, 8);
--		pos = 16 /* encodebits */ * ((eofs - base) / 4);
--		out = inode->compressmeta + base;
--		lo = erofs_blkoff(sbi, get_unaligned_le32(out + pos / 8));
--		v = (type << sbi->blkszbits) | lo;
--		out[pos / 8] = v & 0xff;
--		out[pos / 8 + 1] = v >> 8;
-+		unsigned int compacted_4b_initial, compacted_2b, compacted_4b_end;
-+		unsigned int totalidx = BLK_ROUND_UP(sbi, inode->i_size);
-+		const erofs_off_t ebase = sizeof(struct z_erofs_map_header) +
-+			round_up(erofs_iloc(inode) + inode->inode_isize +
-+					inode->xattr_isize, 8);
++# 031 - regression test for malformed PAX mtime acceptance
++TESTS += erofs/031
 +
-+		compacted_4b_initial = ((32 - ebase % 32) / 4) & 7;
-+		compacted_2b = 0;
-+		if ((le16_to_cpu(h->h_advise) & Z_EROFS_ADVISE_COMPACTED_2B) &&
-+			compacted_4b_initial < totalidx)
-+			compacted_2b = rounddown(totalidx - compacted_4b_initial, 16);
-+		compacted_4b_end = totalidx - compacted_4b_initial - compacted_2b;
-+		if (!compacted_2b || compacted_4b_end) {
-+			eofs = inode->extent_isize - (4 << (totalidx & 1));
-+			base = round_down(eofs, 8);
-+			pos = 16 /* encodebits */ * ((eofs - base) / 4);
-+			out = inode->compressmeta + base;
-+			lo = erofs_blkoff(sbi, get_unaligned_le32(out + pos / 8));
-+			v = (type << sbi->blkszbits) | lo;
-+			out[pos / 8] = v & 0xff;
-+			out[pos / 8 + 1] = v >> 8;
-+		} else {
-+			eofs = inode->extent_isize - (4 + 1);
-+			out = inode->compressmeta + eofs;
-+			*out = (*out & 0x3f) | (type << 6);
-+		}
- 	} else {
- 		DBG_BUGON(1);
- 		return;
+ # NEW TEST CASE HERE
+ # TESTS += erofs/999
+ 
+diff --git a/tests/erofs/031 b/tests/erofs/031
+new file mode 100755
+index 0000000..8644291
+--- /dev/null
++++ b/tests/erofs/031
+@@ -0,0 +1,60 @@
++#!/bin/sh
++# SPDX-License-Identifier: MIT
++#
++# Regression test for malformed PAX mtime acceptance in mkfs.erofs --tar
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++if [ -z $SCRATCH_DEV ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f $SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++footar="$localdir/foo.tar"
++
++# build a PAX archive whose extended header carries a single record:
++# "22 mtime=10.123456789\n" at payload offset 512.
++: > $localdir/a
++(cd $localdir && tar --format=pax \
++	--pax-option='delete=atime,delete=ctime,mtime:=10.123456789' \
++	-cf $footar a) || _fail "failed to build input tar"
++
++# verify the PAX payload before patching, so the test fails clearly if
++# tar's output ever diverges from the expected layout.
++hdr=`dd if=$footar bs=1 skip=512 count=22 2>/dev/null`
++[ "$hdr" = "22 mtime=10.123456789" ] || \
++	_fail "unexpected PAX payload: $hdr"
++
++# overwrite the trailing '9' (offset 532) with 'x' so the record reads
++# "22 mtime=10.12345678x". sscanf("%d") would silently accept 12345678
++# and ignore the trailing 'x'; the fixed parser rejects it as -EIO.
++printf 'x' | dd of=$footar bs=1 seek=532 count=1 conv=notrunc 2>/dev/null
++
++$MKFS_EROFS_PROG --tar $SCRATCH_DEV $footar >> $seqres.full 2>&1
++rc=$?
++[ $rc -ge 128 ] && _fail "mkfs.erofs crashed on malformed PAX mtime (rc=$rc)"
++[ $rc -eq 0 ] && _fail "mkfs.erofs unexpectedly accepted malformed PAX mtime"
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/031.out b/tests/erofs/031.out
+new file mode 100644
+index 0000000..b3d0bb0
+--- /dev/null
++++ b/tests/erofs/031.out
+@@ -0,0 +1,2 @@
++QA output created by 031
++Silence is golden
 -- 
-1.9.1
+2.43.0
 
 
