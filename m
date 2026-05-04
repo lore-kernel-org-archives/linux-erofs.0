@@ -1,46 +1,46 @@
-Return-Path: <linux-erofs+bounces-3374-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3375-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 061C3FF885A
-	for <linux-erofs@archiver.kernel.org>; Mon,  4 May 2026 14:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4A60CD3430
+	for <linux-erofs@archiver.kernel.org>; Mon,  4 May 2026 14:13:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4g8Ndc4Z8wz2yZ3;
-	Tue, 05 May 2026 00:03:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777903380;
-	cv=none; b=nkqGTlL6R8FJYS+ns6BiiQZFnT60yrjqjcxiJ5df+EA7cddInl1tJjng7Oki1T0yXkTIV8a3VxJKnSBZthDSB6EGVMOvEq1IfM7ugnAKZur4wcdEBceLk90cm/jbxusuwkDiRM8P6OxI6F4pYSvc9wl3HSk4selJ3aAcqAIw4YHr9fAAqnm3Or3inAosMQFCqNhKfWXLK30yvjPHd6T2wFyu7j1UKEhn52CMHX+bm1ylmPDD3lCXsAhuibCuEAylEh3FQi3x8J1vDxn7s1PMOWDE6ZRxg6A0h9t30oO+MVNfrvPzUVeZdioNrXM5IBdPOv3OLPH48tN/SqGnkLovPA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4g8NsP5zQXz2yZ3;
+	Tue, 05 May 2026 00:13:13 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1777903993;
+	cv=none; b=QVRowLSWbTkb1hULbUWiYun9VoORqLnxYE5eqUaEDbqriqNAwRH/K2mRtl4JRDSHH9hKRtkQxSducoxylnd+tvEFvjMUiSeTiJYhEwtZ2mIaCY6o84hEFaPq50eOcWp7qU8XpqhISff0duDUd58JQ6rCCofGLTpYaWcEzwe1KHdbMW1MTtno98LEgo8044cswGsZxmT+TCoywinuGwuhXCtmovYgADCrSTvbnE5qA8bwoDRdOhGYmxv0gZVoY6/f0fn2Qc4mKDGeB6fKQ3oBnWQZqMJBvIioZnK8LDVGKo1e2ZaNODlo3THmPG2ilwxp3CtHfhYGiin9VSv3lV6BQQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1777903380; c=relaxed/relaxed;
-	bh=qed7wDOsYy+hMF+YVINbLo5HOlC2CmVNxRhFqeEWndw=;
+	t=1777903993; c=relaxed/relaxed;
+	bh=Sw8sxls7isp8toafvsC/DJUxHxSbtqSH3kH3KZrdb8A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EQoC6rRozg46KvfdFTHREv7sSDqsOEAfKD8tabMCM4NdquUKjhfUR17GL4FqM+y3JosIHtgmPWL5L7s/CfOfkc6+BHR7ltxvUmMf3WplkFkizIWFnhWAD7+/m1guUN6dmGWmacL09oI2rwZL3sngclplZ/8mdToKdHTWWih/KzsN9IHt+BvKnWtUEhk46SSK8AHbKRIQsWHQvt7ZN5O86ZeWLMpLHyXESXyeQKqtkRjYTjdwGYqXNgqXeZrqj/PGrqlug6Jdcaa1w+/hrF38A1VxA6+vuulgEeAe5YT3aKhC9sZ5kSe7Uk1dCSX6oZaZxZQrXODHM5a0dwLCrdbS9A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=dRAetAll; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linuxfoundation.org
+	 MIME-Version; b=JCSKYLvvvFCc1J0yMhSB2MDR2M4pe6Opg+ZDFOV8q3g7e4JGL+yUf6no125eGDrlU63D89+9xcs2psT6T/O4Bj3oqVsIaLqTLjiR2+Yn7GDzdYKUzu/opcvs4ey0uuUJdUovF+kP5lTjDn4qIXPq0lb2fUpn2kZBoqkon9eIaI/TkB93zwmnhwQEISX9+UyNcVI8NEX2fijUZLCXoq4/rmTald5oxoTfAEdWa6TnbRUH0udN5Bc2mLt/4lUiakJZmNwfz6spQyOgSjPMl/OgJMttEdFhY+QM+dHqaHglO4mzrIxguVOkMcXS/j01bTEENMC1s6JNAppZrM/yAKKeZQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=Nx1ojmap; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org) smtp.mailfrom=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=dRAetAll;
+	dkim=pass (1024-bit key; unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=Nx1ojmap;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linuxfoundation.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=gregkh@linuxfoundation.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4g8Ndb5cvzz2xS2
-	for <linux-erofs@lists.ozlabs.org>; Tue, 05 May 2026 00:02:59 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4g8NsK3p32z2xnQ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 05 May 2026 00:13:09 +1000 (AEST)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id B46FD43F68;
-	Mon,  4 May 2026 14:02:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468C6C2BCB8;
-	Mon,  4 May 2026 14:02:57 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 63BF34403F;
+	Mon,  4 May 2026 14:13:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA3A7C2BCB8;
+	Mon,  4 May 2026 14:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1777903377;
-	bh=XW27s83QbpkYHYPx44Tj1CSzLwrZk0Ooa/iuY+NtbFE=;
+	s=korg; t=1777903987;
+	bh=fVxatBOyuoatE86nVgoyS+6rOpAEFnaHEEm7A1C3n5M=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=dRAetAllAq+htXcFyETMlDdANG8ftO+M729pXDPsc1QlOlR8ZRkd/5W+r6lCbVU23
-	 6N9cvRzSlVip2qiYfc1eYtI2UyTp4SK5bX7DcqFDJ67zTwJbv4aW+MPTOgPKmdB1Oi
-	 3puzpnRlCsi0tTdo5pyl2Ew/lPIeaurpQ8bYme9A=
+	b=Nx1ojmapYdPlMjz0y9y7/j796pjNKyr60qdlSHGIJg1u0aN8SObO8zR7R1lMmryad
+	 szlmJcO/bPlO9bIwOGoFLtGBuZphTQMsmc1wSKE2YJRjwfixE29u48WlH4Xp0oGcB/
+	 IRtuEVHQsdQqFx2prSsH8ACr0l09kzaa5fCX3lNs=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -51,12 +51,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Amir Goldstein <amir73il@gmail.com>,
 	Serge Hallyn <serge@hallyn.com>,
 	Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 7.0 168/307] fs: prepare for adding LSM blob to backing_file
-Date: Mon,  4 May 2026 15:50:53 +0200
-Message-ID: <20260504135149.185981479@linuxfoundation.org>
+Subject: [PATCH 6.18 140/275] fs: prepare for adding LSM blob to backing_file
+Date: Mon,  4 May 2026 15:51:20 +0200
+Message-ID: <20260504135148.103200544@linuxfoundation.org>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260504135142.814938198@linuxfoundation.org>
-References: <20260504135142.814938198@linuxfoundation.org>
+In-Reply-To: <20260504135142.929052779@linuxfoundation.org>
+References: <20260504135142.929052779@linuxfoundation.org>
 User-Agent: quilt/0.69
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -73,7 +73,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-7.0-stable review patch.  If anyone has any objections, please let me know.
+6.18-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -149,7 +149,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
  	return &ff->file;
  }
- EXPORT_SYMBOL_GPL(alloc_empty_backing_file);
+ 
 
 
 
