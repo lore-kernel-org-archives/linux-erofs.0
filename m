@@ -1,45 +1,60 @@
-Return-Path: <linux-erofs+bounces-3399-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3400-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 97F9CCD37AC
-	for <linux-erofs@archiver.kernel.org>; Mon, 11 May 2026 14:42:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0A65ACD4855
+	for <linux-erofs@archiver.kernel.org>; Tue, 12 May 2026 07:17:31 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gDjBR71Nbz2xlh;
-	Tue, 12 May 2026 00:42:55 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1778510575;
-	cv=none; b=d3oe6p+5cVfaMbpzPpKhd5cQdjECdK1O0wrXecWabeHzb1q60BiBU9dVQKTsWE91E8RmEdMlEU2kRuagfl5o9YmM/WFN4VIThIvjcf58T5bQIMHybnEgSfQvFgysZlLgpZnF7WHc4aU6EEw8wxwwhEogHl8AoH+m6BsnTjnlLVWRdlyUt+yBrCSf0XhTVlPNSBc3xmJIEe/BsTrXtdKKLge+O/c0oUpdRQBgz4RADSWSdHTl8LGb2tNvCtkbuEN5Ksxn6CLbdfbWVclbE1E1Th8g5MVEYa64QPR3LexseCZ0sKDyUjb+Mq+kJk+xLA07iK8KCWwl4iNZHWl70DM6eA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gF7G173lBz2ygG;
+	Tue, 12 May 2026 17:17:29 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.225
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1778570249;
+	cv=none; b=D72rcIDF9DwSGgRnQws0u2qFRg6syzTkgzXnHXgV0pDdKhQqUUIlyWyxV7B/gQGcXcc29Y5cPuXQli0KhuaEAmbEGxTyxoga4GCBs3Y89DrTwPsNC4edHHucLy6721mzy4nmfOPNnuaIIHdTgBpcWAsEqIk5uHTCD0cgRr6tCFOqnSgJYcYEslY2ZdhARtzqtUa5dQ5BNU4pXYZjBhLODobD/vBHzMWC4mUsWlmaea4w56JVijisXAYPOd52ZcggJ+nk+SpPaStN4rqLaQF2vm5eP1mzW0pOZanaA1ppoueJdMczQMyiZEEFb1PsRJKGRFYzkx9Fv6WQnw1IV9hWgg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1778510575; c=relaxed/relaxed;
-	bh=FMVWlhVg9AeJ1ZnmPiBpEL8Z//kUv99hwHffwNmxotg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CONCE+Moh+YImMpyGPo6MrebyJGFXrUpKgnDfDsransXD0abQNzjPEoA0YIlJyUJ7XwDl7SWG6RwrDBHypN7lmyCGVqZUtsN44fugNQ22dF2TjgisyHsSkBu1+/TzM4dyW3IXwhSknENRtGsqPLsHnLkPM2Dq/hdka6ivfm7YfDwQJEdhlnTkZDOvkduvPry8SlCjK6zlzc6uSOVg1KKlAHaMLzuR+vUaKm3P1DWfnfiqHv62x/OuVG1DY74YGa+PF0gE+mwBp+Gk7WmD6R6HQ5XUfSTjtEpdhB3UYpWgfsOEuEAST4LSQ6EgXsph7md/5lbuJ3ix2X3+jB/H/IW9g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=yjtWCK6i; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1778570249; c=relaxed/relaxed;
+	bh=g1P1k2B8h1UIClSVRVjr5hZ71ShdF+/b74WeN0B/SpQ=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=aQsMenuGOu+EOzCWoBSFO7QWr4PNDni73UbJtzZIRJq/y3CbDUvltVdgUbGI0WCf35l/CWKYoIW/yisMpQogKvFqBrcW6P8u1yL0m4ES2PQbC8FgCDCddqwL0vT6t35P8JBTCjvmi4+XiY/Hkl+wmE/HeIgDkNo5TFqPtvc9QXiiWSyEGXxXIjrsGplqnithRYSLX+zVwbd+w9h81n3sB5+3KPrlI5/zzUO7QygPPB64LRXJSxmR056PwBqJQghlW52RsXAYEcjBsw01LvEYN1gZ1ecCEp3Sy6H+3RCU4EUs0ospZJKGOU8icBQAX357a1zmw8gawtwhQSpLusHxvQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=i//ZLgJH; dkim-atps=neutral; spf=pass (client-ip=113.46.200.225; helo=canpmsgout10.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=yjtWCK6i;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=i//ZLgJH;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.225; helo=canpmsgout10.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gDjBP1DnXz2x9N
-	for <linux-erofs@lists.ozlabs.org>; Tue, 12 May 2026 00:42:51 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1778510567; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=FMVWlhVg9AeJ1ZnmPiBpEL8Z//kUv99hwHffwNmxotg=;
-	b=yjtWCK6ixRM8pv9uRJYAJne2E98Qp7E6kaSn/cbWouMo76+1QwzFCywQg6omR74MHt8FOIgL6HRLCTvmIqZ9fHcYP189klaoN9hSKKMjcPzXrZ3zVn64492gHOxemFMiHrd00o09wvdnxySONl0VVXkT7UG0PjnWx5IdYcZs7MI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R751e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X2klsdY_1778510551;
-Received: from 30.69.177.140(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X2klsdY_1778510551 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 11 May 2026 22:42:44 +0800
-Message-ID: <98133825-30a0-4519-a0b0-8054ed02490c@linux.alibaba.com>
-Date: Mon, 11 May 2026 22:42:29 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gF7Fz3DTHz2yZ8
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 May 2026 17:17:25 +1000 (AEST)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=g1P1k2B8h1UIClSVRVjr5hZ71ShdF+/b74WeN0B/SpQ=;
+	b=i//ZLgJHD3xi888iEiBos/8sGQY7XnFRWo+tn0WdaHpn4R2zHhSDp0xIUwG4sn6x+DW1dkldL
+	T7ebb0KK8Matf0LX/mOcV3oP7P7J/mutNwM4s4bmNomPu426jXmcTe+AjUnHaznEFTWGJu+dLXf
+	kYN5RxF4re4ST1qN7JDL2U8=
+Received: from mail.maildlp.com (unknown [172.19.163.214])
+	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4gF7560vf7z1K96D
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 May 2026 15:09:46 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id 2AC8240561
+	for <linux-erofs@lists.ozlabs.org>; Tue, 12 May 2026 15:17:21 +0800 (CST)
+Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
+ (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Tue, 12 May
+ 2026 15:17:20 +0800
+From: Yifan Zhao <zhaoyifan28@huawei.com>
+To: <linux-erofs@lists.ozlabs.org>
+CC: <jingrui@huawei.com>, <zhukeqian1@huawei.com>, <zhaoyifan28@huawei.com>
+Subject: [PATCH 2/3] erofs-utils: lib: reject packed inodes in metabox
+Date: Tue, 12 May 2026 15:16:30 +0800
+Message-ID: <20260512071631.969752-2-zhaoyifan28@huawei.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260512071631.969752-1-zhaoyifan28@huawei.com>
+References: <20260512071631.969752-1-zhaoyifan28@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,101 +66,49 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: use the opener's credential when verifing metadata
- accesses
-To: Christian Brauner <brauner@kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-erofs@lists.ozlabs.org,
- Chao Yu <chao@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
- oliver.yang@linux.alibaba.com, Carlos Llamas <cmllamas@google.com>,
- Sandeep Dhavale <dhavale@google.com>, linux-fsdevel@vger.kernel.org,
- Tatsuyuki Ishi <ishitatsuyuki@google.com>
-References: <20260505155615.2719500-1-hsiangkao@linux.alibaba.com>
- <af2c4X1YCB7NEb8p@infradead.org>
- <CABqzrSOaCMPD_QrSq_y_6bXLC3ecm3FZsE_ACrdNbTHG8baMCw@mail.gmail.com>
- <188c33e2-331f-4362-8475-b8cea7a8fe7d@linux.alibaba.com>
- <20260511-ozonbelastung-verzweifeln-a03cd0309ad9@brauner>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260511-ozonbelastung-verzweifeln-a03cd0309ad9@brauner>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.50.159.234]
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-Hi Christian,
+If packed_nid carries the metabox NID bit, loading the packed
+inode first redirects its inode metadata lookup through the
+metabox inode.  Initializing that metabox inode can then read
+metadata that refers back through the packed inode, forming a
+recursive packed inode -> metabox inode -> packed inode path.
 
-On 2026/5/11 21:51, Christian Brauner wrote:
-> On Fri, May 08, 2026 at 04:39:15PM +0800, Gao Xiang wrote:
->> Hi Christiph,
->>
->> On 2026/5/8 16:24, Tatsuyuki Ishi wrote:
->>> On Fri, May 8, 2026 at 5:20 PM Christoph Hellwig <hch@infradead.org> wrote:
->>>
->>>> On Tue, May 05, 2026 at 11:56:15PM +0800, Gao Xiang wrote:
->>>>> Similar to commit 905eeb2b7c33 ("erofs: impersonate the opener's
->>>>> credentials when accessing backing file"), rw_verify_area() needs
->>>>> the same too.
->>>>
->>>> Two things here:
->>
->> Let me use Tatsuyuki's reply to address your two comments.
->>
->>>>
->>>>    - rw_verify_area is a helper for use inside the VFS and file system
->>>>      read/write method implementation.  Erofs as a user of the VFS should
->>>>      not use it at all.
->>
->> Currently EROFS file-backed mount metadata is directly using underlay
->> fs page cache, which is mainly used for composefs, etc. to avoid
->> different EROFS instances have their own EROFS page cache for the
->> same underlay backing file and avoid unnecessary copies into them.
->> --- That is also what composefs once did in their codebase.
->>
->> Since EROFS just read the underlayfs page cache and does _not_
->> touch anything inside the underlay page cache itself, so I guess
->> it's fine?
->>
->> On the other hand, we talked a bit commit f2fed441c69b ("loop:
->> stop using vfs_iter_{read,write} for buffered I/O") in another
->> private thread related to fanotify, which lacks proper
->> rw_verify_area() as well, since it called into raw read/write
->> iter methods instead of using the previous vfs_iter_{read,write}.
->>
->>>>    - using the opener credentials when accessing the backing file seems
->>>>      wrong.  The entity accessing it is the file system, so it should
->>>>      have system or mounter credentials, not that of someone causing
->>>>      metadata / fs data access.  And this applies to all access by
->>>>      a file system backed by a backing file.
->>>>
->>>
->>> I think there's probably some confusion of terminology here. buf->file is
->>> opened with the mounter's credentials, so we are impersonating the mounter
->>> here. Perhaps the commit message could describe that more clearly. Same for
->>> the previous patches mentioned.
->>
->> Here "opener" means the mounter as Tatsuyuki mentioned, I just
->> follows Tatsuyuki's term, but it just means mounter credentials
->> indeed.
-> 
-> We're slowly reinventing overlayfs I see. ;) I think it's probably fine
-> but it's also rather sketchy to mess around with permissions like that.
-> Mainly because I don't think we have any actual page cache permission
-> model. It's inherently shared beetween everyone and this kinda tries to
-> bolt permissions on top to not make it so. Probably fine here but also a
-> bit wonky.
+Reject such images while parsing the superblock, matching the
+format rule that the special packed inode itself is not stored
+inside the metabox.
 
-Loop devices just purely use kernel cred instead, I think using
-the mounter cred is more reasonable and safer than the kernel
-cred.
+Reproducible image (base64-encoded gzipped blob):
+H4sIAAAAAAAAA2NgGAWjYBSMVPDo4dcHrY0KwsxANg8jAwMLFjVMSGzPx/7Lzj3zXb3jSFTh
+5iN7v6CrbQSa8f8/gq8GoRpARHErYxYDEh8EVAm4jw2Il4AMFYDoB7IYmDGVNRhAzf8PBMh+
+yEjNyclXKM8vyklRIILNRcA5o2AUjIJRMApGwSgYBaNgFAxpAGorv3VkYtBgQLSfQW3sF8wv
+kJvZDSqIXkCDKpANlWxQZ2Bk0NPTS8RlPkgXqP0Oa5/DxNDNB7XvR8EoGAWjYBSMglEwCkbB
+KBgFo2AUjIJRQBsAAEZO6n4AIAAA
 
-Anyway, I think this cred part is less controversy.. The main
-issue out of Christoph is still the metadata path: I tend to use
-the underlay inode page cache for temporary RO access since it's
-efficient and cache-friendly; and for immutable models we
-shouldn't care too much about the invalidation, etc. since there
-is no need to rely on the locking to keep the underlay data in
-a strict way.
+Assisted-by: Codex:GPT-5.5
+Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+---
+ lib/super.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
-Thanks,
-Gao Xiang
+diff --git a/lib/super.c b/lib/super.c
+index 899d51a..655a6f4 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -131,6 +131,8 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
+ 		sbi->root_nid = le16_to_cpu(dsb->rb.rootnid_2b);
+ 	}
+ 	sbi->packed_nid = le64_to_cpu(dsb->packed_nid);
++	if (sbi->packed_nid & BIT_ULL(EROFS_DIRENT_NID_METABOX_BIT))
++		return -EFSCORRUPTED;
+ 	if (erofs_sb_has_metabox(sbi)) {
+ 		if (sbi->sb_size <= offsetof(struct erofs_super_block,
+ 					     metabox_nid))
+-- 
+2.47.3
 
 
