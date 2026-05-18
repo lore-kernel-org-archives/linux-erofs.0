@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-3424-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3425-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D10AACD4F4A
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 May 2026 22:30:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 826FDCD343F
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 May 2026 22:30:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gKCF13rVPz2xR3;
-	Tue, 19 May 2026 08:30:45 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gKCFB1WNsz2xSG;
+	Tue, 19 May 2026 08:30:54 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779143445;
-	cv=none; b=lrRwLABwjAHfvF+HDBsmeViVXplARUZQpgGgSPCkPqpsejH/P5Sk9Vgu9LfPfpmIcKVU1NpOY9T2mO4l7G9oXgqhOce6CQiLkqTkDU2TiGemiE/9tfh0RhycQ+yByvRpZ7WtLL63UohHCu8hFk+8Pb5f8NP1Th3QDGm77OkJX74dH+uvTx6jmHZTJhM9zTA+MZVuRKTX9lk7jM/3uGN1heFdVSnudZ8e/XaD9WUxVbKhHji6Agf1ZQ5CqGA49NjF2hNE+reEjEqs7xipifeMd6NCrngI8d9d4BTLXmgSH3zhS0Qa24Gxa/YmMIsj8PNi38zCTEDDUCam99l5S3yr1A==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779143454;
+	cv=none; b=baOdfX98LX7NrKVU6nsP5rw3xUrmgzz1mr+lruTYtih3pARejs7hZHXPeL/NLu44OG0C0CJlbokntjE/kb1kMjbQ4nOH6vl4JN1euY4cHb6/7mHUyyWX7RiSbYVG+1zv9hJ7cMqGiFdfx0licbOeA2z4XgV7ysvrV71a79biTo2OfnnnYPQfYL6SS+q0lxbiWJgFc+E46Mo9xSeyQ3hSXkOYAnnggm+JPG++a9oRLGXTyExx/zkRIO7LfC3eZQDnodBiBFew8z1ruFkFDRgoeRPCHbzhQsSTOfQAcSrzVRRrBwpOMI5mdHfZue2FvdiORUIKOFwqhuooBb1B+9RkLg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1779143445; c=relaxed/relaxed;
-	bh=soBo8nUow0/Mt0ICicV5RVH+h1Do/YU51PNZLQVaIMs=;
+	t=1779143454; c=relaxed/relaxed;
+	bh=HD9l3rshhdvjF/dR6TAQujaSrodzR3TFHgxLsri2Hp0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=I4/zFIMqEpHF/5KCQoJms6bu4BKhbeEEP6vyF7P1cvbrb3U3KrIVUivfGsVlJeuDvYDNR+QDoxFA6YBThuaNjUfPRXpCHSol1blC9PSiuf3nBcWd5fe6U6hTQ/2iLgR3yBclQfixFXqNcHPIrmqSp5RbW7hG6HijOoU6OrB0FEy09ph5Tbb2PRlbSC+6UnFv/NAVGsaVm10mkOMBgs73kpMFimKMDWi5pYwY3Pt6nJM0lqxeMML1ggFoExJcNc7aL5GD1cVxTDO6EBPjArKjF/Ug7/4AKDkfvpDU1RbUxubrWp+OpBK6/XfjP9GaFZ7jHn5n9Dnx8AN/JvLSozSlKA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dt4sceuk; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eoKRte6T; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=BBaFxLGAek/Rstajg/0xu3D7gLykhgDG4WRuhzbj2OM3n4vrHoyQOx51sKYQ7OLQ5z9eott3LOyTvomAb4Dhkwj/62pbBUfvZh538w4FMUEnFSfxfZfkDR4wlP+ACIFUfR9pkURgi+Rzhl6nprxasRGM0aC7UObin0OkcY0vJL1kDVkp77LPY0nKDayKpcMMzb3qrWOr7ahzrJr9Z0xXVqAsZkKuPjKDsM1xZG+mtKJ8ZPxrQ2E+TFHjz1DYQuLxDJj2Kc8yCWPux5X84N5abJNXHmz/X59N0RL8az8wH7Vli2ZkpkObd0o3r5lvfWKxFw4yiev0LIJhAhVytGgEug==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hjsp7fOx; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hjsp7fOx; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dt4sceuk;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eoKRte6T;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hjsp7fOx;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Hjsp7fOx;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gKCF04njJz2xHK
-	for <linux-erofs@lists.ozlabs.org>; Tue, 19 May 2026 08:30:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gKCF92HVwz2xHK
+	for <linux-erofs@lists.ozlabs.org>; Tue, 19 May 2026 08:30:53 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779143441;
+	s=mimecast20190719; t=1779143450;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=soBo8nUow0/Mt0ICicV5RVH+h1Do/YU51PNZLQVaIMs=;
-	b=dt4sceukaDLcp6d+pMQ6o0Gts89qgIKb8YETahqMi+ONjR79SJ2cqFAda2huZ0ZaDiYwg8
-	PhfFR8JxoojmhdEIyXfPzvP1POQNTNzh7DCAbfbuRbTp/bINs2WaCrjGXEGob/w1KZ95XZ
-	LrubEGCdbW3sJ0MRa3KwUhWqM57mb/I=
+	bh=HD9l3rshhdvjF/dR6TAQujaSrodzR3TFHgxLsri2Hp0=;
+	b=Hjsp7fOxVbK7iZV3m6O4drqj1HQ4oIfv1zhZwvWkug/6HyH+MxSyQByC7w6COPpOjJ3jjL
+	t+SzMQKekAkmBkiy26BCUMr5yocolcP9A7rMTAYNpc9zIdgqqt+o7osScF5sHuv1FToD6Y
+	H9oIQDuTlJFoh6ahM8L15Uxv+qnoH/I=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779143442;
+	s=mimecast20190719; t=1779143450;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=soBo8nUow0/Mt0ICicV5RVH+h1Do/YU51PNZLQVaIMs=;
-	b=eoKRte6TyR14ylFHRg68lAwsNRnVVQp+z5TX1/2g3Uj7PxirrUkRXs0YOXRCL+5LjT//cj
-	NlqYqzw6zRGZmgyaXrjt0f7PT2LenCaCHoXrFbDCW8HSfBrdEadGhYbyynfYwTFJkq6R/L
-	6BoXA2RJercnoKQ0e1vytvU6DjeOdok=
+	bh=HD9l3rshhdvjF/dR6TAQujaSrodzR3TFHgxLsri2Hp0=;
+	b=Hjsp7fOxVbK7iZV3m6O4drqj1HQ4oIfv1zhZwvWkug/6HyH+MxSyQByC7w6COPpOjJ3jjL
+	t+SzMQKekAkmBkiy26BCUMr5yocolcP9A7rMTAYNpc9zIdgqqt+o7osScF5sHuv1FToD6Y
+	H9oIQDuTlJFoh6ahM8L15Uxv+qnoH/I=
 Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-388-Si3L0j3lO72wXYJQSzMZPQ-1; Mon,
- 18 May 2026 18:30:35 -0400
-X-MC-Unique: Si3L0j3lO72wXYJQSzMZPQ-1
-X-Mimecast-MFC-AGG-ID: Si3L0j3lO72wXYJQSzMZPQ_1779143433
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-208-RvsjchMwN_myCVkbLd44bg-1; Mon,
+ 18 May 2026 18:30:43 -0400
+X-MC-Unique: RvsjchMwN_myCVkbLd44bg-1
+X-Mimecast-MFC-AGG-ID: RvsjchMwN_myCVkbLd44bg_1779143441
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7B57F1956089;
-	Mon, 18 May 2026 22:30:31 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20738195609D;
+	Mon, 18 May 2026 22:30:40 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.44.48.33])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 71ED819560A3;
-	Mon, 18 May 2026 22:30:24 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 16B91180034E;
+	Mon, 18 May 2026 22:30:32 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>,
 	Matthew Wilcox <willy@infradead.org>,
@@ -89,10 +89,11 @@ Cc: David Howells <dhowells@redhat.com>,
 	v9fs@lists.linux.dev,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 02/21] netfs: Add the cache object ID to netfs_read/write tracepoints
-Date: Mon, 18 May 2026 23:29:34 +0100
-Message-ID: <20260518222959.488126-3-dhowells@redhat.com>
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: [PATCH v2 03/21] mm: Make readahead store folio count in readahead_control
+Date: Mon, 18 May 2026 23:29:35 +0100
+Message-ID: <20260518222959.488126-4-dhowells@redhat.com>
 In-Reply-To: <20260518222959.488126-1-dhowells@redhat.com>
 References: <20260518222959.488126-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -106,161 +107,101 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: 5ciumwbfGg4D3c78W_R88YNDKx-ISMw6VZ_j7mxiNME_1779143433
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-MFC-PROC-ID: E1BvC4kbWCToSe1ci6QHbyTZCFH6R5m5q7-kHGOvw8A_1779143441
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Add the cache object debug ID to netfs_read/write tracepoints to make
-debugging easier as there's now a direct cross-reference with the
-cachefiles tracepoints that only log that debug ID.
+Make readahead store folio count in readahead_control so that the
+filesystem can know in advance how many folios it needs to keep track of.
+
+This is cleared by read_pages() in case it is called from a loop.
+
+The count is accessed by the filesystem with readahead_folio_count().
 
 Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Paulo Alcantara <pc@manguebit.org>
+cc: Paulo Alcantara (Red Hat) <pc@manguebit.org>
+cc: Matthew Wilcox <willy@infradead.org>
 cc: netfs@lists.linux.dev
+cc: linux-mm@kvack.org
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/cachefiles/io.c           |  1 +
- fs/netfs/fscache_io.c        |  2 +-
- include/linux/netfs.h        |  3 ++-
- include/trace/events/netfs.h | 27 +++++++++++++++------------
- 4 files changed, 19 insertions(+), 14 deletions(-)
+ include/linux/pagemap.h | 10 ++++++++++
+ mm/readahead.c          |  5 +++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index 42265fdcc17e..7e32b1caf6fe 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -918,6 +918,7 @@ bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
- 			if (!cres->cache_priv2 && file)
- 				cres->cache_priv2 = get_file(file);
- 			spin_unlock(&object->lock);
-+			cres->object_id = object->debug_id;
- 			cres->cache_i_size = i_size_read(file_inode(file));
- 			cres->dio_size = object->volume->cache->bsize;
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 31a848485ad9..1de60ecfd6e3 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -1350,6 +1350,7 @@ struct readahead_control {
+ 	struct file_ra_state *ra;
+ /* private: use the readahead_* accessors instead */
+ 	pgoff_t _index;
++	unsigned int _nr_folios;
+ 	unsigned int _nr_pages;
+ 	unsigned int _batch_count;
+ 	bool dropbehind;
+@@ -1529,6 +1530,15 @@ static inline size_t readahead_batch_length(const struct readahead_control *rac)
+ 	return rac->_batch_count * PAGE_SIZE;
+ }
+ 
++/**
++ * readahead_folio_count - Get the number of folios in this readahead request.
++ * @rac: The readahead request.
++ */
++static inline unsigned int readahead_folio_count(const struct readahead_control *rac)
++{
++	return rac->_nr_folios;
++}
++
+ static inline unsigned long dir_pages(const struct inode *inode)
+ {
+ 	return (unsigned long)(inode->i_size + PAGE_SIZE - 1) >>
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 7b05082c89ea..eba194f4635f 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -177,6 +177,7 @@ static void read_pages(struct readahead_control *rac)
+ 	if (unlikely(rac->_workingset))
+ 		psi_memstall_leave(&rac->_pflags);
+ 	rac->_workingset = false;
++	rac->_nr_folios = 0;
+ 
+ 	BUG_ON(readahead_count(rac));
+ }
+@@ -292,6 +293,7 @@ void page_cache_ra_unbounded(struct readahead_control *ractl,
+ 		if (i == mark)
+ 			folio_set_readahead(folio);
+ 		ractl->_workingset |= folio_test_workingset(folio);
++		ractl->_nr_folios++;
+ 		ractl->_nr_pages += min_nrpages;
+ 		i += min_nrpages;
+ 	}
+@@ -459,6 +461,7 @@ static inline int ra_alloc_folio(struct readahead_control *ractl, pgoff_t index,
+ 		return err;
+ 	}
+ 
++	ractl->_nr_folios++;
+ 	ractl->_nr_pages += 1UL << order;
+ 	ractl->_workingset |= folio_test_workingset(folio);
+ 	return 0;
+@@ -802,6 +805,7 @@ void readahead_expand(struct readahead_control *ractl,
+ 			ractl->_workingset = true;
+ 			psi_memstall_enter(&ractl->_pflags);
  		}
-diff --git a/fs/netfs/fscache_io.c b/fs/netfs/fscache_io.c
-index 37f05b4d3469..fafa8c6bec57 100644
---- a/fs/netfs/fscache_io.c
-+++ b/fs/netfs/fscache_io.c
-@@ -79,7 +79,7 @@ static int fscache_begin_operation(struct netfs_cache_resources *cres,
- 	cres->ops		= NULL;
- 	cres->cache_priv	= cookie;
- 	cres->cache_priv2	= NULL;
--	cres->debug_id		= cookie->debug_id;
-+	cres->cookie_id		= cookie->debug_id;
- 	cres->inval_counter	= cookie->inval_counter;
- 
- 	if (!fscache_begin_cookie_access(cookie, why)) {
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index a83a4ea86e2b..d175c63ff659 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -162,7 +162,8 @@ struct netfs_cache_resources {
- 	void				*cache_priv;
- 	void				*cache_priv2;
- 	unsigned long long		cache_i_size;	/* Initial size of cache file */
--	unsigned int			debug_id;	/* Cookie debug ID */
-+	unsigned int			cookie_id;	/* Cache cookie debug ID */
-+	unsigned int			object_id;	/* Cache object debug ID */
- 	unsigned int			inval_counter;	/* object->inval_counter at begin_op */
- 	unsigned int			dio_size;	/* DIO block size */
- };
-diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
-index 83d161f8c726..63ed1d771bd8 100644
---- a/include/trace/events/netfs.h
-+++ b/include/trace/events/netfs.h
-@@ -311,6 +311,7 @@ TRACE_EVENT(netfs_read,
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,		rreq)
- 		    __field(unsigned int,		cookie)
-+		    __field(unsigned int,		object)
- 		    __field(loff_t,			i_size)
- 		    __field(loff_t,			start)
- 		    __field(size_t,			len)
-@@ -320,7 +321,8 @@ TRACE_EVENT(netfs_read,
- 
- 	    TP_fast_assign(
- 		    __entry->rreq	= rreq->debug_id;
--		    __entry->cookie	= rreq->cache_resources.debug_id;
-+		    __entry->cookie	= rreq->cache_resources.cookie_id;
-+		    __entry->object	= rreq->cache_resources.object_id;
- 		    __entry->i_size	= rreq->i_size;
- 		    __entry->start	= start;
- 		    __entry->len	= len;
-@@ -328,10 +330,10 @@ TRACE_EVENT(netfs_read,
- 		    __entry->netfs_inode = rreq->inode->i_ino;
- 			   ),
- 
--	    TP_printk("R=%08x %s c=%08x ni=%llx s=%llx l=%zx sz=%llx",
-+	    TP_printk("R=%08x %s c=%08x o=%08x ni=%llx s=%llx l=%zx sz=%llx",
- 		      __entry->rreq,
- 		      __print_symbolic(__entry->what, netfs_read_traces),
--		      __entry->cookie,
-+		      __entry->cookie, __entry->object,
- 		      __entry->netfs_inode,
- 		      __entry->start, __entry->len, __entry->i_size)
- 	    );
-@@ -552,6 +554,7 @@ TRACE_EVENT(netfs_write,
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,		wreq)
- 		    __field(unsigned int,		cookie)
-+		    __field(unsigned int,		object)
- 		    __field(unsigned int,		ino)
- 		    __field(enum netfs_write_trace,	what)
- 		    __field(unsigned long long,		start)
-@@ -559,20 +562,19 @@ TRACE_EVENT(netfs_write,
- 			     ),
- 
- 	    TP_fast_assign(
--		    struct netfs_inode *__ctx = netfs_inode(wreq->inode);
--		    struct fscache_cookie *__cookie = netfs_i_cookie(__ctx);
- 		    __entry->wreq	= wreq->debug_id;
--		    __entry->cookie	= __cookie ? __cookie->debug_id : 0;
-+		    __entry->cookie	= wreq->cache_resources.cookie_id;
-+		    __entry->object	= wreq->cache_resources.object_id;
- 		    __entry->ino	= wreq->inode->i_ino;
- 		    __entry->what	= what;
- 		    __entry->start	= wreq->start;
- 		    __entry->len	= wreq->len;
- 			   ),
- 
--	    TP_printk("R=%08x %s c=%08x i=%x by=%llx-%llx",
-+	    TP_printk("R=%08x %s c=%08x o=%08x i=%x by=%llx-%llx",
- 		      __entry->wreq,
- 		      __print_symbolic(__entry->what, netfs_write_traces),
--		      __entry->cookie,
-+		      __entry->cookie, __entry->object,
- 		      __entry->ino,
- 		      __entry->start, __entry->start + __entry->len - 1)
- 	    );
-@@ -587,22 +589,23 @@ TRACE_EVENT(netfs_copy2cache,
- 		    __field(unsigned int,		rreq)
- 		    __field(unsigned int,		creq)
- 		    __field(unsigned int,		cookie)
-+		    __field(unsigned int,		object)
- 		    __field(unsigned int,		ino)
- 			     ),
- 
- 	    TP_fast_assign(
--		    struct netfs_inode *__ctx = netfs_inode(rreq->inode);
--		    struct fscache_cookie *__cookie = netfs_i_cookie(__ctx);
- 		    __entry->rreq	= rreq->debug_id;
- 		    __entry->creq	= creq->debug_id;
--		    __entry->cookie	= __cookie ? __cookie->debug_id : 0;
-+		    __entry->cookie	= rreq->cache_resources.cookie_id;
-+		    __entry->object	= rreq->cache_resources.object_id;
- 		    __entry->ino	= rreq->inode->i_ino;
- 			   ),
- 
--	    TP_printk("R=%08x CR=%08x c=%08x i=%x ",
-+	    TP_printk("R=%08x CR=%08x c=%08x o=%08x i=%x ",
- 		      __entry->rreq,
- 		      __entry->creq,
- 		      __entry->cookie,
-+		      __entry->object,
- 		      __entry->ino)
- 	    );
- 
++		ractl->_nr_folios++;
+ 		ractl->_nr_pages += min_nrpages;
+ 		ractl->_index = folio->index;
+ 	}
+@@ -831,6 +835,7 @@ void readahead_expand(struct readahead_control *ractl,
+ 			ractl->_workingset = true;
+ 			psi_memstall_enter(&ractl->_pflags);
+ 		}
++		ractl->_nr_folios++;
+ 		ractl->_nr_pages += min_nrpages;
+ 		if (ra) {
+ 			ra->size += min_nrpages;
 
 
