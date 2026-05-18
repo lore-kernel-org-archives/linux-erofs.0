@@ -1,45 +1,80 @@
-Return-Path: <linux-erofs+bounces-3409-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3410-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24B69CD4F3C
-	for <linux-erofs@archiver.kernel.org>; Mon, 18 May 2026 04:18:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A15CCD4F3C
+	for <linux-erofs@archiver.kernel.org>; Mon, 18 May 2026 05:58:01 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gJl163N8jz2xfB;
-	Mon, 18 May 2026 14:18:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779077930;
-	cv=none; b=Hg9uNJ3KCwBWUPCobQxFLPL4vvb6yURAFPY9tyjwDd+HxMRV1oij+UpwaU6dXU3kmfXmFyd/ZK7CG9vaunQsoJVPzufAt+yPslKJoKSJi7II2xWKqTwNUUN0lwY3CnO3wnAdxT7otYnuVaMqqs69vOC/nxBmAUg6yt1QNXua/8q8bVFegfBFHukEekmWhMOQkbf7Jpol3poajJTUYwVjweO/FgU8nvtVUBVY1SQLR0zHsmPJN5G6DtMppjypZLKkYtaOvm8VxCKUIriT1GE56Azaa7Y3/5iZP+QVOYTLxZyIxuUHwwRKRvpIyAm+23jk5PpAJfZi2v3Xh0EzWLpCdw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gJnCW3mQtz3dRZ;
+	Mon, 18 May 2026 15:57:59 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=185.125.188.120
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779083879;
+	cv=none; b=Exe1JV5c+U9792klSAXSR9QMQM4LU5cX84ZKTIQ3N7VRDQbSBZDtGY5DC1fnvGFdsY2AeYXKe0Z+nrtF4UZfHniDWxw02esRZe+1PdGnfE0itr3b4SGbS2InTmQ1H2ZNbDOMTtHi7C3oeSD8AGKQ0z1vJHhPDfD67RoGdzZDGy/E6opzt8aEQ3CbNPkfgESh7RQ0SclpbDspIUVWfidUBLTMZHwrjSQwV8nrHlFZ+WTpO7aC8W6dZr9G03v84YLd1lr3wVBxDRTbkgUJBLKmQyqmwTgBVBtP0rI4vKCCtR+Gry2MZvO6+DaJbINNHt0iGoS2ri3Oj1jsFg44usLGGQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1779077930; c=relaxed/relaxed;
-	bh=ytp+fDBw2liGaMlB67MJhnJrhArdI1RgYJ695XV8dX8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cEsOTgCbgNrnyRBVKMPxH04Xz2gVbZ7tM14VnGRYjU+x0TsEZBjOa0nwEZeh22zh5jTN1Wb0n0axjbJRZOgk424xIvgRBXMT0s0u/SduJBDDaS1hJQnn4K1/iahcwOVHUBXSbeKKbJ2XuNzFv6IdX3QgsbkruSvlLKXQKbacHFyuy4RN0p75NcZHGgt/05VRA0v0tHQw0l4QFN7TQachOpDh2dUFtwHMekxFlTgnQspK8Tgtj0HWVEk7TJWZczsviAUiP5tb+vlqL36M6DCsBaQvFLyINT5vVogvvd8ZM6OlIAXAc5GK3VfQ0SUXlHJ4BRk/24LHQLipPDRJtcg5pw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CM7y3x0M; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1779083879; c=relaxed/relaxed;
+	bh=zNBjCkgLCNLd0TFoW/ql0+BkXC0NGAZ4SSZHFlT3nig=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=JGRtFNadnRS7QeTgkh2PYMIt/fE7clgzG6jUEjfzFmwkmjt5btKE9CZawwWGrUyR3xuH9F1XCUVBcwhyx4i5ZD+CICcRcNkAxulkr/GdiDQ0y4hEnyJOTR/0or1c5/B4M/EmuWbBWwltEfteMaU+VZsBqHZOfnaX2FZhSK4iB1W7yn4NueRoH3rrLKslqY/PY+hNln6KXw/hyuc2lqeWDOiIRj9VURtB4826Mo7IppQIWq3j+nLu0aYdByyi5NhuNRN4GgZgBfQUVetlC/XrDpQ9DXJfJ8TMkgdcdyrnUEVp4T/7PNs/zdQUEninYpysP+NqtSMSGHeiffLJnH0o2w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=OgRWW355; dkim-atps=neutral; spf=pass (client-ip=185.125.188.120; helo=smtp-relay-canonical-0.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org) smtp.mailfrom=canonical.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CM7y3x0M;
+	dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=OgRWW355;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=canonical.com (client-ip=185.125.188.120; helo=smtp-relay-canonical-0.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org)
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gJl130Rk3z2xWP
-	for <linux-erofs@lists.ozlabs.org>; Mon, 18 May 2026 14:18:44 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1779077921; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=ytp+fDBw2liGaMlB67MJhnJrhArdI1RgYJ695XV8dX8=;
-	b=CM7y3x0MEtzTI8t8rugcQur2wkMngnsmUNLecpH6Wf9gtgPYzWSK7MKseSiAKdqhEOM0x2JapX0uyu+2P8dfXyVK6rCdCWP4KrZVFnKvAsbOVgXZWuh8zGIHOU7ffMc4D7kvUS0to1/YyC2+r1ed7n/hqzid41DXIIOHHGEOR3E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R521e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X336a36_1779077917;
-Received: from 30.221.130.166(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X336a36_1779077917 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 18 May 2026 12:18:37 +0800
-Message-ID: <91d164b2-adac-4f17-970b-698e500f84a2@linux.alibaba.com>
-Date: Mon, 18 May 2026 12:18:33 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gJnCS4VcJz3dRH
+	for <linux-erofs@lists.ozlabs.org>; Mon, 18 May 2026 15:57:55 +1000 (AEST)
+Received: from LT03 (dynamic-046-114-109-175.46.114.pool.telefonica.de [46.114.109.175])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 6ECDD41788;
+	Mon, 18 May 2026 05:57:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20251003; t=1779083873;
+	bh=zNBjCkgLCNLd0TFoW/ql0+BkXC0NGAZ4SSZHFlT3nig=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+	b=OgRWW355WJt5ZYTrTRqb4bnphVSb1B5oOywDh3sBvee6VWEK8AF6c2Zwu/p0DcWZy
+	 33+Nz1AZ6S7ku2a5hKVald15y03N4SgtbDQaCBQHYh5Ld+auzQXaKpRFtzUdOVqI1g
+	 Mg2t8j57ZKHXkd0T9ade/jBmufXd7Lts5lUtpyrrjLvyEcsQQTVj9RpigbcSOBic15
+	 aL3QXRbjRKO/xIHJ85lsktwOeqUtqS664hoanA1winSkMm2htsHRSvYMMNlbK7ZxG+
+	 yHmEN24xKXFAmnhvHDmToholUQy6FZYav25vbueSouzLk40U8OOZwwNzioFbiXLaBf
+	 1aUcHBC4EY0J1gkJmLRzCmVg9tMswC3U+9ePsYw5JaQnFzEcRcYNvROYOJNue+X3b0
+	 EUv2FAyG6ew0dWoimGX4qmAfBAm3VLuSeml8Bvt43E+eiXtQWWbXKbv9na3R0WmM2U
+	 4my5ew3ghzH94V6WEIs+Udow8dXiXUBXOOCV1VvaeJK2gnaZpPfc6q47U1PRReXnJX
+	 bPrdWuQ9I8HjzpFB0Y5BTp1vv86yT0NldNd5er9YJ4qhf9J+lI2s/sQ0SfMoQxPzgn
+	 BuhqErZ2wZH1kJOTy689mgiVsm3RIfcAtdHcT+hq3TRcNRvnqWC6x5oPnEqIGrwIDs
+	 G9DH8hDLoa7FyTogHG+HG9C8=
+From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+To: Tom Rini <trini@konsulko.com>
+Cc: Simon Glass <sjg@chromium.org>,
+	Huang Jianan <jnhuang95@gmail.com>,
+	Quentin Schulz <quentin.schulz@cherry.de>,
+	Tony Dinh <mibodhi@gmail.com>,
+	=?UTF-8?q?Timo=20tp=20Prei=C3=9Fl?= <t.preissl@proton.me>,
+	Francois Berder <fberder@outlook.fr>,
+	Andrew Goodbody <andrew.goodbody@linaro.org>,
+	Daniel Palmer <daniel@thingy.jp>,
+	Varadarajan Narayanan <varadarajan.narayanan@oss.qualcomm.com>,
+	Sughosh Ganu <sughosh.ganu@arm.com>,
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+	Peng Fan <peng.fan@nxp.com>,
+	Marek Vasut <marek.vasut+renesas@mailbox.org>,
+	u-boot@lists.denx.de,
+	linux-erofs@lists.ozlabs.org,
+	Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Subject: [PATCH 3/9] fs: ext4: print change date in directory listing
+Date: Mon, 18 May 2026 07:57:22 +0200
+Message-ID: <20260518055728.178507-4-heinrich.schuchardt@canonical.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260518055728.178507-1-heinrich.schuchardt@canonical.com>
+References: <20260518055728.178507-1-heinrich.schuchardt@canonical.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,204 +86,33 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: mkfs: also handle last compacted 2B pack in
- z_erofs_drop_inline_pcluster
-To: Zhiguo Niu <niuzhiguo84@gmail.com>
-Cc: Zhiguo Niu <zhiguo.niu@unisoc.com>, ke.wang@unisoc.com,
- linux-erofs@lists.ozlabs.org
-References: <1777449565-22154-1-git-send-email-zhiguo.niu@unisoc.com>
- <e4701c42-1ed5-40a6-8f5d-927c40e3856b@linux.alibaba.com>
- <CAHJ8P3KB02f2dTWrMXtyBMQwfqmFEeOwa4SW8CKL-rKrE=Dg=w@mail.gmail.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <CAHJ8P3KB02f2dTWrMXtyBMQwfqmFEeOwa4SW8CKL-rKrE=Dg=w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi Zhiguo,
+Declare FS_CAP_DATE in the ext4 fstype_info entry so that fs_ls_generic()
+displays the modification date alongside the file size:
 
-On 2026/5/11 15:54, Zhiguo Niu wrote:
-> Gao Xiang <hsiangkao@linux.alibaba.com> 于2026年5月11日周一 12:01写道：
->>
->> Hi Zhiguo,
->>
->> On 2026/4/29 15:59, Zhiguo Niu wrote:
->>> With ztailpacking enabled, the current process assumes that a compacted_4b_end
->>> always exists in the compacted pack. However, in some specific files, the
->>> compacted pack may not have a compacted_4b_end. This leads to an incorrect
->>> modification of the last compacted_2B entry, resulting in incorrect modification
->>> of its clusterofs. In subsequent fsck operations, incorrect parameters will
->>> affect the decompression of the penultimate pcluster.
->>>
->>> This patch determines whether the last entry of the current compacted pack
->>> belongs to compacted 2B or 4B and then updates the correct bits accordingly.
->>>
->>> Fixes: a7c1f0575ef8 ("erofs-utils: lib: refine tailpcluster compression approach")
->>> Signed-off-by: Zhiguo Niu <zhiguo.niu@unisoc.com>
->>
->> Sorry for late response.
->>
->> I do think the issue is valid, but either the previous
->> solution or the proposed one is ugly.
-> 
-> Hi Xiang,
-> Yes it would be ideal if the same piece of common code could cover
-> both scenarios.
-> But I haven't figured it out yet, so I'll distinguish them like this for now. ^^
-> thanks!
->>
-Could you confirm if the following diff fixes the issue?
+ 4096 2024-03-15 09:30 filename.txt
 
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+---
+ fs/fs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/erofs/defs.h b/include/erofs/defs.h
-index 9f3d0f9c35bc..0e4c2a9b53c7 100644
---- a/include/erofs/defs.h
-+++ b/include/erofs/defs.h
-@@ -218,6 +218,11 @@ typedef int64_t         s64;
-  #define get_unaligned(ptr)	__get_unaligned_t(typeof(*(ptr)), (ptr))
-  #define put_unaligned(val, ptr) __put_unaligned_t(typeof(*(ptr)), (val), (ptr))
-
-+static inline u32 get_unaligned_le16(const void *p)
-+{
-+	return le32_to_cpu(__get_unaligned_t(__le16, p));
-+}
-+
-  static inline u32 get_unaligned_le32(const void *p)
-  {
-  	return le32_to_cpu(__get_unaligned_t(__le32, p));
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 450e2647cca7..2cc9cc8009aa 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -210,6 +210,12 @@ struct erofs_diskbuf;
-  #define EROFS_INODE_DATA_SOURCE_RESVSP		3
-  #define EROFS_INODE_DATA_SOURCE_REBUILD_BLOB	4
-
-+enum erofs_idata_type {
-+	EROFS_IDATA_TYPE_RAW,
-+	EROFS_IDATA_TYPE_COMPRESSED_DEFAULT,
-+	EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B,
-+};
-+
-  #define EROFS_I_BLKADDR_DEV_ID_BIT		48
-
-  struct erofs_inode {
-@@ -262,7 +268,7 @@ struct erofs_inode {
-  	unsigned short idata_size;
-  	char datasource;
-  	bool in_metabox;
--	bool compressed_idata;
-+	char idata_type;
-  	bool lazy_tailblock;
-  	bool opaque;
-  	/* OVL: non-merge dir that may contain whiteout entries */
-diff --git a/lib/compress.c b/lib/compress.c
-index 62d2672cb665..e171aee48c0b 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -483,7 +483,7 @@ static int z_erofs_fill_inline_data(struct erofs_inode *inode, void *data,
-  {
-  	inode->z_advise |= Z_EROFS_ADVISE_INLINE_PCLUSTER;
-  	inode->idata_size = len;
--	inode->compressed_idata = !raw;
-+	inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_DEFAULT;
-
-  	inode->idata = malloc(inode->idata_size);
-  	if (!inode->idata)
-@@ -980,7 +980,8 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
-  					      &dummy_head, big_pcluster);
-  		compacted_2b -= 16;
-  	}
--	DBG_BUGON(compacted_2b);
-+	if (!compacted_4b_end && inode->idata_size)
-+		inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
-
-  	/* generate compacted_4b_end */
-  	while (compacted_4b_end > 1) {
-@@ -1210,10 +1211,12 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
-
-  	h->h_advise = cpu_to_le16(le16_to_cpu(h->h_advise) &
-  				  ~Z_EROFS_ADVISE_INLINE_PCLUSTER);
-+	DBG_BUGON(inode->idata_size != le16_to_cpu(h->h_idata_size));
-  	h->h_idata_size = 0;
-+
-  	if (!inode->eof_tailraw)
-  		return;
--	DBG_BUGON(inode->compressed_idata != true);
-+	DBG_BUGON(inode->idata_type != EROFS_IDATA_TYPE_RAW);
-
-  	/* patch the EOF lcluster to uncompressed type first */
-  	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
-@@ -1224,18 +1227,26 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
-  		di->di_advise = cpu_to_le16(type);
-  	} else if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
-  		/* handle the last compacted 4B pack */
--		unsigned int eofs, base, pos, v, lo;
-+		unsigned int lclusterbits = inode->z_lclusterbits;
-+		unsigned int lobits, eofs, base, pos, v;
-  		u8 *out;
-
--		eofs = inode->extent_isize -
--			(4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
--		base = round_down(eofs, 8);
--		pos = 16 /* encodebits */ * ((eofs - base) / 4);
--		out = inode->compressmeta + base;
--		lo = erofs_blkoff(sbi, get_unaligned_le32(out + pos / 8));
--		v = (type << sbi->blkszbits) | lo;
--		out[pos / 8] = v & 0xff;
--		out[pos / 8 + 1] = v >> 8;
-+		lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
-+
-+		if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_DEFAULT) {
-+			eofs = inode->extent_isize -
-+				(4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
-+			base = round_down(eofs, 8);
-+			pos = 16 /* encodebits */ * ((eofs - base) / 4);
-+			out = inode->compressmeta + base + pos / 8;
-+		} else {
-+			out = inode->compressmeta + inode->extent_isize - 4 - 2;
-+			lobits = 16 - 14 /* encodebits */ + lobits;
-+		}
-+		v = (get_unaligned_le16(out) & (BIT(lobits) - 1)) |
-+			(type << lobits);
-+		*out = v & 0xff;
-+		*(out + 1) = v >> 8;
-  	} else {
-  		DBG_BUGON(1);
-  		return;
-@@ -1244,7 +1255,7 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
-  	/* replace idata with prepared uncompressed data */
-  	inode->idata = inode->eof_tailraw;
-  	inode->idata_size = inode->eof_tailrawsize;
--	inode->compressed_idata = false;
-+	inode->idata_type = EROFS_IDATA_TYPE_RAW;
-  	inode->eof_tailraw = NULL;
-  }
-
-diff --git a/lib/inode.c b/lib/inode.c
-index 735319e1d3bf..c225faa121e7 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -1043,7 +1043,7 @@ noinline:
-  		if (is_inode_layout_compression(inode)) {
-  			DBG_BUGON(!params->ztailpacking);
-  			erofs_dbg("Inline %scompressed data (%u bytes) to %s",
--				  inode->compressed_idata ? "" : "un",
-+				  inode->idata_type == EROFS_IDATA_TYPE_RAW ? "un": "",
-  				  inode->idata_size, inode->i_srcpath);
-  			erofs_sb_set_ztailpacking(sbi);
-  		} else {
-@@ -1149,7 +1149,8 @@ static int erofs_write_tail_end(struct erofs_importer *im,
-  		pos = erofs_btell(bh, true) - erofs_blksiz(sbi);
-
-  		/* 0'ed data should be padded at head for 0padding conversion */
--		h0 = erofs_sb_has_lz4_0padding(sbi) && inode->compressed_idata;
-+		h0 = erofs_sb_has_lz4_0padding(sbi) &&
-+			inode->idata_type != EROFS_IDATA_TYPE_RAW;
-  		DBG_BUGON(inode->idata_size > erofs_blksiz(sbi));
-
-  		iov[h0] = (struct iovec) { .iov_base = inode->idata,
-
-
+diff --git a/fs/fs.c b/fs/fs.c
+index f8e4794c10e..482a5523712 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -261,6 +261,9 @@ static struct fstype_info fstypes[] = {
+ 		.fstype = FS_TYPE_EXT,
+ 		.name = "ext4",
+ 		.null_dev_desc_ok = false,
++#if !IS_ENABLED(CONFIG_XPL_BUILD)
++		.caps = FS_CAP_DATE,
++#endif
+ 		.probe = ext4fs_probe,
+ 		.close = ext4fs_close,
+ 		.ls = fs_ls_generic,
+-- 
+2.53.0
 
 
