@@ -1,89 +1,51 @@
-Return-Path: <linux-erofs+bounces-3463-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3464-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB321CD4F54
-	for <linux-erofs@archiver.kernel.org>; Tue, 19 May 2026 20:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1EF6CD4F54
+	for <linux-erofs@archiver.kernel.org>; Wed, 20 May 2026 03:48:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gKlxS1GL4z2xwH;
-	Wed, 20 May 2026 06:04:12 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::631" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779221052;
-	cv=pass; b=NdSzSwNm4o1Z6rMC1bC0LpKZ8KZZ/jyg+ld9syshN/3I6kGdYNnqjgkgTPSIAjMr67FSy9j4TmsOPOTGO9IbON7oqC5tnXZtzx3TZgBhdjmDOzmCKBbZPpDxMcGeBt21RA/s3l9C9vZdn/Vao9J9p2pz/WyZ/0Y+U0QnG6ViMpccqxGcyrn4UQX0FDV6pl4OnXIMfzbPpsqNFHMkcvfXVZMHViwyzKCE7hDc0mn7uNkkFp69TrYiPeztqeOH0l4fESbI0U1HITo++BTvGFmGoYf42TpC1rLeC2xboJHOnNG8i7uXVALn++tpwdu86Nx3mvLgk/G7xwk7G/fYTFKIwA==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1779221052; c=relaxed/relaxed;
-	bh=yTPTI2psMEWp4a1n1BamC1BC0M+zxkzs3hcoRXtiIUc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jeetAth5+YYaRndTE2ZCM2mA6eiULGub6bTpX6t4vmiqM5oGsDOPz0cZospn5Yl3h473Ea4f/KSLcshXDh9YvWTiwefG0oIo6w5GLLq1OOIQ/TCVxf8r+mugi3vcxQ7tDnFWWnFQCjaPF15CL+BcqTPcINkRGb7X9ZJqhfiOlBFC2bEX8vDJM6jM1A8JvRj6Jo5oDZ6f2TcGbVU6WrYOmKG8Jotl7qbiXDVSXEEWQQm5Nf8yNBQixp2ftmjzjuCOh9Rjmj8Y2pNSH+PygVCkER4//1bBC/mwD0oRyPuO0jWR9B4lrO5MEWGrcQ35Cpcg4bZkeqgIqodDrWnh2NB8cA==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=V4wjoex5; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::631; helo=mail-ej1-x631.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gKyDc6TKcz2xy3;
+	Wed, 20 May 2026 13:48:00 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=103.149.242.131
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1779248880;
+	cv=none; b=gdhTFn2xj4qMjjQ8sNW2uO+ncKtO0TMd4NzZqda4YCi9mW2qs7D251esJGHGI14/aMuMpGvEg+x5W7le6pyNKZL3tbuKNkIk68tZ7NZsXIqmoVWglenzMcB6VUgai3B62kHxwbVRbXJdAOI3bVB36J4PDZwfwjxP8D7WNW5Zs3E4Ddb/d1jLSUYudn3najiDW7YQ49insFkrkWRzeO2vSFB5ZAPzOxZzgo6J9iMesroYGa0riO+izwrxur85QJtOYCfBzBQ8b9M2zW3iDU5ASQ3PsXzC3MV9BdKk8dC/OwWCSDyYAb3V+cG+9/pIS9dk28lK5KDsoQGuzW1b9424UA==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1779248880; c=relaxed/relaxed;
+	bh=mspc1aUu6CgWqs54mQCmP4k4Liy2LtNRdjCy1C379GM=;
+	h=Date:Content-Type:To:Subject:Message-Id:Mime-Version:From:Cc; b=hMfZg4RWE1cllbZsZp5gtr3vsfpn9EB5qK/JFfrcI6bMSOdZdGGwc+FU+Hmxp/2HNfymSBlctQIhwdFMKqLGEVHMpmnFYc87oJ6Gl86+fPKRiaw1tyqLuUtucerqoR7SzDQkt0Yassd2CETsD8zFXixT1TyPupBcawin4TazS8dZF5evn6dePBXFsg38wYf8tkOi8pk6vXfUOSlNMc5VDwgwC5eeH8d1wTSzzVuSmheSAhRqFwARJmeiJY33Gu1lCAkDXyc7HzV/ZhnDsrzs2Zt9zf+JLex/SUgxTjSe2lk1qt98wvapfyEaJ2dAxHNHgdOVWe0U/NTUXfOsb9X9aQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=2212171451 header.b=qcURkZT6; dkim-atps=neutral; spf=pass (client-ip=103.149.242.131; helo=lf-1-131.ptr.blmpb.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org) smtp.mailfrom=bytedance.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=V4wjoex5;
+	dkim=pass (2048-bit key; unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=2212171451 header.b=qcURkZT6;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2a00:1450:4864:20::631; helo=mail-ej1-x631.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org)
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=bytedance.com (client-ip=103.149.242.131; helo=lf-1-131.ptr.blmpb.com; envelope-from=zhujia.zj@bytedance.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 152 seconds by postgrey-1.37 at boromir; Wed, 20 May 2026 13:47:57 AEST
+Received: from lf-1-131.ptr.blmpb.com (lf-1-131.ptr.blmpb.com [103.149.242.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gKlxQ71F0z2xRw
-	for <linux-erofs@lists.ozlabs.org>; Wed, 20 May 2026 06:04:10 +1000 (AEST)
-Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-bd4f8260e4eso824556966b.1
-        for <linux-erofs@lists.ozlabs.org>; Tue, 19 May 2026 13:04:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779221048; cv=none;
-        d=google.com; s=arc-20240605;
-        b=aKy+NUO+BDh+G+KjZlp0NAzekmwwpSBKUCpzlCvcLV2AgmKeDGEEzCAUvSMLs3SogU
-         En0Xr1FXo21Y4Nhu0AvOQoPhFlrmIvOaUVapoqHpbuZaEg9fPxRgtZlOGLni0w7Vc4BZ
-         +2oNWW4LVj8e/5xwM7D4OxQHXyxP4b5010906qRJMBsHzoBLAM1nzjfvb+sH2iWn96cc
-         vc4O9cez+rIODLnbBl6MNysSXazNtvehI/OeSDNaUU8t016zDMx5S3YcaMVQDtBYD1ae
-         NMBd6fQ2mgNfMLEEBLK4kOMUL/LAGF2FkRhxJD56Wu2aJepbnwiGeNsZKF747p7nVHXO
-         8cpw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=yTPTI2psMEWp4a1n1BamC1BC0M+zxkzs3hcoRXtiIUc=;
-        fh=w5ayNOX3/ZLvf5UXb+yqqvYHhEjlTMC83lFhzjFzGVA=;
-        b=kCQEXAhXI3Hle44eyQ96zYm2wQrhqxE/DXoOHFpJuYnjG0Ds3gGdoaALKMuHx6n5GO
-         NFFyTVM0BaXXpklxcW+eIe7NwzzhrnvdMQmEP29SUSAxANWyleh5nFNry6/EmKEg/nnm
-         SgIbBaAos9qyvrlmLPYiLT94uPINVwiNvU92gXIRSfvImPqUB8sq5oA/VmO08TeEBKvZ
-         FWQHSnF8rGYdTe0VkLm0gb+mA+8T/nnXXYRAZDrEC026ImpL0FqTcTB4jpYAsaFbsdX3
-         3G3u8qRqa8zOlUCTk0OyP67wVhGEn9NxbmGdFVSiCtJeMHHqAiR//mcqYedIrgRlyug8
-         cOxw==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1779221048; x=1779825848; darn=lists.ozlabs.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=yTPTI2psMEWp4a1n1BamC1BC0M+zxkzs3hcoRXtiIUc=;
-        b=V4wjoex5g43WB2zV323nZyCTtWbzfP3IupTeRvcwBjYUP78kVltPjV0XLsIZU+R3g4
-         KXiyCO9HaJMvb0HgMbkFOg98X/82PKHmeBPNqUOMJtMbpnpDke3kLz597PeHzaduJVSC
-         sDSR5dvNqyY4eaWb2hBUHkqxCikXcYYxw+YTc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779221048; x=1779825848;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yTPTI2psMEWp4a1n1BamC1BC0M+zxkzs3hcoRXtiIUc=;
-        b=nsh4AasJtSJ5ovV+GghlR8Th2yeQclvfW7m0aa2FRZ17ApV6SK3vnsXNtcIBWsLZaj
-         Ma1MPCClbrpG1Y3pgAWRceraMNRR7CBpeFZGKBuyZqTcMlBvN7ED1OVSuBYEqPnFwp3P
-         YTTxduAIXBRIyVRs1sgG22nizD9AjKeOGNp5XQXK8VcqaHSqE6QWk856jQ0Ij5kpf7S6
-         wIEkli/+4tQhSRj75MNXvMXQ52OeG914SveoQ7Jr5fK0ofG7o5RRieKYUQrujUaudWlj
-         YLZimxltguhFgNKQnzuQKAZOA6kcLaNMz2fu5f9lTmYlWs18s3nuT+yPy+p3vnV4kfyl
-         1DOQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9g50v14GdHO2xfJHM1dvBT+2NodjNgLd+qoaUPXUKTSe00KcsEPFvLFmM9TUhW/PtUEk+4lYZ9V1veaQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YyUFjbQHDzjME6snJxbJzyS2OMp7aJrrkv27RD3aZgIgCwd6lHI
-	65fhHrmPWKZbL9vzMPf1/yvJlMM8KhYUpLf64d88sEpK+r9VsqIcMoPiVvKmFIkWU3jPmvLoCqB
-	UsYnmdQFyl1/EHkAP58QVNUAKMn/9060tIAuDahrG
-X-Gm-Gg: Acq92OFZXUh9+7dIyty5SIzWXr0poIbJ/yV2odo/GNptTmoOfJUTp98BNg2DvszwKkZ
-	fETioeVUjewVs1ESnEsUEDoSWbMDeIm5bvC1CxACJOsKhZhdixf9LNakGOuBiasG6i96aDPHmcD
-	id6gHQ5V/9KbasRVP0Gs/h/zrUqjaqnrF//V8XnU2IJFBQCfjM+0Ywfpr7uljkkkETO1y774kbg
-	ssqRoThpE8K02sf+5UGIWbmWUnGy99xdcXbANmlNDWrzWctDDurhVDnM1KMcH4qV3ujjjlNPfTz
-	cZ23hw==
-X-Received: by 2002:a17:907:93d4:b0:bd4:c6be:5f2e with SMTP id
- a640c23a62f3a-bd51777c81fmr866607266b.3.1779221047779; Tue, 19 May 2026
- 13:04:07 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gKyDY2GJYz2xrC
+	for <linux-erofs@lists.ozlabs.org>; Wed, 20 May 2026 13:47:56 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=2212171451; d=bytedance.com; t=1779248741; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=mspc1aUu6CgWqs54mQCmP4k4Liy2LtNRdjCy1C379GM=;
+ b=qcURkZT6qvTt91eJmHS2T0Jevgc8irO+e3CUo058XIwhEjVklqdNTZo9WZ6cC2U6N79c81
+ ti9o4/RPYi3qGalxVnBzsD4BAS509f3kGCGbrY1tq6Jb6jwIZT2Q5Ai+OixjnIucmKwAPD
+ Lc2TwWYhpxNH8hJF7/3oh8G1+Ox/XZ8YFGRS13aFNfbbXGOG+gyX8ki+8IAFXaYsuBEGdn
+ U+r1aZ3vqNCt1iQQXh+H+eCw5k9YvqPiqHNui2/qX+2kxxAp38Y2TYDHLRDueiXrjp1UUS
+ ZPRWRCc7p6aR713VWnVextLq1Ck6muausq9OQqWGoMfwim4JViitWRHZOQxtBg==
+Date: Wed, 20 May 2026 11:45:32 +0800
+X-Original-From: Jia Zhu <zhujia.zj@bytedance.com>
+X-Lms-Return-Path: <lba+26a0d2e63+5d30e9+lists.ozlabs.org+zhujia.zj@bytedance.com>
+Content-Type: text/plain; charset=UTF-8
+To: "Gao Xiang" <xiang@kernel.org>, "Chao Yu" <chao@kernel.org>
+Subject: [PATCH] erofs: reuse xattr metabuf across init and iterators
+Message-Id: <20260520034532.42557-1-zhujia.zj@bytedance.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,68 +56,188 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20260518055728.178507-1-heinrich.schuchardt@canonical.com> <20260518055728.178507-5-heinrich.schuchardt@canonical.com>
-In-Reply-To: <20260518055728.178507-5-heinrich.schuchardt@canonical.com>
-From: Simon Glass <sjg@chromium.org>
-Date: Tue, 19 May 2026 14:03:56 -0600
-X-Gm-Features: AVHnY4J-5Cslh3TMp-KY-sWqlxb2CJgZq_WdxDPFvN5BPPf6v7zAc8rA9tE7s6I
-Message-ID: <CAFLszTgSmMSKzocWFkAMcq4tHb3ZbbjJ=Ouby=iuSnfAHBmmzQ@mail.gmail.com>
-Subject: Re: [PATCH 4/9] fs: ext4: don't read time fields in XPL
-To: heinrich.schuchardt@canonical.com
-Cc: Tom Rini <trini@konsulko.com>, Simon Glass <sjg@chromium.org>, 
-	Huang Jianan <jnhuang95@gmail.com>, Quentin Schulz <quentin.schulz@cherry.de>, 
-	Tony Dinh <mibodhi@gmail.com>, =?UTF-8?Q?Timo_tp_Prei=C3=9Fl?= <t.preissl@proton.me>, 
-	Francois Berder <fberder@outlook.fr>, Andrew Goodbody <andrew.goodbody@linaro.org>, 
-	Daniel Palmer <daniel@thingy.jp>, 
-	Varadarajan Narayanan <varadarajan.narayanan@oss.qualcomm.com>, 
-	Sughosh Ganu <sughosh.ganu@arm.com>, Ilias Apalodimas <ilias.apalodimas@linaro.org>, 
-	Peng Fan <peng.fan@nxp.com>, Marek Vasut <marek.vasut+renesas@mailbox.org>, u-boot@lists.denx.de, 
-	linux-erofs@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+Content-Transfer-Encoding: 7bit
+From: "Jia Zhu" <zhujia.zj@bytedance.com>
+Cc: <linux-erofs@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>, 
+	"Yue Hu" <zbestahu@gmail.com>, "Jeffle Xu" <jefflexu@linux.alibaba.com>, 
+	"Sandeep Dhavale" <dhavale@google.com>, 
+	"Hongbo Li" <lihongbo22@huawei.com>, "Chunhai Guo" <guochunhai@vivo.com>, 
+	"Gao Xiang" <hsiangkao@linux.alibaba.com>, 
+	"Jia Zhu" <zhujia.zj@bytedance.com>
 
-Hi Heinrich,
+erofs_init_inode_xattrs() used a local metabuf to read the inline xattr
+header and shared xattr ids.
 
-On 2026-05-18T05:57:19, Heinrich Schuchardt
-<heinrich.schuchardt@canonical.com> wrote:
-> fs: ext4: don't read time fields in XPL
->
-> The ext4 readdir implementation populates dent time fields in XML
-> builds though that information is never used.
->
-> Guard the three rtc_to_tm() calls with !IS_ENABLED(CONFIG_XPL_BUILD),
-> consistent with the FAT driver.
->
-> Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
->
-> fs/ext4/ext4fs.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+getxattr and listxattr then initialized a separate iterator metabuf for
+the following inline/shared xattr walk.
 
-> diff --git a/fs/ext4/ext4fs.c b/fs/ext4/ext4fs.c
-> @@ -319,9 +319,11 @@ int ext4fs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
-> -     rtc_to_tm(fdiro.inode.atime, &dent->access_time);
-> -     rtc_to_tm(fdiro.inode.ctime, &dent->create_time);
-> -     rtc_to_tm(fdiro.inode.mtime, &dent->change_time);
-> +     if (!IS_ENABLED(CONFIG_XPL_BUILD)) {
-> +             rtc_to_tm(le32_to_cpu(fdiro.inode.atime), &dent->access_time);
-> +             rtc_to_tm(le32_to_cpu(fdiro.inode.ctime), &dent->create_time);
-> +             rtc_to_tm(le32_to_cpu(fdiro.inode.mtime), &dent->change_time);
-> +     }
+Pass the iterator metabuf into erofs_init_inode_xattrs() so initialization
+and the inline iterator path share the same metabuf lifetime. The getxattr
+and listxattr callers now use a single cleanup exit for their iterator
+metabuf.
 
-The le32_to_cpu() addition is a separate fix from the XPL guard,
-right? Please mention the endianness fix in the commit message, or
-better, split it into its own patch that can be backported
-independently.
+Drop and reinitialize the metabuf before switching from inline xattrs to
+the shared xattr metadata area, since that path may use a different
+mapping.
 
-BTW dent->size on the next line has the same problem, doesn't it?
+Signed-off-by: Jia Zhu <zhujia.zj@bytedance.com>
+---
+ fs/erofs/xattr.c | 76 ++++++++++++++++++++++++++++--------------------
+ 1 file changed, 44 insertions(+), 32 deletions(-)
 
->     fs: ext4: don't read time fields in XPL
->
->     The ext4 readdir implementation populates dent time fields in XML
->     builds though that information is never used.
-
-Typo: XML should be xPL
-
-Regards,
-Simon
+diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
+index df7ea019526d7..f7eb7431b0b81 100644
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -27,9 +27,8 @@ struct erofs_xattr_iter {
+ 
+ static const char *erofs_xattr_prefix(unsigned int idx, struct dentry *dentry);
+ 
+-static int erofs_init_inode_xattrs(struct inode *inode)
++static int erofs_init_inode_xattrs(struct erofs_buf *buf, struct inode *inode)
+ {
+-	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+ 	struct super_block *sb = inode->i_sb;
+ 	const struct erofs_xattr_ibody_header *ih;
+@@ -78,7 +77,7 @@ static int erofs_init_inode_xattrs(struct inode *inode)
+ 	}
+ 
+ 	pos = erofs_iloc(inode) + vi->inode_isize;
+-	ih = erofs_read_metabuf(&buf, sb, pos, erofs_inode_in_metabox(inode));
++	ih = erofs_read_metabuf(buf, sb, pos, erofs_inode_in_metabox(inode));
+ 	if (IS_ERR(ih)) {
+ 		ret = PTR_ERR(ih);
+ 		goto out_unlock;
+@@ -101,7 +100,7 @@ static int erofs_init_inode_xattrs(struct inode *inode)
+ 	/* skip the ibody header and read the shared xattr array */
+ 	pos += sizeof(struct erofs_xattr_ibody_header);
+ 	for (i = 0; i < vi->xattr_shared_count; ++i) {
+-		xattr_id = erofs_bread(&buf, pos + i * sizeof(__le32), true);
++		xattr_id = erofs_bread(buf, pos + i * sizeof(__le32), true);
+ 		if (IS_ERR(xattr_id)) {
+ 			kfree(vi->xattr_shared_xattrs);
+ 			vi->xattr_shared_xattrs = NULL;
+@@ -115,7 +114,6 @@ static int erofs_init_inode_xattrs(struct inode *inode)
+ 	smp_mb();
+ 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
+ out_unlock:
+-	erofs_put_metabuf(&buf);
+ 	clear_and_wake_up_bit(EROFS_I_BL_XATTR_BIT, &vi->flags);
+ 	return ret;
+ }
+@@ -337,40 +335,48 @@ static int erofs_getxattr(struct inode *inode, int index, const char *name,
+ {
+ 	int ret;
+ 	unsigned int hashbit;
+-	struct erofs_xattr_iter it;
++	struct erofs_xattr_iter it = {
++		.sb = inode->i_sb,
++		.buf = __EROFS_BUF_INITIALIZER,
++		.buffer = buffer,
++		.buffer_size = buffer_size,
++		.buffer_ofs = 0,
++	};
+ 	struct erofs_inode *vi = EROFS_I(inode);
+ 	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 
+ 	if (!name)
+ 		return -EINVAL;
+ 
+-	ret = erofs_init_inode_xattrs(inode);
++	ret = erofs_init_inode_xattrs(&it.buf, inode);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	/* reserved flag is non-zero if there's any change of on-disk format */
+ 	if (erofs_sb_has_xattr_filter(sbi) && !sbi->xattr_filter_reserved) {
+ 		hashbit = xxh32(name, strlen(name),
+ 				EROFS_XATTR_FILTER_SEED + index);
+ 		hashbit &= EROFS_XATTR_FILTER_BITS - 1;
+-		if (vi->xattr_name_filter & (1U << hashbit))
+-			return -ENODATA;
++		if (vi->xattr_name_filter & (1U << hashbit)) {
++			ret = -ENODATA;
++			goto out;
++		}
+ 	}
+ 
+ 	it.index = index;
+ 	it.name = QSTR(name);
+-	if (it.name.len > EROFS_NAME_LEN)
+-		return -ERANGE;
+-
+-	it.sb = inode->i_sb;
+-	it.buf = __EROFS_BUF_INITIALIZER;
+-	it.buffer = buffer;
+-	it.buffer_size = buffer_size;
+-	it.buffer_ofs = 0;
++	if (it.name.len > EROFS_NAME_LEN) {
++		ret = -ERANGE;
++		goto out;
++	}
+ 
+ 	ret = erofs_xattr_iter_inline(&it, inode, true);
+-	if (ret == -ENODATA)
++	if (ret == -ENODATA) {
++		erofs_put_metabuf(&it.buf);
++		it.buf = __EROFS_BUF_INITIALIZER;
+ 		ret = erofs_xattr_iter_shared(&it, inode, true);
++	}
++out:
+ 	erofs_put_metabuf(&it.buf);
+ 	return ret ? ret : it.buffer_ofs;
+ }
+@@ -378,27 +384,33 @@ static int erofs_getxattr(struct inode *inode, int index, const char *name,
+ ssize_t erofs_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size)
+ {
+ 	int ret;
+-	struct erofs_xattr_iter it;
++	struct erofs_xattr_iter it = {
++		.sb = dentry->d_sb,
++		.buf = __EROFS_BUF_INITIALIZER,
++		.dentry = dentry,
++		.buffer = buffer,
++		.buffer_size = buffer_size,
++		.buffer_ofs = 0,
++	};
+ 	struct inode *inode = d_inode(dentry);
+ 
+-	ret = erofs_init_inode_xattrs(inode);
+-	if (ret == -ENODATA)
+-		return 0;
++	ret = erofs_init_inode_xattrs(&it.buf, inode);
++	if (ret == -ENODATA) {
++		ret = 0;
++		goto out;
++	}
+ 	if (ret)
+-		return ret;
+-
+-	it.sb = dentry->d_sb;
+-	it.buf = __EROFS_BUF_INITIALIZER;
+-	it.dentry = dentry;
+-	it.buffer = buffer;
+-	it.buffer_size = buffer_size;
+-	it.buffer_ofs = 0;
++		goto out;
+ 
+ 	ret = erofs_xattr_iter_inline(&it, inode, false);
+-	if (!ret || ret == -ENODATA)
++	if (!ret || ret == -ENODATA) {
++		erofs_put_metabuf(&it.buf);
++		it.buf = __EROFS_BUF_INITIALIZER;
+ 		ret = erofs_xattr_iter_shared(&it, inode, false);
++	}
+ 	if (ret == -ENODATA)
+ 		ret = 0;
++out:
+ 	erofs_put_metabuf(&it.buf);
+ 	return ret ? ret : it.buffer_ofs;
+ }
+-- 
+2.39.5 (Apple Git-154)
 
