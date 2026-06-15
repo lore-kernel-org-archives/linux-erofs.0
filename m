@@ -1,86 +1,64 @@
-Return-Path: <linux-erofs+bounces-3585-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3586-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F10B0CD8CA8
-	for <linux-erofs@archiver.kernel.org>; Sat, 13 Jun 2026 10:10:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C26A0CD8CA8
+	for <linux-erofs@archiver.kernel.org>; Mon, 15 Jun 2026 01:26:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gcsbF1cTwz2yMn;
-	Sat, 13 Jun 2026 20:10:49 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::433"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781345449;
-	cv=none; b=FO68aTbPoSQ1U4LVPQcd+dNlK6aiCjExuNj5XFs3jTBIlx0BNzMyNwaD3tw3f9gICWXwQd/XQNeSY04gSUX4j4vOaEYoYGhCqFWqJLt6aP2W+BSdc0q0+XB7ubMXU1AhehJde+q0HO+5vy8OYQxCiwFaJxpcCYmxgncaToZ6pKHA5U89oD/raCcpZXf0AM2d0R2nU96VS148V3xZHd8gFaCNFDeu9/y+PT6IWGXKW/oRKzPlLYgU/aIcm6mbD52WfHdK/QRm3iEzEXHOKoMVxErkEwQfnIuoXofO40OxniZsBStrFJZqU96zMoAnX3H/APjsbWdetSbQhvupS15YQw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gdssM5vjnz2yT0;
+	Mon, 15 Jun 2026 11:26:31 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.187
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781486791;
+	cv=none; b=egseItS0mKtHXt6Yj8BRD7tzRKdktaqBPVNLB/CPFF/iE+QEBxXMhPhuJqJB2RSIKvo7P57hhEQhmJLjEF02pjB6BUTj8/Ccfhib/sIW+quxXpigTUDJc3cxJfYeq7Xkaxctov6ZeoIfxH31qD1OHwLorR8aRVmiiagr9tawq/0bVE+r1aPoOzHCVDTUhziJcD1AtSyjDUO98GeXkzX65u7VhlxPjZxZ9C3GCvWunvrGe0AgtMIs8jbejhjQdwbBljI9PBHg/1x1bkYpHcHi866LRzKoc5HUB6QCF7ANYWeqaLPiGUqrsVQMPcygtw4LKhWj5u41muwgFmyWKLHSRA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1781345449; c=relaxed/relaxed;
-	bh=beP3szSS+HT/yqXkmKfpiFpTp7bB9BpZzw0JborbfPw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Zaj4+R/ZrU+ApIeik4b1NxAP8Wb0Q4aC1cNOvatXJKdtCVWpum5bKL1QrozfqdSE2jykxUJEYeXa0tyS4a4cp3WYOrOguEazS/4ZjEi8bPOADYxfiLSAf2rQLRa3YKYxbo7z9fX/PShg5aviJwinLUwxhozgeyfxQXlKxyxurI92F+7PugvR/oG5hsqKsLfoYCNujVyRMZF6RWG8VpJ2bz35jcpcYaMKVs2dnAQKn21kUVyjQz2JPNpbgRc9WceFnHF376SyvUFsZM93URCREAGB089ghUNySYws+PWeu1Lt9SUgjVaNbg6pSN9laFcqfjmZAROEsG6+FeLcvGyA0Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FNGJ7plZ; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::433; helo=mail-pf1-x433.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1781486791; c=relaxed/relaxed;
+	bh=tIUCnVj6NdE+05UAjJNPyabizqyUB0Qk7xKO+9pSNys=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=NA3qZRCq8/9rYzMc8vwX9cBuxJN8Ul4CERTz5voddl4P23K46DAC1qmE4SqdBQ/jtEKl/IiL/DL2o9LHOiIiCwz0//6xYKE1fWB+OhEiin4n4Si1ir1hk/S+oQ2C8R5AYW02uwEn75tE+ykJvmeqyXLb5kngESVEp/I5g7s57D+Oqh86Uxs8/s+bkAD5dcisC3yqPwXOvY/Do3CB4JcZYO2H+MKtqnQ0FbIzbdIRacHtLbb/IQVzUqilTcQFXpk9oPU/IbAameyWOGkzAD1CL4qmpcXKwest0C+R791vyNeopc/KoOQN62IBMSHb1EAj4yiuLnfq8KJn3FO6QOp+AQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=B+zuHAA9; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=B+zuHAA9; dkim-atps=neutral; spf=pass (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=FNGJ7plZ;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=B+zuHAA9;
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=B+zuHAA9;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::433; helo=mail-pf1-x433.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gcsbC23f8z2xqn
-	for <linux-erofs@lists.ozlabs.org>; Sat, 13 Jun 2026 20:10:47 +1000 (AEST)
-Received: by mail-pf1-x433.google.com with SMTP id d2e1a72fcca58-8423f52af13so1433974b3a.2
-        for <linux-erofs@lists.ozlabs.org>; Sat, 13 Jun 2026 03:10:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781345445; x=1781950245; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=beP3szSS+HT/yqXkmKfpiFpTp7bB9BpZzw0JborbfPw=;
-        b=FNGJ7plZyG2TNv6FEk0aFLcL0ZZYUVdRDBcNPVwYhWmo7HsuP1rMfcDdAR5aEylQTZ
-         Ng9ENsnsOKho1dysSnfp0Il/vN1iVNedtO7Cklu9ZXUwT0/LDlqwd8EwzokjEi3sPhEv
-         z/zMRCNeLWeOYJUEI0Dnui3BNrdHfdySixhFvxDGEcg7CfFN/s+A5DWH4E8jjTaQtQe7
-         xcmnHOTZN3w7EmGAL9CvPIOrpPBSESXUmvx6DyDa4E0s43gSE3Rexf3Nif+GLGINyqee
-         u9GyA/4w9e053MInEKGfX2y3qeff9okqrSFtw3s0VHrxqDrrUSXEFuPilijQspHtKJ3S
-         YNbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781345445; x=1781950245;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=beP3szSS+HT/yqXkmKfpiFpTp7bB9BpZzw0JborbfPw=;
-        b=gdhjbXhvV757VqEYPa6JCnmv3hIQ7bBq2lA7UpmFxgSD5r0czQ+dpygtE7tuf7OOWd
-         norZ7FfH8N9R9iohyZ6PjzVCfX3pAM+He2QAJP/KXI3YQv7JFXsaVmCEQjyYoRP35lcQ
-         gpm68i8vnjshfv5oZccME3XN43+E2Sxf8YRIfnrqgfAaXdB4EHA17w5vvtkpRDJicn8B
-         4vNJglUH9HAgszBo17zg69WzY2jaWvuzVYYs7FTX5xcCPdSuWNGTJzsH1AzsHlWAGhQ7
-         J4tHQQEE7b32n8BWtPUWFUkr4TEzIHoXbANP2soVEo8Q/TqxESds1pj7TNT1uF20rJb+
-         I+1Q==
-X-Gm-Message-State: AOJu0Yyj6dGVo/WFkB62XY4LArpoDVzD9rVsEU0aN04oZDyUYX/ROh8E
-	XGwwvFk3qLNlg5A8te+PZWwMsTmImIstPHdJKEufspeBclbYkcTgtCU/
-X-Gm-Gg: Acq92OG+udQj6OHyOaxg+CxpO/SgJk7yuiQ2WJM09X+wWRHhnHFibMRdf1OpbAADY31
-	3fwpbrgtMNoevSjGDwmuKyug9KGqXyCIZZJGqYcNrjKTgCnwh7BBe4plLPUsfLB39TF3dYDGZYi
-	LQ/arXZ2dWhOZU9+2leUVyg0A1971CfKUUQLCMdtDejW+4h/TYGw7PKkaqOTMAli7qlxlDk1Fbe
-	IOAJPm364qO6VWHvct8JZ4aPoX2xjHffk/nyZJ/imbwcpOUHkH7CGBBea//dxGw2A4fpqEL1/YX
-	NxiPdTQdfkr+O9mjP7eTVCxZJyd0tAH/DHSuLM2T325XjVn4ivHLiZmf/pfexl2cdFvP4JVxZyN
-	2I86PsMVFhS92gjxaJLF52o10IBNwZcW+qMVHY54qVUia1h6u9H+QTwiWTc8EuIG75rLn8AxMrF
-	NfYf6+nhz4jbJ2tZMNbR5cJOsUIaBLx0mRksLpCvydaPgpH3GL3HT6PYI=
-X-Received: by 2002:a05:6a00:a210:b0:842:708f:39a6 with SMTP id d2e1a72fcca58-844e1962f2emr3456844b3a.10.1781345444619;
-        Sat, 13 Jun 2026 03:10:44 -0700 (PDT)
-Received: from localhost.localdomain ([157.15.11.68])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434b00d3f9sm4111908b3a.41.2026.06.13.03.10.42
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 13 Jun 2026 03:10:44 -0700 (PDT)
-From: Nithurshen <nithurshen.dev@gmail.com>
-To: hsiangkao@linux.alibaba.com
-Cc: linux-erofs@lists.ozlabs.org,
-	nithurshen.dev@gmail.com,
-	xiang@kernel.org
-Subject: Re: [PATCH v1] fsck.erofs: implement thread-safe global LRU metadata cache
-Date: Sat, 13 Jun 2026 15:40:38 +0530
-Message-ID: <20260613101038.86333-1-nithurshen.dev@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <423c662c-e8b4-4802-b7bf-34abd71a82ae@linux.alibaba.com>
-References: <423c662c-e8b4-4802-b7bf-34abd71a82ae@linux.alibaba.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gdssJ2Klfz2yFc
+	for <linux-erofs@lists.ozlabs.org>; Mon, 15 Jun 2026 11:26:28 +1000 (AEST)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=tIUCnVj6NdE+05UAjJNPyabizqyUB0Qk7xKO+9pSNys=;
+	b=B+zuHAA9hrVqGLRH1sovzRe30h42jjkMT/0SjUlD1m5flyS8d6NCFlKWYKDTI51uj88XH+8po
+	VELHh9jP4zU8SuQ4s1rabJIH9OJndaUnrF3sv9UBVQcvdzZZWQWuocjbgsb3s6LtWaQK0JF1OxD
+	2qoIW1AZHYLwhtgwWy0wskY=
+Received: from canpmsgout11.his.huawei.com (unknown [172.19.92.148])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTPS id 4gdsrm4NLYz1BGLR
+	for <linux-erofs@lists.ozlabs.org>; Mon, 15 Jun 2026 09:26:00 +0800 (CST)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=tIUCnVj6NdE+05UAjJNPyabizqyUB0Qk7xKO+9pSNys=;
+	b=B+zuHAA9hrVqGLRH1sovzRe30h42jjkMT/0SjUlD1m5flyS8d6NCFlKWYKDTI51uj88XH+8po
+	VELHh9jP4zU8SuQ4s1rabJIH9OJndaUnrF3sv9UBVQcvdzZZWQWuocjbgsb3s6LtWaQK0JF1OxD
+	2qoIW1AZHYLwhtgwWy0wskY=
+Received: from mail.maildlp.com (unknown [172.19.163.163])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4gdsgr05QtzKm4v;
+	Mon, 15 Jun 2026 09:18:16 +0800 (CST)
+Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
+	by mail.maildlp.com (Postfix) with ESMTPS id 903004048B;
+	Mon, 15 Jun 2026 09:26:15 +0800 (CST)
+Received: from [10.67.111.104] (10.67.111.104) by
+ kwepemr500015.china.huawei.com (7.202.195.162) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 15 Jun 2026 09:26:15 +0800
+Message-ID: <51c13a05-a4f5-4bbe-ad1a-ba167fa2e76c@huawei.com>
+Date: Mon, 15 Jun 2026 09:26:14 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -92,19 +70,128 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] erofs: clean up erofs_ishare_fill_inode()
+To: Gao Xiang <hsiangkao@linux.alibaba.com>, <linux-erofs@lists.ozlabs.org>
+CC: LKML <linux-kernel@vger.kernel.org>, <oliver.yang@linux.alibaba.com>
+References: <20260607172132.2695176-1-hsiangkao@linux.alibaba.com>
+Content-Language: en-US
+From: Hongbo Li <lihongbo22@huawei.com>
+In-Reply-To: <20260607172132.2695176-1-hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.111.104]
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemr500015.china.huawei.com (7.202.195.162)
 
-Hi Xiang,
 
-What if rather than caching the raw metadata bytes, the userspace
-cache will focus on caching the parsed structures (such as the
-computed erofs_map_blocks mappings) to save the worker threads
-from redundantly parsing chunk indexes and calculating offsets.
 
-Can I replace this malloc-based raw buffer approach and focus v3
-patch on an LRU cache for the parsed block mappings to reduce the
-CPU overhead during the concurrent directory traversal?
+On 2026/6/8 1:21, Gao Xiang wrote:
+>   - Use the shorthand `si` to replace the overly long `sharedinode`;
+> 
+>   - Introduce erofs_warn() and get rid of barely-used _erofs_printk();
+> 
+>   - Get rid of the variable `hash`;
+> 
+>   - Simplify error paths.
+> 
+> Cc: Hongbo Li <lihongbo22@huawei.com>
+> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+
+Reviewed-by: Hongbo Li <lihongbo22@huawei.com>
 
 Thanks,
-Nithurshen
+Hongbo
+
+> ---
+>   fs/erofs/internal.h |  2 ++
+>   fs/erofs/ishare.c   | 45 +++++++++++++++++++--------------------------
+>   2 files changed, 21 insertions(+), 26 deletions(-)
+> 
+> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+> index 4792490161ec..9e2ae7b61977 100644
+> --- a/fs/erofs/internal.h
+> +++ b/fs/erofs/internal.h
+> @@ -23,6 +23,8 @@
+>   __printf(2, 3) void _erofs_printk(struct super_block *sb, const char *fmt, ...);
+>   #define erofs_err(sb, fmt, ...)	\
+>   	_erofs_printk(sb, KERN_ERR fmt "\n", ##__VA_ARGS__)
+> +#define erofs_warn(sb, fmt, ...) \
+> +	_erofs_printk(sb, KERN_WARNING fmt "\n", ##__VA_ARGS__)
+>   #define erofs_info(sb, fmt, ...) \
+>   	_erofs_printk(sb, KERN_INFO fmt "\n", ##__VA_ARGS__)
+>   
+> diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
+> index 6ed66b17359b..35cbd0bc04d7 100644
+> --- a/fs/erofs/ishare.c
+> +++ b/fs/erofs/ishare.c
+> @@ -40,49 +40,42 @@ static int erofs_ishare_iget5_set(struct inode *inode, void *data)
+>   bool erofs_ishare_fill_inode(struct inode *inode)
+>   {
+>   	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+> -	struct erofs_inode *vi = EROFS_I(inode);
+>   	const struct address_space_operations *aops;
+> +	struct erofs_inode *vi = EROFS_I(inode);
+>   	struct erofs_inode_fingerprint fp;
+> -	struct inode *sharedinode;
+> -	unsigned long hash;
+> +	struct inode *si;
+>   
+>   	aops = erofs_get_aops(inode, true);
+>   	if (IS_ERR(aops))
+>   		return false;
+>   	if (erofs_xattr_fill_inode_fingerprint(&fp, inode, sbi->domain_id))
+>   		return false;
+> -	hash = xxh32(fp.opaque, fp.size, 0);
+> -	sharedinode = iget5_locked(erofs_ishare_mnt->mnt_sb, hash,
+> -				   erofs_ishare_iget5_eq, erofs_ishare_iget5_set,
+> -				   &fp);
+> -	if (!sharedinode) {
+> -		kfree(fp.opaque);
+> -		return false;
+> -	}
+>   
+> -	if (inode_state_read_once(sharedinode) & I_NEW) {
+> -		sharedinode->i_mapping->a_ops = aops;
+> -		sharedinode->i_size = vi->vfs_inode.i_size;
+> -		unlock_new_inode(sharedinode);
+> +	si = iget5_locked(erofs_ishare_mnt->mnt_sb,
+> +			  xxh32(fp.opaque, fp.size, 0),
+> +			  erofs_ishare_iget5_eq, erofs_ishare_iget5_set, &fp);
+> +	if (si && (inode_state_read_once(si) & I_NEW)) {
+> +		si->i_mapping->a_ops = aops;
+> +		si->i_size = inode->i_size;
+> +		unlock_new_inode(si);
+>   	} else {
+>   		kfree(fp.opaque);
+> -		if (aops != sharedinode->i_mapping->a_ops) {
+> -			iput(sharedinode);
+> +		if (!si || aops != si->i_mapping->a_ops) {
+> +			iput(si);
+>   			return false;
+>   		}
+> -		if (sharedinode->i_size != vi->vfs_inode.i_size) {
+> -			_erofs_printk(inode->i_sb, KERN_WARNING
+> -				"size(%lld:%lld) not matches for the same fingerprint\n",
+> -				vi->vfs_inode.i_size, sharedinode->i_size);
+> -			iput(sharedinode);
+> +		if (si->i_size != inode->i_size) {
+> +			erofs_warn(inode->i_sb, "i_size mismatch (%lld != %lld) for the same fingerprint",
+> +				   inode->i_size, si->i_size);
+> +			iput(si);
+>   			return false;
+>   		}
+>   	}
+> -	vi->sharedinode = sharedinode;
+> +	vi->sharedinode = si;
+>   	INIT_LIST_HEAD(&vi->ishare_list);
+> -	spin_lock(&EROFS_I(sharedinode)->ishare_lock);
+> -	list_add(&vi->ishare_list, &EROFS_I(sharedinode)->ishare_list);
+> -	spin_unlock(&EROFS_I(sharedinode)->ishare_lock);
+> +	spin_lock(&EROFS_I(si)->ishare_lock);
+> +	list_add(&vi->ishare_list, &EROFS_I(si)->ishare_list);
+> +	spin_unlock(&EROFS_I(si)->ishare_lock);
+>   	return true;
+>   }
+>   
 
