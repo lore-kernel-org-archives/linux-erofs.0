@@ -1,49 +1,53 @@
-Return-Path: <linux-erofs+bounces-3633-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3634-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35A22CD98E6
-	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jun 2026 12:55:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6DDA4CD98DA
+	for <linux-erofs@archiver.kernel.org>; Tue, 16 Jun 2026 14:08:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gfn5V5QNqz2yfD;
-	Tue, 16 Jun 2026 22:55:10 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:41d0:203:375::b6"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781614510;
-	cv=none; b=VtavGfNoHu9T+c+Io0MPwfoZd/adITPsRctccOdftTRb+ctXm+tjt0AhoCsQNnGgzfWkBv8gr66FmqUjz7QBdfMhD4wl2QSOIEQrNyu4Slc31b/qBZGqBXVwOZF3p3cnQ0CnUQIw0gp786G78bDtk/NVZn3Z0yojVBXZZshzlI8GGcyvOTUIhSCyeL0CvC10ulz+BcUzCLxfCmq0Dxj6YqGgLogEuLRPvp7h7gYP4/uhzdwrHX0Fbmg8CyR5EsAfaXKaaV0oL7DlrMRgREYBiGIyHQ/31oAqCt3tZHaVGfefCmo6BdSiEv4D8SGdbu1J7EfpWooF31vGxRlp42mcmg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gfpkH5YhDz3c3l;
+	Wed, 17 Jun 2026 00:08:39 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781618919;
+	cv=none; b=Qw7q/pX5dXyrPoAkrpfYh+ZpSx+PSoLyLh1MkQB0OML3Rj1IXJ89lfIO9KKw9Gq60ZJKabkS/Sa7aLORe/5jk9nB0kKub03fLsDaLwHzbHaHIWTMvGqWwi5artTjEQymSVHOaWe7ytTCI94YCn/9LMxtxf3GLopqa2WGn9tc/efMX1G9KWB1da3NGvnZqIoGrE54+ORhSDAb11lmVKxVgz93uHitrkaImQXlFFT9sM0fNPETaZI9cSPRkDkl+VP4FjDWXRHKwUuvXy8+QC1VORFOw10SPcSxoV8dceAanj7c0jdZ8+8KFQWNi9+rHyNZapmBnFjYuJqb+0/emLa+6g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1781614510; c=relaxed/relaxed;
-	bh=wv0+MgqNRvRce0wQH8tzVOBI1JIX52tUPZ58AWe7J8U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kX7JNzl4A0hhDRYJX09cQ/ycnUwhVl6u7b+ANwMznhiXuJTEiWEWdoim3afNlNDgEm17M/rELU0enWHQJF4Gjla5Vej+6NQ6fISXm7FGCC6G2zrlenCAGzB9kWuWyfcCQj0yiUFQYTf6hoCuTYgkijh8KtptKeArcODxYeRezsticZxY+X+YMf37Wyypv4R7L3niN7yES5kkjHiX1Z82tmjUv76YCsWamwa4L4P8yCroxHnRAqyK48kJHAo8VxS/+r3RCqrDeIaZ7wHqDlN4I/u96yn43gN8WQB9PZJmdZCdJBhp2/db9SsxaOZcwe4CyJDj7Nki3JIbcD2UOAlYeA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=chenxiaosong.com; dkim=pass (2048-bit key; unprotected) header.d=chenxiaosong.com header.i=@chenxiaosong.com header.a=rsa-sha256 header.s=key1 header.b=DXl5YP4w; dkim-atps=neutral; spf=pass (client-ip=2001:41d0:203:375::b6; helo=out-182.mta1.migadu.com; envelope-from=chenxiaosong@chenxiaosong.com; receiver=lists.ozlabs.org) smtp.mailfrom=chenxiaosong.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=chenxiaosong.com
+	t=1781618919; c=relaxed/relaxed;
+	bh=vrChKgbTI+0aqivTF5YP6Yuwbv2q4OzzhaoctlYZpaM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=A32nsQ1q0w7O7s+zEuKrD95hA4LI616BQO7Lj4f1Lmjq9ykZihJr79zGfJRQinct2+Qp6htjfZ9vjbXcMfY/s2G8luTP1+fy8Yk8VN5QFNrIr/VsqT8LjQ8Man8mab1ojNGu3wcY4471PfyVkKfMMpUXB2Q00Uq7Yjq21YHVVIfi0AVYqUoBXYhSXtjeXyHxYrKwYrOQf998B2ua/ccKNDVqiEIBIz07g5Ap+BYwchTDj+v5VFUfhP4NT7SF66pA/dUSf60mJNeY5ciTDkVwY2LbP/2Sm8IupEShTc4AR4CgM5zHX+rm4hg1M//XthxoBVFa1WeFPUoOdHq8LwGNvg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZugUIHc6; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=chenxiaosong.com header.i=@chenxiaosong.com header.a=rsa-sha256 header.s=key1 header.b=DXl5YP4w;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZugUIHc6;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chenxiaosong.com (client-ip=2001:41d0:203:375::b6; helo=out-182.mta1.migadu.com; envelope-from=chenxiaosong@chenxiaosong.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 364 seconds by postgrey-1.37 at boromir; Tue, 16 Jun 2026 22:55:05 AEST
-Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [IPv6:2001:41d0:203:375::b6])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gfn5P2tdmz2yZZ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 16 Jun 2026 22:55:05 +1000 (AEST)
-Message-ID: <b6b19c84-7734-42ea-b2ec-9ace1f36ad08@chenxiaosong.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=chenxiaosong.com;
-	s=key1; t=1781614119;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wv0+MgqNRvRce0wQH8tzVOBI1JIX52tUPZ58AWe7J8U=;
-	b=DXl5YP4w2nX9zBF/auRW6duXvS9I+LFh6H72wP2z7tgKv4bVq1GepXsY8YwJgiuxk/3GYJ
-	utsvh8oA1hM5Kec1L2eqj7x9jLuM39MuNcqFVWCQlxcbVvJf5UuT7X6eGlgcHbnkR/32DA
-	5PNFdhWzOvpVWaJ/smJLv8N+zcFXXuBpa/tcwnDrn+6tX8vWPV0jrQwPKilpFVlwL6JsyU
-	NgC8RocoDRsvVJelCGWkydzsykPdIiiMd9+HKmhv/CAAb0NJhfq7tp8HQgIgsnKJEnb/FJ
-	zY3lj94Gbuc4hUnVoAKzBsLPkNkrQsg062VkaRzcyMkvx+Oemz6MzQHqkEjodQ==
-Date: Tue, 16 Jun 2026 20:47:29 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gfpkG05rBz2yv0
+	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jun 2026 00:08:37 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by tor.source.kernel.org (Postfix) with ESMTP id 82D43600AB;
+	Tue, 16 Jun 2026 14:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD56D1F000E9;
+	Tue, 16 Jun 2026 14:08:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781618915;
+	bh=vrChKgbTI+0aqivTF5YP6Yuwbv2q4OzzhaoctlYZpaM=;
+	h=From:Subject:Date:To:Cc;
+	b=ZugUIHc6Aq2rgs4tUnGQK0fzxOeCN1jy0iKf7Vf80qCDDLK6ylLvc7KuHXyUyhlJo
+	 AZ4pjovOvM3AIeDSgPv6PO7A3whILphjqK9LHMVXxNFU1VZF7lkNhlYMB1jOWnB6Sz
+	 UhG//CfYLOufFNQ3ZrNvx+91YNRibbLrP0hKQDE9bHZeHr42naAiKqwRFynVRymqLi
+	 tthie1w5XTiStq4bfzD81mlkabTxkvEI+0KDgVDwLsuvBOSI4blFtuQ3tL7AkjR3Th
+	 e+/ppRyquEfTGTEP7bmj54Wozv4CxsR3CgH6qa1mkKZw9x2vuID8QiTAyb+NUfiPxK
+	 UlR6GzLBYJVZg==
+From: Christian Brauner <brauner@kernel.org>
+Subject: [PATCH RFC v2 00/18] fs: support freeze/thaw/mark_dead/sync with
+ shared devices
+Date: Tue, 16 Jun 2026 16:08:16 +0200
+Message-Id: <20260616-work-super-bdev_holder_global-v2-0-7df6b864028e@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -55,45 +59,167 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Subject: Re: [PATCH v4 30/30] CHANGES
-To: David Howells <dhowells@redhat.com>,
- Christian Brauner <christian@brauner.io>,
- Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>
-Cc: Paulo Alcantara <pc@manguebit.org>, Jens Axboe <axboe@kernel.dk>,
- Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>,
- Marc Dionne <marc.dionne@auristor.com>,
- Eric Van Hensbergen <ericvh@kernel.org>,
- Dominique Martinet <asmadeus@codewreck.org>,
- Ilya Dryomov <idryomov@gmail.com>, netfs@lists.linux.dev,
- linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
- linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org, v9fs@lists.linux.dev,
- linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260616100821.2062304-1-dhowells@redhat.com>
- <20260616100821.2062304-31-dhowells@redhat.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: ChenXiaoSong <chenxiaosong@chenxiaosong.com>
-In-Reply-To: <20260616100821.2062304-31-dhowells@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+X-B4-Tracking: v=1; b=H4sIANBYMWoC/42OQW6DMBRErxJ5XSPjCIS6ilSpB+i2ipA/HsAJt
+ dE3kKYRdw8mF+hyRjNv5iEi2CGK98NDMBYXXfCb0G8H0fTGd5DOblpopUtVKi1vga8yziNYksV
+ S92Gw4LobAplBVg2ZAoUm2EJsjJHRut+d/y2+Pj/E+WXGmS5opkROMTIRktj4pk9W2sj2jaxl4
+ A+1hb/X8xgnhvlJjd7FKfB9/73kO/6fF5dcKkmkWlvp9liV+ekK9hiywJ04r+v6BAABAjoUAQA
+ A
+X-Change-ID: 20260602-work-super-bdev_holder_global-8cba5e52bed5
+To: Jan Kara <jack@suse.cz>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, linux-block@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+ Carlos Maiolino <cem@kernel.org>, linux-xfs@vger.kernel.org, 
+ Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, 
+ linux-btrfs@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>, 
+ linux-ext4@vger.kernel.org, Gao Xiang <xiang@kernel.org>, 
+ linux-erofs@lists.ozlabs.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, 
+ syzbot@syzkaller.appspotmail.com, Gao Xiang <xiang@kernel.org>
+X-Mailer: b4 0.16-dev-4090c
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7470; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=Do5i3EDmjVE1e/AZzgM+lKWOADPulnojqc5162s3uhI=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWQZRtybLbr8y1c30W0vfldvvn/t+KZpW5xrNywXP/AsY
+ 8Z9Kb8S3Y5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJbJ3LyLDwJO/0vkcmKru2
+ 6XiG/mJda+zzliVE2GuCZfDrg0x9zVUM/1St7sWmptTujS90iCkP2LhzYvzXgFUePaVnmsr+zs5
+ +wQMA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Is this patch missing the subject and commit message?
+This is a generalization of the device number to superblock so it works
+for actual block device and anonymous (or even mtd) devices.
 
-On 6/16/26 18:08, David Howells wrote:
-> ---
->   fs/netfs/iterator.c    | 22 ++++++++++++++--------
->   fs/netfs/read_retry.c  | 12 +++++++++---
->   fs/netfs/write_issue.c | 24 ++++++++++++++++++++++--
->   fs/netfs/write_retry.c | 23 ++++++++++++++---------
->   fs/nfs/fscache.c       |  3 ++-
->   fs/smb/client/file.c   |  2 +-
->   6 files changed, 62 insertions(+), 24 deletions(-)
+fs_holder_ops recovers the affected superblock from bdev->bd_holder. That
+forces the holder of a block device to be exactly one superblock and makes
+it impossible for several superblocks to share a single device.
 
--- 
-ChenXiaoSong <chenxiaosong@chenxiaosong.com>
-Chinese Homepage: https://chenxiaosong.com
-English Homepage: https://chenxiaosong.com/en
+erofs does exactly that. It can mount read-only "blob" devices that are
+shared between many superblocks: a metadata-only erofs that indexes a set
+of per-layer blobs (one filesystem instead of one per OCI layer), or an
+incremental image whose base device is shared by several updates. Because
+the block layer only tracks a single holder, a freeze, thaw, removal or
+sync on such a device is never propagated to all the superblocks using it,
+and the current infrastructure has no way to find them.
+
+This series replaces the bd_holder-based lookup with a global, dev_t-keyed
+table mapping each block device to the superblock(s) using it. The holder
+argument becomes purely the block layer's exclusivity token -- a superblock,
+or the file_system_type for a device shared within one filesystem type --
+and the fs_holder_ops callbacks look the device up in the table and act on
+every superblock registered for it: 1:1 for most filesystems, 1:many for
+erofs.
+
+Filesystems claim and release their devices through new
+fs_bdev_file_open_by_{dev,path}() and fs_bdev_file_release() helpers; the
+per-fs patches convert xfs, btrfs, ext4, f2fs and erofs over to them and
+fix cramfs and romfs, which released the registered main device with a
+raw bdev_fput().
+
+Since every superblock is registered under its s_dev the table also
+replaces the last s_dev-keyed walk of the super_blocks list:
+user_get_super() resolves device numbers through it, so ustat() and
+quotactl() now work on any device a filesystem claims and no longer
+take sb_lock.
+
+The longer-term motivation is to let userspace decide which devices may be
+onlined from one central place, without having to teach every filesystem
+about it individually.
+
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+Changes in v2:
+- super: rework the device-to-superblock table reference counting: each
+  (device, superblock) entry carries a single claim count and holds one
+  passive reference on its superblock for the entry's lifetime. New prep
+  patches convert s_count to refcount_t s_passive and make put_super()
+  self-locking.
+- super: preallocate the entry in alloc_super() and register it from the
+  set callbacks through set_anon_super()/set_bdev_super(); an insert
+  failure unwinds exactly like a set callback failure. The superblock
+  stashes the entry in sb->s_super_dev and kill_super_notify() drops the
+  claim through it.
+- super: initialize the table from mnt_init(); the rootfs and shm mounts
+  are created long before any initcall runs.
+- super: fold the v1 "refuse to claim a frozen block device" patch into
+  the registration helper and restore the EBUSY check for the primary
+  device in setup_bdev_super(): additional devices (the xfs log, the ext4
+  journal, erofs blobs) are now refused while frozen as well, answering
+  Jan's question on v1 3/8.
+- Split the core patch into table/helpers/switch-over and move the
+  xfs/btrfs/ext4 conversions before the fs_holder_ops switch so no
+  freeze/mark_dead events are lost mid-series; erofs follows the switch.
+- New prep patches: the ext4 KUnit tests allocate anonymous devices and
+  ocfs2 stops resetting s_dev on dismount.
+- New: convert user_get_super() to the device table, plus a ustat()
+  selftest.
+- New: fix a pre-existing double release of the realtime device file and
+  dangling buftarg pointers in xfs_open_devices()'s error unwind.
+- New: convert f2fs's additional devices to the helpers; fix cramfs and
+  romfs releasing the registered main device with a raw bdev_fput().
+- erofs: drop the .shutdown() and .remove_bdev() implementations and the
+  per-device "dead" flag. Immutable filesystems don't need them: the block
+  layer sets GD_DEAD before fs_bdev_mark_dead() so in-flight bios fail
+  anyway, erofs has no write path or journal to stop, and the read-only
+  loop_change_fd() case must not be forced to -EIO. Patch from Gao Xiang,
+  applied verbatim - thanks!
+- btrfs: fix a general protection fault in close_fs_devices() on a failed
+  mount (reported by syzbot). The release path took the superblock from
+  device->fs_info, which is still NULL if open_ctree() fails before
+  btrfs_init_devices_late(); it now uses bdev_file->private_data.
+- erofs: the v1 conversion was sent with a generic boilerplate changelog;
+  superseded by Gao's patch above.
+- Collect Reviewed-by from Jan Kara and Tested-by from syzbot.
+- Rebase onto v7.1-rc1.
+- Link to v1: https://patch.msgid.link/20260602-work-super-bdev_holder_global-v1-0-bb0fd82f3861@kernel.org
+
+---
+Christian Brauner (18):
+      xfs: fix the error unwind in xfs_open_devices()
+      super: convert s_count to refcount_t s_passive
+      super: take lock after last reference count
+      fs, block: move blk_mode_t and fop_flags_t into <linux/types.h>
+      ext4: use anonymous devices for KUnit test superblocks
+      ocfs2: don't reset s_dev on dismount
+      fs: maintain a global device-to-superblock table
+      fs: add dedicated block device open helpers for filesystems
+      xfs: port to fs_bdev_file_open_by_path()
+      btrfs: open via dedicated fs bdev helpers
+      ext4: open via dedicated fs bdev helpers
+      fs: look up superblocks via the device table in fs_holder_ops
+      fs: tolerate per-superblock freeze errors on shared devices
+      erofs: open via dedicated fs bdev helpers
+      f2fs: open via dedicated fs bdev helpers
+      super: make fs_holder_ops private
+      fs: look up the superblock via the device table in user_get_super()
+      selftests/filesystems: add ustat() coverage
+
+ fs/btrfs/volumes.c                               |  31 +-
+ fs/cramfs/inode.c                                |   2 +-
+ fs/erofs/super.c                                 |  35 +-
+ fs/ext4/extents-test.c                           |   9 +-
+ fs/ext4/mballoc-test.c                           |   9 +-
+ fs/ext4/super.c                                  |  12 +-
+ fs/f2fs/super.c                                  |   6 +-
+ fs/internal.h                                    |   1 +
+ fs/namespace.c                                   |   2 +
+ fs/ocfs2/super.c                                 |   1 -
+ fs/romfs/super.c                                 |   2 +-
+ fs/super.c                                       | 620 ++++++++++++++++-------
+ fs/xfs/xfs_buf.c                                 |   2 +-
+ fs/xfs/xfs_super.c                               |  13 +-
+ include/linux/blkdev.h                           |   9 -
+ include/linux/fs.h                               |   2 -
+ include/linux/fs/super.h                         |   8 +
+ include/linux/fs/super_types.h                   |   4 +-
+ include/linux/types.h                            |   2 +
+ tools/testing/selftests/filesystems/.gitignore   |   1 +
+ tools/testing/selftests/filesystems/Makefile     |   2 +-
+ tools/testing/selftests/filesystems/ustat_test.c | 135 +++++
+ 22 files changed, 647 insertions(+), 261 deletions(-)
+---
+base-commit: 0c0d974f62e6603d4514e1a8035658edb353c68f
+change-id: 20260602-work-super-bdev_holder_global-8cba5e52bed5
 
 
