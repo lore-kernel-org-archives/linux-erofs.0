@@ -1,64 +1,48 @@
-Return-Path: <linux-erofs+bounces-3658-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3659-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4C648CD98E2
-	for <linux-erofs@archiver.kernel.org>; Wed, 17 Jun 2026 03:48:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A606DCD98E2
+	for <linux-erofs@archiver.kernel.org>; Wed, 17 Jun 2026 06:25:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gg8vf3S1Bz3c7S;
-	Wed, 17 Jun 2026 13:47:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=45.249.212.187
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781668078;
-	cv=none; b=E3aNFB9UtCBJEQoTr+p/3RArf2MyTck6neJIkUFDk9KTe0h4ptPJ/2yYMhO9oQ7SkfvySCWRhushgUAVDuOMkhTA9asy6POg2JqqJGfUn+3NnGp2MUX7FnGEiXK+swUe8jFcXzBIdVilq51+7Yq3FohEGlUqUNWdncP05m+cDt04CvQtF8rwHwhJUwPSIZNUNepaIbAvCWjsfiyEM3mcNILHfsUr+gBQuRfU6sW22KMYsJUtK/amiQqdu1UMHzfSRsToMEQ1o2AnVWcbhGXgqfz+4Z09KEXeBLYhrsbnQarV1ibudu3qa9/Mm/EjxesKrfCNlKLQo35GDhiBpgrHtw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4ggDPQ4wkQz2xnK;
+	Wed, 17 Jun 2026 16:25:30 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=213.95.11.211
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1781677530;
+	cv=none; b=EyyiT7p/AsvgojvcWeOdNlLOmpTVjVocNHkIk6x7xUqugO8V2k2U/yuK0jI4LnsXGllEJ+gBlAc+PqrUvhbaDteZa6xpV/+pu8gupYwv5ZFc8ZBVJXHxsb7d3dlFyFrKDpaxVMoKEPxbbQddymX3X25pY/Mny38VxSO9DgNu3ox2cmEmQV+E0PGGyrFIl71nw1nWbBWEK1nYOqoybnkveCe3iam2BEMD/i/4d3XyzObrWoBdemc4W5BdxPkW0nkxsBbqhFjlgRIXF/GCcPCkWvzhnu9Upb61y9V0RlcPUhc1DN8akgtuWZ7wIqvxqJlsDbEoJAxvNP0b0E5Tnjmu0g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1781668078; c=relaxed/relaxed;
-	bh=U7QW899xrUiPp2kje476C2GXZU1N3b4zG+ActFFibQM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=O9i5k+cPRKzexuvmJ9RVQnw5YZVRTX5rCyWBwzFDbA86ELfgiJ4A4Y2CcsGgYDLOLuqU1ytmXoWxfzkSHeyvW5Ba/pRV9RF85FONy3lAjFojsW3JuVjX3LzBUqowBiCWsHFb7Y+6veCcUXbwoBCNVOsKVLSpkl5AVhoqMvqZqLCrOVzQxD1bOoq1HMN7kRWUowVwz7iHHaeBSdNXjON/IUIF+8U79pPMqA5Oj0ccfGrmJBYQPNm8djQYA83NkyDoLPrCUkso4LnkOWE0WcnG6Zns6oq9XnPlh15U+Waug5uW1ieI3YmRyWoRGk/qR/jHxctHcbbWJ7TBopwEh5QuGw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xz2EQtVo; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xz2EQtVo; dkim-atps=neutral; spf=pass (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xz2EQtVo;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=xz2EQtVo;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=45.249.212.187; helo=szxga01-in.huawei.com; envelope-from=lihongbo22@huawei.com; receiver=lists.ozlabs.org)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	t=1781677530; c=relaxed/relaxed;
+	bh=ZRecdmIP5T0Ca9Z8ncbOVHLMKVOcrh9BwgpAdUYzDXQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GseRamquUaOfcqduG3vL/F6FZ8RjdSUVxKDMNuBIJJfGntk21u9Icr0qiMe85gOTyF5n0owXmyJh8eJ0rjYTyBIxazUGd8JT/7y+jKQC6DZaU0eunKHTl4GGfv095m0bQZ8+YaxNKYoL2Ktl2H/pJ+tP2L5cZmdomSYOaXjGqg0RBeziiwBa0HVnfai1sq3l8w4Sh3w7j+shM1EmnLFd4fizxEI7Xj2MLgGM2FvxLtIhJIxHwR/sehH7ZlSfBzxnHEhT3oewCdJ+PEn7210fM7xtjiV448MnL14rqzUZcPmAsRxCBgfdDeUKpG4ZOYlqCCEiv89SoOBeiO7IiZe9Rg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org) smtp.mailfrom=lst.de
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gg8vb5HCjz2yv0
-	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jun 2026 13:47:55 +1000 (AEST)
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=U7QW899xrUiPp2kje476C2GXZU1N3b4zG+ActFFibQM=;
-	b=xz2EQtVoyl/b5/Qc0S1EMYffoxS6vfASsC6hoFMA6kN0TcQZ5kvSUwWVwkjjIrnJyiGsAdgLu
-	vwOTpXFFKnX4sb1qfGyvNf05VaGHq8leU30giULdpVdzBNYQnvULemioRZv7tfE19yTPI+1NNAn
-	SNvJx55Bmv6pooUJVN1iJ8k=
-Received: from canpmsgout02.his.huawei.com (unknown [172.19.92.185])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTPS id 4gg8tz5gGmz1BG4k
-	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jun 2026 11:47:23 +0800 (CST)
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=U7QW899xrUiPp2kje476C2GXZU1N3b4zG+ActFFibQM=;
-	b=xz2EQtVoyl/b5/Qc0S1EMYffoxS6vfASsC6hoFMA6kN0TcQZ5kvSUwWVwkjjIrnJyiGsAdgLu
-	vwOTpXFFKnX4sb1qfGyvNf05VaGHq8leU30giULdpVdzBNYQnvULemioRZv7tfE19yTPI+1NNAn
-	SNvJx55Bmv6pooUJVN1iJ8k=
-Received: from mail.maildlp.com (unknown [172.19.162.223])
-	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4gg8jf02NGzcbPb;
-	Wed, 17 Jun 2026 11:39:18 +0800 (CST)
-Received: from kwepemr500015.china.huawei.com (unknown [7.202.195.162])
-	by mail.maildlp.com (Postfix) with ESMTPS id 4EA7840571;
-	Wed, 17 Jun 2026 11:47:42 +0800 (CST)
-Received: from [10.67.111.104] (10.67.111.104) by
- kwepemr500015.china.huawei.com (7.202.195.162) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 17 Jun 2026 11:47:41 +0800
-Message-ID: <c7d104d8-5adc-433f-bfb9-a084fa904ca6@huawei.com>
-Date: Wed, 17 Jun 2026 11:47:41 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4ggDPP4qDCz2xll
+	for <linux-erofs@lists.ozlabs.org>; Wed, 17 Jun 2026 16:25:28 +1000 (AEST)
+Received: by verein.lst.de (Postfix, from userid 2407)
+	id 1092068AFE; Wed, 17 Jun 2026 08:25:24 +0200 (CEST)
+Date: Wed, 17 Jun 2026 08:25:23 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
+	Jens Axboe <axboe@kernel.dk>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Carlos Maiolino <cem@kernel.org>,
+	linux-xfs@vger.kernel.org, Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
+	Theodore Ts'o <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+	Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+Subject: Re: [PATCH RFC 2/8] fs: add a global device to super block hash
+ table
+Message-ID: <20260617062523.GA20041@lst.de>
+References: <20260602-work-super-bdev_holder_global-v1-0-bb0fd82f3861@kernel.org> <20260602-work-super-bdev_holder_global-v1-2-bb0fd82f3861@kernel.org> <20260616123443.GA21024@lst.de> <20260616-fragil-duktus-nachverfolgen-60f54584c206@brauner>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -70,55 +54,32 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: call erofs_exit_ishare() before rcu_barrier()
-To: Gao Xiang <hsiangkao@linux.alibaba.com>, <linux-erofs@lists.ozlabs.org>
-CC: <oliver.yang@linux.alibaba.com>
-References: <20260617031459.3980804-1-hsiangkao@linux.alibaba.com>
-Content-Language: en-US
-From: Hongbo Li <lihongbo22@huawei.com>
-In-Reply-To: <20260617031459.3980804-1-hsiangkao@linux.alibaba.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.111.104]
-X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
- kwepemr500015.china.huawei.com (7.202.195.162)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260616-fragil-duktus-nachverfolgen-60f54584c206@brauner>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 
-
-
-On 2026/6/17 11:14, Gao Xiang wrote:
-> Ensure all inode free callbacks have completed before
-> destroying the inode slab cache.
+On Tue, Jun 16, 2026 at 04:59:53PM +0200, Christian Brauner wrote:
+> > Err, no.  block devices need to have a specific owner.  If erofs wants
+> > to share a device between superblock it needs to come up with an entity
+> > that owns the block devices which is not a superblock.
 > 
-> Fixes: 5ef3208e3be5 ("erofs: introduce the page cache share feature")
-> Cc: Hongbo Li <lihongbo22@huawei.com>
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-Reviewed-by: Hongbo Li <lihongbo22@huawei.com>
-
-Thanks,
-Hongbo
-
-> ---
->   fs/erofs/super.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
+> It already did.
 > 
-> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-> index 802add6652fd..579443e6acfe 100644
-> --- a/fs/erofs/super.c
-> +++ b/fs/erofs/super.c
-> @@ -1048,11 +1048,11 @@ static int __init erofs_module_init(void)
->   static void __exit erofs_module_exit(void)
->   {
->   	unregister_filesystem(&erofs_fs_type);
-> +	erofs_exit_ishare();
->   
-> -	/* Ensure all RCU free inodes / pclusters are safe to be destroyed. */
-> +	/* ensure all delayed rcu free inodes & pclusters are flushed */
->   	rcu_barrier();
->   
-> -	erofs_exit_ishare();
->   	erofs_exit_sysfs();
->   	z_erofs_exit_subsystem();
->   	erofs_exit_shrinker();
+> > IMHO sharing devices between superblocks is a bad idea, but that ship
+> > has sailed, but please keep it contained inside of erofs.
+> 
+> We need a simple device number to superblock mapping anyway and that can
+> simply be centralized in the vfs. And it can work with anon device
+> numbers and block device numbers uniformly.
+
+No, we don't need a secondary device number to sb mapping.  On the other
+hand we do need the deviceloss, freeze etc upcalls to work for owners
+that are not file systems like mdraid or dm, even if they have been
+slow to pick this.  The whole idea of the holder ops is to abstract
+away from who holds it instead of adding back the broken hard coding
+of the superblock.  Otherwise you're just badly reinventing get_super.
+
+If erofs already has an owner entity it just needs custom holder ops for
+that.
 
