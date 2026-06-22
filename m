@@ -1,57 +1,60 @@
-Return-Path: <linux-erofs+bounces-3698-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3699-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E1F4CD98F6
-	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jun 2026 03:42:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44FC5CD98F6
+	for <linux-erofs@archiver.kernel.org>; Mon, 22 Jun 2026 03:44:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gkDXs4Y1qz2yVd;
-	Mon, 22 Jun 2026 13:42:21 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gkDZy50h3z2yVP;
+	Mon, 22 Jun 2026 13:44:10 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.225
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782099741;
-	cv=none; b=a9WsewDI80b8mI8HaRAlIO1UyJC5dOwrgR4Ck0oNvXM7LCwjKNFCf7eJB+dVEKGkKgZ+57TWtPU69Ytesu5SpVqrkgoU+/vuadLAccMmyuHi4EKPdhrrCbFtgxYr6XMyM3Ig/51qIYimZv6DHAtRLje6CHZfm3RKE1TvT5L4Rv5GI1Ty+viWUBfVvVyy1BjUBhM70q19st1pG75pntIFmwI+FUvUpy9MfCaAiMrxbxWav6UkqTy2CoD3WD+sJcchkH7OpOzgLfh/Lba4uQ0dHyneLtZpqEkqgv0QRSKSltppc44HHOXbxkvnYSuKduf0ozrI023uC4V0PBeL2jWwlA==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782099850;
+	cv=none; b=iqwvlmXqK9Q5C4jXCMNzoC0i1wIVSqt2gXPFKqlUUWMCicYZjoEQM3GJk8kUvT7E2kYjrQg+JspLMB/cUgmN04uafLOMgRs0553lkMVycmKMEeSH0BS78LTRh5wFA+T68rEMHRRZ8Fi/MwQp8hHRGM3N9JLMFxRIVNwkx9pEEoqWtMFupYE6xJ3k2L3000qiC127MymWPrmtqUwM7ftLlhw0+KFfrIXtHL8ZT7HmjOlI+kjhGN09t8yjOdKFmq161il4eGiKI3MMAiQjfBB3nYqw6fMHwAUAr7ggGQyYreS4q+eTqMoZah6BPwR7w6F9Br3Tt+8qps/43xcaetZBKA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1782099741; c=relaxed/relaxed;
-	bh=7ovTf7l0wy3Fx0EY9949fVau2mCftdSE6nJpgWYIhwA=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fHEjKBteV91YwDUvj/cETrWo4pza2u1VIw4khgjTExBoeyQq4GOoxzhH3dyF/olne6FkwzomCZxEM6UldJX+ojP/Qe1NDc8jQo2XtOjwokPwc6nFv7fSTyHqP1+36UNLP/1SiMe+Od4grFZzTONvUrD/V5v0sehLXYG1LhY9KLBXTUmjR6zNyExDMLir4Rv+8wnBF8NJfk2EstBr0/Qubn8+w7lb+QeSManPt2mN2dN0jfLQvCZhQ4ls9Zep8yeTR4uAirXsN3nMO2y7IKKoPrBA2uAQOZaFmH0htKJth943fx23SR+Ejk9LUhaox+p/J8+HYdH8zFxsokfQkmA5Bw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ZOtA1kL0; dkim-atps=neutral; spf=pass (client-ip=113.46.200.225; helo=canpmsgout10.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+	t=1782099850; c=relaxed/relaxed;
+	bh=P5KJxfSmJk0SBRiu6YtpNQiDsOnTPPK7lIxxA4bAmK0=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JgomFKGYgfpj06eYAwVPJWPYCixoQiOpvgYlLzoABxWlu7B9s7Aj8qk7ttMtMStMie+dChj8nDSh0qsirce5W75qagNloLRFSxJmRPxJ96WXOVMRPg/3bVAwfJc811hZZipHumnpV485Few0iuh8ahXfmiILLBr22Qi9t5hts8MaJ6y0gYYE2ZOsvOBL8+uok51lE6AakZ0nOOG4EoGF/iHROoJpbxPK+O1dVYFo4+3YClZupPQ+ZTNy6vTIszWJKXIwqVcTPwihOndXKLn6HizpogpKa6L7cohXlGmEmPuD0TTjZTs0MliQZ4TCXptqjC8O2TVfbZKxOcndaj0wXQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=0EC4JeTq; dkim-atps=neutral; spf=pass (client-ip=113.46.200.225; helo=canpmsgout10.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=ZOtA1kL0;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=0EC4JeTq;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.225; helo=canpmsgout10.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
 Received: from canpmsgout10.his.huawei.com (canpmsgout10.his.huawei.com [113.46.200.225])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gkDXq2vhsz2yVP
-	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jun 2026 13:42:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gkDZy0GX7z2xyh
+	for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jun 2026 13:44:10 +1000 (AEST)
 dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
 	c=relaxed/relaxed; q=dns/txt;
 	h=From;
-	bh=7ovTf7l0wy3Fx0EY9949fVau2mCftdSE6nJpgWYIhwA=;
-	b=ZOtA1kL0+XbIDPK55L7mGkKQf5otG8/sCropAGax9ZF+PnlcUOKwJdwdb20/JNfcK+AFcQ79H
-	AoCrtd8sJI+vXsd3Y4/AHxHvrEvsRBIdYmaGl0JHFFcp5HjpyJa0qmspZFGs9UBDm46ALxZQ5vS
-	BZzbTnAigqhukSQLRj+xdHs=
-Received: from mail.maildlp.com (unknown [172.19.163.163])
-	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4gkDLD2WTBz1K982;
-	Mon, 22 Jun 2026 11:33:08 +0800 (CST)
+	bh=P5KJxfSmJk0SBRiu6YtpNQiDsOnTPPK7lIxxA4bAmK0=;
+	b=0EC4JeTqvn8CwtsgwWN33N9yFSp++rWBkcLnnFJdbnr7NH6JndsuLumO5AGSVfJhFvcEzAkZg
+	q/oA+8CLZ0NwttXPYuAC4+5rTOXLOpP9j+Qh8AVfSYRNop98iDu0XH9MIv0RpuLS0aSqvXodyut
+	euykJ6sppD/nZ24owLkQ5/E=
+Received: from mail.maildlp.com (unknown [172.19.163.214])
+	by canpmsgout10.his.huawei.com (SkyGuard) with ESMTPS id 4gkDNS572Dz1K9Y5;
+	Mon, 22 Jun 2026 11:35:04 +0800 (CST)
 Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
-	by mail.maildlp.com (Postfix) with ESMTPS id 1758A405D3;
-	Mon, 22 Jun 2026 11:42:11 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 6E5CF4056C;
+	Mon, 22 Jun 2026 11:44:07 +0800 (CST)
 Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
  (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 22 Jun
- 2026 11:42:10 +0800
+ 2026 11:44:06 +0800
 From: Yifan Zhao <zhaoyifan28@huawei.com>
 To: <linux-erofs@lists.ozlabs.org>, <hsiangkao@linux.alibaba.com>
 CC: <zhukeqian1@huawei.com>, <zhaoyifan28@huawei.com>
-Subject: [PATCH 1/2] erofs-utils: lib: don't abort on compression fallback
-Date: Mon, 22 Jun 2026 11:40:51 +0800
-Message-ID: <20260622034052.1047677-1-zhaoyifan28@huawei.com>
+Subject: [RESEND PATCH 2/2] erofs-utils: lib: honor rebuild whiteouts for recreated dirs
+Date: Mon, 22 Jun 2026 11:42:48 +0800
+Message-ID: <20260622034248.1047783-2-zhaoyifan28@huawei.com>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260622034248.1047783-1-zhaoyifan28@huawei.com>
+References: <20260622034248.1047783-1-zhaoyifan28@huawei.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -69,38 +72,40 @@ X-Originating-IP: [10.50.159.234]
 X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
  kwepemr100010.china.huawei.com (7.202.195.125)
 
-From: Yifan Zhao <yifan.yfzhao@foxmail.com>
+When rebuilding from upper to lower, a whiteout below an already
+recreated directory should keep that directory but stop older lower
+entries from being merged into it.
 
--ENOSPC can be a normal compression fallback when fragments are off.
-Keep the global compression context reusable for that case while
-preserving the fatal state for real errors.
+Mark the existing directory opaque before applying the generic
+non-directory bailout.
 
-Fixes: a729584ef975 ("erofs-utils: mkfs: avoid hanging if fragment is on and tmpdir is full")
-Reported-by: Bastian Schmitz <8330902+bshm@users.noreply.github.com>
-Closes: https://github.com/erofs/erofs-utils/issues/50
+Reported-by: cayoub-oai <276123840+cayoub-oai@users.noreply.github.com>
+Closes: https://github.com/erofs/erofs-utils/issues/49
 Assisted-by: Codex:GPT-5.5
 Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
 ---
- lib/compress.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ lib/rebuild.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/lib/compress.c b/lib/compress.c
-index ea07409..2a43b81 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -2031,7 +2031,11 @@ err_free_idata:
- out:
- #ifdef EROFS_MT_ENABLED
- 	pthread_mutex_lock(&ictx->mutex);
--	ictx->seg_num = ret < 0 ? INT_MAX : 0;
-+	if (ret < 0 && (ret != -ENOSPC || inode->fragment_size))
-+		/* mark as failed to avoid further processing */
-+		ictx->seg_num = INT_MAX;
-+	else
-+		ictx->seg_num = 0;
- 	pthread_cond_signal(&ictx->cond);
- 	pthread_mutex_unlock(&ictx->mutex);
- #endif
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index 51dfe18..108a464 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -401,7 +401,13 @@ static int erofs_rebuild_dirent_iter(struct erofs_dir_context *ctx)
+ 			.nid = ctx->de_nid
+ 		};
+ 		ret = erofs_read_inode_from_disk(&src);
+-		if (ret || !S_ISDIR(src.i_mode))
++		if (ret)
++			goto out;
++		if (erofs_inode_is_whiteout(&src)) {
++			d->inode->opaque = true;
++			goto out;
++		}
++		if (!S_ISDIR(src.i_mode))
+ 			goto out;
+ 		mergedir = d->inode;
+ 		inode = dir = &src;
 -- 
 2.47.3
 
