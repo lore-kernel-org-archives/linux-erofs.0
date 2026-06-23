@@ -1,88 +1,45 @@
-Return-Path: <linux-erofs+bounces-3725-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3726-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84D30CDB466
-	for <linux-erofs@archiver.kernel.org>; Tue, 23 Jun 2026 02:50:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F554CDB46B
+	for <linux-erofs@archiver.kernel.org>; Tue, 23 Jun 2026 02:52:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gkqLF2m9rz2y71;
-	Tue, 23 Jun 2026 12:50:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::433"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782183013;
-	cv=none; b=SIAy5I3EwFfEMcqbB37ZI40nhjK25QBoH8q5Dga/Ank8iDasY/GR8+VVuTLaE+El28tO1wYrNxvuhq0U9ztmAbQzCoc+ExWOIbs+J7Z5QpSf9TO0H8b5SkoYFihr1DqYUNUX8t+UnKiC2/1hf8iT7nMf8D9OqWGmcFz/C4Yr+ySNAIONkMepB5LHa/lHmree5G/EPg6VnUkLjcsDqisCzhew6mooXUZTjfqyHa7Da5XOL754sJRYu6yVK05fIwXK3IHhF/33rvhaatcjLYPeGrWAcB5wK3/z3yVsIEpcR6hkjmD3MIa5Xs0tMBXaW3Y5t214HZk1jtqJAKHF/m+CCQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gkqPH3xKqz2xwP;
+	Tue, 23 Jun 2026 12:52:51 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.119
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782183171;
+	cv=none; b=Y1hWpBCPQD7GfGH1giR+DRMhDgmCNZjmHqdTiQ9+CtucgN9dxU3Y9fNjTJoIsLWsbrM7Zcs5FtsQiVBFKlPSFKY/Fr0UOgbeBz8CAJAszYKzVIzRE1YbuSrGbzZj7iGTXRyuyE8UoeupgYAbZxt3Hh3e0RE2Bxdk2hb5ImyuBktRa/6AvcXJinKamGZ9/UzhTI56hiMgI+XDSNS4wRtdL8ZdFQV/z4rp0GgGvQb1h8cI2uhCfkaBFfvbRanFSG9T1vXrGxxH9OleQlfLC4NZyP214Q9pBLtSew9OOdjOjJDSd0t6zeAuQDKrfB07NUhlfF/EoB11Nd/oAwMploXfkA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1782183013; c=relaxed/relaxed;
-	bh=lr4xgVO18u2WbaGeP1+M4CIAnONQq7B3nOwFcr50zAo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=baM23O73GdNynSeqI52dx08f/1wvTv5teEBc0tevrGa78wdTyPrmqyVpFfVzt4YRB7yzHSUoqITa100FJl4Oglbp3kwKUDAgq/9h6b28aFs+YWhxYExFNIoc5IhOoNaFsSFis4bbkzVGUz8vsKItoDiOR63cfcpZiZifekxmDW37HJVYABv1HN0ZW3nvKieHXEKop8BSaQjr9Ix1aN3anfh5yNXdRRDvkAxkTtTUrdr/b/ZxOgzZaGPU9NUoOp5kFsm4mKQ4WDZF6rxrhuIsBijJCHE8stzEYr7LJTLeU4U8swZKfC+jJgt3zxprSGJ1cCseX/Dh8rgq1f/YMYFUyg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=i0cbo0m3; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::433; helo=mail-pf1-x433.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1782183171; c=relaxed/relaxed;
+	bh=R/lOLE+r2XE/sSINR6Cj61K9HooeubIu3bU4meTa6cw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i1NKJOMrYT677YDgdJiyQt8lxYpQDXIW7H83idbxPk92JGC9TaLEs42ckJ5qBxdfI4WHDLP5Y626K1pNIyM61fPK6CgxkUCH5w9lBv6eX9N0nd4AgC8Yfu3DpAYjx4Le13iZTznjuuweKwQ7CZ5pSCK+tMFPB9Vg8i3DB98Zh6/qNHOjJNsKtg9MoRwupP/PbglYa8mhYBwgNuPp/x3w56j/7Cd6nj19offf/JvBdPDoxU4NHTV2z4tmJQTNkaGtYGe/JZ5BgssFY9DCVlWchlYZJuMQG1SvucHz2HhcttxIEE8dDCptn86ZeGkJnS8pa0zZiaRNJAh7au0t9UDrxA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CxkGuarb; dkim-atps=neutral; spf=pass (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=i0cbo0m3;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CxkGuarb;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::433; helo=mail-pf1-x433.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.119; helo=out30-119.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gkqLC4cNyz2xwP
-	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Jun 2026 12:50:10 +1000 (AEST)
-Received: by mail-pf1-x433.google.com with SMTP id d2e1a72fcca58-8454c5a280aso261307b3a.1
-        for <linux-erofs@lists.ozlabs.org>; Mon, 22 Jun 2026 19:50:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782183003; x=1782787803; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lr4xgVO18u2WbaGeP1+M4CIAnONQq7B3nOwFcr50zAo=;
-        b=i0cbo0m3YyY2eEP83KBgSVenSXZsm2KmHCvWW/jJsWQwLgL9ebVDKzN3FLaWEirE3H
-         rPNq058+VazCeW+Gu+ko6nxeHDycd0A8SVtgmuR66xgLmsnyeL0qY5WmX8C5ZsVhqAWn
-         CzfnizKzL7UCz9AniEMRiHsM6zOTrp2q5eWnruaopgX6/Hoc/k+yUTBkfdyeQSHVEK2n
-         5wKO7C47Wn6FWLBOAFYE7+wzN/KmD2UIA/VASUVuChYNviJNKc6lUjcPT/UN6465tEVS
-         27klG59f+Nd9ePtc1FDxQpEXr2YUCjyfB4A0EKUL9oWryballHxj0/rOB8iC6qsMtVAV
-         sFUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782183003; x=1782787803;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lr4xgVO18u2WbaGeP1+M4CIAnONQq7B3nOwFcr50zAo=;
-        b=IsIbvHcir3Z69rI28jEdE41rjLM/Zev7jPqYg/nfSNByBzlxlS9WwF4Nm/uU/HhifF
-         C+DeGW5OaAPrugtcMZD9VQ4whpSSURYKd8wZ8dojRYAdn84PAHEVN7d4P2KOy3pNrbmu
-         iuk0B80FBiUBVUwKQECYXN/fnhY7/6bGtQ8zHagdxIqMEYZNIueSWhLpI7QV0PcrlGsE
-         leyzNTiZMDqegyrsTMY5RWWt/CKl3Bd9rXEKjJrbL3DG7djR+3YMx25jiKoXe+aEOsIE
-         DLl3YhBhKEJEzi0kEVdd4V602oKbYvPAi2Q3NdFi+vsmrlF/CXbr2kH/CZ6nLAd/B4uS
-         jUPA==
-X-Forwarded-Encrypted: i=1; AFNElJ8xup6xGSWvdvb9AvJrU1JKZ9T65Dmrow3u9Va/Uv7A1rM2kz2WaDtnilOs8SIXW4nY4NK8GOi29tR5WQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YwffM96ViNe9aHT63OPd0F29OjY2oTcy5d/eYxCnrSULACSLb5h
-	JA8b+GpDyYVdW/MKi+RjY1xVJBD/StBQTKRrmvlQ7Kv/zB1SBVC3O+bN
-X-Gm-Gg: AfdE7cmx5UgBNYgBnLadVq/TCN7AIyovsH3FXCz4/kdKVKyKe2ln96YzHNyrNI1CvP8
-	QWow/3WAxgTYSbeZYRRmKL5W4IpgU+1EZYOzdg9euP98JqY6x/CM396Q2sbokyyQs3Iquuw6oGS
-	2TmeS9UcqXoo1WfXQ+YKikVRIsGPVyUwXLmKmehhehUf/BH7bqpoqodBjK6pqc7e2oOCllf/IS4
-	uAOXWvPVJPAutFYI15vxURFK2ar872xo+hAmNxHhqA8tGKb/sPu49dv3As66QZJH6dMLwl4khit
-	N3O0ozj/UXwJqf8wg1gVZoTuq8ta1/hw0DbEFhwautHBp5dxWgY+fNfOWvcjwyH344Akz2HjSmP
-	cUtcIpnObBKgBwSnq5VlbHJHp+rYEM3WbkDZvA28DCXxTQCi1bPVQgm210qU2w4sTndBQlOAb+c
-	n6pazsaqXOj5WGlo+N+ocznIU=
-X-Received: by 2002:a05:6a00:1742:b0:842:50fd:4c13 with SMTP id d2e1a72fcca58-84591b50e5emr1566841b3a.4.1782183003157;
-        Mon, 22 Jun 2026 19:50:03 -0700 (PDT)
-Received: from osman.mioffice.cn ([43.224.245.178])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84564ed3212sm9178123b3a.55.2026.06.22.19.50.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 19:50:02 -0700 (PDT)
-From: Zhan Xusheng <zhanxusheng1024@gmail.com>
-X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	Jianan Huang <jnhuang95@gmail.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	Zhan Xusheng <zhanxusheng1024@gmail.com>,
-	Zhan Xusheng <zhanxusheng@xiaomi.com>
-Subject: erofs: is z_erofs_put_pcluster()'s sbi access in the same UAF window as 1aee05e814d2?
-Date: Tue, 23 Jun 2026 10:49:46 +0800
-Message-ID: <20260623024946.3420476-1-zhanxusheng@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gkqPF3Kg6z2xnQ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 23 Jun 2026 12:52:48 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1782183163; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=R/lOLE+r2XE/sSINR6Cj61K9HooeubIu3bU4meTa6cw=;
+	b=CxkGuarbRJd9fSmjO/M3jDAbJtPle7tn5uaybDSm/GX8NIjUG/8Z3u0m4wDDM7gf97Bs0oLdqqUc8jr81OJgDPNz49buYhrzpKpv9yl+XWNl0er005m156ngjHAb0ahWVuDX3onV+i0OH91MJ/Ij5aCoU69YaAvuLEfjJ/azIfI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0X5SS8yb_1782183161;
+Received: from 30.221.132.85(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X5SS8yb_1782183161 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 23 Jun 2026 10:52:41 +0800
+Message-ID: <0e2df016-dc1a-4dc5-8461-5a778f029247@linux.alibaba.com>
+Date: Tue, 23 Jun 2026 10:52:40 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,54 +51,72 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: erofs: is z_erofs_put_pcluster()'s sbi access in the same UAF
+ window as 1aee05e814d2?
+To: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Cc: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+ Jianan Huang <jnhuang95@gmail.com>, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, Zhan Xusheng <zhanxusheng@xiaomi.com>
+References: <20260623024946.3420476-1-zhanxusheng@xiaomi.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20260623024946.3420476-1-zhanxusheng@xiaomi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Zhan Xusheng <zhanxusheng1024@gmail.com>
 
-Hi Xiang,
 
-Following the race model established by commit 1aee05e814d2 ("erofs: fix
-use-after-free on sbi->sync_decompress") -- i.e. unmount does not drain
-the async decompress kworker, and unlocking the output folios lets inode
-eviction (truncate_inode_pages waits on the locked folios) and thus the
-unmount path proceed to kfree(sbi) -- I'd like to ask about another sbi
-access that also happens after the unlock, in the same kworker.
+On 2026/6/23 10:49, Zhan Xusheng wrote:
+> From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+> 
+> Hi Xiang,
+> 
+> Following the race model established by commit 1aee05e814d2 ("erofs: fix
+> use-after-free on sbi->sync_decompress") -- i.e. unmount does not drain
+> the async decompress kworker, and unlocking the output folios lets inode
+> eviction (truncate_inode_pages waits on the locked folios) and thus the
+> unmount path proceed to kfree(sbi) -- I'd like to ask about another sbi
+> access that also happens after the unlock, in the same kworker.
+> 
+> In z_erofs_decompress_pcluster():
+> 
+> 	erofs_onlinefolio_end(page_folio(page), err, true);  /* unlock */
+> 	...
+> 	z_erofs_put_pcluster(sbi, pcl, try_free);
+> 
+> and in z_erofs_put_pcluster():
+> 
+> 	if (try_free && xa_trylock(&sbi->managed_pslots)) {
+> 		free = __erofs_try_to_release_pcluster(sbi, pcl);
+> 		xa_unlock(&sbi->managed_pslots);
+> 	}
+> 
+> So in the try_free path it dereferences sbi->managed_pslots after the
+> output folios have been unlocked, which on control-flow alone looks
+> similar to the UAF fixed by 1aee05e814d2.
+> 
+> What makes me unsure, though, is a difference from the sync_decompress
+> case: sync_decompress is just a plain sbi member, whereas here
+> z_erofs_put_pcluster() is still operating on a live pcluster that is
+> registered in sbi->managed_pslots / the managed cache. So it's not clear
+> to me whether the pcluster / managed-cache lifetime rules implicitly pin
+> the filesystem instance and keep sbi valid across this window.
+> 
+> This also seems much harder to hit than the sync_decompress case: it is
+> conditional (try_free, i.e. non-managed compressed pages, plus the
+> pcluster refcount reaching zero), the window between the unlock and
+> put_pcluster is narrow, and unmount still has evict_inodes/put_super work
+> to do before kfree(sbi) -- which may be why syzbot didn't reach it.
+> 
+> Is there any guarantee that sbi stays valid here after the output folios
+> are unlocked (e.g. via pcluster / managed-cache lifetime or RCU), or
+> could unmount race with this path similarly to 1aee05e814d2? I'm asking
+> rather than sending a patch since I couldn't convince myself either way.
 
-In z_erofs_decompress_pcluster():
+No, this is totally false-positive.
 
-	erofs_onlinefolio_end(page_folio(page), err, true);  /* unlock */
-	...
-	z_erofs_put_pcluster(sbi, pcl, try_free);
+> 
+> Thanks,
+>    Zhan Xusheng
 
-and in z_erofs_put_pcluster():
-
-	if (try_free && xa_trylock(&sbi->managed_pslots)) {
-		free = __erofs_try_to_release_pcluster(sbi, pcl);
-		xa_unlock(&sbi->managed_pslots);
-	}
-
-So in the try_free path it dereferences sbi->managed_pslots after the
-output folios have been unlocked, which on control-flow alone looks
-similar to the UAF fixed by 1aee05e814d2.
-
-What makes me unsure, though, is a difference from the sync_decompress
-case: sync_decompress is just a plain sbi member, whereas here
-z_erofs_put_pcluster() is still operating on a live pcluster that is
-registered in sbi->managed_pslots / the managed cache. So it's not clear
-to me whether the pcluster / managed-cache lifetime rules implicitly pin
-the filesystem instance and keep sbi valid across this window.
-
-This also seems much harder to hit than the sync_decompress case: it is
-conditional (try_free, i.e. non-managed compressed pages, plus the
-pcluster refcount reaching zero), the window between the unlock and
-put_pcluster is narrow, and unmount still has evict_inodes/put_super work
-to do before kfree(sbi) -- which may be why syzbot didn't reach it.
-
-Is there any guarantee that sbi stays valid here after the output folios
-are unlocked (e.g. via pcluster / managed-cache lifetime or RCU), or
-could unmount race with this path similarly to 1aee05e814d2? I'm asking
-rather than sending a patch since I couldn't convince myself either way.
-
-Thanks,
-  Zhan Xusheng
 
