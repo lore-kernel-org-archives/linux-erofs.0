@@ -1,36 +1,53 @@
-Return-Path: <linux-erofs+bounces-3769-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3770-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAF3DCD4F26
-	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jun 2026 06:16:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B5AFCDE008
+	for <linux-erofs@archiver.kernel.org>; Fri, 26 Jun 2026 06:20:36 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gmln97441z2yYf;
-	Fri, 26 Jun 2026 16:16:45 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=213.95.11.211
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782454605;
-	cv=none; b=EgWyslxwNbegGJzF3Qp3dQQQZTvMtDOnHtqVWst+h9wTEZEfMx//Bry1CJY4cRCaWqi1JyZ2DkgYQNxnNs2xraxFjDyeCmrydfYTY6W0il2TlXLYFHbvthMPoJjFCNDwJOnwdQeAcaTfhRCuuWlgbcHhh4XqzL9hz4xLbX461yK2L+Sd7D33NGLCB4jF6+HiE9QBwIYHskVlSPUftPjyVoNqGkBWcWauvXab90/+9CcXGOU0LUjX99mVLqC9FkoTmTv/QuHa1wcd6U8JeR1cBEd2f9mVZQZebBarsooaLFsGbCWTLBaSImPqVnODVDpyEjXqlx33hci59qKrXt8D0Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gmlsb2Zg1z2yZ6;
+	Fri, 26 Jun 2026 16:20:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782454835;
+	cv=none; b=lFlx+huhUoe3t3sD+gA9d3z6gZRZ2sDkMi3ISxm5u/zLutLIUtmwi4Q77u7qa/Ttvt15kSciQg6zP15Ujg2bjbcLkTaOkDVSADOaGI6lbQev8LM3z7XbJokqKC2yWUupzasuJMrmHnZGTuqmJa8cYEJeb8JTjUEheZqUpz8sPvnio9ECKeuCf6EUagYy7n04NL5qRuv8Idc1FuH8M/Pye8jslFsoDYiuwpjJ/MvLhDC3NGYsAei25NHM4M28VtRuXJhJUnfL8ryM65BdXxbVRz2vnupucLS7EibA+uf2jY26nMbHbSdrNUY6wLuWqjc2Yj1lhGXsBcBZLejLMzEMFg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1782454605; c=relaxed/relaxed;
-	bh=DnWW2B02tJo8s3QUwD8/aXFmynbEd9S+n8wSCnsIiSs=;
+	t=1782454835; c=relaxed/relaxed;
+	bh=oXt3TI3KYVr+qcWdZITB8qJGMGwNWpZ94QcTDSJRm/A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FLnEFghFLHALohT11YSjRcsTKxBJtyuo2s8RHZRvtu3uoaPIeZthdelLuM+DzbH/pFobZDhLn4D0uj4fhrA8wdlERGjXAQ1jy8iDa6U5jh9ehQt7c+cD4B1noK5IojKALR3ATtvyupUvn38W75o+G0Ggpi4b3ESQqeCJaDUvqtWhaSufUeK+gF4gVu1MLuYk1BLUqKtaBRTkmGkKcv0YV2rRMXiMc51dA+qsPNtrysAEpW3n0YvWw7M0Gm1LXjNnju748her66dX6xN0ZneY1TX2WalxSa+s4nE2jAD+lJDavgc8EHzFJOvH2KrUMBg20evIU2G52VHsCiat6eU29A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org) smtp.mailfrom=lst.de
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	 Content-Type:Content-Disposition:In-Reply-To; b=SYVmyLUdnOQJ2PS51sPEpDatbrcvufpbu+9IMPUIbfBeyjAd+Lnq+tMldJTap/0Z0K7LXXYiQPYlBswPjFoFNZt7VeDUC4Jhx2kKjiJqC94O6J6tQ3n1Su2cJaDJ2whRv4OrwYxvJA/mPpUOnsQeb3wLKzyM+7zOPocHCS/Z7je0Cgs6KHg+1TPeb9YBXftLVi9K9GXg3Od50e7luDt6zgS4q0fcFZzeaXRJBH9vEgJ3B10w/c0OW+SJGql4TPmamspEJyLYe0R57Y+B9Kc59ToNndP3WPY9RAocjo5Bouo8VfSSxtjc4nB5jhzqK6+m8wtsLdtIRyMwIlw7yhWPOA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WU/L1yfE; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=djwong@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: lists.ozlabs.org;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WU/L1yfE;
+	dkim-atps=neutral
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=djwong@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gmln76zr4z2yYd
-	for <linux-erofs@lists.ozlabs.org>; Fri, 26 Jun 2026 16:16:43 +1000 (AEST)
-Received: by verein.lst.de (Postfix, from userid 2407)
-	id 0352068B05; Fri, 26 Jun 2026 08:16:37 +0200 (CEST)
-Date: Fri, 26 Jun 2026 08:16:37 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Joanne Koong <joannelkoong@gmail.com>
-Cc: "Darrick J. Wong" <djwong@kernel.org>, Christoph Hellwig <hch@lst.de>,
+	by lists.ozlabs.org (Postfix) with UTF8SMTPS id 4gmlsZ3wkwz2yYf
+	for <linux-erofs@lists.ozlabs.org>; Fri, 26 Jun 2026 16:20:34 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with UTF8SMTP id E2211403EB;
+	Fri, 26 Jun 2026 06:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id B55691F000E9;
+	Fri, 26 Jun 2026 06:20:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782454831;
+	bh=oXt3TI3KYVr+qcWdZITB8qJGMGwNWpZ94QcTDSJRm/A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WU/L1yfEC2pGmaOfTfMjPKOjwaMy0wyqdhnFLjCOILvjO2REFqtZVx96g76tlKyUe
+	 YcEVbk80irMUnaISGeH+dezCvaCemGir7VhLVow6Wq8lTBAeQiOq9/62OGD+8upClT
+	 tlNeTpLiRSS5oxeCR/AnFOw0Ymd4DcP898QGin6SjmjjQUk6KUiyRydTSUqDw0Jf7S
+	 JMVYe8xMPkJFaxtJ5xdEkA6oy3hB59HQfI2xBlGv+Pg4NwqBhOZ33N8zX1c1d3TiZ+
+	 uMOMt8d3gN3nuMZBCvKoV69Knv8A9LV18xmyXIsSCdYBUUoqyD0osWt98ZI9jGevfj
+	 4klA4fkf4VUpg==
+Date: Thu, 25 Jun 2026 23:20:31 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Joanne Koong <joannelkoong@gmail.com>,
 	Christian Brauner <brauner@kernel.org>,
 	Kelu Ye <yekelu1@huawei.com>, Yifan Zhao <zhaoyifan28@huawei.com>,
 	Ritesh Harjani <ritesh.list@gmail.com>,
@@ -42,8 +59,13 @@ Cc: "Darrick J. Wong" <djwong@kernel.org>, Christoph Hellwig <hch@lst.de>,
 	ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org,
 	linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org
 Subject: Re: [PATCH 2/2] iomap: submit read bio after each extent
-Message-ID: <20260626061637.GA10337@lst.de>
-References: <20260625120803.2462291-1-hch@lst.de> <20260625120803.2462291-3-hch@lst.de> <20260625174758.GE6078@frogsfrogsfrogs> <CAJnrk1YFeirQ4g7qcVsda-8qPLeAtoiyW6ZBuJb2qDsGpxi-tg@mail.gmail.com> <20260626043319.GC8078@lst.de>
+Message-ID: <20260626062031.GO6078@frogsfrogsfrogs>
+References: <20260625120803.2462291-1-hch@lst.de>
+ <20260625120803.2462291-3-hch@lst.de>
+ <20260625174758.GE6078@frogsfrogsfrogs>
+ <CAJnrk1YFeirQ4g7qcVsda-8qPLeAtoiyW6ZBuJb2qDsGpxi-tg@mail.gmail.com>
+ <20260626043319.GC8078@lst.de>
+ <20260626061637.GA10337@lst.de>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,21 +79,27 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260626043319.GC8078@lst.de>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <20260626061637.GA10337@lst.de>
 
-On Fri, Jun 26, 2026 at 06:33:19AM +0200, Christoph Hellwig wrote:
-> On Thu, Jun 25, 2026 at 11:32:40AM -0700, Joanne Koong wrote:
-> > Yes, that works. I think that's a good idea. fuse only needs
-> > submit_read logic for readahead. The change would just be:
+On Fri, Jun 26, 2026 at 08:16:37AM +0200, Christoph Hellwig wrote:
+> On Fri, Jun 26, 2026 at 06:33:19AM +0200, Christoph Hellwig wrote:
+> > On Thu, Jun 25, 2026 at 11:32:40AM -0700, Joanne Koong wrote:
+> > > Yes, that works. I think that's a good idea. fuse only needs
+> > > submit_read logic for readahead. The change would just be:
+> > 
+> > A nice, I'll fold that in.
 > 
-> A nice, I'll fold that in.
+> Btw, can I get a signoff from you for this?  It looks like splitting
+> this into a separate patch actually works better.  If you have a
+> preferred commit log I'd take that as well instead of mine.
+> 
+> This is what I'm currently testing:
+> 
+> https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/iomap-read-submit-bio
 
-Btw, can I get a signoff from you for this?  It looks like splitting
-this into a separate patch actually works better.  If you have a
-preferred commit log I'd take that as well instead of mine.
+For both of the patches at the end of the branch,
+Reviewed-by: "Darrick J. Wong" <djwong@kernel.org>
 
-This is what I'm currently testing:
+--D
 
-https://git.infradead.org/?p=users/hch/misc.git;a=shortlog;h=refs/heads/iomap-read-submit-bio
 
