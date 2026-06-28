@@ -1,54 +1,54 @@
-Return-Path: <linux-erofs+bounces-3773-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3774-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E241C43458
-	for <linux-erofs@archiver.kernel.org>; Sat, 27 Jun 2026 03:03:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 92CD4C43458
+	for <linux-erofs@archiver.kernel.org>; Sun, 28 Jun 2026 14:39:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gnHSC1VdXz2xWP;
-	Sat, 27 Jun 2026 13:03:55 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782529435;
-	cv=none; b=fFPlxkq4NMCb7PR/9Pa8D9Gn3gLPwTLe9LdIlzntBtVjH1MhUG/BgfXb19zY7OH05EvCZkHiYht/0jHsD9XL8Z3AZ5FJkdVrwvfDMc5WPsJVfEYQVujEQN8g2lXtYhs59edYGXZ4o7P3z+lTCONE7x8FBep0VqZpsCfgol+hEd1QMlKcsverHtkOKC7P8gpx1MyHAyD4h/fMFsgKAF4J+/7PJ9NdH5GjxuxoZNlA015L6KD8CtMN58+Zobv7B5A9BJVwdalwxe3VsnKeePoYlw1ToeK/OfS+UI0bFnYJFKHH8MA/LFz7D2WpukJh3cZkMidIsSmGAD5Ni6SwvX0OAA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gpBrG1VXjz2yDs;
+	Mon, 29 Jun 2026 00:39:26 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.110
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1782657566;
+	cv=none; b=oFXLsRKl0Jwvm7pjWs62416EgBOCkFU14h4E3UNVdjZKB/2/ZAIRmkw50K3DW76wELFP5g9CUeHJy2PeYkXL0EZNRmjfBXhLfEHeiIJ9mwvD5juXTYHdFa74ThuE2Vx+SMcwsJKqjvl4mpCcyIAXNsKOygKmn3UcTnNFUq01yYSofGnN9Z1Mwqu6L74hOFUbL5zIcnEgR3glfeyL84mvT/7GVnSGrfq0J/U1TihRvPZcTao3BGJZBO0TBQNJYQZsZmuaw/wJwSMUgXhYCNQca39Lk2cXuCgTgTmY5ehgWFEq2q6GHQ92FpcMK9h6Fp8xPapQ3JMAZivCuROyjQPUgg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1782529435; c=relaxed/relaxed;
-	bh=Dnvt4sIXi/LLJB7q8UUBZTuvwgnFHWhoXczkTMAu6vA=;
+	t=1782657566; c=relaxed/relaxed;
+	bh=d93kUc2hrANbQTP/TdKTsRTdr3/Z14zS7WQlowBBmZY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dBiz+hLrNVpjhcNoN3MfK2JB07hfZOUsvPRU+eaBqaOcIMnP3gdKmFahpCACLu/xUp0kqfQvcYNZKFZxhU6/MjqH1ZGARrqcI8P3jDlu4zMAAB88UvRcXDs34lW4BW+hOL2hBh0n1QdICMdEmxmWrPGjMRivMCJlfGn9zM1OK9tWgACQ3LfeFnomgc2X1AV7Q+7cB0zhVYzYAkipVzj3vBGTYpzyhQrvcLCujVR4GwLua27+khWo9EKoVPykB6DnOhaQytdFXV/tcAxF7ICl6VsBVyKxcc3k2HAML6RNlZdLISHyaIUMrIXVnF/vtpC0QN1W0GTPsVp3/c5VwmJugQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=sU3dPbyV; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+	 MIME-Version; b=gb5OuGtkAo3x7Mu4YY0qOr3pyvhnM/9KkJnfteB6SUoO/xzq/ZD+gbpMN04VvViVBpzBNP/qzqozWE0Z7WfaKGdMrFV07/1aRPb14s3Akcf8M+YMKytn+dmYybIatNfnIZn27EGMGRwZQiA3MqTqNMECw8PfKhdZE1gnANcOkDOtroNx2A6ogpB+S2g6yTTLwHAoRGJXXsDyXPb4zm4rW8qMYsV7/CRlvxyVOfbS9PWdbQW+Ayvep3Rti7zuENDZ1BK8ZhhftZ+rT/4bit4cGqGheCjQubRjvu+6wRXT7FrCD2023uHLrOs7x2jmhaHeY/ywZZD+NhKszRQQ6mPq+Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UYWfIU6o; dkim-atps=neutral; spf=pass (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=sU3dPbyV;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=UYWfIU6o;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.110; helo=out30-110.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gnHS76SP9z2xVK
-	for <linux-erofs@lists.ozlabs.org>; Sat, 27 Jun 2026 13:03:50 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gpBrC75CDz2xjd
+	for <linux-erofs@lists.ozlabs.org>; Mon, 29 Jun 2026 00:39:22 +1000 (AEST)
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1782529425; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=Dnvt4sIXi/LLJB7q8UUBZTuvwgnFHWhoXczkTMAu6vA=;
-	b=sU3dPbyVddpmQi9V4KWmKFgEnF2iNCeiOudF74OxVu4FP8fKkz0z+D6p6uRi001dRb2dg6bJuFuD5wQTpjWGLoy514Vj3rF09EJ98lueFe6ze2sGIzogb+eye/kltHI+RaMmJQGEPx3ZxcQI/Qa1W41FE8e4mXGzCfMNi8S1Nu8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R781e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X5g7tg1_1782529419;
-Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X5g7tg1_1782529419 cluster:ay36)
+	t=1782657557; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=d93kUc2hrANbQTP/TdKTsRTdr3/Z14zS7WQlowBBmZY=;
+	b=UYWfIU6oJ5lOOG3SSHi0ybV3URTLY1wXno4hxLGXHjVouVIPC7kDLlDCOunJ6IqiSAOH/0Maw8o9bPb1mSClXkhbhTjfhOoFwauFOzYnW4X332SnkojdAwPUH2XR6Z6EI0t3NkU427razwwS9jtFlIX8jm45z8/UqRq9xsr/CVk=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X5kT1Rj_1782657554;
+Received: from x31i01179.sqa.na131.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X5kT1Rj_1782657554 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Sat, 27 Jun 2026 11:03:43 +0800
+          Sun, 28 Jun 2026 22:39:15 +0800
 From: Gao Xiang <hsiangkao@linux.alibaba.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: oliver.yang@linux.alibaba.com,
-	Chengyu Zhu <hudsonzhu@tencent.com>,
+Cc: Chengyu Zhu <hudsonzhu@tencent.com>,
 	Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH v4] erofs-utils: fsck: add `--xattr-inode-digest` support
-Date: Sat, 27 Jun 2026 11:03:39 +0800
-Message-ID: <20260627030339.2577674-1-hsiangkao@linux.alibaba.com>
+Subject: [PATCH v3 2/2] erofs-utils: mount: rename erofsmount_nbd_ctx to erofsmount_ctx
+Date: Sun, 28 Jun 2026 22:39:10 +0800
+Message-ID: <20260628143910.1062931-2-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 2.43.5
-In-Reply-To: <20260626135206.1594849-1-hsiangkao@linux.alibaba.com>
-References: <20260626135206.1594849-1-hsiangkao@linux.alibaba.com>
+In-Reply-To: <20260628143910.1062931-1-hsiangkao@linux.alibaba.com>
+References: <20260624133732.18218-1-hudson@cyzhu.com>
+ <20260628143910.1062931-1-hsiangkao@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -64,413 +64,250 @@ Content-Transfer-Encoding: 8bit
 
 From: Chengyu Zhu <hudsonzhu@tencent.com>
 
-Add a new `--xattr-inode-digest` option to verify per-inode digests
-embedded by `mkfs.erofs --xattr-inode-digest`.
-
-For each regular inode with non-zero size, the stored digest xattr is
-compared against a freshly computed SHA-256 of the inode data:  Any
-mismatch is reported as filesystem corruption.
-
-Note that enabling this option also forces extraction.
+The struct is shared by NBD, ublk and fanotify paths, so the
+nbd-specific name was misleading.
 
 Signed-off-by: Chengyu Zhu <hudsonzhu@tencent.com>
 Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 ---
-v4:
- - fix a false-positive compiler warning.
- fsck/main.c           | 129 +++++++++++++++++++++++++++++++++++++-----
- include/erofs/xattr.h |   3 +
- lib/xattr.c           |  56 ++++++++++++++++--
- man/fsck.erofs.1      |   4 ++
- 4 files changed, 174 insertions(+), 18 deletions(-)
+ mount/main.c | 79 +++++++++++++++++++++++++++-------------------------
+ 1 file changed, 41 insertions(+), 38 deletions(-)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index 759ca7df6722..b63fd135d7ad 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -15,9 +15,12 @@
- #include "erofs/xattr.h"
- #include "../lib/compressor.h"
- #include "../lib/liberofs_compress.h"
-+#include "../lib/sha256.h"
+diff --git a/mount/main.c b/mount/main.c
+index dbf5cdddd265..48418275b2d0 100644
+--- a/mount/main.c
++++ b/mount/main.c
+@@ -772,13 +772,13 @@ err_out:
+ 	return err;
+ }
  
- static int erofsfsck_check_inode(erofs_nid_t pnid, erofs_nid_t nid);
- 
-+static char erofsfsck_nullstr[] = "";
-+
- struct erofsfsck_dirstack {
- 	erofs_nid_t dirs[PATH_MAX];
- 	int top;
-@@ -29,6 +32,7 @@ struct erofsfsck_cfg {
- 	u64 logical_blocks;
- 	char *extract_path;
- 	size_t extract_pos;
-+	char *digest_xattr_name;
- 	mode_t umask;
- 	bool superuser;
- 	bool corrupted;
-@@ -64,6 +68,7 @@ static struct option long_options[] = {
- 	{"nid", required_argument, 0, 15},
- 	{"path", required_argument, 0, 16},
- 	{"no-sbcrc", no_argument, 0, 512},
-+	{"xattr-inode-digest", no_argument, 0, 17},
- 	{0, 0, 0, 0},
+-struct erofsmount_nbd_ctx {
+-	struct erofs_vfile _vd;		/* virtual device */
+-	struct erofs_vfile sk;		/* socket file */
++struct erofsmount_ctx {
++	struct erofs_vfile _vd;		/* backing source */
++	struct erofs_vfile sk;		/* NBD socket (NBD backend only) */
+ 	struct erofs_vfile *vd;
  };
  
-@@ -117,6 +122,7 @@ static void usage(int argc, char **argv)
- 		" --nid=#                check or extract from the target inode of nid #\n"
- 		" --path=X               check or extract from the target inode of path X\n"
- 		" --no-sbcrc             bypass the superblock checksum verification\n"
-+		" --xattr-inode-digest   verify per-inode digests recorded as extended attributes\n"
- 		" --[no-]xattrs          whether to dump extended attributes (default off)\n"
- 		"\n"
- 		" -a, -A, -y             no-op, for compatibility with fsck of other filesystems\n"
-@@ -257,6 +263,10 @@ static int erofsfsck_parse_options_cfg(int argc, char **argv)
- 		case 16:
- 			fsckcfg.inode_path = optarg;
- 			break;
-+		case 17:
-+			fsckcfg.digest_xattr_name = erofsfsck_nullstr;
-+			fsckcfg.check_decomp = true;
-+			break;
- 		case 512:
- 			fsckcfg.nosbcrc = true;
- 			break;
-@@ -503,7 +513,8 @@ out:
- 	return ret;
+-static int erofsmount_open_source(struct erofsmount_nbd_ctx *ctx,
++static int erofsmount_open_source(struct erofsmount_ctx *ctx,
+ 				  struct erofsmount_source *source)
+ {
+ 	int err;
+@@ -817,7 +817,7 @@ static int erofsmount_open_source(struct erofsmount_nbd_ctx *ctx,
+ 
+ static void *erofsmount_nbd_loopfn(void *arg)
+ {
+-	struct erofsmount_nbd_ctx *ctx = arg;
++	struct erofsmount_ctx *ctx = arg;
+ 	int err;
+ 
+ 	while (1) {
+@@ -863,7 +863,7 @@ out:
+ 
+ static int erofsmount_startnbd(int nbdfd, struct erofsmount_source *source)
+ {
+-	struct erofsmount_nbd_ctx ctx = { .vd = &ctx._vd };
++	struct erofsmount_ctx ctx = { .vd = &ctx._vd };
+ 	uintptr_t retcode;
+ 	pthread_t th;
+ 	int err, err2;
+@@ -1190,7 +1190,7 @@ static int erofsmount_reattach_oci(struct erofs_vfile *vf,
+ #endif
+ 
+ #ifdef S3EROFS_ENABLED
+-static int erofsmount_reattach_s3(struct erofsmount_nbd_ctx *ctx, char *source)
++static int erofsmount_reattach_s3(struct erofsmount_ctx *ctx, char *source)
+ {
+ 	char *tokens[5] = {0}, *p = source;
+ 	char *bucket = NULL, *key = NULL;
+@@ -1253,13 +1253,13 @@ err_out:
+ 	return err;
+ }
+ #else
+-static int erofsmount_reattach_s3(struct erofsmount_nbd_ctx *ctx, char *source)
++static int erofsmount_reattach_s3(struct erofsmount_ctx *ctx, char *source)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ #endif
+ 
+-static int erofsmount_reattach_gzran_oci(struct erofsmount_nbd_ctx *ctx,
++static int erofsmount_reattach_gzran_oci(struct erofsmount_ctx *ctx,
+ 					 char *source)
+ {
+ 	char *tokens[6] = {0}, *p = source, *space, *oci_source;
+@@ -1313,7 +1313,7 @@ static int erofsmount_reattach_gzran_oci(struct erofsmount_nbd_ctx *ctx,
+ 	return err;
  }
  
--static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
-+static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd,
-+				   struct sha256_state *digest)
+-static int erofsmount_open_recovery_source(struct erofsmount_nbd_ctx *ctx,
++static int erofsmount_open_recovery_source(struct erofsmount_ctx *ctx,
+ 					   FILE *f)
  {
- 	struct erofs_map_blocks map = {
- 		.buf = __EROFS_BUF_INITIALIZER,
-@@ -546,11 +557,24 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
- 		if (map.m_la >= inode->i_size || !needdecode)
- 			continue;
- 
--		if (outfd >= 0 && !(map.m_flags & EROFS_MAP_MAPPED)) {
--			ret = lseek(outfd, map.m_llen, SEEK_CUR);
--			if (ret < 0) {
--				ret = -errno;
--				goto out;
-+		if (!(map.m_flags & EROFS_MAP_MAPPED)) {
-+			if (digest) {
-+				static const char zeros[4096];
-+				u64 remain = map.m_llen;
-+
-+				while (remain > 0) {
-+					u64 chunk = remain > sizeof(zeros) ?
-+						    sizeof(zeros) : remain;
-+					erofs_sha256_process(digest,
-+						(const u8 *)zeros, chunk);
-+					remain -= chunk;
-+				}
-+			} else if (outfd >= 0) {
-+				ret = lseek(outfd, map.m_llen, SEEK_CUR);
-+				if (ret < 0) {
-+					ret = -errno;
-+					goto out;
-+				}
- 			}
- 			continue;
- 		}
-@@ -596,6 +620,9 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
- 			if (ret)
- 				goto out;
- 
-+			if (digest)
-+				erofs_sha256_process(digest,
-+					(const u8 *)buffer, map.m_llen);
- 			if (outfd >= 0 && write(outfd, buffer, map.m_llen) < 0)
- 				goto fail_eio;
- 		} else {
-@@ -609,6 +636,9 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd)
- 				if (ret)
- 					goto out;
- 
-+				if (digest)
-+					erofs_sha256_process(digest,
-+						(const u8 *)raw, count);
- 				if (outfd >= 0 && write(outfd, raw, count) < 0)
- 					goto fail_eio;
- 				map.m_llen -= count;
-@@ -643,7 +673,7 @@ static inline int erofs_extract_dir(struct erofs_inode *inode)
- 	erofs_dbg("create directory %s", fsckcfg.extract_path);
- 
- 	/* verify data chunk layout */
--	ret = erofs_verify_inode_data(inode, -1);
-+	ret = erofs_verify_inode_data(inode, -1, NULL);
- 	if (ret)
- 		return ret;
- 
-@@ -739,6 +769,56 @@ static void erofsfsck_hardlink_exit(void)
- 	}
- }
- 
-+static int erofsfsck_verify_file_digest(struct erofs_inode *inode,
-+					const u8 *digest)
-+{
-+	u8 stored[32 + sizeof("sha256:") - 1];
-+	int ret;
-+
-+	ret = __erofs_getxattr(inode, fsckcfg.digest_xattr_name,
-+			       (char *)stored, sizeof(stored), true);
-+	if (ret == -ENODATA) {
-+		erofs_warn("no digest xattr for nid %llu, skipped",
-+			   inode->nid | 0ULL);
-+		return 0;
-+	} else if (ret < 0)
-+		return ret;
-+
-+	if (ret != sizeof(stored) ||
-+	    memcmp(stored, "sha256:", sizeof("sha256:") - 1)) {
-+		erofs_err("unidentified digest xattr @ nid %llu (size=%d)",
-+			  inode->nid | 0ULL, ret);
-+		return -EFSCORRUPTED;
-+	}
-+
-+	if (memcmp(digest, stored + sizeof("sha256:") - 1, 32)) {
-+		erofs_err("digest MISMATCH @ nid %llu",
-+			  inode->nid | 0ULL);
-+		return -EFSCORRUPTED;
-+	}
-+	return 0;
-+}
-+
-+static int erofsfsck_calc_inode_data(struct erofs_inode *inode, int outfd)
-+{
-+	int ret;
-+
-+	if (fsckcfg.digest_xattr_name &&
-+	    S_ISREG(inode->i_mode) && inode->i_size > 0) {
-+		struct sha256_state md;
-+		u8 out[32];
-+
-+		erofs_sha256_init(&md);
-+		ret = erofs_verify_inode_data(inode, outfd, &md);
-+		erofs_sha256_done(&md, out);
-+
-+		if (ret)
-+			return ret;
-+		return erofsfsck_verify_file_digest(inode, out);
-+	}
-+	return erofs_verify_inode_data(inode, outfd, NULL);
-+}
-+
- static inline int erofs_extract_file(struct erofs_inode *inode)
- {
- 	bool tryagain = true;
-@@ -774,8 +854,7 @@ again:
+ 	char *line = NULL, *source;
+@@ -1398,7 +1398,7 @@ static int erofsmount_startnbd_nl(pid_t *pid, struct erofsmount_source *source)
  		return -errno;
+ 
+ 	if ((*pid = fork()) == 0) {
+-		struct erofsmount_nbd_ctx ctx = { .vd = &ctx._vd };
++		struct erofsmount_ctx ctx = { .vd = &ctx._vd };
+ 		char *recp;
+ 
+ 		/* Otherwise, NBD disconnect sends SIGPIPE, skipping cleanup */
+@@ -1478,7 +1478,7 @@ static int ublk_dev_id_from_path(const char *path)
+ 
+ static int erofsmount_ublk_reattach(int dev_id)
+ {
+-	struct erofsmount_nbd_ctx ctx = { .vd = &ctx._vd };
++	struct erofsmount_ctx ctx = { .vd = &ctx._vd };
+ 	char *recp;
+ 	FILE *f;
+ 	int err;
+@@ -1525,9 +1525,9 @@ static int erofsmount_ublk_reattach(int dev_id)
+ 
+ static int erofsmount_reattach(const char *target)
+ {
+-	struct erofsmount_nbd_ctx ctx = { .vd = &ctx._vd };
++	struct erofsmount_ctx ctx = { .vd = &ctx._vd };
+ 	char *identifier;
+-	int nbdnum, err;
++	int dev_id, err;
+ 	struct stat st;
+ 	FILE *f;
+ 
+@@ -1538,17 +1538,17 @@ static int erofsmount_reattach(const char *target)
+ 	if (!S_ISBLK(st.st_mode))
+ 		return -ENOTBLK;
+ 
+-	nbdnum = ublk_dev_id_from_path(target);
+-	if (nbdnum >= 0)
+-		return erofsmount_ublk_reattach(nbdnum);
++	dev_id = ublk_dev_id_from_path(target);
++	if (dev_id >= 0)
++		return erofsmount_ublk_reattach(dev_id);
+ 
+ 	if (major(st.st_rdev) != EROFS_NBD_MAJOR)
+ 		return -ENOTBLK;
+ 
+-	nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+-	if (nbdnum < 0)
+-		return nbdnum;
+-	identifier = erofs_nbd_get_identifier(nbdnum);
++	dev_id = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
++	if (dev_id < 0)
++		return dev_id;
++	identifier = erofs_nbd_get_identifier(dev_id);
+ 	if (IS_ERR(identifier)) {
+ 		identifier = NULL;
+ 	} else if (identifier && *identifier == '\0') {
+@@ -1559,7 +1559,7 @@ static int erofsmount_reattach(const char *target)
+ 	if (!identifier) {
+ 		char *recp;
+ 
+-		if (asprintf(&recp, EROFSMOUNT_NBD_REC_FMT, nbdnum) <= 0) {
++		if (asprintf(&recp, EROFSMOUNT_NBD_REC_FMT, dev_id) <= 0) {
+ 			err = -ENOMEM;
+ 			goto err_identifier;
+ 		}
+@@ -1577,7 +1577,7 @@ static int erofsmount_reattach(const char *target)
+ 	if (err)
+ 		goto err_identifier;
+ 
+-	err = erofs_nbd_nl_reconnect(nbdnum, identifier);
++	err = erofs_nbd_nl_reconnect(dev_id, identifier);
+ 	if (err >= 0) {
+ 		ctx.sk.fd = err;
+ 		if (fork() == 0) {
+@@ -2191,7 +2191,7 @@ static int erofsmount_ublk(struct erofsmount_source *source,
  	}
  
--	/* verify data chunk layout */
--	ret = erofs_verify_inode_data(inode, fd);
-+	ret = erofsfsck_calc_inode_data(inode, fd);
- 	close(fd);
- 	return ret;
- }
-@@ -791,7 +870,7 @@ static inline int erofs_extract_symlink(struct erofs_inode *inode)
- 	erofs_dbg("extract symlink to path: %s", fsckcfg.extract_path);
- 
- 	/* verify data chunk layout */
--	ret = erofs_verify_inode_data(inode, -1);
-+	ret = erofs_verify_inode_data(inode, -1, NULL);
- 	if (ret)
- 		return ret;
- 
-@@ -845,7 +924,7 @@ static int erofs_extract_special(struct erofs_inode *inode)
- 	erofs_dbg("extract special to path: %s", fsckcfg.extract_path);
- 
- 	/* verify data chunk layout */
--	ret = erofs_verify_inode_data(inode, -1);
-+	ret = erofs_verify_inode_data(inode, -1, NULL);
- 	if (ret)
- 		return ret;
- 
-@@ -928,13 +1007,13 @@ static int erofsfsck_dirent_iter(struct erofs_dir_context *ctx)
- 
- static int erofsfsck_extract_inode(struct erofs_inode *inode)
+ 	if (pid == 0) {
+-		struct erofsmount_nbd_ctx ctx = { .vd = &ctx._vd };
++		struct erofsmount_ctx ctx = { .vd = &ctx._vd };
+ 		struct erofs_ublk_dev_info info;
+ 		char *recp = NULL;
+ 		struct stat st;
+@@ -2275,7 +2275,7 @@ static int erofsmount_ublk(struct erofsmount_source *source,
+ int erofsmount_umount(char *target)
  {
--	int ret;
- 	char *oldpath;
-+	int ret;
+ 	char *device = NULL, *mountpoint = NULL;
+-	int err, fd, nbdnum;
++	int err, fd, dev_id;
+ 	struct stat st;
+ 	FILE *mounts;
+ 	size_t n;
+@@ -2347,19 +2347,22 @@ int erofsmount_umount(char *target)
  
- 	if (!fsckcfg.extract_path || erofs_is_packed_inode(inode)) {
- verify:
- 		/* verify data chunk layout */
--		return erofs_verify_inode_data(inode, -1);
-+		return erofsfsck_calc_inode_data(inode, -1);
+ 	if (isblk && !mountpoint && S_ISBLK(st.st_mode)) {
+ 		if (major(st.st_rdev) == EROFS_NBD_MAJOR) {
+-			nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+-			err = erofs_nbd_nl_disconnect(nbdnum);
++			dev_id = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
++			err = erofs_nbd_nl_disconnect(dev_id);
+ 			if (err != -EOPNOTSUPP)
+ 				goto err_out;
+-		} else if ((nbdnum = ublk_dev_id_from_path(target)) >= 0) {
+-			err = erofs_ublk_del_dev_by_id(nbdnum);
+-			goto err_out;
++		} else {
++			dev_id = ublk_dev_id_from_path(target);
++			if (dev_id >= 0) {
++				err = erofs_ublk_del_dev_by_id(dev_id);
++				goto err_out;
++			}
+ 		}
  	}
  
- 	oldpath = erofsfsck_hardlink_find(inode->nid);
-@@ -968,7 +1047,8 @@ verify:
- 			inode->i_mode, inode->nid | 0ULL);
- 		goto verify;
+ 	/* XXX: ublk doesn't have autoclose feature */
+-	nbdnum = ublk_dev_id_from_path(device);
+-	if (nbdnum >= 0) {
++	dev_id = ublk_dev_id_from_path(device);
++	if (dev_id >= 0) {
+ 		if (mountpoint) {
+ 			err = umount(mountpoint);
+ 			if (err) {
+@@ -2367,7 +2370,7 @@ int erofsmount_umount(char *target)
+ 				goto err_out;
+ 			}
+ 		}
+-		err = erofs_ublk_del_dev_by_id(nbdnum);
++		err = erofs_ublk_del_dev_by_id(dev_id);
+ 		goto err_out;
  	}
--	if (ret && ret != -ECANCELED)
-+
-+	if (ret && (ret != -ECANCELED || fsckcfg.digest_xattr_name))
- 		return ret;
  
- 	/* record nid and old path for hardlink */
-@@ -1097,6 +1177,25 @@ int main(int argc, char *argv[])
- 		goto exit_put_super;
+@@ -2398,8 +2401,8 @@ int erofsmount_umount(char *target)
+ 	if (err < 0)
+ 		err = -errno;
+ 	else if (S_ISBLK(st.st_mode) && major(st.st_rdev) == EROFS_NBD_MAJOR) {
+-		nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+-		err = erofs_nbd_nl_disconnect(nbdnum);
++		dev_id = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
++		err = erofs_nbd_nl_disconnect(dev_id);
+ 		if (err == -EOPNOTSUPP)
+ 			err = erofs_nbd_disconnect(fd);
  	}
+@@ -2413,7 +2416,7 @@ err_out:
  
-+	if (fsckcfg.digest_xattr_name == erofsfsck_nullstr) {
-+		fsckcfg.digest_xattr_name =
-+			erofs_xattr_get_ishare_prefix(&g_sbi);
-+		if (IS_ERR(fsckcfg.digest_xattr_name)) {
-+			err = PTR_ERR(fsckcfg.digest_xattr_name);
-+			erofs_err("failed to get ishare prefix: %s",
-+				  erofs_strerror(err));
-+			goto exit_put_super;
-+		}
-+
-+		if (!fsckcfg.digest_xattr_name) {
-+			erofs_err("image has no inode digest xattrs (was --xattr-inode-digest used during mkfs?)");
-+			err = -ENODATA;
-+			goto exit_put_super;
-+		}
-+		erofs_info("verifying digests using xattr \"%s\"",
-+			   fsckcfg.digest_xattr_name);
-+	}
-+
- 	if (fsckcfg.extract_path)
- 		erofsfsck_hardlink_init();
- 
-@@ -1177,6 +1276,8 @@ exit_hardlink:
- 	if (fsckcfg.extract_path)
- 		erofsfsck_hardlink_exit();
- exit_put_super:
-+	if (fsckcfg.digest_xattr_name != erofsfsck_nullstr)
-+		free(fsckcfg.digest_xattr_name);
- 	erofs_put_super(&g_sbi);
- exit_dev_close:
- 	erofs_dev_close(&g_sbi);
-diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index 235688649592..5fe3e91a4054 100644
---- a/include/erofs/xattr.h
-+++ b/include/erofs/xattr.h
-@@ -35,9 +35,12 @@ int erofs_load_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *pa
- int erofs_xattr_insert_name_prefix(const char *prefix);
- int erofs_xattr_set_ishare_prefix(struct erofs_sb_info *sbi,
- 				  const char *prefix);
-+char *erofs_xattr_get_ishare_prefix(struct erofs_sb_info *sbi);
- void erofs_xattr_cleanup_name_prefixes(void);
- int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain);
- int erofs_xattr_prefixes_init(struct erofs_sb_info *sbi);
-+int __erofs_getxattr(struct erofs_inode *vi, const char *name,
-+		     char *buffer, size_t buffer_size, bool hidden);
- int erofs_setxattr(struct erofs_inode *inode, int index, const char *name,
- 		   const void *value, size_t size);
- int erofs_vfs_setxattr(struct erofs_inode *inode, const char *name,
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 1891ac3f23ef..051fdd846146 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -1410,8 +1410,8 @@ static int erofs_xattr_iter_shared(struct erofs_xattr_iter *it,
- 	return ret;
- }
- 
--int erofs_getxattr(struct erofs_inode *vi, const char *name, char *buffer,
--		   size_t buffer_size)
-+int __erofs_getxattr(struct erofs_inode *vi, const char *name,
-+		     char *buffer, size_t buffer_size, bool hidden)
+ static int erofsmount_disconnect(const char *target)
  {
- 	int ret;
- 	unsigned int prefix, prefixlen;
-@@ -1424,8 +1424,12 @@ int erofs_getxattr(struct erofs_inode *vi, const char *name, char *buffer,
- 	if (ret)
- 		return ret;
+-	int nbdnum, err, fd;
++	int dev_id, err, fd;
+ 	struct stat st;
  
--	if (!erofs_xattr_prefix_matches(name, &prefix, &prefixlen))
--		return -ENODATA;
-+	if (!erofs_xattr_prefix_matches(name, &prefix, &prefixlen)) {
-+		if (!hidden)
-+			return -ENODATA;
-+		prefixlen = 0;
-+		prefix = 0;
-+	}
- 	it.index = prefix;
- 	it.name = name + prefixlen;
- 	it.len = strlen(it.name);
-@@ -1445,6 +1449,12 @@ int erofs_getxattr(struct erofs_inode *vi, const char *name, char *buffer,
- 	return ret ? ret : it.buffer_ofs;
- }
+ 	err = lstat(target, &st);
+@@ -2423,8 +2426,8 @@ static int erofsmount_disconnect(const char *target)
+ 	if (!S_ISBLK(st.st_mode) || major(st.st_rdev) != EROFS_NBD_MAJOR)
+ 		return -ENOTBLK;
  
-+int erofs_getxattr(struct erofs_inode *vi, const char *name,
-+		   char *buffer, size_t buffer_size)
-+{
-+	return __erofs_getxattr(vi, name, buffer, buffer_size, false);
-+}
-+
- int erofs_listxattr(struct erofs_inode *vi, char *buffer, size_t buffer_size)
- {
- 	int ret;
-@@ -1515,6 +1525,44 @@ int erofs_xattr_set_ishare_prefix(struct erofs_sb_info *sbi,
- 	return 0;
- }
- 
-+char *erofs_xattr_get_ishare_prefix(struct erofs_sb_info *sbi)
-+{
-+	struct erofs_xattr_prefix_item *pf = NULL;
-+	unsigned int idx, base_index;
-+	size_t base_len, infix_len;
-+	char *name;
-+
-+	if (!erofs_sb_has_ishare_xattrs(sbi))
-+		return NULL;
-+
-+	if (sbi->ishare_xattr_prefix_id & EROFS_XATTR_LONG_PREFIX) {
-+		idx = sbi->ishare_xattr_prefix_id & EROFS_XATTR_LONG_PREFIX_MASK;
-+		if (idx >= sbi->xattr_prefix_count)
-+			return NULL;
-+
-+		pf = &sbi->xattr_prefixes[idx];
-+		base_index = pf->prefix->base_index;
-+		infix_len = pf->infix_len;
-+	} else {
-+		base_index = sbi->ishare_xattr_prefix_id &
-+			EROFS_XATTR_LONG_PREFIX_MASK;
-+		infix_len = 0;
-+	}
-+	if (base_index >= ARRAY_SIZE(xattr_types))
-+		return ERR_PTR(-EFSCORRUPTED);
-+
-+	base_len = xattr_types[base_index].prefix_len;
-+	name = malloc(base_len + infix_len + 1);
-+	if (!name)
-+		return ERR_PTR(-ENOMEM);
-+
-+	memcpy(name, xattr_types[base_index].prefix, base_len);
-+	if (infix_len)
-+		memcpy(name + base_len, pf->prefix->infix, infix_len);
-+	name[base_len + infix_len] = '\0';
-+	return name;
-+}
-+
- void erofs_xattr_cleanup_name_prefixes(void)
- {
- 	struct ea_type_node *tnode, *n;
-diff --git a/man/fsck.erofs.1 b/man/fsck.erofs.1
-index 0f698da3b9b7..b2d35a7ded70 100644
---- a/man/fsck.erofs.1
-+++ b/man/fsck.erofs.1
-@@ -48,6 +48,10 @@ Specify the target inode by its path for checking or extraction. If both
- .BI "--[no-]xattrs"
- Whether to dump extended attributes during extraction (default off).
- .TP
-+.B "\-\-xattr-inode-digest"
-+Verify per-inode digests recorded as extended attributes during image
-+creation with \fBmkfs.erofs \-\-xattr-inode-digest\fR.
-+.TP
- \fB\-h\fR, \fB\-\-help\fR
- Display help string and exit.
- .TP
+-	nbdnum = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
+-	err = erofs_nbd_nl_disconnect(nbdnum);
++	dev_id = erofs_nbd_get_index_from_minor(minor(st.st_rdev));
++	err = erofs_nbd_nl_disconnect(dev_id);
+ 	if (err == -EOPNOTSUPP) {
+ 		fd = open(target, O_RDWR);
+ 		if (fd < 0) {
 -- 
 2.43.5
 
