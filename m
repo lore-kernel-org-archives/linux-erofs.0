@@ -1,92 +1,49 @@
-Return-Path: <linux-erofs+bounces-3852-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3853-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04E91C43602
-	for <linux-erofs@archiver.kernel.org>; Mon,  6 Jul 2026 15:52:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7F312C43458
+	for <linux-erofs@archiver.kernel.org>; Tue,  7 Jul 2026 11:06:23 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gv84N3KtNz3bby;
-	Tue, 07 Jul 2026 01:52:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783353124;
-	cv=none; b=J+29LEfZGAPbLCR9H88TAXEfievn4yU7P61adUcO65A4t7xVbXHDL4nr5RjKIW1ZqIDnEg1o+n4WKggAX1yj2BLhkSsspMGFimrXRggNlDEMWj6tvGGgSn8pueJxueNYz4fSZYqSCa6kY8GuZgNf9N3NDqGwTmZZpjEbvGue9Y8Lll1fqWqyXOEdXvzsW0ZpaKUxenfaomEShohJZaugFGIMBkqiwtGb5BUHqyN6zOxWxby0XDWC+kWYhcp8+8zCgH6Z8jdqKy631P038rugKyH6aE6hzaWfZ79Z5X4R4Fer4FOn+tQZdc/eSrvM+MlpFXc87q2fh6wYA125sAnB8A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gvdhF56bGz2xKh;
+	Tue, 07 Jul 2026 21:06:21 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783422381;
+	cv=none; b=HitYjPG5EYguddQRMm0Otpo8IfvYHf02860RqS1zojigtSCAw8HE8sVBfbUUM0aBLWvWH+cShFFUk1kGXPfoHrh5/IyTpqd6aJP6AKwlmI/IiG1bHWMB3IX3UdTakCxQFV1pBAc+dYrUMychCFUKo4+CThNtpr3DoRhdW5cUPdrjF0y765lUC747z3+tcnD7yASCWAZyvSYoB0TDOY+vAddxmGLx1NejX/BbORlcFieHw6/Hcru44uc4pE2NmzWvapr9/TBhEvILDjGPgwnrQRoGzttL0HMPQ19zKlLqizbbqfX8m3VvcEvi6vzQcC53K1DrvGVMSSSm+kJzOB7NUA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1783353124; c=relaxed/relaxed;
-	bh=URQzIFfS1/Haxdbz2Ns3BTAOv0VzNelQyqgK4lKywjc=;
-	h=From:In-Reply-To:References:To:Cc:Subject:MIME-Version:Date:
-	 Message-ID:Content-Type; b=hcsnISV9pqHxvZkoQskKfMDDqgfNPq8yDllHpKwJI9tHfy3jQscLrfC4PO4xjwKyiIBo7Bc1dCDXKREaS7hk0ZBICwVz4FP47gbjRXegqNTfL3fSq1WM55fwVrg+4nicw3wFIw0MBzdtA8AVm/gqrTyPyRXcd1ynlvjX/RFrVGL/lSm9G6bTa0NhS1gLpDkMYzKLC2ruIlSBBa5ECE5hlXlIwP84wDvgu0xW0atB43yrUwudskWZu6g0iYntEzlW58GPINXo8lXdPobX2cdjedfvLSffI6FVv2RxvjLJrBDlefGhAfspl69zhYCKSsUrx3lJ6Z8ApS3g/LcBZ2P5HA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TdSKIvDz; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TdSKIvDz; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1783422381; c=relaxed/relaxed;
+	bh=JKxHYicutn9lHYVVegEG1F9eKWFhJlIjTLa68GjK0l8=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=ECy+5xWEgkGe79ki1ZyazvMWJxE7ArqwZClqngHeIO+4pG2ujn/q8WDovz1UspEtAScCzwbAGRO6Tfm7T2YvTtR5pScnPvUbETiQNCYJ2knzkHsereQWbaJFj5LAImbZYv0AwXr6xAfRH3/8FFy9AJ4aMdswPd9MgkeDeKObNdh6kVgRQrH2dzc8qEJSiFspegZ+2bS1c3PrAEANaSZuy+mDYjCjstAn7A+Jl1/wQbLlAvOsE4u0cghXQdSsFYrqbXurqCoItIMTb0FKq6hrJDujk6tyKYv/02i/7gFIM8F7waM1dwoS5nKyiLWn2kYxKf7WFLVSYEPatd0v7eLUtA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gyMp04QI; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TdSKIvDz;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TdSKIvDz;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gyMp04QI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gv84M3yp5z2yVZ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 07 Jul 2026 01:52:02 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783353119;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=URQzIFfS1/Haxdbz2Ns3BTAOv0VzNelQyqgK4lKywjc=;
-	b=TdSKIvDz1tJ+4tk+PiOpq+sw0977pnwzoTbB77KhdpQUGV4e9HchtR8TLLn2hJ729xHTg7
-	+mav2wJfKwJpvte+KcBMWjH+3hwF8FpJcNvbdtVJibm8oX2a964CTCXNT25BHQkBloc5YO
-	pG/O3GzjY4Ku3xOtMMxummGUSs941rg=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783353119;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=URQzIFfS1/Haxdbz2Ns3BTAOv0VzNelQyqgK4lKywjc=;
-	b=TdSKIvDz1tJ+4tk+PiOpq+sw0977pnwzoTbB77KhdpQUGV4e9HchtR8TLLn2hJ729xHTg7
-	+mav2wJfKwJpvte+KcBMWjH+3hwF8FpJcNvbdtVJibm8oX2a964CTCXNT25BHQkBloc5YO
-	pG/O3GzjY4Ku3xOtMMxummGUSs941rg=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-65-GUd2VfxQPRuPQ_RMGkZGbw-1; Mon,
- 06 Jul 2026 11:51:55 -0400
-X-MC-Unique: GUd2VfxQPRuPQ_RMGkZGbw-1
-X-Mimecast-MFC-AGG-ID: GUd2VfxQPRuPQ_RMGkZGbw_1783353112
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CED291955DE7;
-	Mon,  6 Jul 2026 15:51:51 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.44.33.159])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E3E741956053;
-	Mon,  6 Jul 2026 15:51:45 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20260706152737.1231312-1-dhowells@redhat.com>
-References: <20260706152737.1231312-1-dhowells@redhat.com>
-To: Christian Brauner <christian@brauner.io>
-Cc: dhowells@redhat.com, Matthew Wilcox <willy@infradead.org>,
-    Christoph Hellwig <hch@infradead.org>,
-    Paulo Alcantara <pc@manguebit.org>, Jens Axboe <axboe@kernel.dk>,
-    Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>,
-    ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-    Marc Dionne <marc.dionne@auristor.com>,
-    Stefan Metzmacher <metze@samba.org>,
-    Eric Van Hensbergen <ericvh@kernel.org>,
-    Dominique Martinet <asmadeus@codewreck.org>,
-    Ilya Dryomov <idryomov@gmail.com>, netfs@lists.linux.dev,
-    linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
-    linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-    v9fs@lists.linux.dev, linux-erofs@lists.ozlabs.org,
-    linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 00/21] netfs: Keep track of folios in a segmented bio_vec[] chain
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gvdhD5MPlz2xC3
+	for <linux-erofs@lists.ozlabs.org>; Tue, 07 Jul 2026 21:06:20 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id A9A78401CA;
+	Tue,  7 Jul 2026 11:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36ACA1F000E9;
+	Tue,  7 Jul 2026 11:06:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783422377;
+	bh=JKxHYicutn9lHYVVegEG1F9eKWFhJlIjTLa68GjK0l8=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date;
+	b=gyMp04QITLFRFc5jTjaImw4fF6NT0FHjfTsZpl3YhjEEX+9DzUkH/tskh23b9e6WW
+	 LouAB5fIU6xJ+gd/8p8XpuLtntt+xWzybr3l5cb9jM/MxrB9bAjVkdjgn9t4ac4mwF
+	 Dh899/mDheHU+6MkH9kTdbEBUj1YKv6BN7KhTP3L60xhM7LUjFLB2M/IpF13ZBGXtN
+	 V8NpCTqN5KKS3aKBB+Wi/QEVQzqQCmLOb640Tyk92cE3Z26ncZmpHBdIEwH6imqUAu
+	 VbHMZVrr86CCcfS0u50bf2IEcLV9W4elOrfc/ECmdvpr5JjSP5VJvAmYh7N/agUuUU
+	 eiwfs3SF7GxkA==
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -98,20 +55,57 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Mon, 06 Jul 2026 16:51:44 +0100
-Message-ID: <1232537.1783353104@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: sSMiJ3joWoik5xjW5KWOUvA6IHXWdbKCMnVjrrpznv0_1783353112
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1232536.1783353104.1@warthog.procyon.org.uk>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/3] iomap: consolidate bio submission
+From: Christian Brauner <brauner@kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Christian Brauner <brauner@kernel.org>, 
+ "Darrick J. Wong" <djwong@kernel.org>, Kelu Ye <yekelu1@huawei.com>, 
+ Yifan Zhao <zhaoyifan28@huawei.com>, Ritesh Harjani <ritesh.list@gmail.com>, 
+ Joanne Koong <joannelkoong@gmail.com>, Namjae Jeon <linkinjeon@kernel.org>, 
+ Sungjong Seo <sj1557.seo@samsung.com>, Hyunchul Lee <hyc.lee@gmail.com>, 
+ Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, 
+ Miklos Szeredi <miklos@szeredi.hu>, fuse-devel@lists.linux.dev, 
+ ntfs3@lists.linux.dev, linux-erofs@lists.ozlabs.org, 
+ linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+ stable@vger.kernel.org
+In-Reply-To: <20260702102705.GB6252@lst.de>
+References: <20260629121750.3392300-2-hch@lst.de>
+ <20260701-davon-kniegelenk-gedehnt-96476b242a09@brauner>
+ <20260702102705.GB6252@lst.de>
+Date: Tue, 07 Jul 2026 13:06:12 +0200
+Message-Id: <20260707-geleast-bemerken-zollen-dbee3cf1939a@brauner>
+X-Mailer: b4 0.16-dev-4217c
+X-Developer-Signature: v=1; a=openpgp-sha256; l=970; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=5oQBslVXVyGoBt+yGH7KL6hP/GNNUnSmmKKmAhRb7hc=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT53F166Ypbtvjzjw9+WiVKHlG+m/XX6FyTmpj5sce8O
+ nnTXzPzdpSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEzkdiojw6wZ5x8nJ71QqAj8
+ 9VjoeHBFpkEC35eNX9f8zVJvWLzkyGmGf/ZC2Sk2qmXmf45YsK/f37Z5xoTH/OtXd3wKqdp7/+l
+ cXw4A
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Apologies...  The outgoing MX decided to go offline in the middle of that:
+On 2026-07-02 12:27 +0200, Christoph Hellwig wrote:
+> On Wed, Jul 01, 2026 at 03:27:40PM +0200, Christian Brauner wrote:
+> > Applied to the vfs.fixes branch of the vfs/vfs.git tree.
+> > Patches in the vfs.fixes branch should appear in linux-next soon.
+> 
+> Hmm, both this mail and the merge commit in git reference the first
+> commit instead of the cower letter.  Is there an issue with your
+> automation that made it miss the cover letter?
 
-	error: `git send-email`: 4.7.1 Service unavailable - try again later
+Yes, your series aren't picked up by b4 correctly - I always take care
+that your cover letter is actually used but the tooling trips over it.
 
-So I've re-sent it.
+I thought about telling you but then I thought it might be easier to
+first try and fix the tooling. So a week ago or so I sent:
 
-David
+https://lore.kernel.org/tools/20260701-work-b4-naked-cover-letter-v1-0-f651c2ffb63b@kernel.org
+
+The issue basically is that b4 expects 0/N for the cover letter whereas
+you send "naked" cover letters.
+
+Konstantin is on vacation though.
 
 
