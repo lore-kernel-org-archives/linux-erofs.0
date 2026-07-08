@@ -1,86 +1,92 @@
-Return-Path: <linux-erofs+bounces-3868-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3869-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 233B9C43458
-	for <linux-erofs@archiver.kernel.org>; Wed,  8 Jul 2026 20:19:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6B5DCC44501
+	for <linux-erofs@archiver.kernel.org>; Wed,  8 Jul 2026 20:19:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gwTvT3D7Jz3054;
-	Thu, 09 Jul 2026 06:19:01 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=103.168.172.149
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783541941;
-	cv=none; b=aW0g0iXs4xPobGUmBJS3HZuAPh1R0ygmxk5QjQAUxZOMTvOZreXlsTRM8JL2g6kmH6hR8ipp7Y3Op8po6sJN0vWuqfyvc/rCDmXYR2nnQPEbCMZxovFISRlHkvf+qv25OoluAsKjFVsxiATeVBMfO+x8If72+tH4cTsSQqkpW8Hj/0qKWsJkDT1mTSsjS5OipfdWq/WEzKZMIFa2cymYCQ92eWckvzkMpk2amKgjLARxXYuuOqP6w2FRsjiVE+ieSDJs6zKf1BktmU+bU3qFRigR0pyeLd6IrgOXrwBZw3mfdNGdq5pv/gvkdLUp9WHvTnGQFPFrifCS5fWLerGS0Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gwTvW4fv4z306S;
+	Thu, 09 Jul 2026 06:19:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783541943;
+	cv=none; b=DFZ5PHsSSAbp06pibQ8efk2XiaQFnwp1YHZRSMrPJB0dRP/AoGK9yFsG0s3O80clwy0ghdGvln1rcg6fGjdLxygCk37BrKVJ+iYNNyZLkP6JtAHI34+crNHgMVWUDxkcTrriLj+/TWT5Xt/Fv2XYyZ0zfb3LPIthIC0aRceRe4h0SXFqX6vNpT/Kc+AnBYyvInDSfnN7E81JriJSllbURZ5PDAc/FOeFdigyNtYKgCqPgyatzw2/MgUTDs+DgxcbX8C+WGWH2T+nmXoGOXCY9PFnCY0rzv16Hn1VFHmhwrIN7a0b2arebEC+Eo2ostvzlQ7dZ+QEAJFF2y6ZF+C06A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1783541941; c=relaxed/relaxed;
-	bh=wLGhsWeNJi8zd8/PkkwZnzKfSNF/g1DdrFV0OOf9YqY=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=noUbKF6acwvZ3XfojmNDDVjdiaTGNcbK1EOYniqBKYnDdn2dvlg1VADQ+OFiHXicm/J8fbvGavGcGihH54lnssGO+wD5F7PDja8JJpT6MuOaHoVVtA2IlDl5WydGqfbiw81mxrM/73G+Sx90AcCh6ZALuTZaRhQ9sNDgKBwVTnFKrKkGp8Ksxprx7/khn59SvxfW21oeXdX0Cj5/dayTGavzY6pcKnxoOMT2RLGsf5+N8RAd2qehlCqp6oukwfgnRK27scyTpo44JnkiRUxkfHlkjnOYt60OmA6NW3WUUfXBb3WsmOH2vWrbUCLNYE97ZNf6h31Z/7pDaF008YhNGQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=verbum.org; dkim=pass (2048-bit key; unprotected) header.d=verbum.org header.i=@verbum.org header.a=rsa-sha256 header.s=fm2 header.b=ow/n4Rit; dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=izvy4diN; dkim-atps=neutral; spf=pass (client-ip=103.168.172.149; helo=fout-a6-smtp.messagingengine.com; envelope-from=walters@verbum.org; receiver=lists.ozlabs.org) smtp.mailfrom=verbum.org
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=verbum.org
+	t=1783541943; c=relaxed/relaxed;
+	bh=OGpY+aCWdZdLzAr9IVTEaSTpbEI6iVGt97cU+sVsvo8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=Q+Cb4A67rWMwbUcUR0Z67FdXStEjaBBRt4xPePOQRNlc58Kff5qcluHGwF01nbR6kpMaBNGjRRJQvKkz13mpIFame8xschnJkYuhfJVga4ekI5ANMhnchA2gf/aPcM0L2eFEuuy3C7K3ieSUzxJc6jU7WD6/RVVeYxAA6QjiJUd8srqU8gNvTg5dun4hkGnJGwHhb9i6VCNP1jVR0apoVWGHxgVl6u2D1e2w8pWbo9HxfbUOUoIzQmPN1jplH8wT5tBluZdv38yCNaYohEWaf2wl7DXzts6scPEMlkw1xHx0iEnB8f/jqDHt7c/ax/6dB0wvQ4aKvhWvQ+9r6HyS3A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MRWCP1o8; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GMXHvn3u; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=verbum.org header.i=@verbum.org header.a=rsa-sha256 header.s=fm2 header.b=ow/n4Rit;
-	dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm2 header.b=izvy4diN;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MRWCP1o8;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GMXHvn3u;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=verbum.org (client-ip=103.168.172.149; helo=fout-a6-smtp.messagingengine.com; envelope-from=walters@verbum.org; receiver=lists.ozlabs.org)
-Received: from fout-a6-smtp.messagingengine.com (fout-a6-smtp.messagingengine.com [103.168.172.149])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gwTvQ0wv4z2y7r
-	for <linux-erofs@lists.ozlabs.org>; Thu, 09 Jul 2026 06:18:57 +1000 (AEST)
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 8D654EC0088;
-	Wed,  8 Jul 2026 16:18:54 -0400 (EDT)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-04.internal (MEProxy); Wed, 08 Jul 2026 16:18:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=verbum.org; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1783541934;
-	 x=1783628334; bh=wLGhsWeNJi8zd8/PkkwZnzKfSNF/g1DdrFV0OOf9YqY=; b=
-	ow/n4Rit5tUlEd2H3q0EG/TVdn2dzyC9g40PZAHxVjO+WA2ydZCUqPcuwfiQpSYA
-	hhKT1Noiibx3cz96xPjI2Y27BGua9XfG0ZR6DKwsEdyyB8kus0twp75/VTK3+R2I
-	8vkeWggo1FepJd//zs5uAQZftRuqS6so3/5TyP1yi6EMi5tFXFiuYbe4l41hoQbn
-	pEhGkSEO4ogzNbO6mcyAbhhDXzfEtR4fxb1LvDGtkTyZfRMKrjtOOosWK84zN3uj
-	mPzwVbTkSUp/dTR1Hmm6VXQc7i4iRkULOID8fp4QevA/ZmbfqOEZzHnjB6hjujhx
-	pyJlW6/I93gxiD5UJqOpEA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1783541934; x=
-	1783628334; bh=wLGhsWeNJi8zd8/PkkwZnzKfSNF/g1DdrFV0OOf9YqY=; b=i
-	zvy4diNMr3EwaUdCBT9je5mqS3VjvyctlwpE65BoychvpB3oJDOS5DUOtLm6wG3l
-	3g0Bvc1TjviPgXe0SikEnvSTcda8J+cc6iu6Xo/B4rpqvO+Vq2YISWAigBkRwfGf
-	GzML+QhW+smpde/ZmnIV10Hl+vV3N/JVnI8qspZx/OqsSWXeas7KrdsFkTvKtH2Q
-	UMW8cVGk5Lq0Jogxvmve/FtUk0C9cPPQfI4JIasJOSRax1ZAJnlUfhEWwzsVS9Kk
-	qyyyDyEvg12ZytxZ8bTaTX5vwgJAp3+tUUJjU0hb8IKADFbk17h6+Y814M15kMtH
-	6LhjgcDqntOkjdGO8tJzw==
-X-ME-Sender: <xms:rLBOaicjHXAzWj2f30SgSCFtt9Gm4YwDjOXvGT1edISQp7rLKPrLdw>
-    <xme:rLBOanDVf_8pC2mnRM10GE-EvyAWRa1mtsXCG3mUQqgA_hBpk2WCFo42IYiwwQJv2
-    6_RnEWSOObAVF_IPlegFddN17Weq8lsOUHRTibx5pVKqVX130xUPw>
-X-ME-Proxy-Cause: dmFkZTFeSPUT25v+12YVMbRBoofLsuPVc5lWVwFljbzt+zLqPXzvS4js3nW+jwmR6qiqwK
-    l2E1L2sYGTAVEOpkxbHitkR4MrfePAFXCI95P8r5vW1cHnVPCapFoN0ksFkpcPxyOHmjxl
-    Q3UxS3CfKznUJH9t1bb7dweAudc2NLBNNlY1Vj7KPNO2ClMqoqCcuR3Q4xEz1xXArAzlop
-    kwDj1fHHL+1dmUAm7uAufaAoVr+O5SZtsPm2xR/ajf376wN043bEH0kqXoeeZ59scvJ8z9
-    76XrIh3FM51EuTUDOesyqUyUYoIgl9o4yEE737hNR5K56mapr0aGMZ91aUILk06vtrnEbM
-    0RztINzHEmPpqgUYqcS9DOomOKoubBzWKw/Tej5NK3ZRw+/Qxay/KC7Cim4YeHAIyeHYeo
-    SojHnAD4pd0S7zm8czFFehVDgwXBww4HO3xJG/ByIkffHDjU/4QyVXLtf4jtnXgds6VAt0
-    4cGcs4eHp4pB2lmSOaLKZJSLbZ7ehGHkdn4ZDvCrWghr0mc3VMmVPvaDnE8BRkBnppoF1Y
-    ozs/0cHxXxVYFDU4/2Cf7Nx7NVCy5bIa+UnjdiAHpQtX1Qy8tUmwmjTxt6/KNlEqVweqYA
-    aOcuqZsXiJCWmCSTvM+M0nMkPVB/LxltxZr1fjRDzZxKW5GmcgLA9ztdInPQ
-X-ME-Proxy: <xmx:rLBOasGhE5DwljEjCOp92hnkDBmd-l2s62EnYPB0oOE_iQWxPvNQ1g>
-    <xmx:rLBOaq3bJb6qB3C1f0R4dp8wCGR8-hAttyy99A2feNU_DGSJv5HYtA>
-    <xmx:rLBOalPI9q1TWCVdIrzutQy_XXxskQqtEgURo6_NIllDFQc-Fiiuog>
-    <xmx:rLBOaibrKjpkVkoCxKZnxH5gfa7tdFN4_oUrXzol3wBmef4Stjl39A>
-    <xmx:rrBOalvn_VGwtfzSPnyv0ta10VqD041ZtZSW5_Gt0ZKHLVqcYuvu_Qff>
-Feedback-ID: ibe7c40e9:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id B2F56780AB5; Wed,  8 Jul 2026 16:18:52 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gwTvV3QCXz2y7r
+	for <linux-erofs@lists.ozlabs.org>; Thu, 09 Jul 2026 06:19:00 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783541936;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OGpY+aCWdZdLzAr9IVTEaSTpbEI6iVGt97cU+sVsvo8=;
+	b=MRWCP1o8+qkc4HY/vYCKRog5pxyqcwFyzUd2/qVogrZADESkj2Lhonj74oSXSQIMeHnMw8
+	8ij8itkkZSgQk6/EXOFIrvflXphL1MyWefeNouQGL/ThsEWKaMfRyueOJD1VlvKQf9BHxK
+	FWOAF2/kYSe+ZTUjITor/o0WWWLbsMU=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783541937;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=OGpY+aCWdZdLzAr9IVTEaSTpbEI6iVGt97cU+sVsvo8=;
+	b=GMXHvn3uFBQSQiPeukMmUWFxbGOblCok7f9cYGOLwITHcKTAzblx2CNLtWAKogpJ88aVqH
+	YDmSS8qMbMhBhKbwz1y+Kix7pJdzDo3pLrgRY2I8/zNRGumkq4sfcjVSYYqiC2zVoskxit
+	sCZKJFGj6VFA+BEjfvPFZ6fnnqnCbf0=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-299-PDZBUIGbPQCbZd3K1nH1Ag-1; Wed,
+ 08 Jul 2026 16:18:50 -0400
+X-MC-Unique: PDZBUIGbPQCbZd3K1nH1Ag-1
+X-Mimecast-MFC-AGG-ID: PDZBUIGbPQCbZd3K1nH1Ag_1783541929
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 61D4E1800350;
+	Wed,  8 Jul 2026 20:18:48 +0000 (UTC)
+Received: from localhost (unknown [10.44.33.4])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 48D6F195604C;
+	Wed,  8 Jul 2026 20:18:47 +0000 (UTC)
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>,  linux-unionfs@vger.kernel.org,
+  linux-fsdevel@vger.kernel.org,  linux-api@vger.kernel.org,  Al Viro
+ <viro@zeniv.linux.org.uk>,  Christian Brauner <brauner@kernel.org>,  Gao
+ Xiang <hsiangkao@linux.alibaba.com>,  linux-erofs mailing list
+ <linux-erofs@lists.ozlabs.org>
+Subject: Re: [PATCH] ovl: add ioctls to retrieve layer file descriptors
+In-Reply-To: <CAOQ4uxgbNhdzKN7tvRmFDpt-8CZWh9pVcMLv25HxJzA0_0WfSg@mail.gmail.com>
+	(Amir Goldstein's message of "Wed, 8 Jul 2026 21:01:53 +0200")
+References: <20260708095831.3381978-1-gscrivan@redhat.com>
+	<CAJfpegsJON=1_84PCGMjASYPFL=Wqsz7dnTAbO3Tdz5DfRQU+g@mail.gmail.com>
+	<878q7l8y4y.fsf@redhat.com>
+	<CAJfpegvQ06=2E0V_ADgxwmo7e5weTfOMozmBB-QVNLLWYAm8WQ@mail.gmail.com>
+	<87wlv57dt1.fsf@redhat.com>
+	<CAJfpegtTixwWSh9M-9NbwP0nUbJJ9rh0rxqO7BzgK7Su_RpM+A@mail.gmail.com>
+	<87o6gh79yi.fsf@redhat.com>
+	<CAOQ4uxgbNhdzKN7tvRmFDpt-8CZWh9pVcMLv25HxJzA0_0WfSg@mail.gmail.com>
+Date: Wed, 08 Jul 2026 22:18:44 +0200
+Message-ID: <87jyr56xqz.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -92,63 +98,107 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AP2jg_FR6fcw
-Date: Wed, 08 Jul 2026 16:16:42 -0400
-From: "Colin Walters" <walters@verbum.org>
-To: "Amir Goldstein" <amir73il@gmail.com>,
- "Giuseppe Scrivano" <gscrivan@redhat.com>
-Cc: "Miklos Szeredi" <miklos@szeredi.hu>,
- "linux-unionfs@vger.kernel.org" <linux-unionfs@vger.kernel.org>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- linux-api@vger.kernel.org, "Al Viro" <viro@zeniv.linux.org.uk>,
- "Christian Brauner" <brauner@kernel.org>,
- "Gao Xiang" <hsiangkao@linux.alibaba.com>,
- "linux-erofs mailing list" <linux-erofs@lists.ozlabs.org>
-Message-Id: <01df945c-9dbc-4b80-b71c-f68aa70fb8bf@app.fastmail.com>
-In-Reply-To: 
- <CAOQ4uxgbNhdzKN7tvRmFDpt-8CZWh9pVcMLv25HxJzA0_0WfSg@mail.gmail.com>
-References: <20260708095831.3381978-1-gscrivan@redhat.com>
- <CAJfpegsJON=1_84PCGMjASYPFL=Wqsz7dnTAbO3Tdz5DfRQU+g@mail.gmail.com>
- <878q7l8y4y.fsf@redhat.com>
- <CAJfpegvQ06=2E0V_ADgxwmo7e5weTfOMozmBB-QVNLLWYAm8WQ@mail.gmail.com>
- <87wlv57dt1.fsf@redhat.com>
- <CAJfpegtTixwWSh9M-9NbwP0nUbJJ9rh0rxqO7BzgK7Su_RpM+A@mail.gmail.com>
- <87o6gh79yi.fsf@redhat.com>
- <CAOQ4uxgbNhdzKN7tvRmFDpt-8CZWh9pVcMLv25HxJzA0_0WfSg@mail.gmail.com>
-Subject: Re: [PATCH] ovl: add ioctls to retrieve layer file descriptors
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: IRhUck_42zDFYUbwhNQ2_MAZ9DVWV8C6zHRQM7l9Kos_1783541929
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
+Amir Goldstein <amir73il@gmail.com> writes:
 
-
-On Wed, Jul 8, 2026, at 3:01 PM, Amir Goldstein wrote:
-
+> On Wed, Jul 8, 2026 at 5:55=E2=80=AFPM Giuseppe Scrivano <gscrivan@redhat=
+.com> wrote:
+>>
+>> Miklos Szeredi <miklos@szeredi.hu> writes:
+>>
+>> > On Wed, 8 Jul 2026 at 16:32, Giuseppe Scrivano <gscrivan@redhat.com> w=
+rote:
+>> >
+>> >> Amir suggested to add that functionality when I've asked for some
+>> >> feedback before sending the patch here.  I am fine to drop it if this=
+ is
+>> >> the consensus although I see its utility from user space.
+>
+> I was thinking that getting the number of layers or info would be
+> a good idea to complement getting a layer fd.
+>
+> I agree that the same information is probably available via statmount
+> by parsing the upperdir/lowerdir/datadir mount options.
+>
+>> >
+>> > How about a completely different interface:
+>> >
+>> > int get_fd_opt(const char *name, unsigned int index, unsigned int flag=
+s);
+>> >
+>> > Enumerating layers would be as easy as passing an index stating from
+>> > zero and stopping when -ERANGE is received.
+>> >
+>> > It would work for all filesystems that use files as options.  No more
+>> > fs specific ioctls.
+>>
+>> Is a new syscall really justified for such a narrow use case?
+>>
+>
+> I feel the same way.
+>
+> Giuseppe,
+>
+> Could you add some high level context in this thread on why you need
+> this functionality.
+> I think it's this composefs-rs work. right?
+> https://github.com/giuseppe/composefs-rs/commits/reuse-mounts-and-prevent=
+-gc-overlay/
+>
+> I must say this seems a bit upside down to me.
+>
 > If you want to keep a pool of mounted erofs images, you could do that
 > in userspace -
-> create a service that indexes mounted erofs images by unique mount poi=
-nt paths.
+> create a service that indexes mounted erofs images by unique mount point =
+paths.
+> Then you can introspect the overlayfs mount options referring to those
+> mount points.
 
-You're right that it=E2=80=99d be possible to do this in user space.=20
+A first issue is that the mount options won't have this information
+anymore, as we use /proc/self/fd/$i paths as lower dirs so we are sure
+the fd points exactly to the file we have measured its fs-verity digest
+before using it.
 
-However, overlayfs is used by many things (it=E2=80=99s a powerful =E2=80=
-=9CSwiss army knife=E2=80=9D!) and this ability to reliably introspect i=
-ts components is I think generally useful.
+I know this can be achieved with a system daemon, but do we really need
+one if this information is already known to the kernel?
 
-For example: https://github.com/systemd/systemd/issues/35017#issuecommen=
-t-2457333218
+Combined with listmount/statmount for discovery and fs-verity for
+validation, the entire mechanism is stateless from userspace.
 
-Various tools want to know the backing filesystem(s) and/or block device=
-s thereof, and if we don=E2=80=99t have something like this in the gener=
-al case every overlayfs user would need to agree on a scheme to store th=
-is data out of band - and manage its lifecycle as mounts change and deal=
- with where that data is stored with respect to mount namespaces etc.
+More in general we need a way to introspect overlay mounts to know where
+they are pointing to since paths can be hidden using /proc/*/fd
+symlinks, or files get replaced.
 
-Even if we had this API, would it be better to have a user space cache s=
-erver for the original use case here? Maybe. I could personally go eithe=
-r way.
+Another similar request:
+https://github.com/systemd/systemd/issues/35017#issuecomment-2457333218
 
-But the introspection I think really would be generally useful and there=
- are code bases (in systemd and in composefs at least) that would start =
-using it (with fallback for old kernels) for at least that use case righ=
-t away.
+> Going through the kernel to get an fd and reuse that fd for a new
+> overlayfs mount
+> sounds like a strange way of accomplishing this.
+>
+> If the overlayfs mounter is unprivileged, it would have to go through
+> systemd-mountfsd
+> to request a mount of erofs trusted image, right?
+
+off-topic but for now we are considering FUSE to deal with mounting
+EROFS as it would serve only the metadata anyway in a composefs setup.
+
+Regards,
+Giuseppe
+
+> Can't the same service provide the "is_image_mounted" query which provide=
+s
+> the mount path?
+>
+> I am not against introspection of overlayfs, but I'd like to understand
+> the use cases before finalizing the uapi.
+>
+> Thanks,
+> Amir.
+
 
