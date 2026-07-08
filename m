@@ -1,62 +1,92 @@
-Return-Path: <linux-erofs+bounces-3863-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3864-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C4DBC43458
-	for <linux-erofs@archiver.kernel.org>; Wed,  8 Jul 2026 12:51:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AA5BCC43458
+	for <linux-erofs@archiver.kernel.org>; Wed,  8 Jul 2026 14:55:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gwHzT6RM1z2xll;
-	Wed, 08 Jul 2026 22:51:49 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783515109;
-	cv=none; b=lePOZxukyT6iUKOrKh9IDney5Xjg+5RoPP7LOhHfVeYU8XkgIWFobSWe58tCtG3oPNYm+mf1rv9XFMd2+lRvpCtPzykT8gZhOpv6O/RO5qtseneikC+DkVvFymKcHV/z74BhhFYJ22GpU+iroOvTdfCEh85Bug0NHHEUvMbl3xmEpVQFIfNtMOyMwEn1fbOO0PXcq5HRrFMcuqT6Akpwoo/TQ0Hn281d0qXbeYxgDnjAJH8dzbVTSDQdZdWj5c7eLQkCy7EvBro5iUedcpb9I5HUvSm8lDiUjmrInVlycf8NOJZ6igC5r37D+eLC/Vjp1lb1vUU4xyTi0pkg6P/n+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1783515109; c=relaxed/relaxed;
-	bh=QRPUyGPfTdccGwt58sEKWl+IWzR/UejjR9lig5WYGKE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bx34fvXit6F71rboOfTSPHGzCg4u4Q0XJIIXquIlX/fM0V7yZ+g7BEk9u/Uj7ANsNbcjUQiOy5GUE51syUGQtHVcKSQSUxd1OQq5q3H+rG2eaGvKqoQa83u6BlurlNWdFnarN8Cvvgv9b9nSIZs/ErPnhsh9AiaOlo7JhR2VKGbWobD9Qpzkl4VZ7m9QcGAxAJEiPMcDcHNfJixKFEShbwOp7vOFKXo/JE1iU/3iWNBo/PHwx4JwM0KYuQRXa3eVAC78FZXmPr7e46YVrlzRzRWyR2lUrTLFUo6nXFBMTfpNx1qHr6v7b2oS9idtgf5E5NKUu0wNzZOlxwQ4VZHpKA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QhaiwETO; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gwLkS0pbKz2xpn;
+	Thu, 09 Jul 2026 00:55:44 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::135" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783522544;
+	cv=pass; b=ZgA/MTl7qXA69REV0a4Un4JJDfV6BSdkyGUhaQTD1uU3apsy7uDzEMH3WGz8GFO0QimxufSSlEtRsencfg403gZ1ytSMSvozSIie9dYtPAMBgVLFuVcYfYtor0tprmWBuiWoeLCyDFOcWiNY85EOL2upAOtSOwfuuHghRmkcIB9O6930862f4ZxSc5i1v7iooLIPUO9zYMREgZoQOWbiG67WE+mdUfd4sVgIxL9NvyPbhnSY18dwmaS6wSXdi3xP4lmu4l71AqXsb1z2Qu0D48DWj7RXUHFYc3JNTCcrOD5Z1+70XohwgRZ7GAPJzbUt8mq8Mg1cTZUMf41AkLRaMw==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1783522544; c=relaxed/relaxed;
+	bh=HNUyOLDVIp+0zKTGoz+OqkdsD7McKB6c6W+fqiostx4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nxhOu+k4GlcOtFLV+KHnD90IWwAA3Ejd/Lm74lnAYJPsmTJwJGdqoKt0zv8b9NZEkH9EZ1soZTbnGFjfChOSBk8pGag1cExXykvcjVSRQCMxQ7uzGGVdLSKj17oq3i1l4XweqrJ3xIqAk9pfbiSETPtrjBmMvyDv9wzN1qEFoT6qsb1A0vS3i0RUxKqwQeWwFXj7hUheACRUOPqZWaAhz23dmy96D4EncyqaW4Zo2R5TLAe/vJCoce2PgrmL+iVixXhUxQ8zGp2frdar6kbkkBZmUxxx02FsUc9JRgYa7a/hZOZq/VUlgY9OjOTvhDbwCQamY2uC9F6aPj9FJ/ya8g==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net; dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=elIpo4Rw; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::135; helo=mail-lf1-x135.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org) smtp.mailfrom=amacapital.net
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QhaiwETO;
+	dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=elIpo4Rw;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amacapital.net (client-ip=2a00:1450:4864:20::135; helo=mail-lf1-x135.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org)
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gwHzT1dY4z2xKh
-	for <linux-erofs@lists.ozlabs.org>; Wed, 08 Jul 2026 22:51:49 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id C391C60008;
-	Wed,  8 Jul 2026 12:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B7C1F000E9;
-	Wed,  8 Jul 2026 12:51:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783515106;
-	bh=QRPUyGPfTdccGwt58sEKWl+IWzR/UejjR9lig5WYGKE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=QhaiwETOGKXor5vMCHcRg2PzUbS8ZpsAphiuOu4hDThdjT4fkYeCvlap8//EIgiVH
-	 JanpHZsLmY2raWY5Nng8QZbIDeFlHvgO2WySttV0Z1DJ8EScCuJdo423CUoVL1a2hA
-	 fxio8IRXF24rCoVDe75y1CxkNdQnhbeLG/EG3vjwcXJt/7lAwOqA1Y4p7W6mbXWcKw
-	 6eAxHFaynZd+dYfCtLkW8eHhzZg7cTdJ7bCnCFKW1pa3gIELxrLxt1HMgSo+dfgC1N
-	 aNgKTnKqKR7mumD4Mnu0qh6/RXcFBy9ikq1wFu64TzzfO3MhGdwgT6sReiz30pSBI7
-	 GQqm6ZmV41XBA==
-Date: Wed, 8 Jul 2026 20:51:40 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Giuseppe Scrivano <gscrivan@redhat.com>
-Cc: linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
-	linux-api@vger.kernel.org, Christian Brauner <brauner@kernel.org>
-Subject: Re: [PATCH 2/2] erofs: add ioctl to retrieve the backing source file
- descriptor
-Message-ID: <ak5H3N5c0ccCwv6i@debian>
-Mail-Followup-To: Giuseppe Scrivano <gscrivan@redhat.com>,
-	linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
-	linux-api@vger.kernel.org, Christian Brauner <brauner@kernel.org>
-References: <20260708093446.3370200-1-gscrivan@redhat.com>
- <20260708093446.3370200-3-gscrivan@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gwLkQ1Dbsz2xll
+	for <linux-erofs@lists.ozlabs.org>; Thu, 09 Jul 2026 00:55:41 +1000 (AEST)
+Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-5aebfa21c62so958430e87.3
+        for <linux-erofs@lists.ozlabs.org>; Wed, 08 Jul 2026 07:55:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783522537; cv=none;
+        d=google.com; s=arc-20260327;
+        b=sBd+4WrBXLLXX2aOnK+Qi521WBn1oLB6giG30wJTcrWoblp3xya72MVsUeEgyB6q3m
+         9/kYgXWWTacLbmgQD3IR2a7TFsBzL+00H3GWMxacDEcKVeDmLt1FMA4h3TGhXdrOo+Uw
+         2uT9o2e7w9kghqb1GEzszT+QViauvKl5RQXsCVGc2ypYInqy34AEyZqwaTKMzFfnjPU1
+         9ryyTAXJPRLRZb89V5CQr9/ym9dU4oni4poemQgLbpnkW7AIMaRI56istZP9q84gsl4d
+         Ei7A+NlI/4+4sG+uaQvAg7U6xK2sZ9PIyHN1dHhtqGw3y7N83Ifsd8Gq5V+3mkJSMOt0
+         xRlg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=HNUyOLDVIp+0zKTGoz+OqkdsD7McKB6c6W+fqiostx4=;
+        fh=E6/a/u5MwtqOnW8Z8T2+60WLZGeay8SoRt7JH3B7YE8=;
+        b=TuaQ2V3LYuP1Hcg4+57/kieUew1lGm/YCaoitdJ7UGPgKYpG4cywfVOgajsgB7NsiO
+         Htgd7c9nWCowT1kOFEc5kTHPW1e6oUVg+K4T4SD48YObyWyObIvVDEfrmOyb15E2itu9
+         mNSNGW6eNCMMbR7Tn3TR/mxb6rjEx89PypxNzKnALzZe5+k75hUGn0oXmVi1qK1utum7
+         on9pW2SEScboVu7cv66si6N06nbTlGl3evU2w607w0oGnwd7MOy11QMX9ZN5naVgYjtu
+         k0Sc7q4sfrV5lDHdzIzZ5KylbWTsKkG3agjlY3cuiBdx4c66XoTo/PPEZZyFrehQRFIE
+         eFng==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20251104.gappssmtp.com; s=20251104; t=1783522537; x=1784127337; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=HNUyOLDVIp+0zKTGoz+OqkdsD7McKB6c6W+fqiostx4=;
+        b=elIpo4Rw+gX6Q/D+QIRcA7tYY56r1mgXMQHCz7qGk5CKRL62CVE7gy+sdPKM6TDIZE
+         L+V36v49hywXQlrjlFFktIYTZioWYgoz2o1+tEcu6igvyI45O9P50Ulp8SQfjImBC01h
+         5O5kF+gpLdfxjXlg/AxiD5VxSBcE734EGNbWnYu14WWvKhwPkZluKi5ZM4VCZYAePuh+
+         M34jr9uhTAddZWuh9NIX1gmwxmvIYwuIEXuiqPibnL+fPqGMLcPFOkQ0Q/6+HO3kjzG6
+         EJ+mNbWI962A0A5jAoy41/hVvO2ewR4+QDVx8VEx5WQMGdT6LTq6AjAjNJ5GUi4BLIwp
+         3Q6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783522537; x=1784127337;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=HNUyOLDVIp+0zKTGoz+OqkdsD7McKB6c6W+fqiostx4=;
+        b=bpe4dJ003u1JyRQRAOPSwXk9JYbzAPNyD+wo0fs2WK9bM6X3m+S0XbsErbw2YqDn/0
+         RTybsp+qqKTTM2PpvdZqnNWRB8Rqf6RbZpZq+Y/grDM1F10Xqw9FQURbPMBiGqNwgXwV
+         SH99hn42cCCOUZvfNzy+SrksvTvG9gD4mj7CgENJ76s/QsdUebuZD+o1iFNSrNreRkrM
+         in2b7NX36/W//n6uk0dt8N+Jb9Mc0t+XjFnasbyYcCz3KnM1ieUZoRscgapuBGMjSjhl
+         RWKn9D7bwayf3X9gsZrSna9649eAkmy2IB2CiWgxz+8qY6M5IVMEVa6JS2yrhT6yvXVt
+         BYIw==
+X-Gm-Message-State: AOJu0YzBGNtChxHbpvKFIAC9+4P6k0htJUrFlKyLYl03lBGECen3CURz
+	P47tGRkzcNcvmxWA4/astvGNq6bO+qghDRjXPb+iw1hExST++ZvoVKKanp4PrFMsTngyZgWrlbr
+	OBsR6+EYoI4KfDxYrNqirqB3Gt644oHh1Xbq53t09
+X-Gm-Gg: AfdE7cliLZ4Lfc6wGz0E8a4o6m8Igdswg66Oiqbqa/IUsYy8ditKrKYdIJ1inZzPYR9
+	y2KtoIVxetqJZ5Ax/AfDNZVdUf13FJDStNJNzgznK4HR2/g6VDhO0rnDGLc9ZCD02K5sRDZ/nWS
+	y05jyMxL2FYD3ABblMyuCS5raZUcjmAnD/6XhJUBnggik/VwQ3drAH7tTKHQ8CA1GVBOvmw9KSC
+	6Oy6Z+z/50kFg6yT73GcM4yaNaegsxPLnLw67OUiiEPq8U4k8Cz1McGO8eV8lS4DOKbkA==
+X-Received: by 2002:a05:6512:8348:b0:5ae:b5d0:9da2 with SMTP id
+ 2adb3069b0e04-5b011462b7emr693309e87.38.1783522536822; Wed, 08 Jul 2026
+ 07:55:36 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -68,33 +98,43 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <20260708093446.3370200-1-gscrivan@redhat.com> <20260708093446.3370200-3-gscrivan@redhat.com>
 In-Reply-To: <20260708093446.3370200-3-gscrivan@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Wed, 8 Jul 2026 07:55:25 -0700
+X-Gm-Features: AUfX_mxOfC8JmvatfXCPy4TV9OGzLE6zGNnyTgpXNYag_FZ0rPhcjgOvQmXLouo
+Message-ID: <CALCETrVE0g-qKC079K4Ch=26VH6R+q1tXVU7HiN_Og9o1zzpow@mail.gmail.com>
+Subject: Re: [PATCH 2/2] erofs: add ioctl to retrieve the backing source file descriptor
+To: Giuseppe Scrivano <gscrivan@redhat.com>
+Cc: linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
+	linux-api@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Giuseppe,
-
-On Wed, Jul 08, 2026 at 11:34:27AM +0200, Giuseppe Scrivano wrote:
+On Wed, Jul 8, 2026 at 2:36=E2=80=AFAM Giuseppe Scrivano <gscrivan@redhat.c=
+om> wrote:
+>
 > Add EROFS_IOC_GET_SOURCE_FD ioctl that returns a file descriptor to the
 > backing image file for file-backed erofs mounts.
-> 
-> Returns -ENOENT for block-device-backed erofs mounts where there is no
-> backing file.
-> 
-> The UAPI constant is defined in include/uapi/linux/erofs.h.
-> 
-> Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
 
-Thanks for the patch!
+What=E2=80=99s the use case?
 
-The functionality is indeed useful to users, but similar to overlayfs
-one, I'm not sure if the interface is the best way. Since after we add
-this to EROFS, we will support this way forever.
+In any event, this seems to have potential security and API-oddity implicat=
+ions.
 
-I wonder if there could be a way as a common vfs uapi to get source
-fds, but I don't have better ideas for now... (that is why I suggested
-to Cc linux-api too..)
+1. That capable(CAP_SYS_ADMIN) seems critical =E2=80=94 otherwise a task th=
+at
+is admin in a userns can get an fd to a backing file *outside* its
+container or to an otherwise inaccessible file.  It at least needs a
+comment IMO.
 
-Thanks,
-Gao Xiang
+2.  This series appears to fully round-trip the struct file. That
+means that f_cred and mode are preserved. This seems strange and may
+have all kinds of accidental effects. For mode in parallel, if the
+program that mounts the backing store opened it for write, then this
+API gives a writable fd, which seems like an odd choice for a
+filesystem that literally has read only in the name.
+
+The OVL variant has these issues to a lesser extent due to the fact
+that it returns an O_PATH fd instead of an actual open file.
 
