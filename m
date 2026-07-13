@@ -1,45 +1,60 @@
-Return-Path: <linux-erofs+bounces-3878-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3879-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E35DC43458
-	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jul 2026 03:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D972FC43458
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jul 2026 05:02:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gz7tH36Jmz2xjN;
-	Mon, 13 Jul 2026 13:57:11 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783915031;
-	cv=none; b=YKySH6iyNsm3c+Dim2z79V1Lw11ep3+ClbaWwTt+V0azGDdpNgm2J/FsO+qDZiMlNxSrLRHKZvKE+AXYTkfyn2BDuwxk+DRRtyjU8a9bBcX+41FQwGXXRNGs/SKo3x6ZyHPES5J19jHb6pCrsDL3QgXEOHjQ0/NXZFAXkbow4kEp9UNvh8pgCXwHkhtSU9IOOXEw582j1guorUMquugAikYt1iWnc3CR3ijiwl7osWWI9CIOd2PFDp7XVTc9ybyA5Kg3RLcZc7zEoFjEmjRE/nMP7T442DH2tdyTkYQk8m+0+abI6hEWAGR0H/mB5iQBx6Js1PtcID1pUeLZMfjUKQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gz9Kw3L0Gz2xWY;
+	Mon, 13 Jul 2026 15:02:44 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:67c:2050:0:465::102"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783918964;
+	cv=none; b=JPZFX5Vj6cVRp0mOsZw9JiVQ+s4h7Lx3/Z0FzxbJcLA4PPZSP5Nda22LI6RVjjDSIfwJ87CeScQze+M7A/ALd12KD9GWoHrUVALOf+nb7yLg10UpGFTucTOjhsJj8e0vutktGmklo7ncKnrQgD+/j2DPurGahv/+2prYnoxWg+2D6PKH/PiXyi4oNbPXLZy+KrpHV8g7/INliq29NtdBd6VgrfhxugqGwB6kJrzw1gLSOIzIMmHLXf9jURuw3nzOkIAe/Z7PskoD/3N5LaBhA7Jty+3k9fgZaTceVCl+OD/WpKZDQLghKW+3D4uNqh3djdb25JDGxPxbbOzhhr6xGA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1783915031; c=relaxed/relaxed;
-	bh=ptapzLT2kC0FRZONruSP9TU30xzkIav8a6oiB+WjSOc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=l7qrdkVO4zH0zAIecNGKRYZJeWBLktV8K7tO8ss/fnvRvBJxFl2xbp0b6WOrl6LcEM9plbvlFioDYOOq6voycXcY8nDk+pcYI6jjVPdLLu2gnzLfeJ5OVgGCExtAr1nqbPZuoDYrXES+VcLmqKOL680XWiUgyxXupEOqF2+HBTOqkK3tsN0qP3IsJfRk8139+WS9LlpkHNM5EmrP4xe59TWcR6Riob31hk7zDUJv5WX2oWZagahWVP/Z7XH5sLvyHN3uk2THOypHbFSIqpIR9btaDutyW3K2ch2lXyycYvZOUzCy0+MLBHc4Z5QUMLN9ah2zS2rEEXmaj1izwlUNGw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BsQ9aqWO; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BsQ9aqWO;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	t=1783918964; c=relaxed/relaxed;
+	bh=YCQJ8K3hqH0LIhTBV9jc6pRjrXoDZJgmWS96ChvNcrs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GZi2gM8ilVaf1zo60O75ReEw7TfhD1NleWeIcuApgfcPUs2+Sg13Cz4Y53b6wwjHEWWIWGXNzvIzXzpz2Mm4gwSTakWKAssJldWuyi+o87FEW14U2ciRS2kZI3M0fJM+VXQZQpRtWoNO3rdq389yXb4AALGwosnxtCxcFO7ZsoY3fBV5+CE63u+Dj1OoGxY4S/Zj6o75RfDf266DV0e1UGI//YmQ1tABwuCPwzzA0O90CJsif+cIIqNDudUYcpTb5Ndwt5c/Nz8uRQeAEFMQW053eqKe6y1Unze8RRgxkZQN8KIraztzrRsYTOIQiqLKXXtZRyaPlxqOKqw/swosAQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=cyphar.com; spf=pass (client-ip=2001:67c:2050:0:465::102; helo=mout-p-102.mailbox.org; envelope-from=cyphar@cyphar.com; receiver=lists.ozlabs.org) smtp.mailfrom=cyphar.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=cyphar.com
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cyphar.com (client-ip=2001:67c:2050:0:465::102; helo=mout-p-102.mailbox.org; envelope-from=cyphar@cyphar.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 585 seconds by postgrey-1.37 at boromir; Mon, 13 Jul 2026 15:02:34 AEST
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050:0:465::102])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bit raw public key) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gz7tD5kqXz2xRw
-	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jul 2026 13:57:07 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1783915022; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=ptapzLT2kC0FRZONruSP9TU30xzkIav8a6oiB+WjSOc=;
-	b=BsQ9aqWOSWipLfGX8+tiTBOBRlHouAtLlcMIXTZsUeic8rAXbgqIJWp9kIvktgxBPCIDyOAwZX5L1plHKqeyTcMzUPKqleAwYMFx2pEylPtjozZw97PotbwUgEwdSc7LYZH+CWXrtgK7KvXlbrOfUYvm+YypGvCqHLfzrE0Towg=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X6teBxS_1783915020;
-Received: from 30.221.131.243(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X6teBxS_1783915020 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 13 Jul 2026 11:57:01 +0800
-Message-ID: <008358ad-beef-4086-a423-0b282746ebb2@linux.alibaba.com>
-Date: Mon, 13 Jul 2026 11:57:00 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gz9Kk3d13z2xVY
+	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jul 2026 15:02:33 +1000 (AEST)
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA512)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4gz96B3CjVzKv3V;
+	Mon, 13 Jul 2026 06:52:34 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyphar.com; s=MBO0001;
+	t=1783918354;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YCQJ8K3hqH0LIhTBV9jc6pRjrXoDZJgmWS96ChvNcrs=;
+	b=TrJbaXEApjznMLFa/3Q4wCMc8SRRK4tuqittd45MZhd4gKkiMhyQsbbcGGSyOlGuUVAEd0
+	1FZM3tdbKwbSc39jb4uDHACoHVPJlzrEBL8mvr/7CLzzl5RAyHEuAH82pcDD/iz5LlZ/P5
+	NaVJ3/X7n+alcXeWlI3SP8uKf2Z72uxd5ZOSwpd4l/5LfzO9SMXjVWLv8ElV/zyHhk53jS
+	Zo5jdeVY/4AGTBofrCPMSKrHfgCDNVfyJ4zZKzzXpo+g143TJ/b2CPUR29x/We090YW4pw
+	J7MRBO9MBLSjiNP38INhnUB1hPAc3SP60wCsgQXD5zCy7AEf6grpdx2rGaKYkg==
+Authentication-Results: outgoing_mbo_mout;
+	dkim=none;
+	spf=pass (outgoing_mbo_mout: domain of cyphar@cyphar.com designates 2001:67c:2050:b231:465::102 as permitted sender) smtp.mailfrom=cyphar@cyphar.com
+Date: Mon, 13 Jul 2026 14:52:25 +1000
+From: Aleksa Sarai <cyphar@cyphar.com>
+To: Giuseppe Scrivano <gscrivan@redhat.com>
+Cc: linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org, 
+	Christian Brauner <brauner@kernel.org>
+Subject: Re: [PATCH v2] erofs: accept source file descriptor via fsconfig
+Message-ID: <2026-07-13-dandy-better-exposure-wager-9hBmfv@cyphar.com>
+References: <20260711071137.4130824-1-gscrivan@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,32 +66,105 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs: accept source file descriptor via fsconfig
-To: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org
-Cc: linux-fsdevel@vger.kernel.org
-References: <20260711071137.4130824-1-gscrivan@redhat.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="i5hxj75u4eskqb5k"
+Content-Disposition: inline
 In-Reply-To: <20260711071137.4130824-1-gscrivan@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 4gz96B3CjVzKv3V
 
 
+--i5hxj75u4eskqb5k
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v2] erofs: accept source file descriptor via fsconfig
+MIME-Version: 1.0
 
-On 2026/7/11 15:10, Giuseppe Scrivano wrote:
-> Add fsparam_fd("source") so that userspace can pass an already-opened
-> file descriptor instead of a path string.  When the fd is provided via
-> fsconfig(FSCONFIG_SET_FD, "source", NULL, fd), it is stored directly
-> in sbi->dif0.file and erofs_fc_get_tree() skips the filp_open() call.
-> 
-> This is useful for mount namespaces where the backing file may not be
-> reachable by path, and for tools that already hold an fd to the image
-> (e.g. composefs reusing an erofs mount's backing file).
-> 
-> Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+On 2026-07-11, Giuseppe Scrivano <gscrivan@redhat.com> wrote:
+> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> index 86fa5c6a0c70..3040d4cf9b85 100644
+> --- a/fs/erofs/super.c
+> +++ b/fs/erofs/super.c
+> @@ -386,6 +386,7 @@ static void erofs_default_options(struct erofs_sb_inf=
+o *sbi)
+>  enum {
+>  	Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
+>  	Opt_device, Opt_domain_id, Opt_directio, Opt_fsoffset, Opt_inode_share,
+> +	Opt_source_fd,
+>  };
+> =20
+>  static const struct constant_table erofs_param_cache_strategy[] =3D {
+> @@ -413,6 +414,7 @@ static const struct fs_parameter_spec erofs_fs_parame=
+ters[] =3D {
+>  	fsparam_flag_no("directio",	Opt_directio),
+>  	fsparam_u64("fsoffset",		Opt_fsoffset),
+>  	fsparam_flag("inode_share",	Opt_inode_share),
+> +	fsparam_fd("source",		Opt_source_fd),
+>  	{}
+>  };
+> =20
+> @@ -524,6 +526,11 @@ static int erofs_fc_parse_param(struct fs_context *f=
+c,
+>  		else
+>  			set_opt(&sbi->opt, INODE_SHARE);
+>  		break;
+> +	case Opt_source_fd:
+> +		if (sbi->dif0.file)
+> +			return -EINVAL;
+> +		sbi->dif0.file =3D get_file(param->file);
+> +		break;
 
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+I don't think this handling is right for a few reasons:
 
-Thanks,
-Gao Xiang
+ 1. AFAICS this shadows the default "source" handling logic (because
+    -ENOPARAM is not returned for the non-fd case), which means that
+    this regresses existing erofs users -- everyone already uses
+    "source" today. I must really be missing something if this worked
+    when you tested it.
+
+    Additionally, fsparam_fd unfortunately permits strings (where the
+    string is the numerical value of the fd number), meaning that this
+    will call get_file(<garbage>) if someone uses FSCONFIG_SET_STRING.
+    You will need to check param->type at least to avoid that.
+
+    I meant to send a patch for this earlier this year, but a nicer
+    solution would be to have a custom helper similar to fs_lookup_param
+    except that it permits FSCONFIG_SET_FD, FSCONFIG_SET_PATH,
+    FSCONFIG_SET_PATH_EMPTY, and FSCONFIG_SET_STRING. This is sorely
+    missing and people keep accidentally creating unusable interfaces as
+    a result. I mentioned this in an LPC talk last year[1].
+
+    proc_parse_pidns_param was my minimal version that only accepts
+    FSCONFIG_SET_FD and FSCONFIG_SET_STRING, and if you don't want to
+    add dirfd support yet then you should use something more like that.
+
+ 2. On a slightly less critical note, fc->source has special handling in
+    the VFS in a few places and AFAICS this is the first example of
+    someone adding an implementation of "source" that does not set
+    fc->source to a proper value, which deserves some additional review.
+
+    (At at quick glance it seems this just means that some stuff in
+    procfs will show as "none" rather than fc->source debugging, but
+    again it probably needs a closer look.)
+
+[1]: https://youtu.be/NX5IzF6JXp0?t=3D72
+
+--=20
+Aleksa Sarai
+Founding Engineer at Amutable
+https://www.cyphar.com/
+
+--i5hxj75u4eskqb5k
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iJEEABYKADkWIQS2TklVsp+j1GPyqQYol/rSt+lEbwUCalRvAxsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDIACgkQKJf60rfpRG/kcQD+JC77qxpl/QwTgLzwoybn
+nUi8Dq8fugnJpjdZLISEE+kBAN5kXLqQnmfO5oLeayumLCq0aLCpRkIXfGRSTgDP
+76wF
+=njuw
+-----END PGP SIGNATURE-----
+
+--i5hxj75u4eskqb5k--
 
