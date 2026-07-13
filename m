@@ -1,90 +1,45 @@
-Return-Path: <linux-erofs+bounces-3875-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3878-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5BD97C43458
-	for <linux-erofs@archiver.kernel.org>; Sat, 11 Jul 2026 14:34:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E35DC43458
+	for <linux-erofs@archiver.kernel.org>; Mon, 13 Jul 2026 03:57:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4gyB6d21rSz2xlY;
-	Sun, 12 Jul 2026 00:34:33 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::735"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783780473;
-	cv=none; b=YnwOMDeRIhS/n9jYVBuH7K525FLrIO/j46WcPruowoeEB+LlQDU8l7MH28OQ/kNIU7DggLBIOvgcy4h0jfX/Bp06wTOzatjnZGxsiqQ7uboA0LhlKZV9PZvOPda6QXRiJiCIF0NpcQ4L5DjSJMJXQm4n/yLBT4D4xJMYRAzaoRj4BlTOTyp7T80iCDeBje2uhxEFXg9HI6Za+Hsy1LY5/ID0bBj1jPcd6Uxbe6rAzKunOe/sLGrNON/qBU6z5Y75trtMmlhJkrI9a0s7AA6dJDS7ei/Zcf+LtuN9XFGeanaCFs3gH/29tVbKiVOxGmeuTt8YIRVdfJmCwrNdBvdIdA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4gz7tH36Jmz2xjN;
+	Mon, 13 Jul 2026 13:57:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1783915031;
+	cv=none; b=YKySH6iyNsm3c+Dim2z79V1Lw11ep3+ClbaWwTt+V0azGDdpNgm2J/FsO+qDZiMlNxSrLRHKZvKE+AXYTkfyn2BDuwxk+DRRtyjU8a9bBcX+41FQwGXXRNGs/SKo3x6ZyHPES5J19jHb6pCrsDL3QgXEOHjQ0/NXZFAXkbow4kEp9UNvh8pgCXwHkhtSU9IOOXEw582j1guorUMquugAikYt1iWnc3CR3ijiwl7osWWI9CIOd2PFDp7XVTc9ybyA5Kg3RLcZc7zEoFjEmjRE/nMP7T442DH2tdyTkYQk8m+0+abI6hEWAGR0H/mB5iQBx6Js1PtcID1pUeLZMfjUKQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1783780473; c=relaxed/relaxed;
-	bh=Pn3TuWsy7LPK2Mh7RYsHyafjd2c/ye1pFlJPL8EwT/Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V3naUW2Op9pjAj84ZZQxqBXQDRbq3Kxr5BrYQCyhI15NCebLPD4z+UffcQUCknweX6MhRDE3JG1DbhPZHNCnpPV5wOKe+QyBajqxiUYZJHq1E2oYPP/O+uJcVgJua3p+7/OkR8kx/X3wmHPCBTeZVcF6A3tlfsapuzAT5HRAXNGmRlnYwvA+XOyAMQCFfKN8uLmZqChLqIfC3ZDejkYNdadp0dafVtZn/5ELTg4HqVIziSbp4SJfXs1bmGj4Wjtm8oFRjyGrT9MvRU3F9XWi6eBW/Ht1NPmJeZ3Og7PtHm1xMWJCAfkpu5FMOOhpzgRvcpAg+VEe7lvTZoKmEvT/gQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lHWseNxI; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::735; helo=mail-qk1-x735.google.com; envelope-from=michael.bommarito@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1783915031; c=relaxed/relaxed;
+	bh=ptapzLT2kC0FRZONruSP9TU30xzkIav8a6oiB+WjSOc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=l7qrdkVO4zH0zAIecNGKRYZJeWBLktV8K7tO8ss/fnvRvBJxFl2xbp0b6WOrl6LcEM9plbvlFioDYOOq6voycXcY8nDk+pcYI6jjVPdLLu2gnzLfeJ5OVgGCExtAr1nqbPZuoDYrXES+VcLmqKOL680XWiUgyxXupEOqF2+HBTOqkK3tsN0qP3IsJfRk8139+WS9LlpkHNM5EmrP4xe59TWcR6Riob31hk7zDUJv5WX2oWZagahWVP/Z7XH5sLvyHN3uk2THOypHbFSIqpIR9btaDutyW3K2ch2lXyycYvZOUzCy0+MLBHc4Z5QUMLN9ah2zS2rEEXmaj1izwlUNGw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BsQ9aqWO; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=lHWseNxI;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=BsQ9aqWO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::735; helo=mail-qk1-x735.google.com; envelope-from=michael.bommarito@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4gyB6b2HBLz2xjd
-	for <linux-erofs@lists.ozlabs.org>; Sun, 12 Jul 2026 00:34:31 +1000 (AEST)
-Received: by mail-qk1-x735.google.com with SMTP id af79cd13be357-92e6c4a867cso104657985a.0
-        for <linux-erofs@lists.ozlabs.org>; Sat, 11 Jul 2026 07:34:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783780467; x=1784385267; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Pn3TuWsy7LPK2Mh7RYsHyafjd2c/ye1pFlJPL8EwT/Q=;
-        b=lHWseNxI1ZR5Vd/VVHxtNsRLs71bUaHwQvVNhlIrl0lVfMHjsEMj2dOmacXZ4AQdvI
-         8/kDo717a+ZBrgu/WD06klptxfywFtW9nIKAzUehgdmIAcuBEqz+swAv5F2AhI28w09P
-         EW3NgEamN7bF9V500aerCR8Go0dXu/anvyHNU3dHB3DlyvjZmJcP7nDz8fRaT8RyvdcL
-         G1XpU/OJFUjp9yXZr9R3xhjDriu9LohuAdAqv5YLmACamhtAqhPHx3nDQbjQUfKs/ENb
-         iGYFuu2Cgvb489kwJvXYCn+LGMLlOFZfJZIfrEgT1sN7unINvW3fiGcljBKl3nVjNejG
-         oE6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783780467; x=1784385267;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Pn3TuWsy7LPK2Mh7RYsHyafjd2c/ye1pFlJPL8EwT/Q=;
-        b=VxrAk9oJ0v2Okz7Drbv55iNiQO791/ClQPAt/C5l2ZcQcqR0t6UGta7Nb7/U7jgw/G
-         cK/GsjDsMybgHstG8TPUR3mNEMdSNlLsH8g/7jUuMbiwJ4/xyw8biWj94oq/W/iL0AsG
-         ZAmKapJacrAaJ9XHVYfgGSyFHW8aFtE5KwaOUee/PBDu229JmdF7yVEVVuPAb5cVocVA
-         efuEWO95FgG9onhJaliQCurDuIShwEz3FIb/5N8G2UdAY8DPu6NwSgzp+36YhikHMVc1
-         K0hPPA8Xxh9Wbvu5Rscwv1gw/8FeUSOeeMzEfjEzuTaxtWPKGE9+pDhjo3SpVldiXv96
-         iaIQ==
-X-Forwarded-Encrypted: i=1; AHgh+RragYUD3aQh9MV9v1BU3smKHZbMCRphefWbCLP3Xc4Ej/sbfiQ05NDkc0FM/MdNurhkGQ7NBVq4qtccFQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yy+jUmFaXxCPT2ysbpHC+ygCmuXgH8glo1pBeuBO8rpngsQZK8k
-	as7KBCZ5rmr8JUcLwfkLB6x/Enfah0gh0Zajtpn0GG7R3WSYlnHSX37n
-X-Gm-Gg: AfdE7clZU8ejULb0k/mf0eMe6F0AZRnJYxmy3pDnLL45K9jQoxWvq0BKzgUCL6+kL5S
-	erZUfa7FkUIibcFbYlwMPOlBmOZIC6VYocjOvxVTtAN2YIyIuR5j8Bw+1tTd884PvkdolfkYb3K
-	CWPTLcYvz5HTvIhOePhP9D7Vz1/6DFFSNl4zdouIRb+3TTx1D6amzYop1ar3irSKTh7e7WR39Vj
-	g9GTsuOvrsT7JECwUPgIm5/TKBPpJn5ltx3x8uJqV3qrPx+ZflnQ5EE7HKC+PR+4oC6h/gaFkl+
-	g8JEhLIqHHdhTKtBhyCKTVgK6h6vFE4nkLSq8pM0jTGhlxAdQtNpfKa07Mp20QYnxuMkFFX9hMo
-	W4ONfP1XXYbfN0dcgw1kUpisdLhlX7MVrh6gedboxAnOuucWUw85n5uLGXJTjn/YqoKIne89YIp
-	ceoF09VAVl9T1+SSfeOfSEImwVUmOUXZvHqQhjHHQYal7+S152DLvbdtnu33FnFBoOumXwKk7jZ
-	QFjAmI0z8wINd7XnMA9
-X-Received: by 2002:a05:620a:258c:b0:92e:54b1:2881 with SMTP id af79cd13be357-92ef2bb787bmr329664185a.16.1783780466845;
-        Sat, 11 Jul 2026 07:34:26 -0700 (PDT)
-Received: from server0 (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-92ee5d375fesm461652085a.37.2026.07.11.07.34.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2026 07:34:26 -0700 (PDT)
-From: Michael Bommarito <michael.bommarito@gmail.com>
-To: Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>
-Cc: Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <lihongbo22@huawei.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] erofs: cap LZMA stream pool size
-Date: Sat, 11 Jul 2026 10:34:19 -0400
-Message-ID: <20260711143419.2762894-1-michael.bommarito@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4gz7tD5kqXz2xRw
+	for <linux-erofs@lists.ozlabs.org>; Mon, 13 Jul 2026 13:57:07 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1783915022; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=ptapzLT2kC0FRZONruSP9TU30xzkIav8a6oiB+WjSOc=;
+	b=BsQ9aqWOSWipLfGX8+tiTBOBRlHouAtLlcMIXTZsUeic8rAXbgqIJWp9kIvktgxBPCIDyOAwZX5L1plHKqeyTcMzUPKqleAwYMFx2pEylPtjozZw97PotbwUgEwdSc7LYZH+CWXrtgK7KvXlbrOfUYvm+YypGvCqHLfzrE0Towg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R601e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0X6teBxS_1783915020;
+Received: from 30.221.131.243(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X6teBxS_1783915020 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 13 Jul 2026 11:57:01 +0800
+Message-ID: <008358ad-beef-4086-a423-0b282746ebb2@linux.alibaba.com>
+Date: Mon, 13 Jul 2026 11:57:00 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -96,90 +51,32 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] erofs: accept source file descriptor via fsconfig
+To: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org
+Cc: linux-fsdevel@vger.kernel.org
+References: <20260711071137.4130824-1-gscrivan@redhat.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <20260711071137.4130824-1-gscrivan@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-fs/erofs/decompressor_lzma.c sizes the module-global MicroLZMA stream
-pool from num_possible_cpus() or the lzma_streams module parameter, then
-z_erofs_load_lzma_config() preallocates one image-supplied dictionary per
-stream, accepting dictionaries up to 8 MiB.  On high-CPU systems, a small
-EROFS image can pin hundreds of MiB of vmalloc-backed decoder state until
-the erofs module is unloaded.
 
-Impact: an attacker-supplied EROFS image mounted by the system can pin up
-to 8 MiB times the LZMA stream count of kernel vmalloc memory.
 
-Bound the LZMA stream pool by a new CONFIG_EROFS_FS_ZIP_LZMA_MAX_STREAMS
-option, default 16.  The default keeps the worst-case preallocated
-dictionary pool at 128 MiB while preserving the existing per-image
-dictionary limit; memory-constrained systems can lower it and large
-servers can raise it.
+On 2026/7/11 15:10, Giuseppe Scrivano wrote:
+> Add fsparam_fd("source") so that userspace can pass an already-opened
+> file descriptor instead of a path string.  When the fd is provided via
+> fsconfig(FSCONFIG_SET_FD, "source", NULL, fd), it is stored directly
+> in sbi->dif0.file and erofs_fc_get_tree() skips the filp_open() call.
+> 
+> This is useful for mount namespaces where the backing file may not be
+> reachable by path, and for tools that already hold an fd to the image
+> (e.g. composefs reusing an erofs mount's backing file).
+> 
+> Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
 
-Fixes: 622ceaddb764 ("erofs: lzma compression support")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
----
-v2: bound the pool with a Kconfig option
-    (CONFIG_EROFS_FS_ZIP_LZMA_MAX_STREAMS, default 16) instead of a
-    hardcoded 16, per Gao Xiang's review, so memory-constrained and
-    server deployments can size it.  Kept the EROFS_FS_ZIP_ prefix of
-    the sibling options.
-v1: https://lore.kernel.org/linux-erofs/20260710023036.3745254-1-michael.bommarito@gmail.com/
+Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 
- fs/erofs/Kconfig             | 20 ++++++++++++++++++++
- fs/erofs/decompressor_lzma.c |  7 +++++++
- 2 files changed, 27 insertions(+)
-
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 4789b1077d8ce..3e4731dd03e7c 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -131,6 +131,26 @@ config EROFS_FS_ZIP_LZMA
- 
- 	  Say N if you want to disable LZMA compression support.
- 
-+config EROFS_FS_ZIP_LZMA_MAX_STREAMS
-+	int "EROFS LZMA maximum decompression stream pool size"
-+	depends on EROFS_FS_ZIP_LZMA
-+	range 1 1024
-+	default 16
-+	help
-+	  EROFS preallocates a pool of MicroLZMA decoder streams, one per
-+	  possible CPU by default, or as set by the lzma_streams module
-+	  parameter.  Each stream can hold a dictionary of up to 8 MiB taken
-+	  from the mounted image, so on systems with a large number of CPUs a
-+	  single small image can pin a large amount of vmalloc memory until the
-+	  erofs module is unloaded.
-+
-+	  This bounds the number of preallocated streams.  The worst-case
-+	  preallocated dictionary memory is 8 MiB times this value.  Lower it on
-+	  memory-constrained or embedded systems; raise it on large servers that
-+	  decompress many EROFS images in parallel.
-+
-+	  If unsure, keep the default of 16.
-+
- config EROFS_FS_ZIP_DEFLATE
- 	bool "EROFS DEFLATE compressed data support"
- 	depends on EROFS_FS_ZIP
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index f6692d0f2f04d..882684c663f47 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -52,6 +52,13 @@ static int __init z_erofs_lzma_init(void)
- 	/* by default, use # of possible CPUs instead */
- 	if (!z_erofs_lzma_nstrms)
- 		z_erofs_lzma_nstrms = num_possible_cpus();
-+	/*
-+	 * Each stream can pin an 8 MiB image-supplied dictionary, so bound the
-+	 * module-global pool to keep the worst-case preallocation in check on
-+	 * systems with many CPUs (or a large lzma_streams request).
-+	 */
-+	z_erofs_lzma_nstrms = min_t(unsigned int, z_erofs_lzma_nstrms,
-+				    CONFIG_EROFS_FS_ZIP_LZMA_MAX_STREAMS);
- 
- 	for (i = 0; i < z_erofs_lzma_nstrms; ++i) {
- 		struct z_erofs_lzma *strm = kzalloc_obj(*strm);
--- 
-2.53.0
-
+Thanks,
+Gao Xiang
 
