@@ -1,57 +1,66 @@
-Return-Path: <linux-erofs+bounces-3927-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3928-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB407C44512
-	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jul 2026 14:09:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6289C44512
+	for <linux-erofs@archiver.kernel.org>; Thu, 16 Jul 2026 17:26:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h1FKl26pWz30Qv;
-	Fri, 17 Jul 2026 00:09:47 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784210987;
-	cv=none; b=Hgeb/0NKEi5pIWjxP1XD2UFIzyneXivVK/lF67AJmkOIudbhGLZcr1H+MlGzMkuAK8c1J9bBMfPEXh+BR/lsoWb/IK2ydeTJkAcQ9z+Vh8taGHJP1atYlyLwoTTR/scLXQabMSfiJe2aOdlkBMiU6ENPS6dA2PUBwx24VgHHKGvacpPXxPOpquQTcnbzRHn7B3xbuWpwDacEcnZQneIUUytKN7r5HeE5eJG8XrO4y7Z5gdg+XDFn02kbkJsSrVTgIqa87sOsEvk9cxmXd3fvaTUB4/SSlK/TwKRKUzTJdimSphbCUaEJxzU8Ge3+EcstLP4/6Z+KFeLvQxwg88BB0g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h1Khq1R5Rz3br2;
+	Fri, 17 Jul 2026 03:26:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784222795;
+	cv=none; b=TERXbn+exyPfGKDySscCnP7fXMtBIuAl6oRk5RMjfCA58jRHg7uxUxlYUjy/MNf1BhSRMxNWKPAF8If7BX1C/hWsl9FMVc8BjkZN1e/1sQIEEiBMlxzsiANW/UI19WUOuy0Q/UUPNahP7vQtLKSHobZHXgbA/rtUhHBpHVsrlqeevowaivzW8SLboST5kqVFDTa0sD8EiYx5NwwiRcW2QhulJnd5+TBIAgP5nfJuLsHVvPcRJAIat2Dqc+YMfZ80euT+lV+jf/Rf8W+9Leq8ZS5eseNa42TLDLspWqfF+2Ih8p2jJ3U/H+4eXJaBwNxEEOvC/jw9EQs1KnlFSS1H/w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784210987; c=relaxed/relaxed;
-	bh=kGamTcS4sVFtX6QmitbxVR0BDQIJTcz2VhTQyBO2iVQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=kP33smmqyYfjI/fZZ6OJbmJqFjnFSK4iBlzkQQiROYtX+f3oMg0abOKc+fhPeM0AvdVk/jRA2USKiIvNFAOvyJquMXW05L9ry87YDV3dqDYsZ3qdLyCmdWvdqccE/Nuh4TJPTb2cRAWkgvWBHz+P3/CWAKAiEU3d1Dm6YrKKScKfSJIg/2ZZ1Rq5fb+WC3WvLnQL7xoYRBvVwEZ9BQmDj7W2SjWWKoPunXQ5JEVE1GhiQLeqPPq+qjsl+aMbv2mwffIsJlOqtYzGzCGtWtue203PzLOENU6XT1IMvsebTSoxCK/4nCvsAHAN4wTTX+G1WEM98BWq8b0teFu2gxcOug==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IUfmUzYY; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1784222795; c=relaxed/relaxed;
+	bh=hF5oMM/DGEvoc4fPGoiWJVWQ95c2+RryZefbzwo16Q8=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=W3de47MSrgIYI4esmJS6D6g7fh85OPsMVw7yedgZV69mi+CFiDguNtTLxmz0oGe1Yb/sqmOB/kdAHbo/fgMGsuzqb0xpsd5QwNJ2xsh35U5vpdsTLov8z2cr0vC7aU5yfTWi4H7q/xhDt+lC2C4Usmuf/kkZehIALoNLuZfx9zP0uoKqJ7snvV0YssY/fZEG2O2BOrdAXFs0yU7SH3wUSv0ddEd9zcjHEeJuu3YOcalTooTgRflIprk6q+9FKyTIaL67iYW/hzZYqjKvruahvbBm/bZ19FJoSFFxnCNSfSjHavhY8KxfP8/Hx8tgq7t74+cjh1uhQLrFRJPsUe1j8w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kufePSp1; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IUfmUzYY;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kufePSp1;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h1FKj6fr5z30Dq
-	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Jul 2026 00:09:44 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h1Khp1NG0z30FB
+	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Jul 2026 03:26:34 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 3361B4021D;
-	Thu, 16 Jul 2026 14:09:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAB7E1F00A3D;
-	Thu, 16 Jul 2026 14:09:35 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 6585260A5E;
+	Thu, 16 Jul 2026 17:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 130661F000E9;
+	Thu, 16 Jul 2026 17:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784210977;
-	bh=kGamTcS4sVFtX6QmitbxVR0BDQIJTcz2VhTQyBO2iVQ=;
-	h=Date:From:To:Cc:Subject;
-	b=IUfmUzYYPBgUHapZJimJGGGXy4IqO4ozardW9sbB/HTc0UMESeUsSMVMzoS7ZJ4nI
-	 9ujw2SzCwyGL40J8zSiiXso/QVv0cm5TyAYz/h9OKU+c2flO1Vn5+EAJM2VoTXO2CT
-	 5hV9d/7G7a6MD0wZIuc7ya6mbPJziv6cfEm3aI0XR0BjwqcMLhs68E4nDSAaaBOL8r
-	 O/MW2sXyuitVHNNS5OkhoqN/gE8jZfy8dud1F0GaLKbYTuQOwsJN7Oowc5ROWkhDAZ
-	 093XIf0p+aW3NvJ/ibUqhXBOUPlC0UkK0OZxIlTKTT1IVtBzoik12Rk5/7K2TJQT4v
-	 CFgZA/MSUczfA==
-Date: Thu, 16 Jul 2026 22:09:29 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [GIT PULL] erofs fixes for 7.2-rc4
-Message-ID: <aljmGezzdz_pJy_C@debian>
-Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
-	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
+	s=k20260515; t=1784222791;
+	bh=hF5oMM/DGEvoc4fPGoiWJVWQ95c2+RryZefbzwo16Q8=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc;
+	b=kufePSp18iRnaRzaXEBVvSdH7byzZ5bq0OpvGmFktAjVwMGHo3rBEY559A1+baUKD
+	 Y3ase3qkIKuyvwTWLFAONzQJLV5+8SP/UnXshUmtWVz1jUik6jBoHL7+iNlIOcqrWD
+	 degGdbPSN46+N0GH9gdXHFOAglNJ/Odwrwg61pUrJ1TWiYZf/bTPI92Y2RjU22MWZz
+	 RH0pvAYbd8V0hzUxIgYVTOjsmd/15UzPHqeYwyL/+ethb6e+iyqcPCMS5TsHM+U69n
+	 8PTNJEBxL7GR7X8cvbv9nPsDK+8IkQZmFkthP+YA766xS3bZk4jsnehtJQ3/6IPuo8
+	 Bc6iO9reW5LZw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 56EC43809A8C;
+	Thu, 16 Jul 2026 17:26:05 +0000 (UTC)
+Subject: Re: [GIT PULL] erofs fixes for 7.2-rc4
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <aljmGezzdz_pJy_C@debian>
+References: <aljmGezzdz_pJy_C@debian>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <aljmGezzdz_pJy_C@debian>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.2-rc4-fixes
+X-PR-Tracked-Commit-Id: 1572282de6d3377ca8605d48c50df3a8c08468e9
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 133fc7aaccf61b0d29f61b37202d5812da5dc03f
+Message-Id: <178422276397.1357537.1097268869644410758.pr-tracker-bot@kernel.org>
+Date: Thu, 16 Jul 2026 17:26:03 +0000
+To: Gao Xiang <xiang@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,55 +71,17 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 
-Hi Linus,
+The pull request you sent on Thu, 16 Jul 2026 22:09:29 +0800:
 
-Could you consider these fixes for 7.2-rc4?
+> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.2-rc4-fixes
 
-All commits are small as shown below: anyway, the most impacted one
-fixes a regression introduced in v7.1 to avoid false corruption
-reports for some ztailpacking-enabled images.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/133fc7aaccf61b0d29f61b37202d5812da5dc03f
 
-Thanks,
-Gao Xiang
+Thank you!
 
-The following changes since commit dc59e4fea9d83f03bad6bddf3fa2e52491777482:
-
-  Linux 7.2-rc1 (2026-06-28 12:01:31 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.2-rc4-fixes
-
-for you to fetch changes up to 1572282de6d3377ca8605d48c50df3a8c08468e9:
-
-  erofs: hide "cache_strategy=" for plain filesystems (2026-07-13 16:41:42 +0800)
-
-----------------------------------------------------------------
-Changes since last update:
-
- - Fix sanity checks for ztailpacking tail pclusters to avoid
-   false corruption reports
-
- - Use more informative s_id for file-backed mounts
-
- - Hide the meaningless "cache_strategy=" mount option on plain
-   (uncompressed) filesystems
-
- - Remove the unneeded erofs_is_ishare_inode() helper
-
-----------------------------------------------------------------
-Gao Xiang (4):
-      erofs: use more informative s_id for file-backed mounts
-      erofs: relax sanity check for tail pclusters due to ztailpacking
-      erofs: get rid of erofs_is_ishare_inode() helper
-      erofs: hide "cache_strategy=" for plain filesystems
-
- fs/erofs/ishare.c |  8 +-------
- fs/erofs/super.c  | 19 +++++--------------
- fs/erofs/zmap.c   |  3 ++-
- 3 files changed, 8 insertions(+), 22 deletions(-)
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
 
