@@ -1,76 +1,76 @@
-Return-Path: <linux-erofs+bounces-3936-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3937-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F32C9C4451B
-	for <linux-erofs@archiver.kernel.org>; Sat, 18 Jul 2026 19:16:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90BECC4451C
+	for <linux-erofs@archiver.kernel.org>; Sat, 18 Jul 2026 19:16:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h2c2D12FNz2xRs;
-	Sun, 19 Jul 2026 05:16:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::32a"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784402163;
-	cv=none; b=jRstNgmo6bmcU7rOKeStDJgrX8sky8Fxyi+cacVVkts/O4jVROWNY3m0NJDTXdUK0yzv90yaBCF8cC+8t3G+tA/hkl/Xmw9xGr2AhIKaGyG6LOJwCl9vLZ93rH7Zqz5R+E1CUnKc/v3z8Z0YomfrO5dBhyjCirhNiBQ6EzNM58mE5WgcajSaKUDwIrqexvRObQMd6XN8xyJZIqgyVFb9+SyiMCPHrB9ZsP47BPr0FcRRkGmjQMlRqp70x2zv3HJpTb2w1OEm2+DiBJXMfg11YfEqFbbi2Rx0DrQFSLEnTAC0AD9lvSHP6GZ+M4A4KZLIR58ZqLL7nBId3r8ASGWO1w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h2c2F01jDz2xjN;
+	Sun, 19 Jul 2026 05:16:05 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::329"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784402164;
+	cv=none; b=mVN107MgG/tH6v+5R2x8BqYuOhKs09c8ksAfeWeS9Zc0xHFUgyDQjA6I4lUPIwDhSWNoGh9+v85n7McxRqDISZdFfMK+37s+/J0zNIbb2a28JU4gi5nocZiHcKnyTeG8lmnBrUwMyffdFOgd1CK7Hj+JKHuNxa7GKiaS9KEhOjVAmKmNNFnpvSo/Sha6RtDjBmP6D/l7CyJoICaThblY/35vo9w6E08yQYrtfBHuq6JMMcVMyHw6R+tIRp9ZBrLtNRNozrVra3Yd1vXTv8Mb6sQ1daiUChdQHAx1wBBDK39zSGIn0wkWaC6aIJBl3RAAQqTcwYBMZH0FOLW0BoNLrw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784402163; c=relaxed/relaxed;
-	bh=LpnnUCjvFhQvZ/hdXCpoqY+iircQ7nkPeqN838t5fO0=;
+	t=1784402164; c=relaxed/relaxed;
+	bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bXCzCrkBLrcVDMsaYlixytoJfruHNlFwWumrL7oPB1jzpKTUKBSF9zki5qRI3BaAkXwzxSwmIHOuLFzj45IrrTPZx8mLQ5bXUegeUGzEbSBnez1S8IctjJC+NeEkeb/OpuHqf1FsD8qT07REm/ALEJecrAX4CE0Dz/geFyDDBzmzu8jZFKQeUMaEqt+Ck7+9e9Ilo7nrwjYF7kaezLgX7OD0l9XJK3DF3Ko/YWfZ3F3atVTAZUDyQ1lCga5saQJFf7Ayw8WNVF0eb8oQnSpCuDwtHwfAZL6OTiZWm2kUjU8NUeczSaedMByLMCfCD8q+BxCs/wMEEVcnWJ2Nci1OqA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=bLGvZsC/; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::32a; helo=mail-wm1-x32a.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 MIME-Version; b=P7gCCnSEDQ+sa1mXHtQXC+Ov+jUkQWxtfpzHhFmriBc2AIjOIocezQqS4nqNpz5uaphAd5FWdXhNyMaWMR7qAIDeWPz+FcTutiYE9LQlBbMCNT5eJR4FjYlVQum2S+7I34LNocKTb4dEGD+tcSFLM1HcAf7u+mnnWZW/IG+hnwb98dBEgB9ZnFCYeZ7sia8Jnlx1wia48o1H/SeDUhlS/lUDGzHUnx7mcQm4se8GR/5Ujvvs7FoAusP+D8V2q1MB1MnJ4ZDFk3fgBTg9XvPRz3zsUQviZF9h9fdU2MTJlptcDUGd8p8YcRbfrsrDUJzlgVhkMwbHkIPe+pbEq8KO3g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=auxfbjeV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=bLGvZsC/;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=auxfbjeV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::32a; helo=mail-wm1-x32a.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h2c290wwNz2xjN
-	for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jul 2026 05:15:59 +1000 (AEST)
-Received: by mail-wm1-x32a.google.com with SMTP id 5b1f17b1804b1-4955484387cso2061065e9.1
-        for <linux-erofs@lists.ozlabs.org>; Sat, 18 Jul 2026 12:15:59 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h2c291TgKz2xl6
+	for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jul 2026 05:16:00 +1000 (AEST)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-493f6de72faso17910995e9.0
+        for <linux-erofs@lists.ozlabs.org>; Sat, 18 Jul 2026 12:16:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784402156; x=1785006956; darn=lists.ozlabs.org;
+        d=gmail.com; s=20251104; t=1784402158; x=1785006958; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=LpnnUCjvFhQvZ/hdXCpoqY+iircQ7nkPeqN838t5fO0=;
-        b=bLGvZsC/dd/d3VZscU/EveRfj1PG1THPbXgzhLJBgWX+a9v4Dp28cd5uULXzFd/cDL
-         EzW20m52pZUUjNMOMD2MUCiXH4OkKAlAgvfci5Sscg6WtwxsXelCyjQJQI20F+Gt5e5f
-         x/A7Gm201rGR3JsZTl1AmHWGHmSjXjmV2NAg/VCVHFnTTwxUGgtqUyFA5ZMtfZhC6WFO
-         ctp617ZN2k1adnBfpmovZGmfAmtoh0s0AA3KmOatTjFCE3OeAJfZNYhVLnuBXHlZ9o6S
-         2SGFaSnPkZ8ndTOzO0mhOhblEtKDIygjZpg0TojRd4mZN9B3TBXoidGVTupDbHTF3yHC
-         /5kg==
+        bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
+        b=auxfbjeVRQ4NgUILH5cWwe7rZkLPuqHh5QBvzi9kCAYKDvT65u+LCP/BSd9B3kdur2
+         sNA4x94NBi1IvhYpDzezK5wD2KeiR+LSWkdjQRHbFdoOnm0M4eH5O1qk+b4i3Pz+E33L
+         Jw++8fqEiNV2BWv1sjS/nvi/RS4/02TM1D95tbbiryMqy5dlDema5oyFT13ToOjzGfI0
+         gxfR5Y/Q84mRsl6oHBYgGksgyXC/Rf1MYHuE0UO5jz//DsLGQKvWS9lGTGKJK4JqIO80
+         kv+HhPF5GV6/bnP/0+poobSB0wy0HsaeY+VJkaZkgRgjqaIbs9+BBEAKvClI3raBEIph
+         lOGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784402156; x=1785006956;
+        d=1e100.net; s=20251104; t=1784402158; x=1785006958;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LpnnUCjvFhQvZ/hdXCpoqY+iircQ7nkPeqN838t5fO0=;
-        b=CiMODJtuLl9/paZGIAzs4I/si4/2H2jeyM1JbSN5TUdlAcTCphbyrcVR1fyHv4054G
-         2EhB5KHr3VBKONOOg28zCLALbPT3eLRzudHhJOBXKYqnvPse3/5PIWw/LxEi9uyyRFb9
-         8RrNyCEgv/6eRypnqUg/zb8Ldk4u7saKYmDHmfIDkwpD/6dFPFTl6oqO0sLlTznWMuMB
-         nY630G9XI3u5iVEJHIDcYwBeg82d82v/BgNOLvjgHz3Q6B9WOHX9rK7AnA+PD9nIshRG
-         q9qOQ7aiy+2t5UXoVwv0qIaDBNfw/4Qt0fwfbJfakM/CZw8C9SlBLOZU/7SUesKI3Z5h
-         MOAQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoeT8LV93C/lQ7GZ548cs+c8xBozc8uXjBN2vLCwWFRBH5fIGMGBGNFNY9pQ4yxRRYZM01CLv7lj1uaTg==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yw3/4jROWZ9qXmk+gcNT0V5yrTKU5cw5xPtoYWIIlPNFSii6xu/
-	ipzjm9602aqC8GZb/0pL2a/jnXU0RUja4jHKKJK/7PPQG7DijyssfLv3
-X-Gm-Gg: AfdE7cl6xzQa8Ic93kCV+FS3EolEtFPPc/xbThpw2dxTrz1sxD6l0DwiFHBG6tAqXAW
-	QAYNmo9c5aTlAG9Z2KG0sD09Yx75iVBzYCtlgeEta5BNjka9JLxhAeGIoVG9nQPU70bPIjs9f71
-	zVg3bdB4xKWK6DICiyfTdyJjCa1rxyEuE6FYd5gy7MQFXXr+Q1t8Q579LOAAflXYMGb+WSGjzyC
-	Lfp1iPVFByofIqC7ulndEWX+mhA9kKGioNocaA+C2sTUc2XzmVYdaDVtJADAloNbPF6J1cA+9JE
-	gq4En03lqSPfM96JG+Un+IKVPA9I+CAPcNVA7fp9PCpcwvDl9h0C845IwZWP6xw85r7q2ezFc2D
-	32/2JgQ80p1GggrlTDkuYIQOAAWeVVF8FsKlzSI8Gv0QMqJxpzMpKWsfknLFIz+GWN+s9t3NE3N
-	obNTY7mg==
-X-Received: by 2002:a05:600c:46c3:b0:495:522f:d996 with SMTP id 5b1f17b1804b1-495522fdb00mr35405945e9.18.1784402156071;
-        Sat, 18 Jul 2026 12:15:56 -0700 (PDT)
+        bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
+        b=qejhPBdyZ0a12oz68JcOa1UKFooAkZtDcavhq151GtHTZ9LvWzozoJXvieMn2zVoCf
+         lPpAHNu5zjwPHWd9zJcD+RKOr8waxPWj9wut2aY2ubJVKHSY6uNFIWs1IAVuXwSFBqbk
+         44D5QkYzjlaURFRurxRElgadFsx+4jne0EkUJPiIeooDK4AhJogONNS9cbpnP68BR2f1
+         QstXOn7qYAQCPoOzaiOzbPjeYQV4brv6aL3mDJywHMBEDfK2m545mGUQbX6bq3dTCzga
+         EYuGRW4uGRLf9DPN1yqT7xLD8IKo3eCISL3SMyJOKXROWYJWT3KSce8e3hbqLHgy4E2y
+         cRZQ==
+X-Forwarded-Encrypted: i=1; AHgh+RohB2v2sidyelMAeScDW/LGJk/SVFI0hKAsYoz2dZVnDfdTIuWrZ8XF/kfDZHx/v3Oi6IpoZjRlPMS8SQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YyKukO39nWZAaWmQRdHfC7KSnU/ijKAEluWRwxxVeMa0l/HuHZH
+	Vyp2A8IA1/h5m1T6tQ+XMaPkZd9DF2R62rFnDUIcKpBP0eOhwaJnkBVn
+X-Gm-Gg: AfdE7cn2R64c31y4hpLw6W1quRSUfOjHVEywqkoxnB2JayZytsVZQriRFup27zsV3JQ
+	6He/hpO3cyDSfHVaeBWBODRHOsCuE04cCp9jDyzyNYZSnetlrpYQbuKd5Pqp/BxiV4k0y4ymmrz
+	abGegp8k5tpdgW/BJ38eKIc2uE7YRypVaBJAJQJa1daTb8pys+KqigFGxO8LsjJMTUEeytkRCKW
+	f9br+NWMKCd5ivIzr2gmGit0ZGNyNG5og0MbIlfrz86aZKO+0omdX73KKN8ZGTRGInx06b3Hg9W
+	AW1imUHKFQFiuTCYWjyw0+5UoQTk9pu9ZS8q0DbbVfv+EoXOOYVo6YASF1uT5qGVfaERWcjbbrm
+	sOBj5LJZTTFezcZekv0pk+9qICE+2sA25hRN2a1owV00iWAXrxEmXNTdF152hbyULeqMvprdlCF
+	yS2k7ZsQ==
+X-Received: by 2002:a05:600c:4e8b:b0:495:501a:fcf8 with SMTP id 5b1f17b1804b1-495501afdc8mr41543145e9.9.1784402157300;
+        Sat, 18 Jul 2026 12:15:57 -0700 (PDT)
 Received: from spark.Home ([2001:8a0:7280:4000:c2b:a5ab:a31c:e0a5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2e8529sm140037005e9.11.2026.07.18.12.15.54
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2e8529sm140037005e9.11.2026.07.18.12.15.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2026 12:15:55 -0700 (PDT)
+        Sat, 18 Jul 2026 12:15:56 -0700 (PDT)
 From: Eric Curtin <ericcurtin17@gmail.com>
 To: Alexander Viro <viro@zeniv.linux.org.uk>,
 	Christian Brauner <brauner@kernel.org>
@@ -87,9 +87,9 @@ Cc: Jan Kara <jack@suse.cz>,
 	linux-doc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Eric Curtin <ericcurtin17@gmail.com>
-Subject: [RFC PATCH 1/2] init: support mounting the root filesystem from an image file
-Date: Sat, 18 Jul 2026 20:15:50 +0100
-Message-ID: <20260718191551.1703670-2-ericcurtin17@gmail.com>
+Subject: [RFC PATCH 2/2] init: support pinning the root image's fsverity digest
+Date: Sat, 18 Jul 2026 20:15:51 +0100
+Message-ID: <20260718191551.1703670-3-ericcurtin17@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260718191551.1703670-1-ericcurtin17@gmail.com>
 References: <20260718191551.1703670-1-ericcurtin17@gmail.com>
@@ -106,328 +106,161 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Image-based Linux systems (bootc-style OS updaters, ChromeOS/Android-like
-A/B schemes, embedded appliances) commonly keep one or more immutable
-root filesystem images as plain files on a writable "carrier" filesystem
-and pick one at boot.  Today that always requires an initramfs, even when
-the initramfs has nothing else to do: the kernel can only mount a block
-device (or NFS/CIFS/ubi/mtd) as root, so userspace must mount the
-carrier, loop-mount the image and switch_root into it.
+When the root filesystem is mounted from an image file with rootimage=,
+the carrier filesystem holding the image is typically writable and
+therefore untrusted.  Systems that seal their root images with fsverity
+currently need an initramfs for the sole purpose of checking that the
+image carries the expected fsverity digest before mounting it.
 
-Add a rootimage= parameter naming an image file on the filesystem
-specified by root=.  When set, root= only designates the carrier: after
-mounting it as usual, mount the image file read-only on /image and make
-that the root that prepare_namespace() pivots into.  The image is
-mounted through the filesystem's file-backed mount support (available in
-erofs since v6.12), so no loop device is involved.  rootimagefstype= and
-rootimageflags= mirror rootfstype=/rootflags= for the image mount, while
-"ro"/"rw"/rootflags= keep applying to the carrier.
+Add rootimageverity=<hash algorithm>:<hex digest>, which requires the
+rootimage= file to have fsverity enabled with exactly this file digest
+and fails the boot otherwise, using the same fsverity_get_digest()
+interface that IMA and overlayfs already use for digest pinning.
 
-The carrier mount is detached again by default; the image mount keeps
-its superblock pinned, so userspace can still mount it later.  Since
-systems following this model virtually always need the carrier mounted
-(it holds their writable state), rootimagesrcdir= optionally names a
-directory inside the image where the carrier mount is moved instead.
+Combined with a trusted kernel command line (e.g. a signed unified
+kernel image, or a TPM-measured bootloader configuration), this extends
+the chain of trust to every byte of the root filesystem without any
+userspace boot stage: the digest pins the image's Merkle tree, and
+fsverity keeps verifying all data read from the image against it at
+runtime, so post-boot tampering with the carrier filesystem is detected
+as well.  It is the file-backed counterpart of setting up a dm-verity
+target for a partition-backed root via dm-mod.create=.
 
-This is the file-backed analogue of what dm-mod.create= (CONFIG_DM_INIT)
-already does for device-mapper targets: moving a fixed, declarative bit
-of early-boot setup from initramfs userspace into the kernel so that
-small and verified systems can boot with no initramfs at all.
+Verification is done on the file the kernel is about to mount: it is
+opened before mounting (which also loads the fsverity information) and
+kept open across the mount, and no userspace exists yet that could race
+a replacement in between.
 
 Assisted-by: opencode:claude-fable-5
 Signed-off-by: Eric Curtin <ericcurtin17@gmail.com>
 ---
- .../admin-guide/kernel-parameters.txt         |  29 ++++
- init/do_mounts.c                              | 158 ++++++++++++++++--
- 2 files changed, 174 insertions(+), 13 deletions(-)
+ .../admin-guide/kernel-parameters.txt         | 13 ++++
+ init/do_mounts.c                              | 63 +++++++++++++++++++
+ 2 files changed, 76 insertions(+)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index b5493a7f8..5dbd56098 100644
+index 5dbd56098..105ebb171 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6699,6 +6699,35 @@ Kernel parameters
+@@ -6728,6 +6728,19 @@ Kernel parameters
+ 			root=) is moved to, instead of detaching it.  Used
+ 			together with rootimage=.
  
- 	rootfstype=	[KNL] Set root filesystem type
- 
-+	rootimage=	[KNL] Mount the actual root filesystem from this
-+			filesystem image file (absolute path) located on the
-+			filesystem specified by root=, instead of using that
-+			filesystem as the root directly.  This allows
-+			image-based systems that keep their (typically
-+			read-only, e.g. erofs) root filesystem images as
-+			plain files on a carrier filesystem to boot without
-+			an initramfs.  The image is mounted read-only via
-+			the filesystem's file-backed mount support (no loop
-+			device is set up); "ro", "rw" and rootflags= keep
-+			applying to the carrier filesystem.  Once the image
-+			is mounted, the carrier mount is detached (but kept
-+			busy by the image mount itself) unless
-+			rootimagesrcdir= is also given.
-+
-+	rootimageflags=	[KNL] Set root image filesystem mount option string,
-+			used together with rootimage=.
-+
-+	rootimagefstype= [KNL] Set root image filesystem type, used together
-+			with rootimage=.  Default is to try all filesystems
-+			known to the kernel that can mount a block device or
-+			an image file.
-+
-+	rootimagesrcdir= [KNL] Directory (absolute path) inside the root
-+			image where the mount of the carrier filesystem
-+			holding the image (i.e. the filesystem specified by
-+			root=) is moved to, instead of detaching it.  Used
-+			together with rootimage=.
++	rootimageverity= [KNL] Require the root image specified by
++			rootimage= to have fsverity enabled with this file
++			digest, given as <hash algorithm>:<hex digest>,
++			e.g. sha256:dd1b3fa9...  The boot is aborted if the
++			image carries no or a different fsverity digest.
++			Because fsverity keeps verifying data read from the
++			image against its Merkle tree at runtime, a trusted
++			(e.g. signed or TPM-measured) kernel command line
++			extends the chain of trust to the complete root
++			filesystem contents without an initramfs.  Requires
++			CONFIG_FS_VERITY and a carrier filesystem with
++			fsverity support.
 +
  	rootwait	[KNL] Wait (indefinitely) for root device to show up.
  			Useful for devices that are detected asynchronously
  			(e.g. USB and MMC devices).
 diff --git a/init/do_mounts.c b/init/do_mounts.c
-index 95e0b3a0f..1b96ef30b 100644
+index 1b96ef30b..4eb792b27 100644
 --- a/init/do_mounts.c
 +++ b/init/do_mounts.c
-@@ -122,13 +122,51 @@ __setup("rootflags=", root_data_setup);
- __setup("rootfstype=", fs_names_setup);
- __setup("rootdelay=", root_delay_setup);
+@@ -24,6 +24,9 @@
+ #include <linux/nfs_fs_sb.h>
+ #include <linux/nfs_mount.h>
+ #include <linux/raid/detect.h>
++#include <linux/fsverity.h>
++#include <linux/hex.h>
++#include <crypto/hash_info.h>
+ #include <uapi/linux/mount.h>
  
-+/*
-+ * rootimage= mounts the actual root filesystem from an image file located
-+ * on the filesystem specified by root= instead of using that filesystem
-+ * as the root directly.
-+ */
-+static char * __initdata root_image;
-+static int __init root_image_setup(char *str)
+ #include "do_mounts.h"
+@@ -155,10 +158,18 @@ static int __init root_image_srcdir_setup(char *str)
+ 	return 1;
+ }
+ 
++static char * __initdata root_image_verity;
++static int __init root_image_verity_setup(char *str)
 +{
-+	root_image = str;
++	root_image_verity = str;
 +	return 1;
 +}
 +
-+static char * __initdata root_image_fs_names;
-+static int __init root_image_fs_names_setup(char *str)
-+{
-+	root_image_fs_names = str;
-+	return 1;
-+}
-+
-+static char * __initdata root_image_mount_data;
-+static int __init root_image_data_setup(char *str)
-+{
-+	root_image_mount_data = str;
-+	return 1;
-+}
-+
-+static char * __initdata root_image_srcdir;
-+static int __init root_image_srcdir_setup(char *str)
-+{
-+	root_image_srcdir = str;
-+	return 1;
-+}
-+
-+__setup("rootimage=", root_image_setup);
-+__setup("rootimagefstype=", root_image_fs_names_setup);
-+__setup("rootimageflags=", root_image_data_setup);
-+__setup("rootimagesrcdir=", root_image_srcdir_setup);
-+
+ __setup("rootimage=", root_image_setup);
+ __setup("rootimagefstype=", root_image_fs_names_setup);
+ __setup("rootimageflags=", root_image_data_setup);
+ __setup("rootimagesrcdir=", root_image_srcdir_setup);
++__setup("rootimageverity=", root_image_verity_setup);
+ 
  /* This can return zero length strings. Caller should check */
--static int __init split_fs_names(char *page, size_t size)
-+static int __init split_fs_names(char *page, size_t size, char *names)
- {
- 	int count = 1;
- 	char *p = page;
- 
--	strscpy(p, root_fs_names, size);
-+	strscpy(p, names, size);
- 	while (*p++) {
- 		if (p[-1] == ',') {
- 			p[-1] = '\0';
-@@ -139,8 +177,9 @@ static int __init split_fs_names(char *page, size_t size)
- 	return count;
- }
- 
--static int __init do_mount_root(const char *name, const char *fs,
--				 const int flags, const void *data)
-+static int __init do_mount_root(const char *name, const char *dir,
-+				 const char *fs, const int flags,
-+				 const void *data)
- {
- 	struct super_block *s;
- 	char *data_page = NULL;
-@@ -154,11 +193,11 @@ static int __init do_mount_root(const char *name, const char *fs,
- 		strscpy_pad(data_page, data, PAGE_SIZE);
- 	}
- 
--	ret = init_mount(name, "/root", fs, flags, data_page);
-+	ret = init_mount(name, dir, fs, flags, data_page);
- 	if (ret)
- 		goto out;
- 
--	init_chdir("/root");
-+	init_chdir(dir);
- 	s = current->fs->pwd.dentry->d_sb;
- 	ROOT_DEV = s->s_dev;
- 	printk(KERN_INFO
-@@ -185,7 +224,7 @@ void __init mount_root_generic(char *name, char *pretty_name, int flags)
- 	scnprintf(b, BDEVNAME_SIZE, "unknown-block(%u,%u)",
- 		  MAJOR(ROOT_DEV), MINOR(ROOT_DEV));
- 	if (root_fs_names)
--		num_fs = split_fs_names(fs_names, PAGE_SIZE);
-+		num_fs = split_fs_names(fs_names, PAGE_SIZE, root_fs_names);
- 	else
- 		num_fs = list_bdev_fs_names(fs_names, PAGE_SIZE);
- retry:
-@@ -194,7 +233,7 @@ void __init mount_root_generic(char *name, char *pretty_name, int flags)
- 
- 		if (!*p)
- 			continue;
--		err = do_mount_root(name, p, flags, root_mount_data);
-+		err = do_mount_root(name, "/root", p, flags, root_mount_data);
- 		switch (err) {
- 			case 0:
- 				goto out;
-@@ -266,7 +305,8 @@ static void __init mount_nfs_root(void)
- 	 */
- 	timeout = NFSROOT_TIMEOUT_MIN;
- 	for (try = 1; ; try++) {
--		if (!do_mount_root(root_dev, "nfs", root_mountflags, root_data))
-+		if (!do_mount_root(root_dev, "/root", "nfs", root_mountflags,
-+				   root_data))
- 			return;
- 		if (try > NFSROOT_RETRY_MAX)
- 			break;
-@@ -303,7 +343,7 @@ static void __init mount_cifs_root(void)
- 
- 	timeout = CIFSROOT_TIMEOUT_MIN;
- 	for (try = 1; ; try++) {
--		if (!do_mount_root(root_dev, "cifs", root_mountflags,
-+		if (!do_mount_root(root_dev, "/root", "cifs", root_mountflags,
- 				   root_data))
- 			return;
- 		if (try > CIFSROOT_RETRY_MAX)
-@@ -345,7 +385,7 @@ static int __init mount_nodev_root(char *root_device_name)
- 	fs_names = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!fs_names)
- 		return -EINVAL;
--	num_fs = split_fs_names(fs_names, PAGE_SIZE);
-+	num_fs = split_fs_names(fs_names, PAGE_SIZE, root_fs_names);
- 
- 	for (i = 0, fstype = fs_names; i < num_fs;
- 	     i++, fstype += strlen(fstype) + 1) {
-@@ -353,8 +393,8 @@ static int __init mount_nodev_root(char *root_device_name)
- 			continue;
- 		if (!fs_is_nodev(fstype))
- 			continue;
--		err = do_mount_root(root_device_name, fstype, root_mountflags,
--				    root_mount_data);
-+		err = do_mount_root(root_device_name, "/root", fstype,
-+				    root_mountflags, root_mount_data);
- 		if (!err)
- 			break;
- 	}
-@@ -402,6 +442,96 @@ void __init mount_root(char *root_device_name)
+ static int __init split_fs_names(char *page, size_t size, char *names)
+@@ -442,6 +453,55 @@ void __init mount_root(char *root_device_name)
  	}
  }
  
++#ifdef CONFIG_FS_VERITY
 +/*
-+ * Mount the actual root filesystem from the image file rootimage= on the
-+ * filesystem that was just mounted from root= (the "carrier"), so that
-+ * image-based systems can boot without an initramfs.
-+ *
-+ * Called with the carrier mounted at /root and the cwd there.  The image
-+ * is always mounted read-only; "ro"/"rw"/rootflags= keep applying to the
-+ * carrier.  On success the cwd is the image's root, ready for the pivot
-+ * in prepare_namespace().  The carrier mount is moved to rootimagesrcdir=
-+ * inside the image if set, and detached otherwise; either way the image
-+ * mount keeps the carrier superblock pinned.
++ * Require the root image to carry the fsverity file digest given by
++ * rootimageverity=<hash algorithm>:<hex digest>.  @file must have been
++ * opened so that its fsverity information is loaded.  Any deviation
++ * fails the boot: with a trusted command line this pins the complete
++ * image contents, which fsverity keeps verifying against the image's
++ * Merkle tree as they are read.
 + */
-+static void __init mount_root_image(void)
++static void __init verify_root_image(struct file *file)
 +{
-+	unsigned long flags = MS_RDONLY | MS_SILENT;
-+	char *path, *fs_names, *p;
-+	struct file *file;
-+	int num_fs, i, err;
++	u8 want[FS_VERITY_MAX_DIGEST_SIZE], got[FS_VERITY_MAX_DIGEST_SIZE];
++	enum hash_algo want_algo, got_algo;
++	int want_size, got_size, i;
++	char *hex;
 +
-+	if (root_image[0] != '/')
-+		panic("VFS: rootimage= must be an absolute path");
++	hex = strchr(root_image_verity, ':');
++	if (!hex)
++		panic("VFS: rootimageverity= expects <algorithm>:<hex digest>");
++	*hex++ = '\0';
++	i = match_string(hash_algo_name, HASH_ALGO__LAST, root_image_verity);
++	if (i < 0)
++		panic("VFS: rootimageverity=: unknown hash algorithm \"%s\"",
++		      root_image_verity);
++	want_algo = i;
++	want_size = hash_digest_size[want_algo];
++	if (strlen(hex) != 2 * want_size || hex2bin(want, hex, want_size))
++		panic("VFS: rootimageverity=: expected %d-byte hex digest",
++		      want_size);
 +
-+	path = kmalloc(PATH_MAX, GFP_KERNEL);
-+	fs_names = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!path || !fs_names)
-+		panic("VFS: unable to mount root image: not enough memory");
++	got_size = fsverity_get_digest(file_inode(file), got, NULL, &got_algo);
++	if (!got_size)
++		panic("VFS: root image does not have fsverity enabled");
++	if (got_algo != want_algo || got_size != want_size ||
++	    memcmp(want, got, want_size))
++		panic("VFS: root image fsverity digest mismatch: expected %s:%*phN, got %s:%*phN",
++		      hash_algo_name[want_algo], want_size, want,
++		      hash_algo_name[got_algo], got_size, got);
 +
-+	if (snprintf(path, PATH_MAX, "/root%s", root_image) >= PATH_MAX)
-+		panic("VFS: rootimage= path too long");
-+
-+	/*
-+	 * Nothing that could modify the carrier runs yet, so the image
-+	 * cannot change between this open and the mount below.
-+	 */
-+	file = filp_open(path, O_RDONLY | O_LARGEFILE, 0);
-+	if (IS_ERR(file))
-+		panic("VFS: unable to open root image %s: error %ld",
-+		      root_image, PTR_ERR(file));
-+
-+	err = init_mkdir("/image", 0700);
-+	if (err < 0 && err != -EEXIST)
-+		panic("VFS: unable to create /image: error %d", err);
-+
-+	if (root_image_fs_names)
-+		num_fs = split_fs_names(fs_names, PAGE_SIZE,
-+					root_image_fs_names);
-+	else
-+		num_fs = list_bdev_fs_names(fs_names, PAGE_SIZE);
-+
-+	for (i = 0, p = fs_names; i < num_fs; i++, p += strlen(p) + 1) {
-+		if (!*p)
-+			continue;
-+		err = do_mount_root(path, "/image", p, flags,
-+				    root_image_mount_data);
-+		switch (err) {
-+		case 0:
-+			goto mounted;
-+		case -EACCES:
-+		case -EINVAL:
-+		case -ENOTBLK:
-+			continue;
-+		}
-+		panic("VFS: unable to mount root image %s: error %d",
-+		      root_image, err);
-+	}
-+	panic("VFS: no filesystem could mount root image %s", root_image);
-+
-+mounted:
-+	fput(file);
-+
-+	if (root_image_srcdir) {
-+		if (root_image_srcdir[0] != '/')
-+			panic("VFS: rootimagesrcdir= must be an absolute path");
-+		if (snprintf(path, PATH_MAX, ".%s", root_image_srcdir) >=
-+		    PATH_MAX)
-+			panic("VFS: rootimagesrcdir= path too long");
-+		err = init_mount("/root", path, NULL, MS_MOVE, NULL);
-+		if (err)
-+			pr_err("VFS: failed to move the root image's carrier filesystem to %s: error %d\n",
-+			       root_image_srcdir, err);
-+	} else {
-+		err = -EINVAL;
-+	}
-+	if (err)
-+		init_umount("/root", MNT_DETACH);
-+
-+	kfree(path);
-+	kfree(fs_names);
++	pr_info("VFS: verified root image fsverity digest %s:%*phN\n",
++		hash_algo_name[want_algo], want_size, want);
 +}
++#else /* !CONFIG_FS_VERITY */
++static void __init verify_root_image(struct file *file)
++{
++	panic("VFS: rootimageverity= requires CONFIG_FS_VERITY");
++}
++#endif /* !CONFIG_FS_VERITY */
 +
- /* wait for any asynchronous scanning to complete */
- static void __init wait_for_root(char *root_device_name)
- {
-@@ -481,6 +611,8 @@ void __init prepare_namespace(void)
- 	if (root_wait)
- 		wait_for_root(saved_root_name);
- 	mount_root(saved_root_name);
-+	if (root_image)
-+		mount_root_image();
- 	devtmpfs_mount();
+ /*
+  * Mount the actual root filesystem from the image file rootimage= on the
+  * filesystem that was just mounted from root= (the "carrier"), so that
+@@ -481,6 +541,9 @@ static void __init mount_root_image(void)
+ 		panic("VFS: unable to open root image %s: error %ld",
+ 		      root_image, PTR_ERR(file));
  
- 	if (init_pivot_root(".", ".")) {
++	if (root_image_verity)
++		verify_root_image(file);
++
+ 	err = init_mkdir("/image", 0700);
+ 	if (err < 0 && err != -EEXIST)
+ 		panic("VFS: unable to create /image: error %d", err);
 -- 
 2.43.0
 
