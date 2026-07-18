@@ -1,77 +1,94 @@
-Return-Path: <linux-erofs+bounces-3934-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3935-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1418C44520
-	for <linux-erofs@archiver.kernel.org>; Fri, 17 Jul 2026 13:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1AB31C4450A
+	for <linux-erofs@archiver.kernel.org>; Sat, 18 Jul 2026 19:16:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h1rgp4HDSz2yXj;
-	Fri, 17 Jul 2026 23:42:30 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784295750;
-	cv=none; b=klANoKFEif7HZvCGukBXj+5P++wWPPEXXAVoLz8V5cz8zXbd5EPb+iITkXZCFS/PzOXgLzOHUlKVoGA4nZy0Xfxv/NJX7uc8tqp0Jo8cXVXjq80lfk0Talu0RZ5fj0FSDHBw8DK3+aHHpnP5WU+3kpj1GV9olCB2Lay/aD14nhlm41AJG1Fbg336D/Ljd5eaMiJ8qz4xji+L4zbzvyNhYxDQMV/DV9T05fgI1TnpAmMtRcT72b2HusJ/DFac0jQhHqcQdM1Ehy5qnl7aDR/2NAKWYzHE223L8iraYUOx8Y9v0eaJkeBy+0Nw8wikJTVIgnaLDRHijX9tm8TehO4gfg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h2c2C2W8jz2xlZ;
+	Sun, 19 Jul 2026 05:16:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::32f"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784402163;
+	cv=none; b=k9vf5jptA38W4Df7WGGw9oAATWmhnrk5FmT0XN6AsjKCrXEZaPU6t/qUvXHjy+jOwx/BGlawpcHl0TdzMwa7LxquX53GaV/+BU0PRLgzvD3IF5MmrRXZwmmauZ9uVLvfXUS7w2bqzeZ0hl12vncMXqh7PauqLigTSwAxrZIR0W+se8gzNpkNYIRW5hA9CmfmlL1Iqtu2Gmj+s3ed5Cav+srSvWVVpGwJBUFuSCyu6E7x3nEWQJCvdoWaLmDiN5/4v4ASsgi1EVSOkYk95acupFZEb8bB3nmBJVB3MR7CvaCQaqeyQQv6Q5FFAMFVIxOWs2+Nkc4/paoaF5Pc8BdVEg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784295750; c=relaxed/relaxed;
-	bh=Oqnwk+Ww73hw4SwNzeOMk3YCD7GJsJkOlNNaA2vZRuo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=lmKTawS2Qi9PeeTrU/EbvNkNepK1uifBav4cxk8A5V/nCyBJKtw0sIVrvZEn7BEPFD0u8Z3ZMCwIPppmOLwUwiq3u5V3UpC+xHWJJy3/agZAljECWOCCHSAjyDXhd9Ztcc+7jzDLXxHzupL0G/H3vZRZuBoRqfKiWzClifaDPLoK0MfvL2SGuMcl7miYoH+sCx+McpRQ1YbxrTxKWcyiShOMYgU1Vmcjg9c9p2B1rWOD5IX6OflaWGGzMxgLmongjdBGg+po2LLuRS+/AIHlZC/dTAKoTwrJlP2alLiWahG0JEA83ddoZTSogxyiE3dL2Ed6Td8/ky9/MdV6u0E84w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cTPGPmy5; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=f1kcA3Xq; dkim-atps=neutral; spf=permerror (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1784402163; c=relaxed/relaxed;
+	bh=iYUDcKkoJkhlHxJ16Bnz94ZFULLiEQmAk5z7Yu5ywFE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dtfW+F5tNu8b0+vCHH8obpG0lXUNzKvkT5GZEnFasNGsHyWekMXIuEBOY434FJhgD6lwwd4je3OLqbeyVsIffqI2M0zm52yvI7BhEd0iJ21ifeeEgGhC8/X8NLgi6muHEInuVdUy0IdvjXUU83PQaEewk040MOKKYmf8HTurwdbadyAmfFQVC6sAginRiN8yfEYIzhMHF6S6JR5toLh5ppRBhpvHQtJa+k8YVPXaWirnAtZ49ly8u70HPrRSJQ1lsmzdcLDhwx2vRnFF7LnMcosbfAzyN8zNzG40BL+bRnlfTw0KAzGqdwnIKoINGapGKRD//WNUdTPRsgNwh9O39A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=be0WZTjU; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::32f; helo=mail-wm1-x32f.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cTPGPmy5;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=f1kcA3Xq;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=be0WZTjU;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::32f; helo=mail-wm1-x32f.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h1rgn0kpjz2yR5
-	for <linux-erofs@lists.ozlabs.org>; Fri, 17 Jul 2026 23:42:26 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784295741;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Oqnwk+Ww73hw4SwNzeOMk3YCD7GJsJkOlNNaA2vZRuo=;
-	b=cTPGPmy5U6CI+AID8waO4kp7M2lYnMmCb9ON24ZjHC8pVZLCeQQmi0TDoEHGIl9G+BcFSh
-	hEPVXJtbYIJHc7i2p9GxlCiw2BUiHHtoyzHdqcwTLYQdnflIoA/EcFWf1/r+Q5Z48PICzQ
-	lxRZmTsQrnVKhkwEn2J4zLtzkhXVV5E=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784295742;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Oqnwk+Ww73hw4SwNzeOMk3YCD7GJsJkOlNNaA2vZRuo=;
-	b=f1kcA3XqeaYnKQBMrdDtBlXle0t0TeNJhfVRc6PuE00C7sYX5uhmXnMmcxMzjaA2/Z0Bkr
-	ztiuFbR/2Qo+dhZOKQJHiHh6esxCwdb7h4TxpFP6KkWkATiCg+KdCBV6DVDuyJthPaaFvV
-	GwjKzpufoIoKRQhc12lPl4hcsfneraU=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-661-PKyWmbRXNYyarkCzcoCWqA-1; Fri,
- 17 Jul 2026 09:42:01 -0400
-X-MC-Unique: PKyWmbRXNYyarkCzcoCWqA-1
-X-Mimecast-MFC-AGG-ID: PKyWmbRXNYyarkCzcoCWqA_1784295720
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D909F195D00E;
-	Fri, 17 Jul 2026 13:41:59 +0000 (UTC)
-Received: from oxygen.redhat.com (unknown [10.44.33.219])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E5906180058F;
-	Fri, 17 Jul 2026 13:41:57 +0000 (UTC)
-From: Giuseppe Scrivano <gscrivan@redhat.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: cyphar@cyphar.com,
-	hsiangkao@linux.alibaba.com,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h2c290sNqz2xRs
+	for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jul 2026 05:15:59 +1000 (AEST)
+Received: by mail-wm1-x32f.google.com with SMTP id 5b1f17b1804b1-4954d29264cso6442185e9.2
+        for <linux-erofs@lists.ozlabs.org>; Sat, 18 Jul 2026 12:15:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784402155; x=1785006955; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=iYUDcKkoJkhlHxJ16Bnz94ZFULLiEQmAk5z7Yu5ywFE=;
+        b=be0WZTjUUoe78TOf0bCXwiTVii3QbTWbgL8sIzlcOzghxUqhM104Z6IFnhlfZL/pmi
+         jBM1aGuRo06cHrR90i6wpPNUCjfAr+g724IVwdEOChxpUgJQ7lkOCFPSG/f4AG+XMZvt
+         58Ks/OkgR58tvf3wE9HG1877Gf2jV3rUU0v6/wFhwS+NkSbqFKCpowiZXhW0FcZAa6Ab
+         mCaIu0WUQMWqO/C6ygcAqVAFWk091LYpyMtjFR8ChjwqIFR8cPSNfyBuyOVBVSuNnMIj
+         ULZOoCv8Q/oN9Pd5x1hy3hNxKXnYJti1ql9JmQmv0UvMpbPZQM72EuyLKI7hWy5fDiIr
+         SH5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784402155; x=1785006955;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=iYUDcKkoJkhlHxJ16Bnz94ZFULLiEQmAk5z7Yu5ywFE=;
+        b=Zm8MX+s51rZ7y5fq63suiDlpBiGNFxJAYMDZNpFW55+n6F0ll/zzcUIm1cj1JjxGJT
+         6EhD/tll99Ro4radPEjQ035zceSI0gBQUvVYMROe/6q/XVcQBcIzhqBkvwCju/VjwdCa
+         UA0vuGRbpV0XcdZ8QAl0ygib20pY2zOXaMqy95WwsvYKNc+QizDrZkb5XTlCEv5zWtQV
+         HHybETYy5jVPR2jhSuzmve/itkTuU4RPSTn5+Xs8CXWIKIhnaBUYCrpeyPIIJ7GMaPDq
+         zGT7MpALbca6D10eSdbM3oJXbUnpsHBa92hy1ZxAJiXWVEfQze5Sd69A2JnFzIaSXwyC
+         V9NQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqGlrPSsiSSiQhe4pYN/WcliRQuT8Gk9A+/KWa6QF0FeRVoQpn1NO6lbWWqtF2zLqJ+BVJ/6KdNitw/vA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yzr3DgBLemU0wnaVTKQGCSTJB26HJnUhtv/4Pj8XMr2G3pnO8n0
+	5Exo8i3E/zKihP+Olnx78zvGXR+Bgf7eFQs9FkWxo8iZTMwUtGGbq+eT
+X-Gm-Gg: AfdE7ckKEoyhFJ1WHuWMmWNKK4uk0AajTJq/SoeVJHDZaM/jDkZft+iHecaSo54Gow/
+	FiXeNYkQOx0YSE5G1G4zg5Iz7k40peAwcmgJXIgK8LSWMrudAqQ1wRVXldgT/yzAPmRpTgugghC
+	6aXzJUxe6KZoealFp5XHv+KMdZObA5V1BE537ADWCiqyXFkOpweu22HSdMLzGVzkWqmgrmW8hmj
+	9LbfSEjfSOLWMEzGcazGSnbA5MJxzIEwE8rM6zBobbHJLZuXm0M9RNGaYHEsDc30pZiuFANrobP
+	CG1IRKxOIj0F7crrLzCY9T5tgLe3lKuN/oBVaqT/UYig0k1chMBTO2gxN1AX5r/nXV+4EumU9uX
+	4EX4Wc0tzbmTYpdpMBFqRjhDx+lDJNiSXfJGz9ytMn/Y7cS5Fmv1Y8FkeDBpxwd4hlaEA81YRFl
+	vM5lFbkWvyAZcbGrqa
+X-Received: by 2002:a05:600c:a42:b0:493:e983:806e with SMTP id 5b1f17b1804b1-4954a3ee98emr90669215e9.3.1784402154743;
+        Sat, 18 Jul 2026 12:15:54 -0700 (PDT)
+Received: from spark.Home ([2001:8a0:7280:4000:c2b:a5ab:a31c:e0a5])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2e8529sm140037005e9.11.2026.07.18.12.15.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 12:15:53 -0700 (PDT)
+From: Eric Curtin <ericcurtin17@gmail.com>
+To: Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>
+Cc: Jan Kara <jack@suse.cz>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Eric Biggers <ebiggers@kernel.org>,
+	"Theodore Y . Ts'o" <tytso@mit.edu>,
+	Gao Xiang <xiang@kernel.org>,
+	Chao Yu <chao@kernel.org>,
+	fsverity@lists.linux.dev,
+	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
-	gscrivan@redhat.com
-Subject: [PATCH v4] erofs: accept source file descriptor via fsconfig
-Date: Fri, 17 Jul 2026 15:41:27 +0200
-Message-ID: <20260717134147.1602735-1-gscrivan@redhat.com>
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Eric Curtin <ericcurtin17@gmail.com>
+Subject: [RFC PATCH 0/2] init: boot image-based systems without an initramfs (rootimage=)
+Date: Sat, 18 Jul 2026 20:15:49 +0100
+Message-ID: <20260718191551.1703670-1-ericcurtin17@gmail.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -83,146 +100,80 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: xO-9xEWJNhBVpPEkknushEWKMejotMxMdoiSlxF6KAE_1784295720
-X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Allow userspace to pass an already-opened file descriptor as the mount
-source instead of a path string.  This is useful for tools that already
-hold an fd to the image, such as composefs reusing an existing erofs
-backing file.
+Image-based Linux systems (bootc-style OS updaters, ChromeOS/Android-like
+A/B schemes, embedded appliances) keep one or more immutable root
+filesystem images as sealed files on a writable filesystem and pick one
+at boot.  Booting such a system today always requires an initramfs, even
+when that initramfs has nothing else to do; its only jobs are to parse
+the kernel command line, mount the state filesystem, verify the image,
+loop-mount it and switch_root into it.
 
-Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
----
-v3: https://lore.kernel.org/linux-fsdevel/20260714154917.489993-1-gscrivan@redhat.com/
-v2: https://lore.kernel.org/linux-fsdevel/20260711071137.4130824-1-gscrivan@redhat.com/
-v1: https://lore.kernel.org/linux-fsdevel/ak5GfvVfWLJU1EwK@debian/
+This series teaches the kernel to do all of that directly:
 
- fs/erofs/super.c | 73 ++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 62 insertions(+), 11 deletions(-)
+  root=PARTUUID=... rootimage=/deploy/a/root.erofs rootimagefstype=erofs \
+      rootimageverity=sha256:a9548f4c... rootimagesrcdir=/var/state
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 86fa5c6a0c70..558041011398 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -386,6 +386,7 @@ static void erofs_default_options(struct erofs_sb_info *sbi)
- enum {
- 	Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
- 	Opt_device, Opt_domain_id, Opt_directio, Opt_fsoffset, Opt_inode_share,
-+	Opt_source,
- };
- 
- static const struct constant_table erofs_param_cache_strategy[] = {
-@@ -402,17 +403,18 @@ static const struct constant_table erofs_dax_param_enums[] = {
- };
- 
- static const struct fs_parameter_spec erofs_fs_parameters[] = {
--	fsparam_flag_no("user_xattr",	Opt_user_xattr),
--	fsparam_flag_no("acl",		Opt_acl),
--	fsparam_enum("cache_strategy",	Opt_cache_strategy,
-+	fsparam_flag_no("user_xattr",		Opt_user_xattr),
-+	fsparam_flag_no("acl",			Opt_acl),
-+	fsparam_enum("cache_strategy",		Opt_cache_strategy,
- 		     erofs_param_cache_strategy),
--	fsparam_flag("dax",             Opt_dax),
--	fsparam_enum("dax",		Opt_dax_enum, erofs_dax_param_enums),
--	fsparam_string("device",	Opt_device),
--	fsparam_string("domain_id",	Opt_domain_id),
--	fsparam_flag_no("directio",	Opt_directio),
--	fsparam_u64("fsoffset",		Opt_fsoffset),
--	fsparam_flag("inode_share",	Opt_inode_share),
-+	fsparam_flag("dax",			Opt_dax),
-+	fsparam_enum("dax",			Opt_dax_enum, erofs_dax_param_enums),
-+	fsparam_string("device",		Opt_device),
-+	fsparam_string("domain_id",		Opt_domain_id),
-+	fsparam_flag_no("directio",		Opt_directio),
-+	fsparam_u64("fsoffset",			Opt_fsoffset),
-+	fsparam_flag("inode_share",		Opt_inode_share),
-+	fsparam_file_or_string("source",	Opt_source),
- 	{}
- };
- 
-@@ -437,6 +439,40 @@ static bool erofs_fc_set_dax_mode(struct fs_context *fc, unsigned int mode)
- 	return false;
- }
- 
-+static int erofs_fc_parse_source(struct fs_context *fc,
-+				 struct fs_parameter *param)
-+{
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
-+
-+	if (fc->source || sbi->dif0.file)
-+		return invalf(fc, "Multiple sources");
-+
-+	switch (param->type) {
-+	case fs_value_is_string:
-+		fc->source = param->string;
-+		param->string = NULL;
-+		return 0;
-+	case fs_value_is_file: {
-+		char *buf __free(kfree) = kmalloc(PATH_MAX, GFP_KERNEL);
-+		char *p;
-+
-+		if (!buf)
-+			return -ENOMEM;
-+		p = file_path(param->file, buf, PATH_MAX);
-+		if (IS_ERR(p))
-+			return PTR_ERR(p);
-+		fc->source = kstrdup(p, GFP_KERNEL);
-+		if (!fc->source)
-+			return -ENOMEM;
-+		sbi->dif0.file = no_free_ptr(param->file);
-+		return 0;
-+	}
-+	default:
-+		WARN_ON_ONCE(true);
-+		return -EINVAL;
-+	}
-+}
-+
- static int erofs_fc_parse_param(struct fs_context *fc,
- 				struct fs_parameter *param)
- {
-@@ -524,6 +560,8 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 		else
- 			set_opt(&sbi->opt, INODE_SHARE);
- 		break;
-+	case Opt_source:
-+		return erofs_fc_parse_source(fc, param);
- 	}
- 	return 0;
- }
-@@ -752,13 +790,26 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- static int erofs_fc_get_tree(struct fs_context *fc)
- {
-+	struct erofs_sb_info *sbi = fc->s_fs_info;
- 	int ret;
- 
-+	if (sbi->dif0.file) {
-+		if (!IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE)) {
-+			errorfc(fc, "source fd option not supported");
-+			return -EINVAL;
-+		}
-+		if (!S_ISREG(file_inode(sbi->dif0.file)->i_mode) ||
-+		    !sbi->dif0.file->f_mapping->a_ops->read_folio) {
-+			errorfc(fc, "source is unsupported");
-+			return -EINVAL;
-+		}
-+		return get_tree_nodev(fc, erofs_fc_fill_super);
-+	}
-+
- 	ret = get_tree_bdev_flags(fc, erofs_fc_fill_super,
- 		IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) ?
- 			GET_TREE_BDEV_QUIET_LOOKUP : 0);
- 	if (IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) && ret == -ENOTBLK) {
--		struct erofs_sb_info *sbi = fc->s_fs_info;
- 		struct file *file;
- 
- 		if (!fc->source)
+Patch 1 adds rootimage= (plus rootimagefstype=/rootimageflags=/
+rootimagesrcdir=): root= then merely names the "carrier" filesystem.
+The image file on it is mounted read-only through the filesystem's
+file-backed mount support (available in erofs since v6.12), so no loop
+device is involved, and it becomes the root that prepare_namespace()
+pivots into.  The carrier mount is detached by default, or moved to
+rootimagesrcdir= inside the new root, which image-based systems
+practically always want since the carrier holds their writable state.
+
+Patch 2 adds rootimageverity=, which requires the image to carry a
+specific fsverity file digest, reusing the fsverity_get_digest()
+interface that IMA and overlayfs already use for digest pinning.  With
+a signed or measured command line (e.g. a unified kernel image), the
+chain of trust extends to every byte of the root filesystem with no
+userspace boot stage: the pinned digest authenticates the image's
+Merkle tree root, and fsverity keeps verifying reads against it at
+runtime, so later tampering with the carrier is caught as well.
+
+This is the file-backed analogue of dm-mod.create= (CONFIG_DM_INIT),
+which moved the equivalent block-device setup out of the initramfs for
+verity-partition layouts back in v5.1.  For file-based deployment
+layouts nothing similar exists, so distributions ship a dracut stack
+whose only purpose is the five steps above, and which remains the
+largest and most failure-prone moving part of an otherwise fully
+image-defined boot.
+
+Tested on arm64 (qemu -M virt with KVM), with no initrd= at any point:
+
+ - control: plain ext4 root boots as before
+ - rootimage=: an erofs image file on ext4 is mounted as /, the carrier
+   ends up on /var/state, PID 1 runs from the image ~0.18s after kernel
+   entry
+ - rootimageverity= with the correct digest: boots, digest logged
+ - rootimageverity= with a wrong digest: panics with expected-vs-got
+ - build: defconfig and allnoconfig (!CONFIG_FS_VERITY, !CONFIG_BLOCK),
+   both with W=1, no warnings
+
+Open questions for review:
+
+ - Should the carrier always be detached, dropping rootimagesrcdir=?
+   The image mount pins the carrier superblock either way, so userspace
+   can re-mount it, but a conflicting ro/rw state then needs a remount
+   dance.
+ - Should this be behind a Kconfig option like CONFIG_DM_INIT is?  All
+   added code is __init and freed after boot.
+ - Naming: rootimage= vs. extending root= syntax (e.g. root=image:...).
+
+This series was developed with AI assistance (see the Assisted-by tags
+and Documentation/process/coding-assistants.rst).
+
+Eric Curtin (2):
+  init: support mounting the root filesystem from an image file
+  init: support pinning the root image's fsverity digest
+
+ .../admin-guide/kernel-parameters.txt         |  42 ++++
+ init/do_mounts.c                              | 221 ++++++++++++++++--
+ 2 files changed, 250 insertions(+), 13 deletions(-)
+
 -- 
-2.55.0
+2.43.0
 
 
