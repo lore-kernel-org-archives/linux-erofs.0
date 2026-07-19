@@ -1,98 +1,93 @@
-Return-Path: <linux-erofs+bounces-3937-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3938-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90BECC4451C
-	for <linux-erofs@archiver.kernel.org>; Sat, 18 Jul 2026 19:16:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52579C4450A
+	for <linux-erofs@archiver.kernel.org>; Sun, 19 Jul 2026 14:13:04 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h2c2F01jDz2xjN;
-	Sun, 19 Jul 2026 05:16:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::329"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784402164;
-	cv=none; b=mVN107MgG/tH6v+5R2x8BqYuOhKs09c8ksAfeWeS9Zc0xHFUgyDQjA6I4lUPIwDhSWNoGh9+v85n7McxRqDISZdFfMK+37s+/J0zNIbb2a28JU4gi5nocZiHcKnyTeG8lmnBrUwMyffdFOgd1CK7Hj+JKHuNxa7GKiaS9KEhOjVAmKmNNFnpvSo/Sha6RtDjBmP6D/l7CyJoICaThblY/35vo9w6E08yQYrtfBHuq6JMMcVMyHw6R+tIRp9ZBrLtNRNozrVra3Yd1vXTv8Mb6sQ1daiUChdQHAx1wBBDK39zSGIn0wkWaC6aIJBl3RAAQqTcwYBMZH0FOLW0BoNLrw==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784402164; c=relaxed/relaxed;
-	bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=P7gCCnSEDQ+sa1mXHtQXC+Ov+jUkQWxtfpzHhFmriBc2AIjOIocezQqS4nqNpz5uaphAd5FWdXhNyMaWMR7qAIDeWPz+FcTutiYE9LQlBbMCNT5eJR4FjYlVQum2S+7I34LNocKTb4dEGD+tcSFLM1HcAf7u+mnnWZW/IG+hnwb98dBEgB9ZnFCYeZ7sia8Jnlx1wia48o1H/SeDUhlS/lUDGzHUnx7mcQm4se8GR/5Ujvvs7FoAusP+D8V2q1MB1MnJ4ZDFk3fgBTg9XvPRz3zsUQviZF9h9fdU2MTJlptcDUGd8p8YcRbfrsrDUJzlgVhkMwbHkIPe+pbEq8KO3g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=auxfbjeV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h35G65H9zz2xyh;
+	Mon, 20 Jul 2026 00:13:02 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::22a" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784470382;
+	cv=pass; b=j3uIFm0FMPZ41rE/sptZfK7IplwHlBslflsZyu6wM0HGNrYR8Wp5StrYilne6GgU4djbkqNmeWIV9Sm/+ws7qfjBnITtyaYiufdouVI0r9jAV1YoJWGpIedNBCQEs+0uW75khkXxcTwXx+AQatSyyUB+cdXDgtwRp3xfhtmin30YiU+y29SywQScqSnBYS5weoKroeHW1FXcv6ZhVR/llSGYTCN7cxmFWEfFFsnOHf8VYlnDhxV5/99fdwiQAgPNdE131tHdKWWERwSxyKXROgLE/xLLtB6uqOW3x9Y3bM8jLUnUEQQzvV3jYfzQQzQElf7evhlOoiceRp9vkmOYew==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1784470382; c=relaxed/relaxed;
+	bh=8fnfVrhkwP422PxO/5FsFZHAUY1r3GNO+87kR51xMWc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iwiXClzlRL/GE9N7vwm5kCv8Jr1EsqdWiVnrd5v7BeiquKmaqDLN+7FxxnxAKlv8Z/NNiBZA5m0Glyovt5b9i7Uq8/5y5/wGwqXWmJ7NEXpPJTrr0KCCnNAuakqV1jZsptS3oHhQXEOkiJytxzpkg0da9sEoK7GxfQp5GpQkt4SmHacXVbxqQ4+XkpVH19x6E5kYiQ9fcrb8EwGD4efLu71e2cd+oS1et8Yq0d/BX7uSaiei9r2KZTNKG8OKCRn6QSNuyvxaxDuzDbnpooUuxf3EoZTA0Sqp2h5M7FBHRMQkYsJ3uJFtjMLTtMIOwJvskrUWs8a7m6Ea1CMf9AvyjA==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net; dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=DnFomulV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::22a; helo=mail-lj1-x22a.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org) smtp.mailfrom=amacapital.net
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=auxfbjeV;
+	dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=DnFomulV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amacapital.net (client-ip=2a00:1450:4864:20::22a; helo=mail-lj1-x22a.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org)
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h2c291TgKz2xl6
-	for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jul 2026 05:16:00 +1000 (AEST)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-493f6de72faso17910995e9.0
-        for <linux-erofs@lists.ozlabs.org>; Sat, 18 Jul 2026 12:16:00 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h35G44GDTz2xd2
+	for <linux-erofs@lists.ozlabs.org>; Mon, 20 Jul 2026 00:12:59 +1000 (AEST)
+Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-39ca300db70so68553891fa.2
+        for <linux-erofs@lists.ozlabs.org>; Sun, 19 Jul 2026 07:12:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784470375; cv=none;
+        d=google.com; s=arc-20260327;
+        b=RG7t4ahS3XJxFIJhLWoKf5BMFJJ4YPAV5PamR7ZDT5FSEGWIKn8Z5ko03Gfc/3FLuf
+         Ox7Bt+InR7IhLFwO9Y6h0/l29FWBANzXD0O7fm+vj5ncD1o3dZVR+r4FMWVvM4VWApKN
+         PYw4O2ovXVlHq06dlMn5oUUp58QHyutk0F7bXnqjUe9EKUIYz4LG0oeuRXwIOkQ7spTl
+         JbIMqCh3vIEoM5EW9E9rBHfc/4Ul8k8jer0bs+8V8EOITNsvGsNvLPTu3IwNx4A/hfaW
+         E61IlQ93fmBz8MeZykA5mbhtWlsWj46pUvO/AyAZ1m/Hem7l6igE1Ue65Nj2eHVA9Wqm
+         dQ1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8fnfVrhkwP422PxO/5FsFZHAUY1r3GNO+87kR51xMWc=;
+        fh=A1kE6GlxEmTBOMfXBCVXpWqE6eASQeX9zW5iVVgGtcA=;
+        b=KnlSeU6F15CeR2TzvzAu1JApHm47f3m9Pl30sIKUy9PVO8w0PpW0mkOGIyJ5mvLNNq
+         p5IliR1636jDx761UXu2yVfPFZXIuqhevTyoFKHLZejlybrjF31k4wzqZoHF9V+W65UP
+         CqxNMo84Cm966+nv17dzSJz7sDrt93qqoa8TNhkjzQY9GKlJ0NX2koxHHVHhjcUqmcMQ
+         2Q6k06zJnOMqiDFm6+BAlcputvTBxnIl4FH+NhglAEVy9MGnv9ZjXI/Dje253oSKte5K
+         jENXEz5G4nciwo4ojrGyySbiN4EmUzblPc3/lG5+gKwP8urycDKboNbTPNRGXY6iPV/K
+         I4YQ==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784402158; x=1785006958; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
-        b=auxfbjeVRQ4NgUILH5cWwe7rZkLPuqHh5QBvzi9kCAYKDvT65u+LCP/BSd9B3kdur2
-         sNA4x94NBi1IvhYpDzezK5wD2KeiR+LSWkdjQRHbFdoOnm0M4eH5O1qk+b4i3Pz+E33L
-         Jw++8fqEiNV2BWv1sjS/nvi/RS4/02TM1D95tbbiryMqy5dlDema5oyFT13ToOjzGfI0
-         gxfR5Y/Q84mRsl6oHBYgGksgyXC/Rf1MYHuE0UO5jz//DsLGQKvWS9lGTGKJK4JqIO80
-         kv+HhPF5GV6/bnP/0+poobSB0wy0HsaeY+VJkaZkgRgjqaIbs9+BBEAKvClI3raBEIph
-         lOGw==
+        d=amacapital-net.20251104.gappssmtp.com; s=20251104; t=1784470375; x=1785075175; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8fnfVrhkwP422PxO/5FsFZHAUY1r3GNO+87kR51xMWc=;
+        b=DnFomulVRs/gdPtuXHj+8M8rKbHfzyM3kGh4hAU5K8pZF0oaFE6zvVA0r0bFe4Rcdr
+         UmcbVBvcQ9kHd9WVLdRgm5ANFNEcBndZGxtfgpjIPPaLgUu2LAw8tCgXuT3/458PUTUK
+         P5W2+RCuWcdzAb2ObcrMGAxwJElXPRrThm4exQhSWnT4S1kcjNdIaz4Goa9J5LRN4asf
+         64FTI9scMrrVmZ9gxZH/sRTDvb+mAyD0yLP33NtLL79cuUdHSFzhcBrkvVGtxe82CGJx
+         rnNgUl9QKIhI9wRv9W8lQ11GC2mI2XqM2waHhtpWinxSrpzCvl68anmmKkW5b89snjwh
+         evog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784402158; x=1785006958;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=n/RuzzR56AKowWPeBaHkPa2me5UyA+I6b2NoNXGG3tc=;
-        b=qejhPBdyZ0a12oz68JcOa1UKFooAkZtDcavhq151GtHTZ9LvWzozoJXvieMn2zVoCf
-         lPpAHNu5zjwPHWd9zJcD+RKOr8waxPWj9wut2aY2ubJVKHSY6uNFIWs1IAVuXwSFBqbk
-         44D5QkYzjlaURFRurxRElgadFsx+4jne0EkUJPiIeooDK4AhJogONNS9cbpnP68BR2f1
-         QstXOn7qYAQCPoOzaiOzbPjeYQV4brv6aL3mDJywHMBEDfK2m545mGUQbX6bq3dTCzga
-         EYuGRW4uGRLf9DPN1yqT7xLD8IKo3eCISL3SMyJOKXROWYJWT3KSce8e3hbqLHgy4E2y
-         cRZQ==
-X-Forwarded-Encrypted: i=1; AHgh+RohB2v2sidyelMAeScDW/LGJk/SVFI0hKAsYoz2dZVnDfdTIuWrZ8XF/kfDZHx/v3Oi6IpoZjRlPMS8SQ==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0YyKukO39nWZAaWmQRdHfC7KSnU/ijKAEluWRwxxVeMa0l/HuHZH
-	Vyp2A8IA1/h5m1T6tQ+XMaPkZd9DF2R62rFnDUIcKpBP0eOhwaJnkBVn
-X-Gm-Gg: AfdE7cn2R64c31y4hpLw6W1quRSUfOjHVEywqkoxnB2JayZytsVZQriRFup27zsV3JQ
-	6He/hpO3cyDSfHVaeBWBODRHOsCuE04cCp9jDyzyNYZSnetlrpYQbuKd5Pqp/BxiV4k0y4ymmrz
-	abGegp8k5tpdgW/BJ38eKIc2uE7YRypVaBJAJQJa1daTb8pys+KqigFGxO8LsjJMTUEeytkRCKW
-	f9br+NWMKCd5ivIzr2gmGit0ZGNyNG5og0MbIlfrz86aZKO+0omdX73KKN8ZGTRGInx06b3Hg9W
-	AW1imUHKFQFiuTCYWjyw0+5UoQTk9pu9ZS8q0DbbVfv+EoXOOYVo6YASF1uT5qGVfaERWcjbbrm
-	sOBj5LJZTTFezcZekv0pk+9qICE+2sA25hRN2a1owV00iWAXrxEmXNTdF152hbyULeqMvprdlCF
-	yS2k7ZsQ==
-X-Received: by 2002:a05:600c:4e8b:b0:495:501a:fcf8 with SMTP id 5b1f17b1804b1-495501afdc8mr41543145e9.9.1784402157300;
-        Sat, 18 Jul 2026 12:15:57 -0700 (PDT)
-Received: from spark.Home ([2001:8a0:7280:4000:c2b:a5ab:a31c:e0a5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2e8529sm140037005e9.11.2026.07.18.12.15.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Jul 2026 12:15:56 -0700 (PDT)
-From: Eric Curtin <ericcurtin17@gmail.com>
-To: Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>
-Cc: Jan Kara <jack@suse.cz>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Eric Biggers <ebiggers@kernel.org>,
-	"Theodore Y . Ts'o" <tytso@mit.edu>,
-	Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	fsverity@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Eric Curtin <ericcurtin17@gmail.com>
-Subject: [RFC PATCH 2/2] init: support pinning the root image's fsverity digest
-Date: Sat, 18 Jul 2026 20:15:51 +0100
-Message-ID: <20260718191551.1703670-3-ericcurtin17@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260718191551.1703670-1-ericcurtin17@gmail.com>
-References: <20260718191551.1703670-1-ericcurtin17@gmail.com>
+        d=1e100.net; s=20251104; t=1784470375; x=1785075175;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8fnfVrhkwP422PxO/5FsFZHAUY1r3GNO+87kR51xMWc=;
+        b=FnLPjPm9WqeVau3BpjETAwyH7nF2b/C6XMhIZlxe33UbCbPj309iMNQKT+aE2pCfTg
+         g0jsY1TT6rCX82yIb71mLCxAHkxkkrPQtjQF2nmXJ2stwWPqmxn4wLHrCZebBqCyRBN9
+         ByeUxutTLDCcbzYqBr0W6DynnTauvqTCaQ8VAtgkmLoosu8zDTp+nxCdiuFo31g/f7uC
+         I8CFKa5kzOT2F/m8ZnYd6+RoJftjHpreSqw9msySeDYsdL4GQw/EmnzBqsiiNfRxy01c
+         2EIsFoGoLhKjITPKH8+QXpCa2ZsUYZX90boG6eG2bZ9n/FwcaqhzYUE92+waameqBNjK
+         wo5A==
+X-Forwarded-Encrypted: i=1; AHgh+RqBenNmCjF0uDgFYLga8msVeHhTwhLydLmE2v296zq53bMG8rFpP3E61wcbITUSyougQ9WXUH0QMhcf2Q==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YySuSm4ZLXA+YfjW5SucdPIHjXckU5PiIbnWJWQKgY5jFCCaCpb
+	Q4JLvP6us6nw6OTrwj3YFiH0PulXLdCp1ZQKS7FElCOtfNl9mr0BKFOcz+1qWiQfHfEoWZxwtN7
+	pVc1nzgNl4TLPMXYuTHFkEJPRgawn/CDoft3IJ5Ad
+X-Gm-Gg: AfdE7clXoA26t0XznQpi+p0lb3c9Y1aNx7fYbPItQp3Hd5Co7TRjgsCQKcrxnMF4yPy
+	YMsu3uAYnslYz8uA8CwTdObpE1C3GWv0pdbDQQv9OCCezvVYS7xSABUm01gwPQaUfo/wDJW0tke
+	3A9RgyUTq5q54W4GO4oS5yzr0/vLms6zlRKmIYzImWaF1DvLdR6sxGzrpT5vYBIcd406GX61kH5
+	f99CSARVpG//KlAQokMnWJ59dg4PJJiYH4RZEZFMyFv2eMz8dx0KJsy0Ck=
+X-Received: by 2002:a05:6512:3d8f:b0:5b0:1879:1ba9 with SMTP id
+ 2adb3069b0e04-5b28f9a5720mr2256451e87.33.1784470374426; Sun, 19 Jul 2026
+ 07:12:54 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -104,164 +99,67 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260715101107.973997-1-mszeredi@redhat.com>
+In-Reply-To: <20260715101107.973997-1-mszeredi@redhat.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Sun, 19 Jul 2026 07:12:42 -0700
+X-Gm-Features: AUfX_mx-VrWAtPNuDviKfVjbn51tqQht-nWAXr-HfoWBbjn3eDOh3hiCtUPefpg
+Message-ID: <CALCETrXYHX+OSwm6vhzQqvdk9Fkbxzh_dGuVm2tjvPJG_x1XdA@mail.gmail.com>
+Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through O_ALT
+To: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-fsdevel@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-api@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, Amir Goldstein <amir73il@gmail.com>, 
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When the root filesystem is mounted from an image file with rootimage=,
-the carrier filesystem holding the image is typically writable and
-therefore untrusted.  Systems that seal their root images with fsverity
-currently need an initramfs for the sole purpose of checking that the
-image carries the expected fsverity digest before mounting it.
+On Wed, Jul 15, 2026 at 3:17=E2=80=AFAM Miklos Szeredi <mszeredi@redhat.com=
+> wrote:
+>
+> This is a prototype patch. Needs to be split up!
+>
+> 1) O_ALT / OPEN_TREE_ALT
+>
+>   These open an alternative namespace rooted at dfd - instead of resolvin=
+g
+>   the path in the real filesystem, it resolves it in a virtual tree that
+>   exposes metadata about that file.
+>
+>   This is intended to provide an alternative to adding new ioctls:
+>
+>    - provides structured namespace
+>    - allows accessing data through fs ops
+>
+>   Could call this O_META, but O_ALT seems more generic and there could be
+>   uses beyond metadata (e.g. seekable, in-place decompression).
 
-Add rootimageverity=<hash algorithm>:<hex digest>, which requires the
-rootimage= file to have fsverity enabled with exactly this file digest
-and fails the boot otherwise, using the same fsverity_get_digest()
-interface that IMA and overlayfs already use for digest pinning.
+This gives me the willies a bit.  It's very cool, but it has some
+potential security issues that I think we need to watch out for.  As
+sort-of prior art, NTFS supports alternate streams and Reiser4, ahem,
+supported files-as-directories.
 
-Combined with a trusted kernel command line (e.g. a signed unified
-kernel image, or a TPM-measured bootloader configuration), this extends
-the chain of trust to every byte of the root filesystem without any
-userspace boot stage: the digest pins the image's Merkle tree, and
-fsverity keeps verifying all data read from the image against it at
-runtime, so post-boot tampering with the carrier filesystem is detected
-as well.  It is the file-backed counterpart of setting up a dm-verity
-target for a partition-backed root via dm-mod.create=.
+Some questions that we would need to consider:
 
-Verification is done on the file the kernel is about to mount: it is
-opened before mounting (which also loads the fsverity information) and
-kept open across the mount, and no userspace exists yet that could race
-a replacement in between.
+1. Can you open an fd referring to a "directory" within an O_ALT tree?
+ What happens when an unsuspecting process gets such an fd?  Can you
+fchdir to it?  chroot to it?  clone its tree and possibly bind-mount
+it somewhere?
 
-Assisted-by: opencode:claude-fable-5
-Signed-off-by: Eric Curtin <ericcurtin17@gmail.com>
----
- .../admin-guide/kernel-parameters.txt         | 13 ++++
- init/do_mounts.c                              | 63 +++++++++++++++++++
- 2 files changed, 76 insertions(+)
+2. Can you bind-mount *onto* something inside O_ALT?
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 5dbd56098..105ebb171 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -6728,6 +6728,19 @@ Kernel parameters
- 			root=) is moved to, instead of detaching it.  Used
- 			together with rootimage=.
- 
-+	rootimageverity= [KNL] Require the root image specified by
-+			rootimage= to have fsverity enabled with this file
-+			digest, given as <hash algorithm>:<hex digest>,
-+			e.g. sha256:dd1b3fa9...  The boot is aborted if the
-+			image carries no or a different fsverity digest.
-+			Because fsverity keeps verifying data read from the
-+			image against its Merkle tree at runtime, a trusted
-+			(e.g. signed or TPM-measured) kernel command line
-+			extends the chain of trust to the complete root
-+			filesystem contents without an initramfs.  Requires
-+			CONFIG_FS_VERITY and a carrier filesystem with
-+			fsverity support.
-+
- 	rootwait	[KNL] Wait (indefinitely) for root device to show up.
- 			Useful for devices that are detected asynchronously
- 			(e.g. USB and MMC devices).
-diff --git a/init/do_mounts.c b/init/do_mounts.c
-index 1b96ef30b..4eb792b27 100644
---- a/init/do_mounts.c
-+++ b/init/do_mounts.c
-@@ -24,6 +24,9 @@
- #include <linux/nfs_fs_sb.h>
- #include <linux/nfs_mount.h>
- #include <linux/raid/detect.h>
-+#include <linux/fsverity.h>
-+#include <linux/hex.h>
-+#include <crypto/hash_info.h>
- #include <uapi/linux/mount.h>
- 
- #include "do_mounts.h"
-@@ -155,10 +158,18 @@ static int __init root_image_srcdir_setup(char *str)
- 	return 1;
- }
- 
-+static char * __initdata root_image_verity;
-+static int __init root_image_verity_setup(char *str)
-+{
-+	root_image_verity = str;
-+	return 1;
-+}
-+
- __setup("rootimage=", root_image_setup);
- __setup("rootimagefstype=", root_image_fs_names_setup);
- __setup("rootimageflags=", root_image_data_setup);
- __setup("rootimagesrcdir=", root_image_srcdir_setup);
-+__setup("rootimageverity=", root_image_verity_setup);
- 
- /* This can return zero length strings. Caller should check */
- static int __init split_fs_names(char *page, size_t size, char *names)
-@@ -442,6 +453,55 @@ void __init mount_root(char *root_device_name)
- 	}
- }
- 
-+#ifdef CONFIG_FS_VERITY
-+/*
-+ * Require the root image to carry the fsverity file digest given by
-+ * rootimageverity=<hash algorithm>:<hex digest>.  @file must have been
-+ * opened so that its fsverity information is loaded.  Any deviation
-+ * fails the boot: with a trusted command line this pins the complete
-+ * image contents, which fsverity keeps verifying against the image's
-+ * Merkle tree as they are read.
-+ */
-+static void __init verify_root_image(struct file *file)
-+{
-+	u8 want[FS_VERITY_MAX_DIGEST_SIZE], got[FS_VERITY_MAX_DIGEST_SIZE];
-+	enum hash_algo want_algo, got_algo;
-+	int want_size, got_size, i;
-+	char *hex;
-+
-+	hex = strchr(root_image_verity, ':');
-+	if (!hex)
-+		panic("VFS: rootimageverity= expects <algorithm>:<hex digest>");
-+	*hex++ = '\0';
-+	i = match_string(hash_algo_name, HASH_ALGO__LAST, root_image_verity);
-+	if (i < 0)
-+		panic("VFS: rootimageverity=: unknown hash algorithm \"%s\"",
-+		      root_image_verity);
-+	want_algo = i;
-+	want_size = hash_digest_size[want_algo];
-+	if (strlen(hex) != 2 * want_size || hex2bin(want, hex, want_size))
-+		panic("VFS: rootimageverity=: expected %d-byte hex digest",
-+		      want_size);
-+
-+	got_size = fsverity_get_digest(file_inode(file), got, NULL, &got_algo);
-+	if (!got_size)
-+		panic("VFS: root image does not have fsverity enabled");
-+	if (got_algo != want_algo || got_size != want_size ||
-+	    memcmp(want, got, want_size))
-+		panic("VFS: root image fsverity digest mismatch: expected %s:%*phN, got %s:%*phN",
-+		      hash_algo_name[want_algo], want_size, want,
-+		      hash_algo_name[got_algo], got_size, got);
-+
-+	pr_info("VFS: verified root image fsverity digest %s:%*phN\n",
-+		hash_algo_name[want_algo], want_size, want);
-+}
-+#else /* !CONFIG_FS_VERITY */
-+static void __init verify_root_image(struct file *file)
-+{
-+	panic("VFS: rootimageverity= requires CONFIG_FS_VERITY");
-+}
-+#endif /* !CONFIG_FS_VERITY */
-+
- /*
-  * Mount the actual root filesystem from the image file rootimage= on the
-  * filesystem that was just mounted from root= (the "carrier"), so that
-@@ -481,6 +541,9 @@ static void __init mount_root_image(void)
- 		panic("VFS: unable to open root image %s: error %ld",
- 		      root_image, PTR_ERR(file));
- 
-+	if (root_image_verity)
-+		verify_root_image(file);
-+
- 	err = init_mkdir("/image", 0700);
- 	if (err < 0 && err != -EEXIST)
- 		panic("VFS: unable to create /image: error %d", err);
--- 
-2.43.0
+3. Whose creds are used for which operations?
 
+4. Can you mmap the things in O_ALT?  Is this determined per object or
+generically?
+
+5. Would we ever allow FUSE to expose custom things inside O_ALT?
+What contents of O_ALT can a program trust come from the kernel and
+have the expected semantics?
+
+--Andy
+
+--=20
+Andy Lutomirski
+AMA Capital Management, LLC
 
