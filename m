@@ -1,45 +1,53 @@
-Return-Path: <linux-erofs+bounces-3943-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3944-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E370C4451C
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jul 2026 03:44:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6118BC44529
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jul 2026 06:55:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h43Cg4L05z2xqJ;
-	Tue, 21 Jul 2026 13:44:15 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.118
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784605455;
-	cv=none; b=gyMlHHnV9MF0It0Hnj3kER8nDPZA9bEmabJNQyfTlR75rSDEJWvXcCevvumwhRAlY0547gob4AYuR6ZKljgn+IQppkCYKf9DNJxww+CH4Ren9Sxqf0AqUHyTax3WcBhdATYKAUcwKsdCHP1B91mYiBU7lpsH5corAQ1S0Xrx6WDVJacmogvuiUwSj4jPFBAgDuabw8m3Dto4i+Nrlbenkcm3u8r9zJJy+XlHDoZW1ViULyoOf1oseGL5CcUrLJ3MWB8U9SMwpSbkWgvoNxC/uE5pf+NbbZv2ja/b+p6r9x3yS33JqvqxPxV+ZWCGLn6bZeyObNZPLJVqjdsttdNGag==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h47SP1TQ0z2xlb;
+	Tue, 21 Jul 2026 16:55:33 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.226
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784616933;
+	cv=none; b=YpBr9gm+hAO8dgle6tmR0p6GbqxKQ5YhdFjf0XeqhxveamgepCydmR5cg0QgNqD1PeoTJ9SfOhTYWd2w0KeMZctQhNX2U8R/+KwA9VtGcssFIWGhb/VgHWuMjGRHimGVviG/GWe+9Qcy/z3J0hWsZnIEh7IQxtwaWumLduzlsQVkzInIULRbYDmhHVxSnDsM8Z9EvVFZKLmTLaJu2afto3aSl4ZK4Y4xsa9D66CSPesex/orxA6IBdmdCGP3X7xPsGeFgq1TQedpLfbvvyf/a1XjiGH4pXiXWO3JSWeJDL7J2tA6I23qezBEwXow0tQ0fjIzz7sbGBBDMOogMJRNYQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784605455; c=relaxed/relaxed;
-	bh=T55NA4EysOXjtaF5QyCcmdll5bxsIXre+LCQ2EP81Dk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=jXFfnVH0jqZMVZk6mfP7d9hzEQQ2iaXCCX9FIVePcKBTllJe9rjiaAKuomr3w4Jf1LknqnENmpOq4z6vYWIjSpVZvsPspgO8Fsxk/gaxzZibYXgF1MoQ4ye8sthUE0xpAtqms3Eq6h8F6YbEP1I3Ca4flrptoTCzZrrlZaEEc3a711uNjfxW60aebpcZNzVjtRvP6SPqEZaQ9b9tYNuG5+FQy56yEyfp5GjYfVQP2nc5TNu4FP7+5aACYIR+xEIm00mDOe3uQcYJIyXTT6LSz2tH9ZpmulbN5ob9iMZ0Ib3hMbK/WR9KAXkAuYHU/WtB1U7+a7lZau5/65LP/MgMWg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=c0c+WMsq; dkim-atps=neutral; spf=pass (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1784616933; c=relaxed/relaxed;
+	bh=DHTDzp2I/y81wqlzxiArgIU06hhGwecM6piqbzrai0w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=cfuqH0y78Hf2zNOnPUJKSEE9SVSjvc1U1HWGw2Hc66CaJ6D9zPq78HaWhwIJ94IWnmS/vzHwgqJ0C5bf59SQ6HF9SRyN0xB8IDOlzd7zKU75Vch9K42Q+Pk5V+tN4s9iwbo5xUH2+hQoDg8plbXbu+bcResMNpfDxhLVd9vYk0yPLBtRLSjIuqCOwLwow+007GPQTqTbIx5uC0AM1WUOcF3zEV7QN6zjQRDhW9aArGr74aonmPdfMOiQrV2XMPDbXmwOVkA5xw3SWBLHTRQld9zIliZptZlS7geYAgvMV47SkzHkHqvW02crffgoPYr59mfC+vMRCNcHZtxX71rcIQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=y0TLTVR/; dkim-atps=neutral; spf=pass (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=c0c+WMsq;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=y0TLTVR/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.118; helo=out30-118.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h43Cd4D46z2xjd
-	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 13:44:11 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1784605447; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
-	bh=T55NA4EysOXjtaF5QyCcmdll5bxsIXre+LCQ2EP81Dk=;
-	b=c0c+WMsqoTyFhb/+uAIRoFXenWO3ebH+Eq3+bD5kugOqNgkFZ4tVfT4ui3eiyncBkLyZyRp5+wy9U128g5psJn8jJWm0YrNvYlFYaJAvvoo/11HJn4wdUM87ZKWNZ6vKDnsh/uIdokkEqI1HnzBa/Xvx0BfU3ouPvgCWhgUxmCU=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0X7YM.8K_1784605445;
-Received: from 30.221.132.10(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X7YM.8K_1784605445 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 21 Jul 2026 11:44:06 +0800
-Message-ID: <6179ba55-d53d-4c46-8220-d7340f18e8b5@linux.alibaba.com>
-Date: Tue, 21 Jul 2026 11:44:04 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h47SL1Pzxz2xLh
+	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 16:55:28 +1000 (AEST)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=DHTDzp2I/y81wqlzxiArgIU06hhGwecM6piqbzrai0w=;
+	b=y0TLTVR/7cE+x2oAej3V7imlAXroJLxGOc7jkmLFIbUN2ftcYlqwm3UlpVfbor/JoZY4fBm1l
+	jIWjXSXZpXnDFC7q/DxxgUIcX0jPfhQUxRinrxobRueTuo+WV09VsN3HVb4gNKbxWgkXrdtbuDJ
+	kKqXmyZSuVPKOWK+hi7RlwU=
+Received: from mail.maildlp.com (unknown [172.19.163.127])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4h47FL3DF5zKmWb;
+	Tue, 21 Jul 2026 14:45:58 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id E6C43402AB;
+	Tue, 21 Jul 2026 14:55:22 +0800 (CST)
+Received: from [100.102.28.251] (100.102.28.251) by
+ kwepemr100010.china.huawei.com (7.202.195.125) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.36; Tue, 21 Jul 2026 14:55:22 +0800
+Message-ID: <5700f79d-2cfb-4408-80d3-509ac154bef0@huawei.com>
+Date: Tue, 21 Jul 2026 14:55:21 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -52,120 +60,256 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-To: Michael Bommarito <michael.bommarito@gmail.com>
-Cc: Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Chunhai Guo <guochunhai@vivo.com>,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
-References: <20260714114729.3760594-1-michael.bommarito@gmail.com>
- <d0d5816c-8aef-4155-806f-37094c79d847@linux.alibaba.com>
-In-Reply-To: <d0d5816c-8aef-4155-806f-37094c79d847@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH] erofs-utils: lib: fix ztailpacking fallback across
+ lclusters
+To: Zhiguo Niu <niuzhiguo84@gmail.com>
+CC: <linux-erofs@lists.ozlabs.org>, <hsiangkao@linux.alibaba.com>,
+	<zhukeqian1@huawei.com>
+References: <20260709123411.1166770-1-zhaoyifan28@huawei.com>
+ <CAHJ8P3JK5gKS=RH2b=waY7g1AJ7S6ZHzDV0asg46pkzHsWzMHw@mail.gmail.com>
+From: "zhaoyifan (H)" <zhaoyifan28@huawei.com>
+In-Reply-To: <CAHJ8P3JK5gKS=RH2b=waY7g1AJ7S6ZHzDV0asg46pkzHsWzMHw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [100.102.28.251]
+X-ClientProxiedBy: kwepems100001.china.huawei.com (7.221.188.238) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-Hi Machael,
 
-On 2026/7/17 11:43, Gao Xiang wrote:
-> 
-> 
-> On 2026/7/14 19:47, Michael Bommarito wrote:
->> fs/erofs/decompressor_lzma.c sizes the module-global MicroLZMA stream
->> pool from num_possible_cpus() when the lzma_streams module parameter is
->> unset, then z_erofs_load_lzma_config() preallocates one image-supplied
->> dictionary per stream, accepting dictionaries up to 8 MiB.  On high-CPU
->> systems, a small EROFS image can pin hundreds of MiB of vmalloc-backed
->> decoder state until the erofs module is unloaded.
+On 2026/7/20 19:42, Zhiguo Niu wrote:
+> Yifan Zhao <zhaoyifan28@huawei.com> 于2026年7月9日周四 20:36写道：
+>> With ztailpacking, the final compressed pcluster is first stored as
+>> inline data.  If the inode metadata area cannot hold it, mkfs falls back
+>> to a normal tail block and drops the inline pcluster marker.
 >>
->> Impact: an attacker-supplied EROFS image mounted by the system can pin up
->> to 8 MiB times the LZMA stream count of kernel vmalloc memory.
+>> The current fallback path assumes that the inline tail pcluster belongs
+>> to the EOF lcluster.  That is not always true: the tail pcluster can
+>> start in the previous lcluster and end at EOF, while its raw size still
+>> fits in one block.  In that case, patching the EOF lcluster is
+>> semantically wrong.
 >>
->> Bound the default stream count by a new
->> CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS option, default 16, so the
->> worst-case default preallocation is 128 MiB while preserving the existing
->> per-image dictionary limit.  An explicit lzma_streams module parameter is
->> still honoured as-is, so administrators who deliberately size the pool are
->> not affected.
+>> Let's keep raw tail data whenever it fits in one block, and convert the
+>> corresponding lcluster index to PLAIN during fallback.
 >>
->> Fixes: 622ceaddb764 ("erofs: lzma compression support")
->> Cc: stable@vger.kernel.org
->> Assisted-by: Claude:claude-opus-4-8
->> Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-> 
-I submitted the following version to -next:
+>> Reported-by: Alberto Salvia Novella <es20490446e@gmail.com>
+>> Closes: https://github.com/erofs/erofs-utils/issues/51
+>> Assisted-by: Codex:GPT-5.5
+>> Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+>> ---
+> Hi Yifan,
+> I tested this patch to focus on the issue fixed by commit
+> 277a42502a7a, and it passed.
+> But I have some questions:
+>>   include/erofs/internal.h |   5 +-
+>>   lib/compress.c           | 109 ++++++++++++++++++++++++++++-----------
+>>   2 files changed, 83 insertions(+), 31 deletions(-)
+>>
+>> diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+>> index 2cc9cc8..bdde41f 100644
+>> --- a/include/erofs/internal.h
+>> +++ b/include/erofs/internal.h
+>> @@ -212,8 +212,11 @@ struct erofs_diskbuf;
+>>
+>>   enum erofs_idata_type {
+>>          EROFS_IDATA_TYPE_RAW,
+>> -       EROFS_IDATA_TYPE_COMPRESSED_DEFAULT,
+>> +       EROFS_IDATA_TYPE_COMPRESSED,
+>> +       /* compressed idata follows a final 2B compacted index pack */
+>>          EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B,
+>> +       /* compressed idata follows a final single-entry 4B pack after a 2B pack */
+>> +       EROFS_IDATA_TYPE_COMPRESSED_4B1_PREV2B,
+>>   };
+>>
+>>   #define EROFS_I_BLKADDR_DEV_ID_BIT             48
+>> diff --git a/lib/compress.c b/lib/compress.c
+>> index f7ad5a1..ec90f65 100644
+>> --- a/lib/compress.c
+>> +++ b/lib/compress.c
+>> @@ -483,7 +483,7 @@ static int z_erofs_fill_inline_data(struct erofs_inode *inode, void *data,
+>>   {
+>>          inode->z_advise |= Z_EROFS_ADVISE_INLINE_PCLUSTER;
+>>          inode->idata_size = len;
+>> -       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_DEFAULT;
+>> +       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED;
+>>
+>>          inode->idata = malloc(inode->idata_size);
+>>          if (!inode->idata)
+>> @@ -664,7 +664,7 @@ frag_packing:
+>>                  ictx->fragemitted = true;
+>>          /* tailpcluster should be less than 1 block */
+>>          } else if (may_inline && len == e->length && compressedsize < blksz) {
+>> -               if (ctx->clusterofs + len <= blksz) {
+> Shouldn't this condition restrict the `tail pcluster` so that it
+> corresponds to only  eof`lcluster`?
+> and we drop the inline pcluster just when  eof_tailraw is not null.
+> Thanks!
 
- From 4ec57610a769cd93027d12134c75160390b23b08 Mon Sep 17 00:00:00 2001
-From: Michael Bommarito <michael.bommarito@gmail.com>
-Date: Tue, 14 Jul 2026 07:47:29 -0400
-Subject: erofs: cap LZMA stream pool size
+Hi Zhiguo,
 
-fs/erofs/decompressor_lzma.c sizes the module-global MicroLZMA stream
-pool from num_possible_cpus() when the lzma_streams module parameter is
-unset, then z_erofs_load_lzma_config() preallocates one image-supplied
-dictionary per stream, accepting dictionaries up to 8 MiB.  On high-CPU
-systems, a small EROFS image can pin hundreds of MiB of vmalloc-backed
-decoder state until the erofs module is unloaded.
 
-Impact: An EROFS image mounted by the system can pin up to 8 MiB of
-vmalloc memory per LZMA stream, either as intended or unexpectedly.
+A tail pcluster may start in the previous lcluster and end in the EOF 
+lcluster while its whole raw payload still fits in one physical block. 
+In that case `ctx->clusterofs + len > blksz`, but `len <= blksz`, but it 
+should still be converted into a single PLAIN pcluster.
 
-Bound the default stream count by a new
-CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS option, default 16, so the
-worst-case default preallocation is 128 MiB if the number of CPUs is no
-less than 16 while preserving the existing per-image dictionary limit.
-An explicit lzma_streams module parameter is still honoured as-is, so
-administrators who deliberately size the pool are not affected.
+This patch targets this edge case so I think change the if statement 
+here is necessary?
 
-Fixes: 622ceaddb764 ("erofs: lzma compression support")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-4-8
-Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
-  fs/erofs/Kconfig             | 14 ++++++++++++++
-  fs/erofs/decompressor_lzma.c |  3 ++-
-  2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 4789b1077d8ce..36f027c1c5ac5 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -131,6 +131,20 @@ config EROFS_FS_ZIP_LZMA
-  
-  	  Say N if you want to disable LZMA compression support.
-  
-+config EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS
-+	int "EROFS LZMA default maximum decompression streams"
-+	depends on EROFS_FS_ZIP_LZMA
-+	range 1 NR_CPUS
-+	default 16
-+	help
-+	  By default EROFS allocates one LZMA decompression stream per CPU.
-+	  Each stream can hold a dictionary of up to 8 MiB taken from the
-+	  mounted image, so on systems with many CPUs this can reserve a lot
-+	  of memory.  This caps the default; the lzma_streams module parameter
-+	  still overrides it.
-+
-+	  If unsure, keep the default of 16.
-+
-  config EROFS_FS_ZIP_DEFLATE
-  	bool "EROFS DEFLATE compressed data support"
-  	depends on EROFS_FS_ZIP
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index f6692d0f2f04d..6b0cdb446c6ad 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -51,7 +51,8 @@ static int __init z_erofs_lzma_init(void)
-  
-  	/* by default, use # of possible CPUs instead */
-  	if (!z_erofs_lzma_nstrms)
--		z_erofs_lzma_nstrms = num_possible_cpus();
-+		z_erofs_lzma_nstrms = min_t(unsigned int, num_possible_cpus(),
-+				CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS);
-  
-  	for (i = 0; i < z_erofs_lzma_nstrms; ++i) {
-  		struct z_erofs_lzma *strm = kzalloc_obj(*strm);
--- 
+Thanks,
+
+Yifan
+
+>> +               if (len <= blksz) {
+>>                          inode->eof_tailraw = malloc(len);
+>>                          if (!inode->eof_tailraw)
+>>                                  return -ENOMEM;
+>> @@ -962,6 +962,14 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+>>                  dummy_head = true;
+>>          }
+>>
+>> +       if (inode->idata_size) {
+>> +               if (compacted_2b && !compacted_4b_end)
+>> +                       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
+>> +               else if (compacted_2b && compacted_4b_end == 1)
+>> +                       inode->idata_type =
+>> +                               EROFS_IDATA_TYPE_COMPRESSED_4B1_PREV2B;
+>> +       }
+>> +
+>>          /* generate compacted_4b_initial */
+>>          while (compacted_4b_initial) {
+>>                  in = parse_legacy_indexes(cv, 2, in);
+>> @@ -974,8 +982,6 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+>>
+>>          /* generate compacted_2b */
+>>          if (compacted_2b) {
+>> -               if (!compacted_4b_end && inode->idata_size)
+>> -                       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
+>>                  do {
+>>                          in = parse_legacy_indexes(cv, 16, in);
+>>                          out = write_compacted_indexes(out, cv, &blkaddr,
+>> @@ -1205,11 +1211,65 @@ out:
+>>          return metabuf;
+>>   }
+>>
+>> +static void z_erofs_patch_tail_compacted_index(struct erofs_inode *inode,
+>> +                                              bool previous,
+>> +                                              unsigned int type)
+>> +{
+>> +       const unsigned int totalidx = BLK_ROUND_UP(inode->sbi, inode->i_size);
+>> +       const unsigned int lobits = max_t(unsigned int, inode->z_lclusterbits,
+>> +                               ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
+>> +       u8 *base = inode->compressmeta;
+>> +       u8 *pack = base + inode->extent_isize;
+>> +       unsigned int bitpos, bitoff;
+>> +       u8 *out;
+>> +       u32 v;
+>> +
+>> +       DBG_BUGON(!totalidx);
+>> +       DBG_BUGON(inode->z_lclusterbits > 14);
+>> +
+>> +       if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B) {
+>> +               pack -= 32;
+>> +               bitpos = 14 * (previous ? 14 : 15);
+>> +               goto out;
+>> +       }
+>> +
+>> +       /* Last compacted index pack is 4B */
+>> +       pack -= 8;
+>> +       if (!(totalidx & 1)) {
+>> +               bitpos = previous ? 0 : 16;
+>> +               goto out;
+>> +       }
+>> +
+>> +       if (!previous) {
+>> +               bitpos = 0;
+>> +               goto out;
+>> +       }
+>> +
+>> +       /* Second to last compacted index pack is 2B */
+>> +       if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_4B1_PREV2B) {
+>> +               pack -= 32;
+>> +               bitpos = 14 * 15;
+>> +       } else {
+>> +               pack -= 8;
+>> +               bitpos = 16;
+>> +       }
+>> +out:
+>> +       DBG_BUGON(pack < base);
+>> +       bitoff = bitpos & 7;
+>> +       out = pack + bitpos / 8;
+>> +       v = get_unaligned_le32(out);
+>> +       v &= ~(Z_EROFS_LI_LCLUSTER_TYPE_MASK << (lobits + bitoff));
+>> +       v |= type << (lobits + bitoff);
+>> +       put_unaligned_le32(v, out);
+>> +}
+>> +
+>>   void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+>>   {
+>>          struct erofs_sb_info *sbi = inode->sbi;
+>>          const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
+>>          struct z_erofs_map_header *h = inode->compressmeta;
+>> +       erofs_off_t rawstart;
+>> +       erofs_blk_t head_lcn, eof_lcn;
+>>
+>>          h->h_advise = cpu_to_le16(le16_to_cpu(h->h_advise) &
+>>                                    ~Z_EROFS_ADVISE_INLINE_PCLUSTER);
+>> @@ -1218,38 +1278,27 @@ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+>>          if (!inode->eof_tailraw)
+>>                  return;
+>>          DBG_BUGON(inode->idata_type == EROFS_IDATA_TYPE_RAW);
+>> +       DBG_BUGON(!inode->i_size);
+>> +       DBG_BUGON(inode->eof_tailrawsize > erofs_blksiz(sbi));
+>> +       DBG_BUGON(inode->eof_tailrawsize > inode->i_size);
+>> +
+>> +       rawstart = inode->i_size - inode->eof_tailrawsize;
+>> +       head_lcn = rawstart >> sbi->blkszbits;
+>> +       eof_lcn = (inode->i_size - 1) >> sbi->blkszbits;
+>> +       DBG_BUGON(head_lcn != eof_lcn && head_lcn + 1 != eof_lcn);
+>>
+>> -       /* patch the EOF lcluster to uncompressed type first */
+>> +       /* patch the tail pcluster head to uncompressed type first */
+>>          if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
+>>                  struct z_erofs_lcluster_index *di =
+>> -                       (inode->compressmeta + inode->extent_isize) -
+>> -                       sizeof(struct z_erofs_lcluster_index);
+>> +                       (void *)((u8 *)inode->compressmeta +
+>> +                                Z_EROFS_LEGACY_MAP_HEADER_SIZE +
+>> +                                head_lcn *
+>> +                                sizeof(struct z_erofs_lcluster_index));
+>>
+>>                  di->di_advise = cpu_to_le16(type);
+>>          } else if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
+>> -               /* handle the last compacted 4B/2B pack */
+>> -               unsigned int lclusterbits = inode->z_lclusterbits;
+>> -               unsigned int lobits, eofs, base, pos, v;
+>> -               u8 *out;
+>> -
+>> -               lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
+>> -
+>> -               if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_DEFAULT) {
+>> -                       eofs = inode->extent_isize -
+>> -                               (4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
+>> -                       base = round_down(eofs, 8);
+>> -                       pos = 16 /* encodebits */ * ((eofs - base) / 4);
+>> -                       out = inode->compressmeta + base + pos / 8;
+>> -               } else {
+>> -                       out = inode->compressmeta + inode->extent_isize -
+>> -                               sizeof(__le32) - sizeof(__le16);
+>> -                       lobits = 16 - 14 /* encodebits */ + lobits;
+>> -               }
+>> -
+>> -               v = (get_unaligned_le16(out) & (BIT(lobits) - 1)) |
+>> -                       (type << lobits);
+>> -               *out = v & 0xff;
+>> -               *(out + 1) = v >> 8;
+>> +               z_erofs_patch_tail_compacted_index(inode, head_lcn != eof_lcn,
+>> +                                                  type);
+>>          } else {
+>>                  DBG_BUGON(1);
+>>                  return;
+>> --
+>> 2.47.3
+>>
+>>
 
