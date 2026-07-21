@@ -1,45 +1,83 @@
-Return-Path: <linux-erofs+bounces-3945-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3946-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4B07C44529
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jul 2026 06:57:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 924FEC4452B
+	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jul 2026 07:05:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h47VL0Yfpz2xlb;
-	Tue, 21 Jul 2026 16:57:14 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784617034;
-	cv=none; b=g3Ls40mE224hCwAbusSxeN/I2i+MIil1cLXc8pCnehqNY2/YYjsolg9pmMyFFllBgDdMJFfTHrNvsGxVUuA9I6eu6Q1e0mz0Wyb7Y4jF0NY5KPBAYhJnJruxeNXg/GgZ0fx6LbvpHYVMdSzWTosyqOtD0Qxh5E7L4D/gDxeJxeXjWh2y/7MPbQG7CXHo/rc6ZSc7tZFmlj4OLyGVX4Uaf8b7Sygfbn0XHizrYTse3WKiXrQKX1p7JIzU0+l8PjMOKX161ixYNAeyXNY4+2jVWYgBARs9Po33bTZvw+sWq02qlQWBFhaO2SZJ4wgb51ESXcR7h2Gmks8hEj16XO3TCw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h47h35PmFz2xlb;
+	Tue, 21 Jul 2026 17:05:39 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::535"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784617539;
+	cv=none; b=LBV/SLxY9GjbAGNuhFP00mF2y+pfiDuinhNKIDkco5hJPQhZapOqFDeq5jSBGHBWDCbpDDQvNt31hjheAKe8tIOfdsXFyjr0OlMl4EpEmlauPQxT/r4DTFxro6Xwr/jA9fqH2wxu84QJwobazg+aTGqhfltGPHltLXFyeMUzVXiI5+/X6LJD0wTaRSyL43Qpi1wlajDCYdD3Ns7uIiG5jn/cWE9HEbDF+QCC80nrmyOJfgSUvmIcENJQkV4WkoE+z/yQ7bHUP3yImN+GkPOmoG2cLpcs+ACyozNn69x8/4m2FIXp3E6TS+rP3+FiperZYA2g3AFolP+Wt/X0NvRYeg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784617034; c=relaxed/relaxed;
-	bh=JrgLJ6kyleiy+BWd4V1PcHSkmhi4JuhDjorFs9TGTq8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NB8u+Goz6a1jeeoSloHyH7diWtqra9AeU+Xfc8FhXrJBQCuBmFIRU+dpBjEQwltAF0qKrmiZBq5BcY0W79zJsDH9cbuHQHD3Qq5549q1nSX83QRby2Y8mfjLE8D8bL23W4lrQyMTC8HjWYs/4Qh62h20R42OcQbzjQKVimDKdWa9AVu9g9XYIPmfnkL3wjrAyqk8u+CZtY1v3wPXdLDj1D/2BG9WvZcPRXp7lmY9nkDJAzn6hE5Iih5paOOx9ebBZ2p08mVXtr8iw4crARSfKKzksoKrbgy8WQFpQil339eVpI2PMUpWNwf7g8MIjzphMPYmd/oS05IZgJHWv6sOBw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=vvo9pFoG; dkim-atps=neutral; spf=pass (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1784617539; c=relaxed/relaxed;
+	bh=sgbW134jCVc/crdSP0VZbxCtt43v6AVIxUbE0tYuU0o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VPFn0jZUI5ru5+P7mItJBRO0psM5+9+p0tG+pIwAz4RtMO/EuusLIiwkkTw1g5mv5dqwTakREdDnENmVjcqBB9DvaV49Qna7QFhWBVQbnfwDn5oFoUZterbp6hr4ZYutyLno1YX2kyCkjImi5Dwp+q+wbJqa4vl9vrrQqzTqhdCD6k2UZrg/mzIuioM1YhVUYYwh81Z9u0RleMyN7yIs8uVlq3zy0zRQymzTltTE/ABj065dMm+IpsYSsmIoxsFxZQaPaM9Vyij/38LzFYy/VPdTdjC8EEkMCqIXwr6lhR2WUT5ZV6QlqJBZv8awzak5MBiAJslCYZvn4t3CE3mm0Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=oh+0mZTY; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::535; helo=mail-pg1-x535.google.com; envelope-from=lihb2113@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=vvo9pFoG;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=oh+0mZTY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.131; helo=out30-131.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::535; helo=mail-pg1-x535.google.com; envelope-from=lihb2113@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h47VH490wz2xLh
-	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 16:57:10 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1784617026; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=JrgLJ6kyleiy+BWd4V1PcHSkmhi4JuhDjorFs9TGTq8=;
-	b=vvo9pFoGmQzGJwvlovKE4AiQr9HtyHhzoKA7vwmn88axycUiZ22bKVbdg9u30ZkYx3VIbrFc+f/K5t6QocJgubRuOAxMivrqBJKQeB37VeiDqEcxzF2I/aHf/GFJLjYoOGHTjaZ7vqELEhA6+LL2hMjNvfbVtLbAzzBRUMofJTw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0X7YzLsX_1784617024;
-Received: from 30.221.132.10(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X7YzLsX_1784617024 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 21 Jul 2026 14:57:05 +0800
-Message-ID: <914d03e1-b792-4e3f-b26e-e1ba2d245aed@linux.alibaba.com>
-Date: Tue, 21 Jul 2026 14:57:04 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h47h264kKz2xLh
+	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 17:05:37 +1000 (AEST)
+Received: by mail-pg1-x535.google.com with SMTP id 41be03b00d2f7-c99eaa1f020so7605382a12.2
+        for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 00:05:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784617534; x=1785222334; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sgbW134jCVc/crdSP0VZbxCtt43v6AVIxUbE0tYuU0o=;
+        b=oh+0mZTYgzv/higid8iTamrqhtx6damUoUKoRH/9JjgjEYFqCOe9NKBh5GC1mkGlVg
+         qBYmfAQwkV+ZxtJxsp6KiKrXCIkyTMe7Xqjy+z23Gt4w5j/KdTDgWxr7sMM/YlLcg2wA
+         hHVTLzm1UCszFqVBP6BWmrvQaqKQe/pv4FVEWR387e7OmytF8HAR5hhktfakNPJ8bZY5
+         HK4pJvSUpEUxZB09Nh8uKJJEo4XbSMdUDo1EiH3MaO3iy3Z3oJ55Evn86oroQ9u6Tk96
+         80YeR7nammHu9tbgPcc8aWPlJlAUzwTmsEuBHeA9zyftpaVFPTUBBAxvKdHSAwMa5Xi2
+         ELLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784617534; x=1785222334;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sgbW134jCVc/crdSP0VZbxCtt43v6AVIxUbE0tYuU0o=;
+        b=q43TsK0q4XQ/LFB+n/DoL3upRNe5TOKY23NTE7b6FaYWSiRJk//gAE+5q3O/UxM/ir
+         rXpYfMZm8FPsFcyKd9iN19wEomT9xu8/GW/4hsUefgOU6euD1//ppbQ6HXihVWbE0YTG
+         +cWK3qgwSqcjhx+8JsKu37LfazX97V6ycM/pdgWbQbjVWIcjqc3vwSBfKEBuQSEszpTp
+         cVhW/BDB0PqC9xVyx/SutlaFwrvHU9rS5kRYcaoViVw+4hDcYFEn+RQiWjxtxpTzNzkb
+         RbCeWjJ1KK38nOdDtueDmNrBVxteB4QY4llQQ565T4txudl4HOB+k5cy8PJjFpZXd9Tk
+         8zwQ==
+X-Gm-Message-State: AOJu0YxWL+5O+8BuX74qniGjserQgBvEPw1udHeRuHroSryzX2OR+ajs
+	uBWpPvpHiFqcTcvdGrcaowA4X8Lzpp1DWWNeEsKw/DslKh/yTEwgqlL4
+X-Gm-Gg: AfdE7ckrbyG6TOh8aqBL2a0EmHIIlAxTSEND9faf6mF8gIZS235ymm+16dXobgnHA2P
+	g+5iRHHJpy/Y1qIZZXy0Ga2CnkDs5/NvM1ClEh09VghNbpYpFHlOF1QUuIKtuQ0OGBqDLI4QvDd
+	dnazeGzR4wPJ6D6dXRmTr5L2GI4dk9GhgYoy0R14BPLwr50wdEgxBOhdmfdJv7ktggfww9P1laz
+	fj1iRQAxo4cZwCoxfc0K2pL56T79Ck31TcBbR0tHt3I2IYhbUiFad8f4P2/+UIiwq9ptcsBpJFv
+	4LYpClnVnJCT8gUfO5EKJmpewFia3VD/yMRtgMRu+dZ/s99T9SgIyn9riavmKve0gbDdwOtE/aS
+	kz9c3gkKsBHUJmbZRXeRMmUmmRoHzX44uGl3uV/sRSgUYtlE+sxCtNHj55OGB5cYtt1PjUYPRw1
+	OiZbN3omZazXVJUqWi
+X-Received: by 2002:a05:6a20:c407:b0:3c3:b5db:d24a with SMTP id adf61e73a8af0-3c3b5dbd286mr12617596637.68.1784617534562;
+        Tue, 21 Jul 2026 00:05:34 -0700 (PDT)
+Received: from localhost ([14.116.239.33])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cb5159b11a5sm5590915a12.0.2026.07.21.00.05.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2026 00:05:34 -0700 (PDT)
+From: Hongbo Li <lihb2113@gmail.com>
+To: hsiangkao@linux.alibaba.com,
+	chao@kernel.org
+Cc: linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	hongbohbli@tencent.com
+Subject: [PATCH] MAINTAINERS: update Hongbo Li's email address
+Date: Tue, 21 Jul 2026 15:05:18 +0800
+Message-ID: <20260721070518.2016441-1-lihb2113@gmail.com>
+X-Mailer: git-send-email 2.43.7
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,110 +89,32 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs-utils: lib: fix ztailpacking fallback across
- lclusters
-To: "zhaoyifan (H)" <zhaoyifan28@huawei.com>,
- Zhiguo Niu <niuzhiguo84@gmail.com>
-Cc: linux-erofs@lists.ozlabs.org, zhukeqian1@huawei.com
-References: <20260709123411.1166770-1-zhaoyifan28@huawei.com>
- <CAHJ8P3JK5gKS=RH2b=waY7g1AJ7S6ZHzDV0asg46pkzHsWzMHw@mail.gmail.com>
- <5700f79d-2cfb-4408-80d3-509ac154bef0@huawei.com>
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <5700f79d-2cfb-4408-80d3-509ac154bef0@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Hi all,
+From: Hongbo Li <hongbohbli@tencent.com>
 
-On 2026/7/21 14:55, zhaoyifan (H) wrote:
-> 
-> On 2026/7/20 19:42, Zhiguo Niu wrote:
->> Yifan Zhao <zhaoyifan28@huawei.com> 于2026年7月9日周四 20:36写道：
->>> With ztailpacking, the final compressed pcluster is first stored as
->>> inline data.  If the inode metadata area cannot hold it, mkfs falls back
->>> to a normal tail block and drops the inline pcluster marker.
->>>
->>> The current fallback path assumes that the inline tail pcluster belongs
->>> to the EOF lcluster.  That is not always true: the tail pcluster can
->>> start in the previous lcluster and end at EOF, while its raw size still
->>> fits in one block.  In that case, patching the EOF lcluster is
->>> semantically wrong.
->>>
->>> Let's keep raw tail data whenever it fits in one block, and convert the
->>> corresponding lcluster index to PLAIN during fallback.
->>>
->>> Reported-by: Alberto Salvia Novella <es20490446e@gmail.com>
->>> Closes: https://github.com/erofs/erofs-utils/issues/51
->>> Assisted-by: Codex:GPT-5.5
->>> Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
->>> ---
->> Hi Yifan,
->> I tested this patch to focus on the issue fixed by commit
->> 277a42502a7a, and it passed.
->> But I have some questions:
->>>   include/erofs/internal.h |   5 +-
->>>   lib/compress.c           | 109 ++++++++++++++++++++++++++++-----------
->>>   2 files changed, 83 insertions(+), 31 deletions(-)
->>>
->>> diff --git a/include/erofs/internal.h b/include/erofs/internal.h
->>> index 2cc9cc8..bdde41f 100644
->>> --- a/include/erofs/internal.h
->>> +++ b/include/erofs/internal.h
->>> @@ -212,8 +212,11 @@ struct erofs_diskbuf;
->>>
->>>   enum erofs_idata_type {
->>>          EROFS_IDATA_TYPE_RAW,
->>> -       EROFS_IDATA_TYPE_COMPRESSED_DEFAULT,
->>> +       EROFS_IDATA_TYPE_COMPRESSED,
->>> +       /* compressed idata follows a final 2B compacted index pack */
->>>          EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B,
->>> +       /* compressed idata follows a final single-entry 4B pack after a 2B pack */
->>> +       EROFS_IDATA_TYPE_COMPRESSED_4B1_PREV2B,
->>>   };
->>>
->>>   #define EROFS_I_BLKADDR_DEV_ID_BIT             48
->>> diff --git a/lib/compress.c b/lib/compress.c
->>> index f7ad5a1..ec90f65 100644
->>> --- a/lib/compress.c
->>> +++ b/lib/compress.c
->>> @@ -483,7 +483,7 @@ static int z_erofs_fill_inline_data(struct erofs_inode *inode, void *data,
->>>   {
->>>          inode->z_advise |= Z_EROFS_ADVISE_INLINE_PCLUSTER;
->>>          inode->idata_size = len;
->>> -       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_DEFAULT;
->>> +       inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED;
->>>
->>>          inode->idata = malloc(inode->idata_size);
->>>          if (!inode->idata)
->>> @@ -664,7 +664,7 @@ frag_packing:
->>>                  ictx->fragemitted = true;
->>>          /* tailpcluster should be less than 1 block */
->>>          } else if (may_inline && len == e->length && compressedsize < blksz) {
->>> -               if (ctx->clusterofs + len <= blksz) {
->> Shouldn't this condition restrict the `tail pcluster` so that it
->> corresponds to only  eof`lcluster`?
->> and we drop the inline pcluster just when  eof_tailraw is not null.
->> Thanks!
-> 
-> Hi Zhiguo,
-> 
-> 
-> A tail pcluster may start in the previous lcluster and end in the EOF lcluster while its whole raw payload still fits in one physical block. In that case `ctx->clusterofs + len > blksz`, but `len <= blksz`, but it should still be converted into a single PLAIN pcluster.
-> 
-> This patch targets this edge case so I think change the if statement here is necessary?
+Since the original email account is no longer in
+use, I have updated it to my current email address.
 
-This case has been resolved on the kernel side, so before we
-get a cleaner way, let's keep this as-is since it's not a
-new case for many year.
+Signed-off-by: Hongbo Li <hongbohbli@tencent.com>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Gao Xiang
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 806bd2d80d15..1d73e80674f3 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9616,7 +9616,7 @@ M:	Chao Yu <chao@kernel.org>
+ R:	Yue Hu <zbestahu@gmail.com>
+ R:	Jeffle Xu <jefflexu@linux.alibaba.com>
+ R:	Sandeep Dhavale <dhavale@google.com>
+-R:	Hongbo Li <lihongbo22@huawei.com>
++R:	Hongbo Li <hongbohbli@tencent.com>
+ R:	Chunhai Guo <guochunhai@vivo.com>
+ L:	linux-erofs@lists.ozlabs.org
+ S:	Maintained
+-- 
+2.43.7
 
-> 
-> 
-> Thanks,
-> 
-> Yifan
-> 
 
