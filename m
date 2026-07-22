@@ -1,49 +1,49 @@
-Return-Path: <linux-erofs+bounces-3982-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3983-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB8D0C44539
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Jul 2026 15:44:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D078C44532
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Jul 2026 16:11:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h4z812fM1z2yVd;
-	Thu, 23 Jul 2026 01:44:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784735057;
-	cv=none; b=ICKqU7qmhRErJCuIQxSP1e6zRN8N5W7zTEmlG3zDa1Rmm7a7xrpYAzFLgjc7KkF3kIXTIvAa4klrH3MboitVfvH1K7XAniurkuToyYiT7g/rPMRRGyLURzmrWL89TJ8TMiPFEzMoVPIoa4D8zEzHgm0EJHXBPhQIGbIpgAKx5oCxjEgDlLtFrd55q3FqG5TQ6J/ogTPG3gwUGp64QJCDYaWWtQaMYxaMWV+svvIZJQhvMFK/N8XGxvWspMVmmh18awogGUMgzfI2o/eQUq5MbrWk6vPYd5LQxNJ0vcDSMwWrLwdyDAfRh/eZbwOzIBTqk1NCPWEV1tBQ4UBVdAkPlA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h4zlN75Frz2ygG;
+	Thu, 23 Jul 2026 02:11:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784736688;
+	cv=none; b=g+v28WIeuU1d98Rc+R2d8DfzOyxSSOwiHOb1geKwVbaeHstdYgCFpBp1hAlnrYjQZs5yAlBsiR5WSGjHg4FRzU2N5CVFbAAA5HvD1uLPCR74oAIpRpdX86UuEMrq03So0HDXxJQ49JMX1kPrYtAFk6khiBoRAJO97JLGrifK2dRPvU5AtMex7TGWzQiJ8p7bj8BmtmNyhBeQv3OIvyX4W8L6p8KCXmHza7IEsu4qzPbR66Cuc1pHHDLzHnOzzvfV23bF/4gyLB8iX0pMLjGML3vOb15NqIrZ3Tvr11aZKEqEOUYUDYkCcJFUFmk62AcoBgrPOYhSjLV/W7Qx188Uag==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784735057; c=relaxed/relaxed;
-	bh=aIdfFNr/larYFfsrJLug1WIUvAH11kj/nBfq0GHEMDM=;
+	t=1784736688; c=relaxed/relaxed;
+	bh=jmHOO8v3CjZ5peztUGfvRfYjk+5pWRJPqeU2hb9jJx4=;
 	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=oaNeSf7XRQMhxwBxDSynDb+QyaJ5c9S82B85phV1q1gtkwgsK9DxiRNtCeKdaqReyf/Q5rhp5ztlBMP+XrmcEllKOraaOO+wwbFm9yXHZoULG1H7ZZcUx0lTIZM+djei+cRKaQ3hMK5cj5vs1Qn3zTZty0Esw2LnsLXkZE4G6ep558Bh6gm0HqeE6iB2wWLbREIreMZnL3iWMfAH3dzOP0Szf/HXwDh94gK71A8VcrSGBva2QKuGi3KxWEc+0+PATuTUVy7MRZS9WkNm9tbRUh/xjIG8QDaVg+q/ezFZWCq1dnMbi0ltkKceq+SvPpQiq2ctw3BwQwPAP7TzcHFQvA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWhOfU/M; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 References:Date:Message-Id; b=We8kp2U1u/Nno1DdtrE3smsgOyYD3c1/MyuLnDHd/m1vwsBGeADdb+IAMrTo/AnhMHevigPlVfaE1yKI3Twah2zDxlFIipThbPo2JRJx4euKYn5w+eKMAfJuCmfnZ2cfLMZSPLWBm44VECUjMWdk/o9BEpqqyYnXEAVQTtPc/nm9CvAhGWIwMTMvklg9DCNM20HZVlYEZTXVdTqWsXaJf8QZo2KTN6fA/8zhGJmguk2yT++OxRN9pV0KeAYmfw6RC5erCTaw+mlFqhx70ztsd1u5hQvI6LEeFjkOtZxp7QHGILIROicI8/2ZoiLt3+INkBlmrRTFwWPFSRlFKrIraA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LbKIQEfT; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nWhOfU/M;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LbKIQEfT;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4z804lfZz2yFK
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 01:44:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4zlN08j5z2yfy
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 02:11:27 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id D36124075F;
-	Wed, 22 Jul 2026 15:44:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C58121F00A3A;
-	Wed, 22 Jul 2026 15:44:12 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id B5A21600AB;
+	Wed, 22 Jul 2026 16:11:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB5B1F000E9;
+	Wed, 22 Jul 2026 16:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784735054;
-	bh=aIdfFNr/larYFfsrJLug1WIUvAH11kj/nBfq0GHEMDM=;
+	s=k20260515; t=1784736685;
+	bh=jmHOO8v3CjZ5peztUGfvRfYjk+5pWRJPqeU2hb9jJx4=;
 	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=nWhOfU/M9SwLEWbYZtFNK0EAy5+gWvsxVuhLbnlyobS+Y/1gxXgg2vp/wJMwpi+V0
-	 5ne6F1aPI63Qplq+QMqJbVsEv2yiKMQx7+nSX8LaZJsQXiq/IVUUDA32xDgJHIDWcE
-	 +VGKMp+sXPz0niQ+HCKcBgCvuSNbwrcVEmKFktJckjn9aHrJ8cmJXSPnsjIvmjuC+C
-	 XJF+uUOsNxNTtZpEL0+YFdFBaaNRDtE92bsjRMzqGZySV/bkVC4YQndKcPb2ryicRT
-	 Ne9qhSkhKur+H/B6OZEEVfiR82fXfeICQG8sojC1K7N2UdTZ2SNZ9IiJB0MdhU5ii/
-	 lIjcQE2X2rdAA==
+	b=LbKIQEfT2gSW4QmLwR/8F5ki5U3lQ1iiqHh8Xy265hP8SEYfBVV6PJT9LXTE6nSre
+	 Ard8+7vhFaY/Kl2Se+aphCwKgHZiW0eWrs3QhEWbYJXL2fHSs0IAnTffNlmbYZX9YR
+	 NzrpXtubZZtcaOlWC6BtZR0EVCTZAwZQk2VkaXd5SgDS0YHVcgzmd1E7PDBS/bOTt1
+	 17+56HwJ6CJ4brnf96x9+hT0p3noiC5CMjDyOMSlNchBZhePmIUEs+DfEZgKljM0cQ
+	 esakOxndyVmU+Pkr2gJHciMaz7Y/AxBN5igGNYGmQOvBWYS6Cq108KWuLqIf8NayY3
+	 tcCktPp395JYg==
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,159 +57,146 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through
- O_ALT
+Subject: Re: [PATCH v4] erofs: accept source file descriptor via fsconfig
 From: Christian Brauner <brauner@kernel.org>
-To: Miklos Szeredi <mszeredi@redhat.com>
-Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-fsdevel@vger.kernel.org, 
- linux-unionfs@vger.kernel.org, linux-api@vger.kernel.org, 
- linux-erofs@lists.ozlabs.org, Amir Goldstein <amir73il@gmail.com>, 
- Gao Xiang <hsiangkao@linux.alibaba.com>
-In-Reply-To: <20260715101107.973997-1-mszeredi@redhat.com>
-References: <20260715101107.973997-1-mszeredi@redhat.com>
-Date: Wed, 22 Jul 2026 17:44:08 +0200
-Message-Id: <20260722-fundort-zogen-kormoran-09fb867f1b59@brauner>
+To: Giuseppe Scrivano <gscrivan@redhat.com>
+Cc: linux-erofs@lists.ozlabs.org, cyphar@cyphar.com, 
+ hsiangkao@linux.alibaba.com, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20260717134147.1602735-1-gscrivan@redhat.com>
+References: <20260717134147.1602735-1-gscrivan@redhat.com>
+Date: Wed, 22 Jul 2026 18:11:20 +0200
+Message-Id: <20260722-notnagel-allemal-kampfsport-8fd4e4d98a15@brauner>
 X-Mailer: b4 0.16-dev-2f6f2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5820; i=brauner@kernel.org;
- h=from:subject:message-id; bh=j+qTEAyCoV00o2kRcC1j4kbG1tTBZxy1Qcm6LbFyZos=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWQlPPURNpbh3u3r+MNt9/vGE3p6dd8q2qtYypnXKfyMz
- lyx4fq6jlIWBjEuBlkxRRaHdpNwueU8FZuNMjVg5rAygQxh4OIUgIk42TMyXDo3q4PzguhyK58i
- k9VXv1hUyx2uWmgvcyD4X5XbtJl71zAydE5jSC7Qixf81HFThUkiujhcm2f3xIffY6zbXolGdfe
- xAgA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4466; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=8Dv3XbgnBSjLrbgy91j9aliSmIHevpMj/hTUlGCzSoo=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWQlvF79ydNx+fnWBDXmGc/+7eXJams5fmRu/1KWSd/z0
+ r4n7Tth0lHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRdUYMfwXmPiwLLr27KuqU
+ xsxlZ1r6/p9aqhd7uMqgfkXcvJvPp/EyMvw91KT8fNcmpg1JKgFustc83DbcKp5k93bTMubAvb5
+ 7zTgA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-> This is a prototype patch. Needs to be split up!
+> Allow userspace to pass an already-opened file descriptor as the mount
+> source instead of a path string.  This is useful for tools that already
+> hold an fd to the image, such as composefs reusing an existing erofs
+> backing file.
 > 
-> 1) O_ALT / OPEN_TREE_ALT
-> 
->   These open an alternative namespace rooted at dfd - instead of resolving
->   the path in the real filesystem, it resolves it in a virtual tree that
->   exposes metadata about that file.
-> 
->   This is intended to provide an alternative to adding new ioctls:
-> 
->    - provides structured namespace
->    - allows accessing data through fs ops
-> 
->   Could call this O_META, but O_ALT seems more generic and there could be
->   uses beyond metadata (e.g. seekable, in-place decompression).
-> 
->   This has been discussed previously:
->   https://lore.kernel.org/all/CAHk-=wjzLmMRf=QG-n+1HnxWCx4KTQn9+OhVvUSJ=ZCQd6Y1WA@mail.gmail.com/
-> 
-> 2/a) s_op.get_options(), sb_add_option()
-> 
->   .get_options() is a generic version of .show_options().
-> 
->   After converting everyting to seq_show_option() the rest is trivial:
-> 
->    - change first arg to "struct sb_opt_ctx *ctx"
->    - replace "seq_show_option(m" with "sb_add_option(ctx"
-> 
-> 2/b) sb_add_option_path()
-> 
->   The last arg is "struct path *".  This is for options that designate a
->   path (e.g. stacked fs layers).
-> 
->   Will allow opening the path through O_ALT.  Ignored when retrieving the
->   string value of the option.
-> 
-> 3) MNT_CLONABLE
-> 
->   Allow an internal mount to be cloned.  Nsfs and pidfs are already special
->   cased, move these over to this flag.
-> 
->   Also allow overlayfs layers to be cloned.
-> 
-> 4) mnt.mnt_devname -> sb.s_devname
-> 
->   This is historical thing, mnt_devname was just copied when cloning the
->   mount, sharing the same value for all mounts belonging to a super block.
-> 
-> 5) mount options in metafs
-> 
->   Support retrieving mount options through O_ALT opens:
-> 
->      mount/options/OPT/N: Nth instance of OPT
-> 
->   This will be a symlink pointint to the option value. If the option refers
->   to a path (as per 2/b), following the symlink jumps to the given path.
-> 
->   At this point only overlayfs and erofs are converted.
-> 
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+>
+> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> index 9d8f862f309f..bc55be84d945 100644
+> --- a/fs/erofs/super.c
+> +++ b/fs/erofs/super.c
+> @@ -386,6 +386,7 @@ static void erofs_default_options(struct erofs_sb_info *sbi)
+>  enum {
+>  	Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
+>  	Opt_device, Opt_domain_id, Opt_directio, Opt_fsoffset, Opt_inode_share,
+> +	Opt_source,
+>  };
+>  
+>  static const struct constant_table erofs_param_cache_strategy[] = {
+> @@ -402,17 +403,18 @@ static const struct constant_table erofs_dax_param_enums[] = {
+>  };
+>  
+>  static const struct fs_parameter_spec erofs_fs_parameters[] = {
+> -	fsparam_flag_no("user_xattr",	Opt_user_xattr),
+> -	fsparam_flag_no("acl",		Opt_acl),
+> -	fsparam_enum("cache_strategy",	Opt_cache_strategy,
+> +	fsparam_flag_no("user_xattr",		Opt_user_xattr),
+> +	fsparam_flag_no("acl",			Opt_acl),
+> +	fsparam_enum("cache_strategy",		Opt_cache_strategy,
+>  		     erofs_param_cache_strategy),
+> -	fsparam_flag("dax",             Opt_dax),
+> -	fsparam_enum("dax",		Opt_dax_enum, erofs_dax_param_enums),
+> -	fsparam_string("device",	Opt_device),
+> -	fsparam_string("domain_id",	Opt_domain_id),
+> -	fsparam_flag_no("directio",	Opt_directio),
+> -	fsparam_u64("fsoffset",		Opt_fsoffset),
+> -	fsparam_flag("inode_share",	Opt_inode_share),
+> +	fsparam_flag("dax",			Opt_dax),
+> +	fsparam_enum("dax",			Opt_dax_enum, erofs_dax_param_enums),
+> +	fsparam_string("device",		Opt_device),
+> +	fsparam_string("domain_id",		Opt_domain_id),
+> +	fsparam_flag_no("directio",		Opt_directio),
+> +	fsparam_u64("fsoffset",			Opt_fsoffset),
+> +	fsparam_flag("inode_share",		Opt_inode_share),
+> +	fsparam_file_or_string("source",	Opt_source),
+>  	{}
+>  };
+>  
+> @@ -437,6 +439,40 @@ static bool erofs_fc_set_dax_mode(struct fs_context *fc, unsigned int mode)
+>  	return false;
+>  }
+>  
+> +static int erofs_fc_parse_source(struct fs_context *fc,
+> +				 struct fs_parameter *param)
+> +{
+> +	struct erofs_sb_info *sbi = fc->s_fs_info;
+> +
+> +	if (fc->source || sbi->dif0.file)
+> +		return invalf(fc, "Multiple sources");
+> +
+> +	switch (param->type) {
+> +	case fs_value_is_string:
+> +		fc->source = param->string;
+> +		param->string = NULL;
+> +		return 0;
+> +	case fs_value_is_file: {
 
-We've added a primary set of apis to retrieve mount options. I really
-dislike the idea of introducing a completely orthogonal layer to do the
-same thing (or more) and also make it filesystem based while at it.
+Afaict this is just fsparam_file_or_string()?
 
-The other proposal of moving it into procfs doesn't lower the creepiness
-factor. It just paints it a different color. My objection is to the
-shape of this not where the entry point lives.
+> +		char *buf __free(kfree) = kmalloc(PATH_MAX, GFP_KERNEL);
+> +		char *p;
+> +
+> +		if (!buf)
+> +			return -ENOMEM;
+> +		p = file_path(param->file, buf, PATH_MAX);
+> +		if (IS_ERR(p))
+> +			return PTR_ERR(p);
+> +		fc->source = kstrdup(p, GFP_KERNEL);
+> +		if (!fc->source)
+> +			return -ENOMEM;
 
-metafs is the same thing in a different color. I really don't see any
-way that we would ever merge something like this.
+Hm, hm, hm... How is that reliable? So iirc this is then passed to:
 
-Like, I'm fine having an api where we can use open_tree() to see through
-into underlying layers and given the right permission pull a mount out
-of it. That seems something we can potentially do.
+static int erofs_fc_get_tree(struct fs_context *fc)
+{
+	int ret;
 
-There's a few issues on top of that. O_ALT is silently ignored unless
-you spell the open as openat(dirfd, relative, ...). path_init() only
-looks at LOOKUP_ALT in the dirfd branch. open("/abs", O_ALT) and
-openat(AT_FDCWD, "rel", O_ALT) fall straight through and open the real
-file.
+	ret = get_tree_bdev_flags(fc, erofs_fc_fill_super,
+		IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) ?
+			GET_TREE_BDEV_QUIET_LOOKUP : 0);
+	if (IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE) && ret == -ENOTBLK) {
+		struct erofs_sb_info *sbi = fc->s_fs_info;
+		struct file *file;
 
-The layer symlinks are an unchecked jump into internal, out-of-namespace
-mounts. Following mount/options/upperdir/0 ends in nd_jump_link(). That
-doesn't do permission checks and no mnt_ns check.
+		if (!fc->source)
+			return invalf(fc, "No source specified");
+		file = filp_open(fc->source, O_RDONLY | O_LARGEFILE, 0);
+		if (IS_ERR(file))
+			return PTR_ERR(file);
+		sbi->dif0.file = file;
 
-The overlay upper/lower layers are internal mounts with no mountpoint in
-any namespace. So any unprivileged process that can open the overlay
-root gets an O_PATH handle to a layer root it has no search-permission
-path to and on a mount outside its namespace and can then use it as a
-dirfd.
+		if (S_ISREG(file_inode(sbi->dif0.file)->i_mode) &&
+		    sbi->dif0.file->f_mapping->a_ops->read_folio)
+			return get_tree_nodev(fc, erofs_fc_fill_super);
+	}
+	return ret;
+}
 
-Pulling the mount out is gated by CAP_SYS_ADMIN, but the handle and the
-traversal are not. That's exactly Andy's "whose creds" question, it's
-inherent to the design, and the procfs variant has it too.
+which then reopens the file or looks up the block device. So the only
+way this is _vaguely_ (and really _very vaguely_) safe is if userspace
+keeps at least the file descriptor open until the filesystem has been
+mounted.
 
-get_options() forks ->show_options() permanently. It's added
-alongside the existing method and mnt_show_options() now tries one then
-the other.
+If they close it before this means you can mount something completely
+different. The other thing is even if they keep the fd open someone
+could just rename the damn thing and fc->source ends up pointing
+somwhere completely different. The could switch namespaces as well in
+some circumstances and then it points again into wherever.
 
-That leaves the tree split forever or commits us to a flag-day
-conversion of everything. The new thig is also heavie and loses the
-seq_file overflow-retry. All so the 99% of filesystems that will never
-expose a path option can carry a more complicated interface.
-
-mnt_devname to s_devname move is a behavioral change. alloc_super()
-records fc->source only on the sb-create path in sget_fc(). Sharing an
-existing sb path never updates it. For filesystems that share a
-superblock across mounts every mount now reports the first mounter's
-source in /proc/self/mountinfo and statmount().
-
-And the smaller details really show how inelegant this model is and why
-Al and I have opposed it multiple times before. Scalar options are
-modeled as symlinks and non-path options are dangling links whose
-readlink still returns the value while for path options readlink returns
-the option string but following the link jumps somewhere else entirely.
-
-erofs silently emits a valueless "fsoffset" if the kasprintf fails.
-There's no Kconfig at all. metafs is obj-y and kern_mount()ed in every
-kernel. I don't want to see this leak into every container going forward
-at all with the same hackishness to make it somehow safe in containers.
-
-Like I said before: I'm fine with an API where we can use open_tree() to
-see through into underlying layers, and given the right permission pull
-a mount out of it. That is a narrow, checkable primitive and it needs
-none of this. No new open flag, no second ->show_options, no metafs, no
-mnt_devname surgery. That part we can potentially do.
-
-But a generic metadata interface layered on top of yet another magic
-filesystem whether it's mounted or hidden behind procfs I feel very
-strongly about. I also have great difficulty seeing Al supporting it.
+I've played with that fd idea before. The only way to make this work
+correctly is if you plumb this down into get_tree_nodev()
 
 -- 
 
