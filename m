@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-3951-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3952-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E1F6FC44539
-	for <linux-erofs@archiver.kernel.org>; Wed, 22 Jul 2026 13:02:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 45399C4453C
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Jul 2026 13:03:10 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h4vYp1k4qz2yVd;
-	Wed, 22 Jul 2026 23:02:54 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784725374;
-	cv=none; b=ZLZEZL5APNWW6QjllNYpbGtTGiQBOF7VJQzyJQA1kqoBXlzYmo4JK0J7MFLrjNePlAZf1MPJickQKfrUtANCHhV2ZJn4e3Ic9dVyKMQRTrDB+SMuHYZf00vJju+YsGd8NDcWX3/1YR83juBgyJOuW+kjS4wm4sx8iWfBBjC7KnyjWekwQPaOgnA76zgYns/hZCFiJghbkDRDl6Ns3QChXk8zT/fgFRfJYr2c/TjZRe3zEAafm2qxqH7owunvcu4M+/O5aYWKBnoJdzdowRDDfxIw2qO6z88Bun019NWQGQlXgeMGCqy+DlFj3/iWpmiPr5zyXY1R1Gmum5JSNuiiMA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h4vZ42s2mz2yfD;
+	Wed, 22 Jul 2026 23:03:08 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784725388;
+	cv=none; b=CUrzcpyzx7vhBqf7cd5jZUBFgpSwog8Y5/Z6uP1OxDI5KiZ79IAyhoDtC7anFDsM+AsEqsQUgUCzvf2WWdRKkHREwq3lcZ8E/9gSnrouKVR8+aBwjIG2BH8A0zK0pOH+WKzvn8udHOPCuviDFJvF6sbz11FVtA7ldq92QomF95J1t0gqW8dylFv84RfUu+NgQCsbq0a1SYgIHHU0eiteKe1ykFrIxv7VU3aGJxaJEPzmxO2NI08GEXiWCIdsPfk+RMI9fKC7lflksGZIcMZWZ1ybEwEiNxK7K4hIp0dIpxOAciFLYNce5rmELhM3KXOCiDAZDBFS+iK+NKs1UUQ1pg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784725374; c=relaxed/relaxed;
-	bh=vprsViKY72rawZWltum/UMfZGzgPWXZ8iTQuEYnb2yU=;
+	t=1784725388; c=relaxed/relaxed;
+	bh=8C6bJJEtQmiVwAw0nsngdl6zXvM4+8rNe514omrJIfM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=mLjkQRmN5PYCjOUeyXjI5b8raHwXg6BAgxZdzwpGSTdR8gzXL4utnN+4HIQRKRTm3EOJrBqukMIdhWTqYMloeq2uDOZMOtJcXqG9tJ4J3VjkrMIS3xgN4N2ZSbb6gJSiTnx9t98aN4umpqsD+LO+G0PEfomDtSQzq/aYXc7Ar6IdJwOOcppdAlGPo0aRovVeSvP2F6csqblahQ8CFiQmlUpTZQJIYQZXRRuobRZmFD2lBMgnsYZCBFHGkzA6WHynUY6vLe2pLCdtveS6YtDi/tmlFxzRBBACfRKISlZ3NYyDq3wxGhiMytVyw/0CY6Nb5ZthLuKbZWVmxmP7f9Tz2w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L5F1Z8eM; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmtMfhRC; dkim-atps=neutral; spf=permerror (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=SLulOKRP7gt2XhP8nlyhLzdckwjrZ2X9XcpmmBv6cFz6LFR+9JvoHscNqaB/1Svm1xQEW+cBCv7QL9DJNWJGUXGIgNSzXbgiFHFpy37hEwHc2SgIMz9b26CCKg9RkhrZb1HzJa/z0LBEXDRVcNh5c/mqhwXKuvNJA2ac1dMhXx/9cX2yonPvlIiOnsK8agq3IQE51VKhCbjdPN3UNqXkVVlc5o++Cnq0mwGgM0BjAGARdODtU+y1EudIbQPR6EtJ6kuw2gZ6fNriKMfJOeox3qIhupHlDjKA96Ipa44Lfqm6G8NaG6WgIzcYch8rSN3e65VKwpENGd1jY1G6BxKCqA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=I/cKHiDo; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gUHM4KQB; dkim-atps=neutral; spf=permerror (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L5F1Z8eM;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RmtMfhRC;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=I/cKHiDo;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gUHM4KQB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=permerror (SPF Permanent Error: Void lookup limit of 2 exceeded) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4vYn3N84z2xBb
-	for <linux-erofs@lists.ozlabs.org>; Wed, 22 Jul 2026 23:02:53 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4vZ339H4z2ydn
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 Jul 2026 23:03:06 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784725369;
+	s=mimecast20190719; t=1784725383;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vprsViKY72rawZWltum/UMfZGzgPWXZ8iTQuEYnb2yU=;
-	b=L5F1Z8eM+HDB2mnka3yr0ClLQrxoyQdyu+ZssAfrwZLcoDE/8hM+stEegCYgyQuful8hSr
-	WyYnVWvLtwKtD9Hfm9vmm8dqvuPIklf8k0iMEAx/Htom0Kwc4yoJzox7zGuFDUinwL2LMo
-	SzIb6Ms3p7YSkYYVYFt6OAyq+pdEpcs=
+	bh=8C6bJJEtQmiVwAw0nsngdl6zXvM4+8rNe514omrJIfM=;
+	b=I/cKHiDoaPWW8EJdTuZbdo5+wuNYB4clPqV9tHYEuiBDl2RRd+AhFNIqErzTIfa8sTU/DB
+	RbSHmE+HWw4Cp+Z4kqI2YF1HiSXtMOikrru6xykVViGrTtooE9P0x6hYpIkCiYUuLKr0RK
+	/YTcuQgiv2ip5FwvueL+xoGaiLiX/bg=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784725370;
+	s=mimecast20190719; t=1784725384;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vprsViKY72rawZWltum/UMfZGzgPWXZ8iTQuEYnb2yU=;
-	b=RmtMfhRC/W4LoZeeSWWFN6bMZsx5aTjHx8IZGoezN3U5mlgiwZz6En1ATXSqEZuhYxajD1
-	+eFzi4Y6Z9BBlG0g0bBF7dOibdXWBZWZyuQejFXRUYMx9K128UF1uNZiuQVZg7EVQHPwAo
-	RTnW+8ssfgJFl83KruRsNekUi3fzqeI=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=8C6bJJEtQmiVwAw0nsngdl6zXvM4+8rNe514omrJIfM=;
+	b=gUHM4KQBGgVf7/PNdzBs4ta/r25EwfMHPtMC4C3+oqofqnrhy975JxrGmH7+eJxSwRH8T3
+	9Bef1bSIctKtVwYyRjZvXOMNofmdiEORQ10sk4nhNFKu1rUhVpun2c+ek4pDnMGQlBVHK3
+	5jVf2Da+bBrwpQli9QHNHSDrYj1qdg8=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-649-GphHkRAXMoOOxTVmcFV2PA-1; Wed,
- 22 Jul 2026 09:02:47 -0400
-X-MC-Unique: GphHkRAXMoOOxTVmcFV2PA-1
-X-Mimecast-MFC-AGG-ID: GphHkRAXMoOOxTVmcFV2PA_1784725364
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-612-IvztPQHUN2qWiHQvpP2qpA-1; Wed,
+ 22 Jul 2026 09:02:57 -0400
+X-MC-Unique: IvztPQHUN2qWiHQvpP2qpA-1
+X-Mimecast-MFC-AGG-ID: IvztPQHUN2qWiHQvpP2qpA_1784725372
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BC9E71800756;
-	Wed, 22 Jul 2026 13:02:41 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 00F3F1977537;
+	Wed, 22 Jul 2026 13:02:51 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.44.33.159])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3EF5F1955D88;
-	Wed, 22 Jul 2026 13:02:32 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 638B31956042;
+	Wed, 22 Jul 2026 13:02:43 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>,
 	Matthew Wilcox <willy@infradead.org>,
@@ -91,9 +91,9 @@ Cc: David Howells <dhowells@redhat.com>,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Yichong Chen <chenyichong@uniontech.com>
-Subject: [PATCH v7 01/29] netfs: clear PG_private_2 on copy-to-cache append failure
-Date: Wed, 22 Jul 2026 14:01:48 +0100
-Message-ID: <20260722130218.78958-2-dhowells@redhat.com>
+Subject: [PATCH v7 02/29] netfs: handle single writeback rolling buffer allocation failure
+Date: Wed, 22 Jul 2026 14:01:49 +0100
+Message-ID: <20260722130218.78958-3-dhowells@redhat.com>
 In-Reply-To: <20260722130218.78958-1-dhowells@redhat.com>
 References: <20260722130218.78958-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -107,42 +107,55 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: N49UplEO_3_xZrtttXmtaMGOdgXg9TFfrl16O50Pl68_1784725364
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-MFC-PROC-ID: K-sJFn258DhhYGTpFrY8uQksAA1qTVsavXLLJ3xuSNo_1784725372
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
 From: Yichong Chen <chenyichong@uniontech.com>
 
-netfs_pgpriv2_copy_to_cache() marks the folio with PG_private_2 before
-netfs_pgpriv2_copy_folio() appends it to the copy-to-cache rolling
-buffer.
+netfs_write_folio_single() takes an extra folio reference before
+appending the folio to the rolling buffer.
 
-If the append fails, the folio is not queued for cache writeback, so
-the PG_private_2 state and its reference must be released immediately.
+rolling_buffer_append() can fail if it cannot allocate another
+folio_queue. Check the return value and drop the extra folio reference
+before returning the error.
 
-Fixes: e2d46f2ec332 ("netfs: Change the read result collector to only use one work item")
+Fixes: 49866ce7ea8d ("netfs: Add support for caching single monolithic objects such as AFS dirs")
 Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
 cc: Paulo Alcantara <pc@manguebit.org>
 cc: netfs@lists.linux.dev
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/netfs/read_pgpriv2.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/netfs/write_issue.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/netfs/read_pgpriv2.c b/fs/netfs/read_pgpriv2.c
-index a1489aa29f78..7eacc58abadb 100644
---- a/fs/netfs/read_pgpriv2.c
-+++ b/fs/netfs/read_pgpriv2.c
-@@ -54,6 +54,7 @@ static void netfs_pgpriv2_copy_folio(struct netfs_io_request *creq, struct folio
+diff --git a/fs/netfs/write_issue.c b/fs/netfs/write_issue.c
+index f2761c99795a..14efe4cb9393 100644
+--- a/fs/netfs/write_issue.c
++++ b/fs/netfs/write_issue.c
+@@ -720,6 +720,7 @@ static int netfs_write_folio_single(struct netfs_io_request *wreq,
+ 	size_t iter_off = 0;
+ 	size_t fsize = folio_size(folio), flen;
+ 	loff_t fpos = folio_pos(folio);
++	ssize_t ret;
+ 	bool to_eof = false;
+ 	bool no_debug = false;
+ 
+@@ -748,7 +749,11 @@ static int netfs_write_folio_single(struct netfs_io_request *wreq,
  
  	/* Attach the folio to the rolling buffer. */
- 	if (rolling_buffer_append(&creq->buffer, folio, 0) < 0) {
-+		folio_end_private_2(folio);
- 		clear_bit(NETFS_RREQ_FOLIO_COPY_TO_CACHE, &creq->flags);
- 		return;
- 	}
+ 	folio_get(folio);
+-	rolling_buffer_append(&wreq->buffer, folio, NETFS_ROLLBUF_PUT_MARK);
++	ret = rolling_buffer_append(&wreq->buffer, folio, NETFS_ROLLBUF_PUT_MARK);
++	if (ret < 0) {
++		folio_put(folio);
++		return ret;
++	}
+ 
+ 	/* Move the submission point forward to allow for write-streaming data
+ 	 * not starting at the front of the page.  We don't do write-streaming
 
 
