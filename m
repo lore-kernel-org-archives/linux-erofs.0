@@ -1,51 +1,57 @@
-Return-Path: <linux-erofs+bounces-3948-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3949-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28E82C44529
-	for <linux-erofs@archiver.kernel.org>; Tue, 21 Jul 2026 13:28:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8475CC4452D
+	for <linux-erofs@archiver.kernel.org>; Wed, 22 Jul 2026 08:39:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h4J9X3h5vz2xqJ;
-	Tue, 21 Jul 2026 23:28:16 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784640496;
-	cv=none; b=QFLjIRKySo9AfO8NqavV3QxTwsJgOc5FGxX/Z6j791YLEdj4rn2+Zg2Q9aGbMZyK5ZTQNoHO3g78cg49TGlbvEiC6YUVv6YJ6nbQ5hv5sMy8yhOqyXhLjy6yzhkCye+asNRqhzs8fQIXD+J88oKoBMuYxmgoUhxCjzqAvEYS7t7vaSl83naygsJht5DTLn6vYOyCYY2Wkjy9hPkwMid05XbjMdbF0JrZMb7ide5bpJausXsVk/FxqbUC1z5+sY8KSlr6cXS0Z+DcRN5+JyxPG6J+XtThn9nAh07yiqeSnQtVKjVZjdyYcOyZHY+62i3JesGqIzg6yDZByJOsHaH2SQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h4njg0QXrz2y1F;
+	Wed, 22 Jul 2026 18:39:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=113.46.200.226
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784709558;
+	cv=none; b=T3aiRHLV5YzCDAATNNJJepWw6LjyjuajotSEe3euAxckFBToTDeqFj478VpHurOo1ROvF5bDypi0vUm/fQxm+T7ORyX8uK45ZEF+bCrFRscb6UwUVhGHh6jPNsvWvRxsPWGIIS841RYFbwe3NhyUr1K614Hvb6PF6m773imytCNUl6LjjHZEPSVZ7fD8FRkNz4u0jS+Fdr51rcPT9OyCcihVAIWgOaP5OkkzUvJZLMcJYgLA04uLjA54PKEFLqvm98m/XXloFh32MERf64PFxNpZCOzJu+1YThZ6OBAzKHp8rD4DIt4yTir0sc/St/PIVRGK16UhEQAgKum1IxbZTw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784640496; c=relaxed/relaxed;
-	bh=OwvNN2QciO5oZt+L5VytYOSJfzRjvp+jR57EzAwBL18=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=nglxNUSGt6UyDTisj3MeTFngMkwTcKPNE7tjnNeR2HGFuKt1rFbVvMKQDS0bTEXK6QMOMPA19rqKFhqTVBVzWdEwYZNgVXF7G+dve2mvvTm6pwuQNIHWXPllnZfY7LVnF/SXHJt9pthcTBYPRsRhG+qGwRuf9MBfS6WHnORFKKuWD+dDlBz8+PchtJfjDziwwsRQ+G/qA+2RGqI20isptKS4WhzCrZuUq710PwsXi7cqiVMwl2nz6S5TPjP6Rlk6sWWj1N4l2vBZUmo/2DzO4H8vB8jy0usxspcbLegF+RG5Yhk2WxJg7cLNCIz+7Zwn3aSUE44C4S/28tzhfb44kg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NX5fogeq; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1784709558; c=relaxed/relaxed;
+	bh=hoas6u+YojDLjgRsKP4lA3l1/kP9Z+NRJGOe+o+6QJY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DFV6C9z265qzxh/TvaNpy7a9vqx5JsUiyzAQwJSBT6fwNeYtlMIlMyEwbbTQbX1PBDwEjag31ouAJFy6lP30z4j1g5nwe7qQhLZjUwYdUGDWlJwh/4mMDzu+McfZf3ivH9nWz+hol1DcQa8GBK6eFNeEY/QtwVt65YjPBIYSr8T1fM6Xl8m6bSi8RcQ0KqwVfu3aXTTmHSF0auHXz++oyeI7IO2NtkRI+yGYETF4KlvElZk4trVmAWzjwtejleLmcBREm18DFc66dPJfeG0grsYGh6D+dGCu8b5rNJ0+3G1c0L+y8FST52RrF7Jtpb6vAWmYN145Rx/CruMi502DnQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=YLVemuSy; dkim-atps=neutral; spf=pass (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org) smtp.mailfrom=huawei.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NX5fogeq;
+	dkim=pass (1024-bit key; unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=YLVemuSy;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=huawei.com (client-ip=113.46.200.226; helo=canpmsgout11.his.huawei.com; envelope-from=zhaoyifan28@huawei.com; receiver=lists.ozlabs.org)
+Received: from canpmsgout11.his.huawei.com (canpmsgout11.his.huawei.com [113.46.200.226])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4J9W2TCMz2xm3
-	for <linux-erofs@lists.ozlabs.org>; Tue, 21 Jul 2026 23:28:15 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 052EF405AC;
-	Tue, 21 Jul 2026 13:28:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 911141F000E9;
-	Tue, 21 Jul 2026 13:28:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784640491;
-	bh=OwvNN2QciO5oZt+L5VytYOSJfzRjvp+jR57EzAwBL18=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To;
-	b=NX5fogeq+nNZSiTvj6kmfuc2VIMIegmF5qOQkYqMIYWWrRIJx8gj+rBZbLDkJJ0Po
-	 Ej5zKoBA7bX7bs1PUYO8+UaJSDckydh/S1gMfSJq20ki5OFlYpdFoTYFWDekl8EQtS
-	 Jd0dNZuTYMSGCfls8o+FqGXhKXFrZ1qEJXC+a6Vn1q+hJna1nw0JmJWDiN8H2lzYRP
-	 fO+nxAPdDhhs/DIy9DFIR/auHZVDvpeFIrPppUv4L6PwcVoW0CxRRnsa84eL3slGLw
-	 D7PkrC6Agz6KpwVfhg5UjhL6O6Ng0p/kPuwjKl9vyLUJVVL4AeMo1bz155YEfu8c5N
-	 Q5+w4ze6oJ6sA==
-Message-ID: <87f7f2cf-b482-44eb-9cd3-94f809319e42@kernel.org>
-Date: Tue, 21 Jul 2026 21:28:08 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h4njc3ZKHz2xLd
+	for <linux-erofs@lists.ozlabs.org>; Wed, 22 Jul 2026 18:39:13 +1000 (AEST)
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=hoas6u+YojDLjgRsKP4lA3l1/kP9Z+NRJGOe+o+6QJY=;
+	b=YLVemuSyP40v8mKuGLhgbbwPishh+JAw9Vgw1jSNtcOFQHbILrW8DNW00Klgt6bSJxeM9Ya7I
+	nqcIwe4xPvmx7r5OPvweQqZ+CK/VfFTT8US6m4O9GNIpsfVkMFoKgTGtB+clC0ABULesG+JNWKz
+	dOYnrhD5JWUBjX7GgnJSoS0=
+Received: from mail.maildlp.com (unknown [172.19.162.92])
+	by canpmsgout11.his.huawei.com (SkyGuard) with ESMTPS id 4h4nVb6mvzzKm5m;
+	Wed, 22 Jul 2026 16:29:43 +0800 (CST)
+Received: from kwepemr100010.china.huawei.com (unknown [7.202.195.125])
+	by mail.maildlp.com (Postfix) with ESMTPS id 1B83040586;
+	Wed, 22 Jul 2026 16:39:09 +0800 (CST)
+Received: from huawei.com (10.50.159.234) by kwepemr100010.china.huawei.com
+ (7.202.195.125) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Wed, 22 Jul
+ 2026 16:39:08 +0800
+From: Yifan Zhao <zhaoyifan28@huawei.com>
+To: <linux-erofs@lists.ozlabs.org>, <hsiangkao@linux.alibaba.com>
+CC: <zhukeqian1@huawei.com>, <zhiguo.niu@unisoc.com>, <zhaoyifan28@huawei.com>
+Subject: [PATCH] erofs-utils: mkfs: preserve raw inline data type
+Date: Wed, 22 Jul 2026 16:37:29 +0800
+Message-ID: <20260722083729.1176080-1-zhaoyifan28@huawei.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,27 +63,48 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, hongbohbli@tencent.com
-Subject: Re: [PATCH] MAINTAINERS: update Hongbo Li's email address
-To: Hongbo Li <lihb2113@gmail.com>, hsiangkao@linux.alibaba.com
-References: <20260721070518.2016441-1-lihb2113@gmail.com>
-Content-Language: en-US
-From: Chao Yu <chao@kernel.org>
-In-Reply-To: <20260721070518.2016441-1-lihb2113@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.50.159.234]
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ kwepemr100010.china.huawei.com (7.202.195.125)
 
-On 7/21/26 15:05, Hongbo Li wrote:
-> From: Hongbo Li <hongbohbli@tencent.com>
-> 
-> Since the original email account is no longer in
-> use, I have updated it to my current email address.
-> 
-> Signed-off-by: Hongbo Li <hongbohbli@tencent.com>
+Previously, raw inline tails were treated as compressed data, causing
+incorrect head padding. Set idata_type according to raw mode.
 
-Acked-by: Chao Yu <chao@kernel.org>
+Fixes: 277a42502a7a ("erofs-utils: mkfs: handle last compacted_2B pack in z_erofs_drop_inline_pcluster")
+Closes: https://github.com/erofs/erofs-utils/issues/52
+Assisted-by: Codex:gpt-5.6-sol
+Signed-off-by: Yifan Zhao <zhaoyifan28@huawei.com>
+---
+ lib/compress.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Thanks,
+diff --git a/lib/compress.c b/lib/compress.c
+index f7ad5a1..48a18b9 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -483,7 +483,8 @@ static int z_erofs_fill_inline_data(struct erofs_inode *inode, void *data,
+ {
+ 	inode->z_advise |= Z_EROFS_ADVISE_INLINE_PCLUSTER;
+ 	inode->idata_size = len;
+-	inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_DEFAULT;
++	inode->idata_type = raw ? EROFS_IDATA_TYPE_RAW :
++				EROFS_IDATA_TYPE_COMPRESSED_DEFAULT;
+ 
+ 	inode->idata = malloc(inode->idata_size);
+ 	if (!inode->idata)
+@@ -974,7 +975,8 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 
+ 	/* generate compacted_2b */
+ 	if (compacted_2b) {
+-		if (!compacted_4b_end && inode->idata_size)
++		if (!compacted_4b_end && inode->idata_size &&
++		    inode->idata_type != EROFS_IDATA_TYPE_RAW)
+ 			inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
+ 		do {
+ 			in = parse_legacy_indexes(cv, 16, in);
+-- 
+2.47.3
+
 
