@@ -1,57 +1,93 @@
-Return-Path: <linux-erofs+bounces-3992-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3993-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F03ABC531CA
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jul 2026 11:33:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3ACEC531CF
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jul 2026 13:53:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h5TWz6qlLz2yVZ;
-	Thu, 23 Jul 2026 21:33:19 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.21.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784806399;
-	cv=none; b=Qmri0wiLrWXIKlKAST6wLlq6HPLpa2NOEBPSCeir5ZEY43YzaX4+NNsQZ5sHSx9l1MetdWwSNwDfwIeDIBZLrzXCIcQVq3TloxNboL05IknqSQHHiCz/7f9pQ1gxCV6cH7BoVZSTkGg2WbH/5/H4jireQO7jwtOisonL+odnhvlWKTTvz65SeVERKSABGaTdSEiYZ5lzSds8Lu/KXMrAzzd+XmpvyBCAQxA47PNrI651BbBUL0OUJpQ85ydRJZXBDFVWMJziVLH4qxHA2Aw1qLxp+q9L6rU2L1pHZPLfmqhJEUNh4iLPiQd8cdfY2fP2XHbSP+UNn1n/V6sFgznxBg==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784806399; c=relaxed/relaxed;
-	bh=1pDO9nZSQ3Xwz/CyhK1GZmp6pG1BGPMNAAmhlJBNLEI=;
-	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type; b=eSB2DCJ4ej6SkEfFplkP7tQxC0qEpz2u6cEgo8nB/pluUEqzOtxgo9IeEzLZJ4rkS/Qd2qKPGDk9W+X/BiN2lFRcaeEqPXvPk4ABKC/AK0g8yPqEwmD8tNiZ86AYFqi8TQRqvBx4FOZy9pVPW13OpXn/WYaj1tQzXKvJdBbf+cqz0CIIAcPI9cppMGYJ5Zq2RFnNMVu3vzKSvi5cACCFzOA304btN0wGnTwVTxaCnyeT4at6dni2Zxj1mSEvItXQrPORS6nioVTIhmSWfzWST3g1DrqipOzARLhOEm8ZFtjd1epxje4J6ybcyYPIK52gmpoX0qMOtBoraDmNCfJyxg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=mcpcnserver.com; dkim=pass (1024-bit key; unprotected) header.d=mcpcnserver.com header.i=@mcpcnserver.com header.a=rsa-sha256 header.s=aliyun-cn-hangzhou57fb2d3494 header.b=KUOfVZW/; dkim=pass (1024-bit key; unprotected) header.d=dm-fbl.aliyuncs.com header.i=@dm-fbl.aliyuncs.com header.a=rsa-sha256 header.s=feedback header.b=C8yMiso8; dkim-atps=neutral; spf=pass (client-ip=115.124.21.131; helo=out21-131.dm.aliyun.com; envelope-from=market@mcpcnserver.com; receiver=lists.ozlabs.org) smtp.mailfrom=mcpcnserver.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=mcpcnserver.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h5XfD2gH7z2yhY;
+	Thu, 23 Jul 2026 23:53:56 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::130" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784814836;
+	cv=pass; b=OgIEMXkzpFYjxfb2uDpBjFffFBdxEfjugtI7wb0gs3KtcAV3GRRMrBdfVEoMoD1HWDL2MNoF/cc6WTda/Fe78XdEuIyvpQ9NbuGm0o8/aNZbHW2oc5hyZIH2+yC8Lwu6d5NrdRMyJPolsudqqknvezKS3HL3c5E0K0CWa3Hajh3U55k69Dd9R2M78dhuTQvY76enV31WiHlAgPJ8ke/6KzMDNmRssk4C4ojFb0ibmPckoOrggcP0crFRkDr3+fOeDwQPHMR8MJc3p4xJ4nwF1dk04amzxXVBKQQ+8eEdCn3mZugBJQ6aEpHg6sE3K4ZLFO/p2gGnVtCS6HT5+C+xVw==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1784814836; c=relaxed/relaxed;
+	bh=/Qvp7W6WcD3MjP5gFX1gpVdJqvDJJ2Ad7xiF0QUVglM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=M0zFfqxeIO/ib1b2/t3BFLlifvSGpA7KdPRNE9dF5fLhVBY6jIzqEYBIjCDDqAiRtQ1VgFGV8jZtA9EeFsFp+zqIX/HcQtgEzPzUqjzIKbOaZnt8NbzRQDc0slkC1mGVYT569G9MBAXwqQUbbGKFW25J6FQA1k6975xPAkKLBxyZrYvplZbZLvzIKe4GvUTgNwCWa9Z4XCBMWRfutXu9OE6GE2ATWhyWnPxqP04AFqFB7YyHNIR/ha35COaQJOKIw1H1B09ETudBXAnq/kcm3fQjfGghutFjiMgbHXT2Qpp69n3eHF7jpbiRcHkBLoBz1mx3DkN9x9Y9irzHY6RRvQ==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net; dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=q4gWkuVC; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::130; helo=mail-lf1-x130.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org) smtp.mailfrom=amacapital.net
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amacapital.net
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=mcpcnserver.com header.i=@mcpcnserver.com header.a=rsa-sha256 header.s=aliyun-cn-hangzhou57fb2d3494 header.b=KUOfVZW/;
-	dkim=pass (1024-bit key; unprotected) header.d=dm-fbl.aliyuncs.com header.i=@dm-fbl.aliyuncs.com header.a=rsa-sha256 header.s=feedback header.b=C8yMiso8;
+	dkim=pass (2048-bit key; unprotected) header.d=amacapital-net.20251104.gappssmtp.com header.i=@amacapital-net.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=q4gWkuVC;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=mcpcnserver.com (client-ip=115.124.21.131; helo=out21-131.dm.aliyun.com; envelope-from=market@mcpcnserver.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 336 seconds by postgrey-1.37 at boromir; Thu, 23 Jul 2026 21:33:17 AEST
-Received: from out21-131.dm.aliyun.com (out21-131.dm.aliyun.com [115.124.21.131])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amacapital.net (client-ip=2a00:1450:4864:20::130; helo=mail-lf1-x130.google.com; envelope-from=luto@amacapital.net; receiver=lists.ozlabs.org)
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h5TWx359sz2xyj
-	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 21:33:16 +1000 (AEST)
-X-AliDM-RcptTo: bGludXgtZXJvZnNAbGlzdHMub3psYWJzLm9yZw==
-Feedback-ID: default:market@mcpcnserver.com:alibabak_ApiBatch:448107
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=mcpcnserver.com; s=aliyun-cn-hangzhou57fb2d3494;
-	t=1784806394; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type;
-	bh=1pDO9nZSQ3Xwz/CyhK1GZmp6pG1BGPMNAAmhlJBNLEI=;
-	b=KUOfVZW/EfmAWQuiupjcaslROQJeUKDgRbkfa06AmH8SPZVm9J63yOio+gi7gwZqyqsE1dHPBWFqeIUWQF9Swiwl86X82fK+qJzguVffoTzss4qmqbg7UZTD0efOYFBM8PQDKH3N7fo9AmVgctKDDJj/S5tTqlPx0v3ZCA2j3Xo=
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=dm-fbl.aliyuncs.com; s=feedback;
-	t=1784806394; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type;
-	bh=1pDO9nZSQ3Xwz/CyhK1GZmp6pG1BGPMNAAmhlJBNLEI=;
-	b=C8yMiso8LGPylKInYtnI0f4/OXj9sJLE2lq6LQdNxEbsZcVnDn1mpNaQOOkhAlsD5HhFvZslBUWHeGxiGB1xa43dVhTxLPEedL8FGOqC5R7gT+98j374EdyvWKbbArhDLgNoaFXTtOmdNnsDg7Gh5S9HuYGkXQjFcUyn2pN8OuM=
-Received: from chitu-hsf(mailfrom:market@mcpcnserver.com fp:ma_600000336733642987 cluster:AY35D)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 23 Jul 2026 19:27:33 +0800
-Date: Thu, 23 Jul 2026 19:27:33 +0800
-From: "NiubiStar Support Team" <market@mcpcnserver.com>
-To:  <linux-erofs@lists.ozlabs.org>
-Reply-To:  <feitechen@gmail.com>
-Message-ID: <094eb286-c70c-41b7-b550-d3fa3b8291ff@alibaba.com>
-Subject: =?UTF-8?B?RW50ZXJwcmlzZSBvdXRyZWFjaCBpZGVhIGZvciBnby1lcm9mcw==?=
-X-Priority: 3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h5XfB48wXz2yFg
+	for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 23:53:54 +1000 (AEST)
+Received: by mail-lf1-x130.google.com with SMTP id 2adb3069b0e04-5b013aa02b2so580354e87.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 06:53:53 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784814830; cv=none;
+        d=google.com; s=arc-20260327;
+        b=K1mVegE2DU5lnugrni75JWIrN2yi5A+Xean1Zymb5Uq3sJzt1pvGhihLlN4ZjSCZJh
+         ARXa4q9ir7uk9Cf9qoufj5S2SenBWWFiDmHyXDtQW1t4Gz21X/MXncxhFL4Plj1m88MK
+         p2ObbYfPnUbfx6XKO23hxF2Y8wM2JVW148sblZJetXuvYpGkflVbx5roqgLXDUnFi5zs
+         S++0J9SGEUU51vr0tJpy7DAmBgKh44mFg2l933/pGzJB2VoKe/IxhHURhtcHpEe4/D5y
+         9tN0cJvKYiAdxmlp83bXfv5X5UWXnEoRHPIX+JXq7eYGjEZYwIkirH9U03vxxBWmXTD1
+         SPbA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=/Qvp7W6WcD3MjP5gFX1gpVdJqvDJJ2Ad7xiF0QUVglM=;
+        fh=4EDp3gCwnokKuJWMg4FX8rDfzV7+7m4rPrOksD/TJVI=;
+        b=k1pdNOUW6xXVbFvFkGuszzX0DYxnDx241z6LlsjoFKaBKwbYZBMoKZVYi/q1jJUoCj
+         169gfhaD40I2R/Xb4nBTGS5Kk2Iqe8oX/yKE6cxJB3ovg8SKSsfZj1pBnecPgJUBKVjW
+         3mlRwixetXQmPWrcnN9NxJDHZpWZLa2SXLREGQxZb1lZhYp1GNLU7oqKx9mzLzdeVo4A
+         tvE8t1B0OWdkckHQEDPu+w+aZLM8kLnTlMLC4djzJBx522QUIQ0hiFdeG/VbqJAS4CZY
+         xhREuegKkWJCfM05phLL1whZ2mCv7bwlTqDdwyj9OpkgXH8gLl29nUCy6YcnrQXcMcDd
+         i6ug==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20251104.gappssmtp.com; s=20251104; t=1784814830; x=1785419630; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=/Qvp7W6WcD3MjP5gFX1gpVdJqvDJJ2Ad7xiF0QUVglM=;
+        b=q4gWkuVC0fxnzZJVV0AYTo9D0SgyphtsNS+5qE5H0b9m9emE6TgHNECLJ92RvRysUG
+         KaAtFDSc3ykt+7bi6dSVfi4ZurJ4vwuRhAZ6K0DAv51EsSSeaO8zrOZIRRbbQJDVzBqe
+         z0dOdY5CekWzcrkVisqqP8MQFNzeBC9tPUARvPfVctp2GaFlqYedGHSZM9lD7Ncz2oMX
+         PnlkmZwfuh7dh+YV4PqJWO8F0P9inOZ2mn18CLuj3GKj/LRKZkRbHhTq7LHCYQSdWJde
+         8vTt3OpbbaXefgUyJfRD8Yafgy10c/Q+6zsj7xru1q07Pk0JbnrZ/5DhZIFETdoU9pxN
+         Yw5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784814830; x=1785419630;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/Qvp7W6WcD3MjP5gFX1gpVdJqvDJJ2Ad7xiF0QUVglM=;
+        b=rog0HAjyzqtIYWYSrb+iwlKfcdGr7Fh3X6HM29iDC1lzPqo4hmWFR/2OEGoGe4/oMO
+         05BJ9tWPgewS6CTE2a4oEvGmADJLtAYPPUJ906EzAW5R7302hE1A5wtdIXg5wUvJRbaz
+         k7uYBUNcSol4ybydmHpLObBKnAgaktESeRtNZpO9NgujCiEZlXedrt1p7iUNX+n3yPhs
+         UXaW0o82Og2ZdZBBxbXSA7tbolWm3mo55hyg1Zie8wSUwktv/TbXnd0rLXfsTFqBVtrh
+         OzoNgwBYQcX3P2UGQagOTmMMMLgJVKZIyBVXgwZgM3tcEfbeB3Jg4ROoDfJardUhxNL8
+         o0DQ==
+X-Forwarded-Encrypted: i=1; AHgh+RoxM0ss0FCvX6DX2DpoDmNbJKjQCEqxOUuZiWcbLI2Kb9IpFgi0lWKW1kchMDvd6q9gsjHYSVSbo7wNMg==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yy1lhK+aLRJqlxbGRSNVjYb4lQpgDYFEAgtIPVDXlP7s2n87ffn
+	x6B3sAh1cZ6zhna3eoxQOtxTvK2Pn4eK2iAbUG6reQnhFBfdKxrHXyltNM9YPD9MqbjmznDLnmY
+	5D3FtAm+mw1tMwYG2FwKuSa3E7pjw2xVxuMpWuR3P
+X-Gm-Gg: AR+sD121y86hhOGQfBu7xLCzYPCurWmVIB4TJpF5JjqTV1/hIFsJtZpuZYKZMgDJoM5
+	9b/Ch9jmdPXjloQkf2KTM1MRHbzZknYMS9EV2eVmSvjF/0pOKx4Q11CGHFsw5FyjtI0s3cbRzOj
+	g9oEFG3CbbA9VMV02zktaYyNoQJFDi8QiuzmpkWm6INgni+phPcNeSNubA+qJS930EuaIxw1AYX
+	vWPGlpvWuioybohzlXSdv/7eBbDb5YwVIQtFHr77ufon7gSFXUY35085n56BA==
+X-Received: by 2002:a05:6512:ba9:b0:5ae:a9ed:35a6 with SMTP id
+ 2adb3069b0e04-5b2b33cde5emr603977e87.31.1784814830282; Thu, 23 Jul 2026
+ 06:53:50 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,55 +99,99 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-EnvId: 600000336733642988
-X-AliDM-Settings: eyJPdXRib3VuZElwIjp7IklwTGlzdCI6W10sIklwUG9vbElkIjoiIn0sIlVuc3Vic2NyaWJlIjp7IkZpbHRlckxldmVsIjoiZGVmYXVsdCIsIkxpbmtUeXBlIjoiZGlzYWJsZWQifSwiVmVyc2lvbiI6IjEuMCJ9
-Content-Type: multipart/alternative;
-  boundary="----=ALIBOUNDARY_2345_7ff6ae56e700_6a61fbfa_532d8"
-
-------=ALIBOUNDARY_2345_7ff6ae56e700_6a61fbfa_532d8
+References: <CAJfpegupwNTaVNZtdQTmvtz9x=ehH59hzsRT7D0=VbhOZvaqrQ@mail.gmail.com>
+ <6C96C8A7-345E-4388-8EDC-D94E9463D214@amacapital.net> <CAJfpegteZbnPkiTSAPWXDqZbf5eALK0E_npBLtLTmJyZaHXdyg@mail.gmail.com>
+In-Reply-To: <CAJfpegteZbnPkiTSAPWXDqZbf5eALK0E_npBLtLTmJyZaHXdyg@mail.gmail.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Thu, 23 Jul 2026 06:53:38 -0700
+X-Gm-Features: AUfX_mwpGfNjVX76f8of_9AJftpdKTQtdZGp4l8jZIXndq3Duzeb778fccyzEFg
+Message-ID: <CALCETrWCf67TTiRSikTjgBZ+jKc_HPptEp9BvO2G=1-C5D2F_w@mail.gmail.com>
+Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through O_ALT
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Christian Brauner <brauner@kernel.org>, Miklos Szeredi <mszeredi@redhat.com>, 
+	Giuseppe Scrivano <gscrivan@redhat.com>, linux-fsdevel@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-api@vger.kernel.org, 
+	linux-erofs@lists.ozlabs.org, Amir Goldstein <amir73il@gmail.com>, 
+	Xiang Gao <hsiangkao@linux.alibaba.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Linux Erofs,=0A=0AI found erofs/go-erofs while looking through GitHub proje=
-cts that have already attracted stargazer attention. I noticed it is mainly Go=
-.=0A=0AIf you are planning a release, launch post, directory push, or enterpri=
-se-facing update, NiubiStar can help package the project into a broader develo=
-per outreach campaign.=0A=0AFor early repos, the goal is usually to create cre=
-dible discovery paths beyond the repository page itself.=0A=0AThe package I wo=
-uld recommend is Enterprise Outreach. It is built for teams that want more tha=
-n a simple GitHub signal boost: targeted developer discovery, launch proof, re=
-levant community placement, and hands-on execution around a specific growth wi=
-ndow.=0A=0AYou can review it here:=0Ahttps://www.niubistar.com/enterprise-outr=
-each?utm_source=3Dmarket=0A=0ANo GitHub token is required. A public repository=
- link and a target timeline are enough to scope the campaign.=0A=0AIf this is =
-relevant, reply with your launch window and the audience you want to reach. I =
-can suggest a practical outreach plan before you place anything.=0A=0ABest,=0A=
-NiubiStar Support Team=0Ahttps://www.niubistar.com
-------=ALIBOUNDARY_2345_7ff6ae56e700_6a61fbfa_532d8
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jul 23, 2026 at 2:19=E2=80=AFAM Miklos Szeredi <miklos@szeredi.hu> =
+wrote:
+>
+> On Thu, 23 Jul 2026 at 11:01, Andy Lutomirski <luto@amacapital.net> wrote=
+:
+>
+> > - O_XYZ flags to open() are all kinds of awful, for historical reasons =
+that are not fundamental to the concept.
+>
+> I'm fine with limiting this to openat2().
+>
+> > - symlinks. If we have a new API where opening /proc/something/magic/bl=
+ah can access something that ought to be inaccessible when accessed intenti=
+onally and with privilege, a symlink pointing at /proc/something/=E2=80=A6 =
+can cause the API to be used inadvertently.  Admittedly we have this proble=
+m with basically all symlinks, so this isn=E2=80=99t exactly unique.
+> >
+> > - our nasty fs permission model. We gave a sort of gnarly mix of a bit =
+of fd-based permission and mostly mode/ACL-based permissions for path trave=
+rsal and opening, and mapping this nicely only new APIs (as opposed to actu=
+al files and directories) can have unpleasant results.
+>
+> Pseudo filesystems don't usually do mode/acl based permission checks.
+>  I don't see any issue with that.
+>
+> > Of course, I=E2=80=99m busy arguing (slowly and without a concrete prop=
+osal) that we should have proper capability-like fds, and maybe that=E2=80=
+=99s kind of an answer to this:
+> >
+> > What if we had an API to get an fd to the =E2=80=9Ccontrol filesystem=
+=E2=80=9D for a superblock, like your O_ALT but as a real syscall or maybe =
+only accessible via one of the newer and less janky open variants?  And wha=
+t if the resulting fd and the filesystem tree it represented had a few prop=
+erties that made it very different from normal directory fds:
+> >
+> > - You cannot mount anything on it or its subdirectories, nor can you op=
+en_tree or otherwise mount it anywhere.  But you can open_tree the very spe=
+cific things in it that point outside of the special API (e.g. the overlayf=
+s layers).
+>
+> This patch provides exeactly those properties.
+>
+> > - Privilege is fully captured by the original call that gets you the fd=
+.  current->cred is not checked when *using* it except to the extent that y=
+ou might need privileges over your own namespaces to do operations that mig=
+ht affect them.
+>
+> This is trivial to add to metafs: just store a ref to current->cred
+> besides the path.
 
-<!doctype html>=0A<html>=0A  <body style=3D"margin:0;background:#f7f8fb;font-f=
-amily:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#1118=
-27;">=0A    <div style=3D"max-width:720px;margin:0 auto;padding:28px 18px;">=0A=
-      <div style=3D"background:#ffffff;border:1px solid #e5e7eb;border-radius:=
-10px;padding:28px;line-height:1.58;font-size:15px;">=0A        <p>Hi Linux Ero=
-fs,</p>=0A<p>I found erofs/go-erofs while looking through GitHub projects that=
- have already attracted stargazer attention. I noticed it is mainly Go.</p>=0A=
-<p>If you are planning a release, launch post, directory push, or enterprise-f=
-acing update, NiubiStar can help package the project into a broader developer =
-outreach campaign.</p>=0A<p>For early repos, the goal is usually to create cre=
-dible discovery paths beyond the repository page itself.</p>=0A<p>The package =
-I would recommend is Enterprise Outreach. It is built for teams that want more=
- than a simple GitHub signal boost: targeted developer discovery, launch proof=
-, relevant community placement, and hands-on execution around a specific growt=
-h window.</p>=0A<p>You can review it here:<br>https://www.niubistar.com/enterp=
-rise-outreach?utm_source=3Dmarket</p>=0A<p>No GitHub token is required. A publ=
-ic repository link and a target timeline are enough to scope the campaign.</p>=
-=0A<p>If this is relevant, reply with your launch window and the audience you =
-want to reach. I can suggest a practical outreach plan before you place anythi=
-ng.</p>=0A<p>Best,<br>NiubiStar Support Team<br>https://www.niubistar.com</p>=0A=
-      </div>=0A    </div>=0A  </body>=0A</html>
-------=ALIBOUNDARY_2345_7ff6ae56e700_6a61fbfa_532d8--
+We have f_cred that might be good enough, although I'm not sure it
+propagates through path lookup.
 
+>
+> Not sure how this security model would work, though.
+
+If I have CAP_SYS_ADMIN and I open the metafs and then drop privilege,
+then I would still be able to do all the metafs operations as if I had
+CAP_SYS_ADMIN so long as I use the fd I opened to do those operations.
+
+>
+> >
+> > - You can=E2=80=99t fchdir or (hypothetically) fchroot into it.  (Not s=
+ure how important this is.)
+>
+> Not sure if there are internal mounts that have directories?  If not,
+> we can just add a check to fchdir/chroot against mnt_ns being NULL.
+>
+> > - Maybe you can=E2=80=99t follow /proc/pid/fd/N links into it either?  =
+Or maybe that would break CRIU too badly.
+> >
+> > The basic idea here is to try to treat it like an API that happens to u=
+se the open machinery but not as part of the filesystem hierarchy.
+>
+> I'm not opposed to limiting this in various ways, though I don't
+> really see the advantage.
+
+I'll sleep on it.  Maybe it's all fine.
 
