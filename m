@@ -1,49 +1,81 @@
-Return-Path: <linux-erofs+bounces-3994-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-3995-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4AA6C531D4
-	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jul 2026 14:46:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1710C531F7
+	for <linux-erofs@archiver.kernel.org>; Thu, 23 Jul 2026 15:11:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h5YqQ1MNrz2yh4;
-	Fri, 24 Jul 2026 00:46:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784818018;
-	cv=none; b=Ncw4k+D7hL5pziCnLD4VhhZQhAbMmRk1qA75Gu7vJd7h+uUYe1NReCilkuObjzh0Vl7sTxrQ7GkPEilqLXG3M5GmwhHcupxM+s5E1vAQ6ffsN9B97sSsSVg7uHQRURaf67UucMyrX6TUDh3Z+NjlFAFtsvong5MPmsNQk1indgaX7G8hat4917eCnlLczRwobhh9e7SIBTj1txuedEnGj2qzCFd/nEbO9MsLAdfTn5FGhXyqLnF29OCWZHv9ywoRa0JBADj5TribhBfXMFJ03v4aeQUBDDv22xwWNaQJTPTpC3+gPDEGGZvroPqk83ildWaQcP0Lb8rnFhJ2G6ohyg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h5ZND17cBz2yhD;
+	Fri, 24 Jul 2026 01:11:56 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::636"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1784819516;
+	cv=none; b=GoRGItUU0oi54p0lwf4HyzfLc+AX0L9yircBstyJ/D1rOG25QK2eYXqd1GDoMMpg/HT6VjB7ue8VkDvEavYMPQ1aU7KVf/Eid9KZekAghNAqUN9vGZ9muSYsxN243Hwq+WTJG/RhxSVjn4DTBt1F9sqE5jLvxgRjq9USgDTa5R+rK0bChZGQSxBpjhjmPK9y58QpJw25X44jZqbOjm6KUaJdQesArMQTcmmuE/BK0Uva91XeIfxOxA6lXM+LhiffJhv7ZTR8gfkpOiYaU+bGWVQPUs9unV2jEgK28ER2XXV5Tcc2jwy1lSLfPuE/bXb7aAq54x2+x8d4Y/v+Yanqjg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1784818018; c=relaxed/relaxed;
-	bh=04rJgth8C2nU396fmhBsL9Df5jNE4GqWoAm1aGz1NtY=;
-	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=GWztN8YqkW6uGaYBHTPWEsKQUvP119llQEFUqR8Ol0z2PmceQ+L3D7wdq317ZGQCRt4+rWFV4+sq869s1RetYPFYs/zr9ltxA4gigREyU+NBAZPzSTkjamJMrRnUPGLjg3aWYdVjLxo5eDYV+ygXBqyqyjnygMi0rN0JiZ2XBBjQXZAfgfzlmqvpZBzAdkrZJtzCSV0Ta9SRwQF2ssHJdAgDM/3fh8fZE+LxhCbVUqBIT6b5aFHdtRTlsUHdXhYOkEXRfup304AhHgf5Ja9SorqZnay93Rbk6MTmbuQ7uutttpvvtQcFG/dneLXzv1NYivTRC6bLNz7r4ITKuKRhIw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QFac4XbW; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1784819516; c=relaxed/relaxed;
+	bh=zDE3Y2Bzew64lctNZMYs5GdvBzJQ9z2sKXS6xw4+mlo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:Message-ID; b=Zi0tpU7wm5h5Pl/zgbDjFu51QL6/FAaP1FO/LwB3cGv7kF50QrbL3e5b7D5B6MyFvXbVG4pHVpear9yiQbcfXdc5OqZPXeRrQ68jIopHolK8PXN1KdTKSvoAZLa5WUAPJH+ODCR7dr1D+B7TtSBe2pb5knj3atg5MxXUrTawe6nRQZvpwjcjtLqYf2EC9QIi1HneWUXJ59E6wdF/FNvmQMfwyCSOayxLqCzyvNA9GBGc/5Qtf+uC0jGIx4brh0Lw0BuFhTtIbaPEyfOwXWx372yeMz7ZZkGJM7KkOgRhZS+irJG9YHrVLXca61bBPEuevUQAScZtVaJHMfYI/n7iig==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=daJ+2o5K; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::636; helo=mail-pl1-x636.google.com; envelope-from=lihb2113@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QFac4XbW;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=daJ+2o5K;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::636; helo=mail-pl1-x636.google.com; envelope-from=lihb2113@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h5YqP3WPCz2ygK
-	for <linux-erofs@lists.ozlabs.org>; Fri, 24 Jul 2026 00:46:57 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id E983543A90;
-	Thu, 23 Jul 2026 14:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 653EF1F000E9;
-	Thu, 23 Jul 2026 14:46:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784818013;
-	bh=04rJgth8C2nU396fmhBsL9Df5jNE4GqWoAm1aGz1NtY=;
-	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=QFac4XbW5BKnsGW0VCewkPEY/8Pk4UmgqpR4wknbIWl5FvQTLvc4eQn8izREcKJSd
-	 lkklQTQrbyQskcRZiqZ9PFBZjA7aVqpsgW9dlDDoo7SCYz3GQTuUXgO1hjbUbYf4cl
-	 Fyq8m6SUHTesS5dEiMaw4Bs+LD0k2RruNNQAThWRYsIwHkqKGfa+oMNw280oHyD+RT
-	 bCUh6UTNMKIF1fwxvYmhVFPbz/O7MnT5mwNxZN8p/UJ1Q3Dp0EPFfHbTimvr/efE40
-	 5Q/x6Igrd57fwNMbCTNNK1/M9BR80J0skXfSn6/Wl2Baw0BQukfjHiAYokr7baMtMo
-	 /1f+IA1R0FoBw==
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h5ZNB57n4z2ygt
+	for <linux-erofs@lists.ozlabs.org>; Fri, 24 Jul 2026 01:11:54 +1000 (AEST)
+Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-2cacf197759so11679665ad.2
+        for <linux-erofs@lists.ozlabs.org>; Thu, 23 Jul 2026 08:11:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784819511; x=1785424311; darn=lists.ozlabs.org;
+        h=message-id:references:in-reply-to:date:subject:cc:to:from:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=zDE3Y2Bzew64lctNZMYs5GdvBzJQ9z2sKXS6xw4+mlo=;
+        b=daJ+2o5KnaFWnakyNA9Jkq5oK52hnjBdW6YX3TuS2zMliRiJgsN2GGMuRkdQ7cpJZA
+         9z+mcZRBfpWE4AgW//2+c0Sw6P1N5ybodJkSklGVT4sExPcc5bX89RPdD8JH/sO923uP
+         T/jIit8sgkROgVuCbAGII+EPZJs4dPR+TjOLNz3cdwdPMG9s7UtxsQSr4x1alXun4Gsk
+         8SBhTrx1y7tpNZpzypZ2wULNh2Xznj91FrB2rriga+F4HMKQq6tjCPNn5Q++j9IgFrbe
+         FMrr5ImdEQby0rtBrYGnN1PxpgRuRIeK9z068Dk8q5Wnz8sKZ7iPb0sFY4in/+8FhUOS
+         1Qxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784819511; x=1785424311;
+        h=message-id:references:in-reply-to:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zDE3Y2Bzew64lctNZMYs5GdvBzJQ9z2sKXS6xw4+mlo=;
+        b=m7mU3gOmePL6dQL3OEUa/Ka5H8gjg1scr9jmOHY60WUSDBlaEq6PDnwPJifAGA7AhL
+         5n0UTJiO2c8mBALsFzAc3TWsjOKdntxKULeVrflTX4b/WoHoBVcefA0O3NqKCk7hzJiB
+         MUrafF6YHCPHffO3/wOLg8FVup2WJKBNyhJHy6+2iJi44THhAhiPk9iRMmTJKUSCswvr
+         Vm6tmQEfiIaUyYSNnJdaoP//msWCm5neFaX1OYPchbHppYlz2NTkNGKuwma6PEfDNnPC
+         YS1teNzKAZ+tGhT1Ueq5hw/ENfCtILVJKupY2DRvi/bXrsNqh23tLYhpxbFcgb+OSQ7i
+         oi5w==
+X-Gm-Message-State: AOJu0YwTNdLbUu6EDXSGS15Ws+OlZcH6kpxXJnS/ufCHEbQa+Kerm22o
+	BiFebgsZq2KmBPj1PYmMFcVionF+ARwkTVvc3Lk5nAFYkA1tD22DzTNyZH2D39OQcSM=
+X-Gm-Gg: AR+sD11uR6oz9As4q+ERywX+lKdLdnEMVST5vBHp95x3bcQYDJDxBOIohEaFpxO9DDu
+	kuqZMIQsWx0+EWqoAb76oXsVltJTUWglrsVs3krQd3BEsglYT/vuNgkvzAtZ6CHBIbEHIQGvzYE
+	OHpjzoLXtWoc88PpdDOnuk8d4tITo2Br9zHkr1ia0Hi0zMurqGBG0JhXgs6rG2MygsSAZvyP9FI
+	G5xdxsdsIRh/tCpKGhjPbWroxw731L6EpEiC6miy3e8BFYx2DKcYXpgPlPlddYn6MOpMRuZEfI4
+	44+bKXUINt5mzx+8znoPF/9U03ve4i8Vbf5HBstwCQdLcjFAlR7H3Ggdaz1wG0Qldl3idn4/a5N
+	E9+8/KIBmPjry/SRdop5NKl9SGGrOxE0NK0HPH0LltlKkkBKm2NG7t0oPZYVYYaN7lQy2GJRlv/
+	lX6TxsmjGtYa3wsRs=
+X-Received: by 2002:a17:903:37c5:b0:2ca:5d9a:ecc6 with SMTP id d9443c01a7336-2cfa7488a25mr42375255ad.28.1784819511164;
+        Thu, 23 Jul 2026 08:11:51 -0700 (PDT)
+Received: from localhost ([14.22.11.164])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cfa57542e0sm17303385ad.67.2026.07.23.08.11.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 08:11:50 -0700 (PDT)
+From: Hongbo Li <lihb2113@gmail.com>
+To: Gao Xiang <xiang@kernel.org>
+Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: ensure valid f_path for page cache sharing
+Date: Thu, 23 Jul 2026 23:07:51 +0800
+In-Reply-To: <20260723050313.2273-1-xiang@kernel.org>
+References: <20260723050313.2273-1-xiang@kernel.org>
+Message-ID: <ack-real-5ce6a38b7e5c-lihb2113@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -54,64 +86,9 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH v4] erofs: accept source file descriptor via fsconfig
-From: Christian Brauner <brauner@kernel.org>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Christian Brauner <brauner@kernel.org>, 
- Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org, 
- cyphar@cyphar.com, linux-fsdevel@vger.kernel.org
-In-Reply-To: <6d1ac697-d5f8-4952-ba68-27610f17bf3c@linux.alibaba.com>
-References: <20260717134147.1602735-1-gscrivan@redhat.com>
- <20260722-notnagel-allemal-kampfsport-8fd4e4d98a15@brauner>
- <6d1ac697-d5f8-4952-ba68-27610f17bf3c@linux.alibaba.com>
-Date: Thu, 23 Jul 2026 16:46:29 +0200
-Message-Id: <20260723-wickeln-schindel-rotstift-d987d4e9c036@brauner>
-X-Mailer: b4 0.16-dev-0e65f
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1524; i=brauner@kernel.org;
- h=from:subject:message-id; bh=LDQpyaLboE5OxsAw5Npt9mA3NF0xevJpMGml9LKT8aM=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWQlacY0zjCbcrjj7duUbCZHhfXiK2Lz0w7vmD5Z6NtWe
- Z0OZS6XjlIWBjEuBlkxRRaHdpNwueU8FZuNMjVg5rAygQxh4OIUgIn8LWb4n5GhGvGAgX3Ky659
- nFHnuaOrpUpCNxzqYWec2c8+9327EiPDkqdB6mk911ccuHJEMab26PcggcJVLcqCf9hmewedi63
- kAgA=
-X-Developer-Key: i=brauner@kernel.org; a=openpgp;
- fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-> I'm not quite sure if I catched the point, I think Giuseppe's patch here
-> tried to record `file` into `sbi->dif0.file` (which indicates the primary
-> "device" later.)
-> 
-> And if `sbi->dif0.file` is set up by erofs_fc_parse_source(),
-> erofs_fc_get_tree() will just use `sbi->dif0.file` instead of
-> `fc->source` according to this patch.
+Acked-by: Hongbo Li <hongbohbli@tencent.com>
 
-Oh, so you only do it for file-backed mounts. Do you only allow regular
-files or do you also support block devices with
-CONFIG_EROFS_FS_BACKED_BY_FILE?
-
-Do you document the expected behavior for the file you're consuming?
-Meaning, are concurrent modifications supported and what type of
-behavior does this exhibit?
-
-> The reason why `fc->source` is set was discussed in the
-> thread of the previous version suggested by Aleksa.
-> 
-> > 
-> > If they close it before this means you can mount something completely
-> > different. The other thing is even if they keep the fd open someone
-> > could just rename the damn thing and fc->source ends up pointing
-> > somwhere completely different. The could switch namespaces as well in
-> > some circumstances and then it points again into wherever.
-> > 
-> > I've played with that fd idea before. The only way to make this work
-> > correctly is if you plumb this down into get_tree_nodev()
-> 
-> fc->source in this case has no use in erofs_fc_get_tree() (`fc->source`
-> is just used for mountinfo for example), `sbi->dif0.file` works instead
-> I hope I don't misunderstand something.
-
-No, I misunderstood this.
-
+Thanks,
+Hongbo
 
