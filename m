@@ -1,87 +1,86 @@
-Return-Path: <linux-erofs+bounces-4007-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4008-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7AD20C531CC
-	for <linux-erofs@archiver.kernel.org>; Sun, 26 Jul 2026 11:02:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5E02C531C9
+	for <linux-erofs@archiver.kernel.org>; Sun, 26 Jul 2026 17:02:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h7JjC16tbz2yFP;
-	Sun, 26 Jul 2026 21:02:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::529"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785063759;
-	cv=none; b=YQSPy5YPvH1wsHV5r2k8giIbDeinEDYaE4iuZyHWh1YjoPc2ovaEs3vVi9Ds6TDfmABVyPtDHZmrpjG+uq9PvrCB1xYG6fKx9j0OJ5HMDGyQm0ZmoiJ2aqrUOB9dWh1HrsgYBMqcPe1g2PEa9WSiVF5qnT0kiOl6/hcaahqbEFODHPf5sWX3/z7b/YSIgCkk+I1/N4kiS9pAhoiJ04UTzH6FeWfWjKGro8DwO/FMxv5irDyMFOqUDHyhWdUzzEojJXLGnrfxv43pUZLcbr8Zbc1l02agOapzfcl++Q5E+tsafycqAIRA2oB/pj9s1E6XzmrviqNjitMBKxj/HkiMuw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h7ShL0GdPz2yFP;
+	Mon, 27 Jul 2026 03:02:26 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785085345;
+	cv=none; b=iXCEkZDUYvs0K7YfQ4Xd4aQaRxNT5aTXiRgByMjrDd2MkEIKlcRrZLEwTqnJqH7gMnPNHsG9G6ELi+OWCrVsWg7+CUZX69PK6PD3rj8tQAIQNMIQffV88mT0otBGCcjCqJdImO2GPxQ9b9sOPAyNvCC6vU0vTxfB0Li2HW4svxlFoebCayA4BDj2Sg72PovZVE554zuzYuO2E1zIUPYKYBYo+xL06BbNufa5uELm1GlicYOc3o+Hkguv+SyK2i3GcVL5LOs4+MxCYsU/Wl+cMdfpYYgj10O1Q8z+/XrOM0UGjfB5fTSxj60cMkfOF4X/Ipgv7delbdSHteTPTnGVFg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785063759; c=relaxed/relaxed;
-	bh=NKheCSJZPz3m6h4n/zb/BXEDQNT1d2Jff15QSa8u4G4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KPMoLM0AlkvOiTMKqKNrKhUaA2Otc3T72oGMCDrDzdb5w84LN2UzDVPGEekrGg35tFUZf9JKKN+YTQVcy5xorqtCzj0GFd62S9uALExPZWEKBIur4h63/2PodChgOPk/nbTeqIaVpOfWKrqXvElwqrPhUKSvarDKNrhIPJxNNW9Bed0g6p4uokY7rMv4R9a2AiWkWdDU5dPXDAUShtigc3MIMkxOi/L+4VkTk2frTnC/DJlmQ/QfzgBhnf8BHXtEuWdrK/JE/EklIqJBBydozC0HPNR1wOSZOjVF91uyUrZ6QJU0xQCUbuMqkFDmFUelzh1b8PPcRIFYPaV54tzTvA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Z8gKKTLS; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::529; helo=mail-pg1-x529.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1785085345; c=relaxed/relaxed;
+	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=m487NGLmrLUN/S7BASPIxE9XGVlpt9Vjm7XFC3oXHPARWJyOkGPuqnjuN07aa84Mxj/9gI5LMcWWZ40TzQCP1PDox5jD+ZeX8k+IPDU1qpHzidL276fyUQGOloi7awWiIqxOWR4IbwzDAGZFD8FZT6cvh4UnLziiDYSGWX8qQrlMdT/BHK6zOEClxChFpZKbxQrAxXJQX2mH3P6f22sbMzzXY/Zo8wY6CKHXUDOSYPKsrRkXA8gMYAQDElkdtA+7txWeyZrXV5uG5bLJuqmWupNOVpFXvB7i9OGUymONoEDZhuLP/SNeZe4VW6VRPUtMW+OJ7vTYbN8DbFg9mlEBYg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Z8gKKTLS;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::529; helo=mail-pg1-x529.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7JjB3hSVz2xyk
-	for <linux-erofs@lists.ozlabs.org>; Sun, 26 Jul 2026 21:02:38 +1000 (AEST)
-Received: by mail-pg1-x529.google.com with SMTP id 41be03b00d2f7-cbb85186d43so865689a12.3
-        for <linux-erofs@lists.ozlabs.org>; Sun, 26 Jul 2026 04:02:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785063756; x=1785668556; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NKheCSJZPz3m6h4n/zb/BXEDQNT1d2Jff15QSa8u4G4=;
-        b=Z8gKKTLSh7+9bXVInm0bnXEDl44MEWkX11SwupOjGmYcoeflJ3A1VlB+iw/psArCow
-         CF0dxX9I4QzJCgbMqIMyN1KGdSCBIWhk+BiilfdI6roIrxtuIq7uOnZlHWNufcyNwBSp
-         aNUBjmAZ7yXMbqgMgGTOvt/UVOFY+2JMF27dp7+IH09xqNLH9Q2kDjcIR9crXBF9idne
-         IYAIC3e3MBgYY71O2OXkByZejekhLGynWb+4vChsariS7TopLhCPx0A+nPlrinvgj/o6
-         YzEP+OrgCjW8bm9UTDg0AQKCfmM8gVi/eAINpkOdtv20vMkPQ2KoVTx6kmKjhnVzflbv
-         iJyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785063756; x=1785668556;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NKheCSJZPz3m6h4n/zb/BXEDQNT1d2Jff15QSa8u4G4=;
-        b=aGDs6Resvi8vioJOH59VHFGLdp36EYuv3fg4ijdgbS+AtDUNWWOiYgE+AxCHu4kyFN
-         Luhsn035Vu4dRNJ6k6ZQHzddLn9eq5UTIeK7sp1IZvFcZ+QV3dSN7R0oCHDgCW9LPzMQ
-         ZFfQE3J9znW+4qnONEdOCWGC9/f0QO/4zrWFK0Cszhgpvpb3ClguR3+UeWg7Noqw7hMo
-         XiDvo6/2xVGR8DXZpom5/R2/j2Txz3Kh59116zHTSNF4IGoEgwzVMKDOExrTIO3jcuN+
-         B9zDRvGehZp9ZqRjtSiTT0iuPGGNuY4zBDxoNu6a34r+gTKRBWbalYO4AX2pVlMjxeRS
-         xRBw==
-X-Forwarded-Encrypted: i=1; AHgh+Rq3WXf1rEJ4kavhd4xbjP9z31BODzv3Tac/BcD0MB4lHPBY2y+I7WL0pAiVyHkv6UKlgN+1nITCVigSIw==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Ywoo6nPdNVt7lgHPZB1iSn2YJ8N6KDegJAbzfS5ivBEEd7mNJqn
-	7b7ctlbJ6Dw3/cyowXYjSfBYQ4j3Y0EZbeBwH7nl/5X8Mxte9UH3xov1QPXf0Q==
-X-Gm-Gg: AR+sD13xpvplrw/ZCqu0bPOX7yfju4GMqXO3OV6maDPldL/ruhn+dfXYBFkMSRsngNg
-	voeo+7JRHELvvryUO/F5VMQO53MEwJu8E1H2xVBerDxugdDgRyW2bD8O5qwAm4dcEHZwbf885DX
-	0epxyuIXYhMA5jZ2qQR8/CuIBtUqAwN0kUnSc/oopnk5QleQM32+Q6+yDYDeAXnIRj9yh3DMpdA
-	Cv0GnaGHvLnuU9c8HO8Ps410hI5SUKfqPi09Nc0jiyCtpHQmku9XmlQV5WrZZgnNz3pq8jupJki
-	TK33Fk0cQW9yguzSX5uWXU9o7xGw1qMwR36QM/FKMtEc/YXTH3BBWYJwZwEI8ic2T3+6pHm66aH
-	NxnqL9vjx01mTe2pLldSKu3UEBI2Ad3b2Ki5KGrGtnlvaVNxHrL02AcgWE6UV/DaS4F/droeDwt
-	GnS1MAVfQMDtrtWZ7vv2xDBzrKkGPlcyBVxy4=
-X-Received: by 2002:a17:90b:398c:b0:37f:e1b6:4c7d with SMTP id 98e67ed59e1d1-38f293cd1fcmr4674276a91.6.1785063755860;
-        Sun, 26 Jul 2026 04:02:35 -0700 (PDT)
-Received: from localhost.localdomain ([157.15.11.68])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc447f6bsm22420378eec.12.2026.07.26.04.02.33
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 26 Jul 2026 04:02:35 -0700 (PDT)
-From: Nithurshen <nithurshen.dev@gmail.com>
-To: nithurshen.dev@gmail.com
-Cc: hsiangkao@linux.alibaba.com,
-	linux-erofs@lists.ozlabs.org,
-	xiang@kernel.org
-Subject: Re: [PATCH v6] fsck.erofs: add multi-threaded decompression
-Date: Sun, 26 Jul 2026 16:32:30 +0530
-Message-ID: <20260726110230.62386-1-nithurshen.dev@gmail.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260726110116.61634-1-nithurshen.dev@gmail.com>
-References: <20260726110116.61634-1-nithurshen.dev@gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7ShJ2lMSz2xyk
+	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 03:02:21 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785085337;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
+	b=VB/ywLzL+Jm+t0RjK8aXTbgvCb6fpedSMRN40QwFHBlT306VSzGsxEReTjOZtF3rQOWtUc
+	8ILEBGVfqhovNc37y1zudhSX74e98mLuFAUGxRK2Iv25AfVAAJ9ky8q4Pd3wgM7C207OXR
+	ZN21cRxrYKT7lAkb1fdJF08ROqtrMLE=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785085337;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
+	b=VB/ywLzL+Jm+t0RjK8aXTbgvCb6fpedSMRN40QwFHBlT306VSzGsxEReTjOZtF3rQOWtUc
+	8ILEBGVfqhovNc37y1zudhSX74e98mLuFAUGxRK2Iv25AfVAAJ9ky8q4Pd3wgM7C207OXR
+	ZN21cRxrYKT7lAkb1fdJF08ROqtrMLE=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-526-1z0wFhV3PXy0qFNRA1VPzA-1; Sun,
+ 26 Jul 2026 13:02:12 -0400
+X-MC-Unique: 1z0wFhV3PXy0qFNRA1VPzA-1
+X-Mimecast-MFC-AGG-ID: 1z0wFhV3PXy0qFNRA1VPzA_1785085330
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20FA718011F0;
+	Sun, 26 Jul 2026 17:02:10 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.68])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6AF821955F7A;
+	Sun, 26 Jul 2026 17:02:08 +0000 (UTC)
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>,  Christian Brauner
+ <brauner@kernel.org>,  Miklos Szeredi <mszeredi@redhat.com>,
+  linux-fsdevel@vger.kernel.org,  linux-unionfs@vger.kernel.org,
+  linux-api@vger.kernel.org,  linux-erofs@lists.ozlabs.org,  Gao Xiang
+ <hsiangkao@linux.alibaba.com>
+Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through O_ALT
+In-Reply-To: <CAOQ4uxhqmh47w46x0zhOzqJ54iiL0KDpuuAqr2oPyjm4AOgDYQ@mail.gmail.com>
+	(Amir Goldstein's message of "Thu, 23 Jul 2026 11:20:51 +0200")
+References: <20260715101107.973997-1-mszeredi@redhat.com>
+	<20260722-fundort-zogen-kormoran-09fb867f1b59@brauner>
+	<CAJfpegs9Mzx2bPTmWWzGWv7D2jF5Nspns-U6jf=KeAufiFMXyA@mail.gmail.com>
+	<CAOQ4uxhqmh47w46x0zhOzqJ54iiL0KDpuuAqr2oPyjm4AOgDYQ@mail.gmail.com>
+Date: Sun, 26 Jul 2026 19:02:07 +0200
+Message-ID: <87se55k7lc.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -93,54 +92,80 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: ELDl35V3Ofn1Iifc1Ji1D51eUX4y65BVZggTL1SnsAc_1785085330
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-Hi Xiang,
+Amir Goldstein <amir73il@gmail.com> writes:
 
-I have integrated the multi-threaded decompression framework on
-top of the concurrent directory traversal patch and ran the
-benchmarks against our single-threaded baseline. All integrity
-checks passed successfully. Note that this data is an average of
-5 runs of extraction of the same file with purging all cache
-before each extraction.
+>> > And the smaller details really show how inelegant this model is and why
+>> > Al and I have opposed it multiple times before. Scalar options are
+>> > modeled as symlinks and non-path options are dangling links whose
+>> > readlink still returns the value while for path options readlink returns
+>> > the option string but following the link jumps somewhere else entirely.
+>>
+>> Hey, this is was a prototype to show that this can do what Giuseppe
+>> needs.  Not with nicely polished interfaces.
+>>
+>
+> I want to do a sidebar regarding "what Giuseppe needs".
+>
+> As I wrote I am all for introspection of overlayfs layers, but I was never
+> fully convinced that getting an open fd was the correct API.
+>
+> The starting point of the use case is a userspace daemon that wants
+> to reuse mounted erofs images, which are used as lower layers.
+>
+> When considering a single daemon (e.g. composefs) this reuse
+> would be better done completely in userspace without kernel involvement.
+>
+> The reason for a need for kernel UAPI for introspection of layers was
+> to allow cross daemon optimizations, so that containerd could reuse
+> erofs images mounted by composefs.
+>
+> This optimization works under the assumption that the image file
+> or the image file hash is a unique identifier of the desired lower layer.
+>
+> But what if composefs mounted the image with idmapping or some other
+> property?
+>
+> And how many container runtimes are there out there?
+> Is it really worth the elaborate effort to provide introspection
+> to this level?
+>
+> My intuition is that introspection should provide static information
+> like uuid/fsid/fhandle rather than an open fd.
+>
+> I am willing to be convinced otherwise with the proper arguments.
+>
+> Thanks,
+> Amir.
 
-Here is the extraction time breakdown and performance improvement:
+My end goal is to retrieve the EROFS mount itself that was used as an
+overlay lower layer so that it can be reused across multiple overlay
+mounts.
+I'd like to do it without requiring a daemon to keep the file descriptor
+open.  If the daemon crashes or is terminated for any reason, it can't
+retrieve this information from the kernel anymore, and the daemon must
+also worry about closing the file descriptor when it's no longer used by
+any mount.  It seems like an unnecessary duplication of state given the
+kernel already knowns about that.
 
-| Alg   | Cluster | ST Base | MT Trav | MT Comb | Imp(P1) | Imp(P2) | Imp(All) |
-|-------|---------|---------|---------|---------|---------|---------|----------|
-| lz4hc | 4096    | 4.17s   | 3.62s   | 3.38s   | 13.2%   | 6.6%    | 19.0%    |
-| lz4hc | 8192    | 6.02s   | 3.73s   | 3.56s   | 38.0%   | 4.6%    | 40.9%    |
-| lz4hc | 16384   | 5.34s   | 4.61s   | 4.24s   | 13.7%   | 8.0%    | 20.6%    |
-| lz4hc | 32768   | 5.24s   | 3.79s   | 3.34s   | 27.7%   | 11.9%   | 36.3%    |
-| lz4hc | 65536   | 4.23s   | 3.61s   | 3.49s   | 14.7%   | 3.3%    | 17.5%    |
-| zstd  | 4096    | 4.63s   | 4.62s   | 3.75s   | 0.2%    | 18.8%   | 19.0%    |
-| zstd  | 8192    | 4.78s   | 3.95s   | 3.84s   | 17.4%   | 2.8%    | 19.7%    |
-| zstd  | 16384   | 4.29s   | 3.68s   | 3.65s   | 14.2%   | 0.8%    | 14.9%    |
-| zstd  | 32768   | 4.33s   | 3.68s   | 3.18s   | 15.0%   | 13.6%   | 26.6%    |
-| zstd  | 65536   | 4.34s   | 3.82s   | 3.31s   | 12.0%   | 13.4%   | 23.7%    |
-| lzma  | 4096    | 56.37s  | 36.57s  | 20.60s  | 35.1%   | 43.7%   | 63.5%    |
-| lzma  | 8192    | 64.48s  | 45.00s  | 18.49s  | 30.2%   | 58.9%   | 71.3%    |
-| lzma  | 16384   | 69.83s  | 52.34s  | 21.97s  | 25.0%   | 58.0%   | 68.5%    |
-| lzma  | 32768   | 74.88s  | 55.37s  | 20.88s  | 26.1%   | 62.3%   | 72.1%    |
-| lzma  | 65536   | 80.66s  | 63.64s  | 19.81s  | 21.1%   | 68.9%   | 75.4%    |
+How can the uuid/fsid/fhandle alone be used to solve this?  The overlay
+mounts are private mounts that cannot be accessed anymore, even if you
+know their handle.
 
-*(Imp(P1): Improvement of MT Traversal over ST Baseline)*
-*(Imp(P2): Improvement of Combined Patch over MT Traversal)*
-*(Imp(All): Total Improvement of Combined Patch over ST Baseline)*
+In fact, before posting these patches I thought about extending
+open_by_handle_at to work with mounts, in addition to namespaces and
+pidfds.  Christian didn't agree with this idea and suggested the
+introspection API for overlay.  IMO, this functionality would solve the
+problem in a very elegant way, because we could store the handle for the
+EROFS mount in a file and try to reuse it later.  On ESTALE, the mount
+is recreated.  This would need only some locking, without the daemon
+duplicating the kernel state.
 
-Average Overall Improvements:
-* LZMA: ~70.2% improvement overall.
-* LZ4HC: ~26.9% improvement overall.
-* ZSTD: ~20.8% improvement overall.
+Regards,
+Giuseppe
 
-Regarding performance:
-By combining concurrent directory traversal with the multi-threaded
-decompression pipeline (featuring algorithm-aware batching and fast-
-path bypasses), we have successfully decoupled CPU-heavy compute
-from I/O-bound extraction.
-
-Please let me know your thoughts on this combined patch.
-
-Thanks,
-Nithurshen
 
