@@ -1,81 +1,80 @@
-Return-Path: <linux-erofs+bounces-4012-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4013-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B3C6C53219
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Jul 2026 10:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E355C531D0
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Jul 2026 10:48:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h7vyT5yYRz2ygn;
-	Mon, 27 Jul 2026 20:31:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::331"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785148273;
-	cv=none; b=MEnuNFuNxHdkCjd2w5hJ+Wh7l9yYqTmkdShxfYxO43EVApARu5FRP/G9k7dvQ4kL9ktv1O9xkd1zg3nHZSkfWgLcygJzRDx/k2eAFcrZxSGtWouUTj8NGjaNWHM6WqZdP1ZgOgNVJ719I7jgi1+6w9kxw7XfaU60UF6tpMyndficXMFzlMHjwjbJEyGeuyH9JLHnHrbtACHqWZ1zUILh17Kghop53Uz3gSV5dkwbDsMOwGGeZJvVWtVGoqlBVDA0dcUQvLrTMZuzszPjG08p4Ps8JRzjqN25cHJErig4ySGBZfjobbMRnw68yQBu1hIExsYEsG1TBzqzLX8sUOH3yw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h7wLs5JPhz2yjN;
+	Mon, 27 Jul 2026 20:48:53 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::32b"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785149333;
+	cv=none; b=fIF4T5G9NPJWytzmdsLZG8+oIUXt0Ztgk1xiM/lrDF/Y7oDZxo0s9kp5NMP95le6b+Fgm4cVL5Prpye0AbfD/TBbdY48TWMMB5RDkDJ8E252LragVQr5q/5W0JuZ2M4GHNNw6rxP7wBxWgUprX9y/aXVCb92w1Hlg7JzncBFD+aFlqQSrRp1S9lEFQ/85hd1tYocnsg6FZTONKKz/iY0T8HsMAFV9EDA6z+XMRITE7ZPMgymojCvGk8/HlC89wiWvKhZGritY+of21F6tq6zf5kAaAZLYqZNjw96B9Cibu6w3N73xVXlLlK1+lUEIvCvCQcunXXxEXRLzmRnf7qqFw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785148273; c=relaxed/relaxed;
-	bh=4+ZEgHulxWHuwHPHorxyrYnvV0LUKlyF4fm6PY9N2wQ=;
+	t=1785149333; c=relaxed/relaxed;
+	bh=wl6olrm9zBlfcqm4vDgZbW7ZBUMwFpjsg4jq9Xu7B8Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kO/+d+zZaAM/hYYkdF/hfg+hxYOag9CAjeqWvbOqeijXC5i/rri+gk1Adqy4aCRvla9jb+HXVDOhzxeEOYoeDXEPaCzvmKXQVOvIKduhGb874nY/mPQhlaTm1kfEHsAxZKBK8C+eumB1ReNml7e2GnZORjahRSnZm1eKsGGYzDmVAeHuHozXDQ7UL/Y0NRQNL7Cd92r8jYdR7CymLjmxTvzzcyqNWYajIjwpuIIl7hMNN8S0rDEcGE+XFaZ8S7KFRbdx29cZfW+1b5H5flNH+mPTjEZ/IUoahK1RCPiTCl8pRvocJRkiR2wGNYNdt6PBBLmeZ+MHJBp9ZqLculEmpQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=HQzgrFhK; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 MIME-Version; b=SYQxeGIRBDln1y5Ol9M9qZx7E6C6ublkJTxKV5dHrz7KomxLwoyd0bhqcMqsLcuYSsmTNRuwIEMnxEfkg/fLEz1kbOwTh4zdCLDAFZsnStK5PolcHj7qLqyfG0W89E7VnCf03R++mCRxbn+F7c+ZlUtCs0wi5tUA37zvKz8pGnRVDPZL9ShB1uhVTYACIxKLE5l/iKe9w7ppRt/NUtqkgjXJgsQZyFZZyePxjR+K8BV5V8UTtu2kdqIkFKvXzrRIUnIkEbp/ibrFdmjA0NhIZ5GYxEwGG6lOQC+8rMBUPGvHujkgN4iEJ1DdAP3kaWPsrz29vLY9D6CPoIZWOad2KQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=a3Eagvta; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::32b; helo=mail-wm1-x32b.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=HQzgrFhK;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=a3Eagvta;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::32b; helo=mail-wm1-x32b.google.com; envelope-from=ericcurtin17@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7vyS1Y3Vz2xll
-	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 20:31:11 +1000 (AEST)
-Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-495635a85d2so21308845e9.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 03:31:11 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7wLr1k10z2yhY
+	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 20:48:50 +1000 (AEST)
+Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-49548e01d02so12719155e9.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 03:48:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785148267; x=1785753067; darn=lists.ozlabs.org;
+        d=gmail.com; s=20251104; t=1785149327; x=1785754127; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=4+ZEgHulxWHuwHPHorxyrYnvV0LUKlyF4fm6PY9N2wQ=;
-        b=HQzgrFhKlUbJl6Fv/NBOFOC0iirQwC2AMJLO55CO/TKBeIhdEohYJDE/02+a0DW8kg
-         8hFGVUi8B+VtCom66B9ngnUXnphR/iitln+N59LsrlevjwqR3WtcfeN6a3X++VFVfXBU
-         BOk7IVFXIySh/yIwN5CZ+nX2ljXuNhoCD5ku9pkX1HDFtwwd1dDyiLvK7mLM1Qr1MNnd
-         QyCVfWChSOThptkxfv7gVCC6Q5pxmlVMxeLjAn2EFDGS05yF5S+QJ8xUtjB4rbhCs9by
-         Aoq5ayWaczlVQx8zO7ZUOQ/SWidXm43YibwbIUNW4jEvTyjcl1p2iZ/XMfXM0mM0SKVR
-         DIFw==
+        bh=wl6olrm9zBlfcqm4vDgZbW7ZBUMwFpjsg4jq9Xu7B8Q=;
+        b=a3EagvtaIDmVMKHoEyXEIiHNVXZuaQ8YH/nBaY8ZhDIjIGZ3w7jqVrVkGSNjQQA7/d
+         oDhI4hPSD+me78sK6U/aDNtIEHo18LQO4rL9vwboNmccTkaI/mlPE2ZJ/jvXQP6NAS26
+         MN3BfixquvLyALKH1ol/SMgMnKVcMq0HOnUbWMYVsE0+IWkYnqVJyH/8OjSUDUWBFJIC
+         V5GDKXpZ4CK4BIWx52PpW0OZWWEyUIm5MrIqzvz44hPPRwe9ek9OiPcDd1We5ZS0m8Yi
+         0myLHhj/XBgZJV1sanpHO53xjpm8NQarMmV4/YSjoAg6FXtuekXS3+4R4mlC6beH/rHk
+         jabg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785148267; x=1785753067;
+        d=1e100.net; s=20251104; t=1785149327; x=1785754127;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4+ZEgHulxWHuwHPHorxyrYnvV0LUKlyF4fm6PY9N2wQ=;
-        b=IOGzWRYl1rYcTqh5n5mda3bKvxXBSnHI4RgaIqYkwzr+Dua9OUDWfZFQNTfWzBzKqp
-         9yA1vrwya+GDUK9sMGSCPGj4Kirr944GAQEUx2CTj8vKA8eEoPXlHq9w2LaTbf68rI+t
-         kvzqgHSsLiQNqk1vHyI8UVgQCDIouYAp0yTeTHgrSOizpj2Mquhd/oBZSEXpfAlDYv+v
-         3RNRCgAowl+HHW9yGwPwJVQotp1QZkSa1JLQQk2R4ZqZvfk+lSc7dPrI9EqVi+X1Vs61
-         wk67fofZuMy7C2LYTcZIS8RvqCBoj2TDSES42OlWkwobkGW2VUwC219fpY92eplcnrFy
-         tq2A==
-X-Forwarded-Encrypted: i=1; AHgh+RrNZqncRNLMWvLadBosWdD1dn9xcy4tn3nSJa2PjMGVfgMFuU8C3GQiucUxXJSP/zbCtODak2aNXhUXvA==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yw/FHjjorak3v/wy9IfIFlyFIXGVLLMp9p+/dthVDnDyd9XMqZR
-	O+e52qy3yr2tocwRRfgfVHNmtcohi3cMLke0HFTsn1lGDQapiQM5GD/P
-X-Gm-Gg: AR+sD11HeOp0QTKnDh2/oVv7/VSZnrcjC2rW8M+NyydrCBbjAn5yxgnJk16iQHe7Hl9
-	ap3yYJVowyFrq76LF0KyZQ2lIQcJ2hIeVJqQ7l5Akigbz6eT4ZhJRDIaiLNXSe8upenBX2ZziYo
-	mPCP97/49YQ+VqO/Iuen6xnAxJOOVh7vPVRUlaDnjdiXlNYXxdHzttMxZco+T5MCTo12+ZWqdjs
-	K2eZIPEjHcoTE+7rsiAOBZTbcZp4BLl2Q6fp7Ms6EPdY4FRUUqdluxwwMRG4J26JDr97mAe3Ela
-	Z9bzoHUmKZM3Zr/6UL9Mv7AUnhQJvtODmm3kqF+PtzDAD35FkKtrKCOvveEbr68C4XAvKlnGEI7
-	5BdWdDos9LWN/7wZ65I62BDtmyuWMQJuqOrLMb6hnuitTBp9kn05OcHCM+mtsoskE7spcNb2VNK
-	gkyY7sjg==
-X-Received: by 2002:a05:600c:19c9:b0:492:4a50:41fe with SMTP id 5b1f17b1804b1-496b56ff171mr106409805e9.22.1785148267024;
-        Mon, 27 Jul 2026 03:31:07 -0700 (PDT)
+        bh=wl6olrm9zBlfcqm4vDgZbW7ZBUMwFpjsg4jq9Xu7B8Q=;
+        b=C7ZB09uJFk4fmyDS+r0FlLDzRvcviLWlfOpMr8j2EpGuaRWRkXm4jTcXcdKF5p3R9U
+         x4IBU1NlyfbW05+jrF9yDxZZzJaLCidOSHC1KbKDGk8SNy1aLaUNStzHAmdKrMt3uklz
+         A8Kic8BCmVHv67Su0EQF5MD3WC5TR23FWBK6ECYeQiOZYHBxKmvr2rcZXIsgi7NgjAyS
+         Xtb4WC9j+7Y5ll142crC3a7BCK6QeVgDHYrDFJUQyU/V0dHtYiT82eNzKhvQwD1WC8D5
+         r6WJn8CJHxB/yvzIo7d+nsHGkvZWMQiQ3r8Lx1LMxIQu+aEKeLf+6BH8RfWEGS6m5kMp
+         THMw==
+X-Forwarded-Encrypted: i=1; AHgh+RrAidNoyiNKLkAjbXgMnEwQTUA9R9gFZ6amCp1yQuE4f/xw7CIXUUtr+pn23LgDwK4nH1xOU2ubRTHDKA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YwcsPAl1Xnv6RUenC8WvdNy3qbimvTbQ6InHuMV9iwz19n/3C4d
+	DSrcGOv77W2EaoR0hMzJFl6Zid5hSFrxS6AhywrZeOBlU+/d3zW2cDcO
+X-Gm-Gg: AR+sD107Xc9ItrzblevdzSGppoB77XxTAI7bNIxyFBAB/M1qniGmCIPOR8D6z6awUHL
+	59mFApk6b6lWaq3ZLQIh9b2qy6tv7kCkD9PAH/O06JtlE542I6MLbCyKCQjFI7i5cCO3K4XYIky
+	RLsoitVugxXBUFJt2NTv9G6arTfIFgnvU5cu1VtHec+vjI9CcnTw49L1QhicYBM5mEyCMOluZGf
+	roq7yBWMbABUqiJeg1lHZarP8bIxa/kauNxn9Pbi1t9KKDXuir7ywYT5ZGDejBKjgA0BO+B20ff
+	wKhxTL78SDfERaqZT5KbZbKwdW8ML8EzPG5jz1d9MtIVvdRzgAhanXXvE+/lQCSiN2RWJ1ECQIj
+	27d+VM+47DJgLrwqJF4lsh4sPTSRlAbh0nixwjPH1i6xhdYfX8oxAXsRViFvuO5zmArMTgzRvbq
+	trZ2AFLg==
+X-Received: by 2002:a05:600c:19c8:b0:495:5205:86c with SMTP id 5b1f17b1804b1-496b5747d8dmr108835785e9.22.1785149327271;
+        Mon, 27 Jul 2026 03:48:47 -0700 (PDT)
 Received: from spark.Home ([2001:8a0:7280:4000:53fe:effd:424:fa7e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b49a6e17sm204884765e9.13.2026.07.27.03.31.05
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85b9a659sm49056188f8f.6.2026.07.27.03.48.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jul 2026 03:31:06 -0700 (PDT)
+        Mon, 27 Jul 2026 03:48:46 -0700 (PDT)
 From: Eric Curtin <ericcurtin17@gmail.com>
-To: Christian Brauner <brauner@kernel.org>
-Cc: Eric Curtin <ericcurtin17@gmail.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Jan Kara <jack@suse.cz>,
+To: Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>
+Cc: Jan Kara <jack@suse.cz>,
 	Jonathan Corbet <corbet@lwn.net>,
 	Shuah Khan <skhan@linuxfoundation.org>,
 	Eric Biggers <ebiggers@kernel.org>,
@@ -86,13 +85,14 @@ Cc: Eric Curtin <ericcurtin17@gmail.com>,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 0/2] init: boot image-based systems without an initramfs (rootimage=)
-Date: Mon, 27 Jul 2026 11:31:04 +0100
-Message-ID: <20260727103104.2531937-1-ericcurtin17@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Eric Curtin <ericcurtin17@gmail.com>
+Subject: [RFC PATCH v2 0/4] init: boot image-based systems without an initramfs (rootimage=)
+Date: Mon, 27 Jul 2026 11:48:41 +0100
+Message-ID: <20260727104845.2607444-1-ericcurtin17@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260727-gepaukt-eislauf-waran-7c03f0e47609@brauner>
-References: <20260718191551.1703670-1-ericcurtin17@gmail.com> <20260727-gepaukt-eislauf-waran-7c03f0e47609@brauner>
+References: <20260727-gepaukt-eislauf-waran-7c03f0e47609@brauner>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -106,82 +106,92 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On 2026-07-27 10:55 +0200, Christian Brauner wrote:
-> So I have several structual and design issues with this.
-[...]
-> You're embedding a whole deployment topology into the core code here as
-> well... There are _five_ interacting __setup parameters. Every real
-> deployment immediately wants a sixth knob: A/B fallback inside the
-> mechanism. Because in your current model every failure is a panic().
->
-> But that also means image selection must live in the bootloader anyway:
-> composefs/overlay stacking, LUKS-encrypted state partitions as command
-> lines can't do crypto secrets, fsck of the carrier, directory-based
-> deployments yadayadayada.
->
-> This is just turning do_mounts.c into policy it shouldn't be involved
-> in.
+Changes since v1 (https://lore.kernel.org/all/20260718191551.1703670-1-ericcurtin17@gmail.com/),
+following Christian Brauner's review
+(https://lore.kernel.org/all/20260727-gepaukt-eislauf-waran-7c03f0e47609@brauner/):
 
-Thanks for the detailed review. Let me state the goal plainly, since I
-think it explains the choices even though several of your specific
-findings below are real bugs I should just fix rather than defend.
+The goal is unchanged: A/B image updates from a single partition,
+without paying for a second userspace spin-up at boot. What changed is
+how rootimage=/rootimageverity= get from "here is a path" to "here is
+the verified, mounted root", which is what most of the v1 review was
+about.
 
-The goal is A/B image updates from a *single* partition, without
-paying for a second userspace spin-up at boot.
+ - Patches 1-2 are new: they add generic, reusable VFS infrastructure
+   (struct fs_context::source_file, path_mount_file()/
+   init_mount_file(), vfs_parse_fs_param_file()) that lets an in-kernel
+   caller hand a filesystem an already-open struct file as its mount
+   source instead of a path, and convert erofs's existing file-backed
+   mount support to use it when given. This is the "new infrastructure
+   available to any fs" asked for, so that init/do_mounts.c never has
+   to independently re-resolve a path that something else already
+   opened and validated.
 
-Today there are basically two ways to do A/B on Linux:
+ - Patch 3 (rootimage=) now opens the image file exactly once and
+   mounts that same struct file via the above, instead of opening it,
+   doing nothing with the open, and separately handing erofs a path
+   that it re-resolved on its own with no guaranteed relationship to
+   what was checked - which is what v1 did, and which is where most of
+   the "second lookup" / "weak assumptions" findings came from. There
+   is no fd-vs-path race left because there is no second lookup left.
 
- 1. N partitions/dm-verity volumes, each a full root image, selected
-    by the bootloader (dm-mod.create= + a GPT attribute flip). This
-    is the ChromeOS/Android model. It costs Nx the storage/partition
-    budget up front and the slot count is fixed at provisioning time.
+   rootimagesrcdir= is now mandatory (rootimagesrcdir=none opts out
+   explicitly) instead of silently detaching the carrier by default,
+   so there's no more zombie superblock/dangling mountpoint by
+   default; you have to ask for that outcome by name.
 
- 2. A single filesystem holding N image files (what bootc/ostree/
-    composefs already do), where something picks which file becomes
-    root. Far more space- and slot-count-flexible, but "pick a file
-    and expose it as root" is currently dracut/initramfs's job, so
-    you pay for a whole extra userspace stage whose only work is the
-    five steps in the cover letter.
+ - Patch 4 (rootimageverity=) is mostly unchanged in what it checks,
+   but now runs on the exact file patch 3 mounts, so the digest check
+   and the mount are guaranteed to agree on what "the image" is. It
+   also now refuses rootimageverity= together with rootimageflags=
+   containing device= (multi-device erofs images), since the digest
+   only ever covers the primary image file and silently ignoring the
+   rest would be a false sense of integrity.
 
-rootimage= targets (2): keep single-partition flexibility, drop the
-"spin up a second userspace just to switch_root" cost. On fast-boot
-targets that first userspace (loading dracut/busybox, forking,
-possibly loading modules) isn't free and is pure overhead for five
-mechanical steps.
+Not changed / not attempting to fix in this version, per the v1
+discussion:
 
-To be clear, I'm not trying to relitigate "no bootloader spec in the
-kernel" - I agree with that call, and A/B slot selection/fallback
-bookkeeping is meant to stay in the bootloader, exactly as it does
-with dm-mod.create= today. rootimage= is only meant to do the same
-mechanical "resolve the one path the bootloader already chose, verify
-it, make it root" step dm-mod.create() does for partitions - just for
-the file-backed case, where there's no dm table to describe it. So
-the "sixth knob" is intentionally out of scope; where you're right is
-that I haven't specified what happens when this step fails (currently
-panic()), and that needs a real answer, not "bootloader's problem".
+ - The carrier filesystem itself is still fully parsed (superblock,
+   directory entries, extents) before rootimageverity= gets to check
+   anything, since reaching the image file at all requires that. This
+   is structural to a file-backed image sitting on a general-purpose
+   writable filesystem, the same way a dm-verity root still needs a
+   trusted block layer under it; rootimage=/rootimageverity= are meant
+   to sit on top of an already-appropriately-trusted carrier (e.g.
+   itself dm-verity/LUKS-backed, or a well-audited always-read-only
+   fs), not conjure trust in an arbitrary writable one out of thin air.
 
-On the rest, these read like real bugs, not disagreements, and I'd
-rather fix them than defend the current code:
+ - A/B slot selection and fallback/rollback bookkeeping are still the
+   bootloader's job, exactly as with dm-mod.create= today; this series
+   only does the "resolve the one path the bootloader already chose,
+   verify it, make it root" mechanical step for the file-backed case,
+   not image-based deployment policy in general.
 
- - filp_open()/fput() unused, and no guaranteed relationship between
-   the fsverity-checked file and the path/inode init_mount() and
-   erofs's own filp_open(fc->source) resolve independently - agreed,
-   this needs a real "mount from an already-open fd" path.
- - multi-device erofs / rootimageflags=device= meaning the digest
-   only covers the primary image - agreed, real gap.
- - the carrier fs being fully parsed, including reading the fsverity
-   descriptor itself, before anything is verified - agreed, that
-   ordering defeats the point.
- - zombie superblock / dangling source path / no loop-style
-   backing-file equivalent after detach - agreed, needs fixing.
+ - There is still no sysfs equivalent of
+   /sys/block/loopX/loop/backing_file to discover which file backs the
+   root after boot (the mandatory rootimagesrcdir= at least means the
+   carrier itself stays reachable). This would need its own generic
+   piece of infrastructure and is left for a follow-up.
 
-I'll rework this into a v2 that only tries to solve the "take an
-already-resolved, already-open file and make it root, verified"
-problem, drop the multi-knob framing, and either fix the fd-vs-path
-lookup properly or wait for the generic "mount from fd" infra you
-mentioned.
+Eric Curtin (4):
+  fs: allow in-kernel mounters to hand filesystems an already-open
+    source file
+  erofs: use fs_context source_file for file-backed mounts when given
+  init: support mounting the root filesystem from an image file
+  init: support pinning the root image's fsverity digest
 
-Thanks for going through this in such detail.
+ .../admin-guide/kernel-parameters.txt         |  56 ++++
+ Documentation/filesystems/mount_api.rst       |  18 ++
+ fs/erofs/super.c                              |  19 ++
+ fs/fs_context.c                               |  39 ++-
+ fs/init.c                                     |  18 ++
+ fs/internal.h                                 |   2 +
+ fs/namespace.c                                |  96 ++++++-
+ include/linux/fs_context.h                    |   4 +
+ include/linux/init_syscalls.h                 |   2 +
+ init/do_mounts.c                              | 269 +++++++++++++++++-
+ 10 files changed, 514 insertions(+), 9 deletions(-)
 
-Eric
+-- 
+2.43.0
+
 
