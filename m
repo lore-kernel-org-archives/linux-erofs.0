@@ -1,86 +1,60 @@
-Return-Path: <linux-erofs+bounces-4008-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4009-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5E02C531C9
-	for <linux-erofs@archiver.kernel.org>; Sun, 26 Jul 2026 17:02:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 438DCC531D0
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Jul 2026 04:28:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h7ShL0GdPz2yFP;
-	Mon, 27 Jul 2026 03:02:26 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785085345;
-	cv=none; b=iXCEkZDUYvs0K7YfQ4Xd4aQaRxNT5aTXiRgByMjrDd2MkEIKlcRrZLEwTqnJqH7gMnPNHsG9G6ELi+OWCrVsWg7+CUZX69PK6PD3rj8tQAIQNMIQffV88mT0otBGCcjCqJdImO2GPxQ9b9sOPAyNvCC6vU0vTxfB0Li2HW4svxlFoebCayA4BDj2Sg72PovZVE554zuzYuO2E1zIUPYKYBYo+xL06BbNufa5uELm1GlicYOc3o+Hkguv+SyK2i3GcVL5LOs4+MxCYsU/Wl+cMdfpYYgj10O1Q8z+/XrOM0UGjfB5fTSxj60cMkfOF4X/Ipgv7delbdSHteTPTnGVFg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h7lvw22N7z2xyl;
+	Mon, 27 Jul 2026 14:28:28 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785126508;
+	cv=none; b=JKNX2IcsO2T7hQ9E0PfN5O1S0eUGjbBxluHq24HPsjj1s2uh+2BCDHvGZl+ZQa/V7vEXFdBQ57fjYvyOMqI0kBJRKqDIc/RZ2PgZzz+nnnVQ47xhdvEv9tNqQg/OlocXQSQI24cWvuKskQ9+bes6dNH/851rneZY1wfiOMFtLXfhtycpoPk9fu7XQ7n7HxIkuIw9zeTgjYhlXMAkXIjfOh09XY8V4Q/TasVD1WCmPDWSa4o1c9NlSLkMOGSyjYpKLnDzwuq/RuJPSPmNDTQK/FhNjJsIhER6DZvZq9r7W+lXq1xN8LZ36onKWwlgT9lWYBwS1EDUSVmDQm60eIVprw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785085345; c=relaxed/relaxed;
-	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=m487NGLmrLUN/S7BASPIxE9XGVlpt9Vjm7XFC3oXHPARWJyOkGPuqnjuN07aa84Mxj/9gI5LMcWWZ40TzQCP1PDox5jD+ZeX8k+IPDU1qpHzidL276fyUQGOloi7awWiIqxOWR4IbwzDAGZFD8FZT6cvh4UnLziiDYSGWX8qQrlMdT/BHK6zOEClxChFpZKbxQrAxXJQX2mH3P6f22sbMzzXY/Zo8wY6CKHXUDOSYPKsrRkXA8gMYAQDElkdtA+7txWeyZrXV5uG5bLJuqmWupNOVpFXvB7i9OGUymONoEDZhuLP/SNeZe4VW6VRPUtMW+OJ7vTYbN8DbFg9mlEBYg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1785126508; c=relaxed/relaxed;
+	bh=S0TbUMAJpxumCye6eK5ADRCc3bJxOKQaIyrfgtMjKiY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CoCSRlfygOFnpdSFoFSRJZ7lbFAIJWvqaD1tW9p0SzXWrHNjPUfUmOyxgpXa7C6iuhyyeqvBEDgoPbVbBjbDb92BwbzL9Dgy2mRTuc/uu1tmWx8caI+Alx+eWv6MN/Jzy676yeDH/f9Opwzlj5yDNX70Wmcu27UnmCEzlhb50bkMKVe2wyond4vKjYFvKRas22RbIx95st/v06+mp1XxQ6R3bWgGITuLH0jsfjUpboeEQsZuXNTQ+kvNfPDD66x4bHU1aLiaPd4yD5DnmDvaIThRpKaA9lnYPIfYabEF90/Xw5n7r+HCA+AZG/FmSa3Urn9qdbuiAFTl031/e6baCA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jf6/uSdk; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VB/ywLzL;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jf6/uSdk;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7ShJ2lMSz2xyk
-	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 03:02:21 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785085337;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
-	b=VB/ywLzL+Jm+t0RjK8aXTbgvCb6fpedSMRN40QwFHBlT306VSzGsxEReTjOZtF3rQOWtUc
-	8ILEBGVfqhovNc37y1zudhSX74e98mLuFAUGxRK2Iv25AfVAAJ9ky8q4Pd3wgM7C207OXR
-	ZN21cRxrYKT7lAkb1fdJF08ROqtrMLE=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785085337;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JY71NELZGrRMciGefJklIu7l8Fqf/TLyTlJRMliEMYA=;
-	b=VB/ywLzL+Jm+t0RjK8aXTbgvCb6fpedSMRN40QwFHBlT306VSzGsxEReTjOZtF3rQOWtUc
-	8ILEBGVfqhovNc37y1zudhSX74e98mLuFAUGxRK2Iv25AfVAAJ9ky8q4Pd3wgM7C207OXR
-	ZN21cRxrYKT7lAkb1fdJF08ROqtrMLE=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-526-1z0wFhV3PXy0qFNRA1VPzA-1; Sun,
- 26 Jul 2026 13:02:12 -0400
-X-MC-Unique: 1z0wFhV3PXy0qFNRA1VPzA-1
-X-Mimecast-MFC-AGG-ID: 1z0wFhV3PXy0qFNRA1VPzA_1785085330
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20FA718011F0;
-	Sun, 26 Jul 2026 17:02:10 +0000 (UTC)
-Received: from localhost (unknown [10.44.32.68])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6AF821955F7A;
-	Sun, 26 Jul 2026 17:02:08 +0000 (UTC)
-From: Giuseppe Scrivano <gscrivan@redhat.com>
-To: Amir Goldstein <amir73il@gmail.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>,  Christian Brauner
- <brauner@kernel.org>,  Miklos Szeredi <mszeredi@redhat.com>,
-  linux-fsdevel@vger.kernel.org,  linux-unionfs@vger.kernel.org,
-  linux-api@vger.kernel.org,  linux-erofs@lists.ozlabs.org,  Gao Xiang
- <hsiangkao@linux.alibaba.com>
-Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through O_ALT
-In-Reply-To: <CAOQ4uxhqmh47w46x0zhOzqJ54iiL0KDpuuAqr2oPyjm4AOgDYQ@mail.gmail.com>
-	(Amir Goldstein's message of "Thu, 23 Jul 2026 11:20:51 +0200")
-References: <20260715101107.973997-1-mszeredi@redhat.com>
-	<20260722-fundort-zogen-kormoran-09fb867f1b59@brauner>
-	<CAJfpegs9Mzx2bPTmWWzGWv7D2jF5Nspns-U6jf=KeAufiFMXyA@mail.gmail.com>
-	<CAOQ4uxhqmh47w46x0zhOzqJ54iiL0KDpuuAqr2oPyjm4AOgDYQ@mail.gmail.com>
-Date: Sun, 26 Jul 2026 19:02:07 +0200
-Message-ID: <87se55k7lc.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7lvv1TTdz2xwN
+	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 14:28:27 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 2200F40592;
+	Mon, 27 Jul 2026 04:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F103D1F000E9;
+	Mon, 27 Jul 2026 04:28:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785126503;
+	bh=S0TbUMAJpxumCye6eK5ADRCc3bJxOKQaIyrfgtMjKiY=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=Jf6/uSdkCjRURlUOyF42ZUQO9AX+mMVynWTHRjtWhkCitbQZ0QV614etaTWncPbiI
+	 V1DAO0CPDB5u/I0gmC975pJWpmr/MB312vz1dGzoDExSMyaH++Gtt0BoK4Ef43YbKW
+	 cc+QE5VqOpe0wbMHuCvM5QztNLmyvLBgY1Ftyi5KLXgjX8AOAogyvVbfGQCNz99pH8
+	 TfM2wVE05I1izTqqj2HsLUEHy79GrwbhMQ7xU+/49N7YbRVANqSJslpYnBuJYafrWi
+	 BRmeMpGs5SYtnPtcxHiVUwX5Ccr3sOEQo/8wbsXLL7mEhqMH9o0CJkhLya34LsLbBD
+	 rBVgsdqLzhJUA==
+From: Gao Xiang <xiang@kernel.org>
+To: linux-erofs@lists.ozlabs.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Gao Xiang <xiang@kernel.org>,
+	Hongbo Li <hongbohbli@tencent.com>
+Subject: [PATCH v2] erofs: ensure valid f_path for page cache sharing
+Date: Mon, 27 Jul 2026 12:27:39 +0800
+Message-ID: <20260727042739.2156-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260723050313.2273-1-xiang@kernel.org>
+References: <20260723050313.2273-1-xiang@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -92,80 +66,191 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: ELDl35V3Ofn1Iifc1Ji1D51eUX4y65BVZggTL1SnsAc_1785085330
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Amir Goldstein <amir73il@gmail.com> writes:
+Previously, backing files for page cache sharing were set up with
+f_path left as NULL (only f_inode was valid).  It worked, but a recent
+mincore fix relies on f_path.mnt and crashes (found by "erofs/028" on
+7.2-rc4):
 
->> > And the smaller details really show how inelegant this model is and why
->> > Al and I have opposed it multiple times before. Scalar options are
->> > modeled as symlinks and non-path options are dangling links whose
->> > readlink still returns the value while for path options readlink returns
->> > the option string but following the link jumps somewhere else entirely.
->>
->> Hey, this is was a prototype to show that this can do what Giuseppe
->> needs.  Not with nicely polished interfaces.
->>
->
-> I want to do a sidebar regarding "what Giuseppe needs".
->
-> As I wrote I am all for introspection of overlayfs layers, but I was never
-> fully convinced that getting an open fd was the correct API.
->
-> The starting point of the use case is a userspace daemon that wants
-> to reuse mounted erofs images, which are used as lower layers.
->
-> When considering a single daemon (e.g. composefs) this reuse
-> would be better done completely in userspace without kernel involvement.
->
-> The reason for a need for kernel UAPI for introspection of layers was
-> to allow cross daemon optimizations, so that containerd could reuse
-> erofs images mounted by composefs.
->
-> This optimization works under the assumption that the image file
-> or the image file hash is a unique identifier of the desired lower layer.
->
-> But what if composefs mounted the image with idmapping or some other
-> property?
->
-> And how many container runtimes are there out there?
-> Is it really worth the elaborate effort to provide introspection
-> to this level?
->
-> My intuition is that introspection should provide static information
-> like uuid/fsid/fhandle rather than an open fd.
->
-> I am willing to be convinced otherwise with the proper arguments.
->
-> Thanks,
-> Amir.
+ BUG: kernel NULL pointer dereference, address: 0000000000000018
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: Oops: 0000 [#1] SMP PTI
+ CPU: 3 UID: 0 PID: 675528 Comm: fincore Not tainted 7.2.0-rc4-00002-g[]-dirty #1 PREEMPT(lazy)
+ Hardware name: Red Hat KVM, BIOS 1.16.0-4.al8 04/01/2014
+ RIP: 0010:__do_sys_mincore+0xc0/0x2c0
+ ...
 
-My end goal is to retrieve the EROFS mount itself that was used as an
-overlay lower layer so that it can be reused across multiple overlay
-mounts.
-I'd like to do it without requiring a daemon to keep the file descriptor
-open.  If the daemon crashes or is terminated for any reason, it can't
-retrieve this information from the kernel anymore, and the daemon must
-also worry about closing the file descriptor when it's no longer used by
-any mount.  It seems like an unnecessary duplication of state given the
-kernel already knowns about that.
+Specify valid paths using valid disconnected dentries together with
+erofs_ishare_mnt instead of leaving f_path empty, so they are more
+like real backing files in a pseudo filesystem and standard
+backing_file_open() can be used directly.
 
-How can the uuid/fsid/fhandle alone be used to solve this?  The overlay
-mounts are private mounts that cannot be accessed anymore, even if you
-know their handle.
+Fixes: e187bc02f8fa ("mm: do file ownership checks with the proper mount idmap")
+Acked-by: Hongbo Li <hongbohbli@tencent.com>
+Signed-off-by: Gao Xiang <xiang@kernel.org>
+---
+v2:
+ - resolve sashiko's reports.
 
-In fact, before posting these patches I thought about extending
-open_by_handle_at to work with mounts, in addition to namespaces and
-pidfds.  Christian didn't agree with this idea and suggested the
-introspection API for overlay.  IMO, this functionality would solve the
-problem in a very elegant way, because we could store the handle for the
-EROFS mount in a file and try to reuse it later.  On ESTALE, the mount
-is recreated.  This would need only some locking, without the daemon
-duplicating the kernel state.
+ fs/erofs/Kconfig    |  1 +
+ fs/erofs/internal.h |  4 ++--
+ fs/erofs/ishare.c   | 58 ++++++++++++++++++++++-----------------------
+ 3 files changed, 31 insertions(+), 32 deletions(-)
 
-Regards,
-Giuseppe
+diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+index 4789b1077d8c..1feb28cfe557 100644
+--- a/fs/erofs/Kconfig
++++ b/fs/erofs/Kconfig
+@@ -189,6 +189,7 @@ config EROFS_FS_PCPU_KTHREAD_HIPRI
+ config EROFS_FS_PAGE_CACHE_SHARE
+ 	bool "EROFS page cache share support (experimental)"
+ 	depends on EROFS_FS && EROFS_FS_XATTR
++	select FS_STACK
+ 	help
+ 	  This enables page cache sharing among inodes with identical
+ 	  content fingerprints on the same machine.
+diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+index 580f8d9f14e7..57bd21859c65 100644
+--- a/fs/erofs/internal.h
++++ b/fs/erofs/internal.h
+@@ -288,8 +288,8 @@ struct erofs_inode {
+ 			struct erofs_inode_fingerprint fingerprint;
+ 			spinlock_t ishare_lock;
+ 		};
+-		/* for each real inode */
+-		struct inode *sharedinode;
++		/* for each real filesystem inode */
++		struct dentry *sharedentry;
+ 	};
+ #endif
+ 	/* the corresponding vfs inode */
+diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
+index a1a20a5ba548..fa7d4112dec5 100644
+--- a/fs/erofs/ishare.c
++++ b/fs/erofs/ishare.c
+@@ -2,14 +2,13 @@
+ /*
+  * Copyright (C) 2024, Alibaba Cloud
+  */
++#include <linux/backing-file.h>
+ #include <linux/xxhash.h>
+ #include <linux/mount.h>
+ #include <linux/security.h>
+ #include "internal.h"
+ #include "xattr.h"
+ 
+-#include "../internal.h"
+-
+ static struct vfsmount *erofs_ishare_mnt;
+ 
+ static int erofs_ishare_iget5_eq(struct inode *inode, void *data)
+@@ -33,10 +32,12 @@ static int erofs_ishare_iget5_set(struct inode *inode, void *data)
+ 
+ bool erofs_ishare_fill_inode(struct inode *inode)
+ {
++	static const struct file_operations empty_fops = {};
+ 	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
+ 	const struct address_space_operations *aops;
+ 	struct erofs_inode *vi = EROFS_I(inode);
+ 	struct erofs_inode_fingerprint fp;
++	struct dentry *sd;
+ 	struct inode *si;
+ 
+ 	aops = erofs_get_aops(inode);
+@@ -49,7 +50,9 @@ bool erofs_ishare_fill_inode(struct inode *inode)
+ 			  xxh32(fp.opaque, fp.size, 0),
+ 			  erofs_ishare_iget5_eq, erofs_ishare_iget5_set, &fp);
+ 	if (si && (inode_state_read_once(si) & I_NEW)) {
++		si->i_fop = &empty_fops;
+ 		si->i_mapping->a_ops = aops;
++		si->i_mode = 0444 | S_IFREG;
+ 		si->i_size = inode->i_size;
+ 		unlock_new_inode(si);
+ 	} else {
+@@ -65,7 +68,10 @@ bool erofs_ishare_fill_inode(struct inode *inode)
+ 			return false;
+ 		}
+ 	}
+-	vi->sharedinode = si;
++	sd = d_obtain_alias(si); /* disconnected denties for sharedinodes */
++	if (IS_ERR(sd))
++		return false;
++	vi->sharedentry = sd;
+ 	INIT_LIST_HEAD(&vi->ishare_list);
+ 	spin_lock(&EROFS_I(si)->ishare_lock);
+ 	list_add(&vi->ishare_list, &EROFS_I(si)->ishare_list);
+@@ -75,48 +81,40 @@ bool erofs_ishare_fill_inode(struct inode *inode)
+ 
+ void erofs_ishare_free_inode(struct inode *inode)
+ {
+-	struct erofs_inode *vi = EROFS_I(inode);
+-	struct inode *sharedinode = vi->sharedinode;
++	struct erofs_inode *vi = EROFS_I(inode), *svi;
+ 
+-	if (!sharedinode)
++	if (!vi->sharedentry)
+ 		return;
+-	spin_lock(&EROFS_I(sharedinode)->ishare_lock);
++	svi = EROFS_I(d_inode(vi->sharedentry));
++	spin_lock(&svi->ishare_lock);
+ 	list_del(&vi->ishare_list);
+-	spin_unlock(&EROFS_I(sharedinode)->ishare_lock);
+-	iput(sharedinode);
+-	vi->sharedinode = NULL;
++	spin_unlock(&svi->ishare_lock);
++	dput(vi->sharedentry);
++	vi->sharedentry = NULL;
+ }
+ 
+ static int erofs_ishare_file_open(struct inode *inode, struct file *file)
+ {
+-	struct inode *sharedinode = EROFS_I(inode)->sharedinode;
+-	struct file *realfile;
++	struct path sharedpath = {
++		.mnt = erofs_ishare_mnt,
++		.dentry = EROFS_I(inode)->sharedentry,
++	};
++	struct file *rf;
+ 
+ 	if (file->f_flags & O_DIRECT)
+ 		return -EINVAL;
+-	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred(),
+-					    file);
+-	if (IS_ERR(realfile))
+-		return PTR_ERR(realfile);
+-	ihold(sharedinode);
+-	realfile->f_op = &erofs_file_fops;
+-	realfile->f_inode = sharedinode;
+-	realfile->f_mapping = sharedinode->i_mapping;
+-	path_get(&file->f_path);
+-	backing_file_set_user_path(realfile, &file->f_path);
+-
+-	file_ra_state_init(&realfile->f_ra, file->f_mapping);
+-	realfile->private_data = EROFS_I(inode);
+-	file->private_data = realfile;
++
++	rf = backing_file_open(file, file->f_flags | O_NOATIME,
++			       &sharedpath, current_cred());
++	if (IS_ERR(rf))
++		return PTR_ERR(rf);
++	file->private_data = rf;
+ 	return 0;
+ }
+ 
+ static int erofs_ishare_file_release(struct inode *inode, struct file *file)
+ {
+-	struct file *realfile = file->private_data;
+-
+-	iput(realfile->f_inode);
+-	fput(realfile);
++	fput(file->private_data);
+ 	file->private_data = NULL;
+ 	return 0;
+ }
+-- 
+2.47.3
 
 
