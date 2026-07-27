@@ -1,60 +1,84 @@
-Return-Path: <linux-erofs+bounces-4009-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4010-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 438DCC531D0
-	for <linux-erofs@archiver.kernel.org>; Mon, 27 Jul 2026 04:28:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A119C53219
+	for <linux-erofs@archiver.kernel.org>; Mon, 27 Jul 2026 08:01:52 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h7lvw22N7z2xyl;
-	Mon, 27 Jul 2026 14:28:28 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785126508;
-	cv=none; b=JKNX2IcsO2T7hQ9E0PfN5O1S0eUGjbBxluHq24HPsjj1s2uh+2BCDHvGZl+ZQa/V7vEXFdBQ57fjYvyOMqI0kBJRKqDIc/RZ2PgZzz+nnnVQ47xhdvEv9tNqQg/OlocXQSQI24cWvuKskQ9+bes6dNH/851rneZY1wfiOMFtLXfhtycpoPk9fu7XQ7n7HxIkuIw9zeTgjYhlXMAkXIjfOh09XY8V4Q/TasVD1WCmPDWSa4o1c9NlSLkMOGSyjYpKLnDzwuq/RuJPSPmNDTQK/FhNjJsIhER6DZvZq9r7W+lXq1xN8LZ36onKWwlgT9lWYBwS1EDUSVmDQm60eIVprw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h7rf63MlKz2yhD;
+	Mon, 27 Jul 2026 18:01:50 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785139310;
+	cv=none; b=KRvQji41k0IoIjxje2CDrRIpXLZP1ONBojkjTY4rFKQwqISL8FtsdRvHnSW04ape+3uxHav9A4yZ+LGV4h35vG3CtJ2P5T7XDvNuh5sFJAQsDYNGpHJ0hrcSpqsn87Wl12TCKejcX5U3ig+Az4w4yiaN+BnMPHL24ByIwbGR6x5nyf7C56AGpUASmGd+W7q/GqHC5qu7NUfrdisyQhc1EcEJYc7A+uTunMFrS4DjBWOUMHzVqjcXaYx0ZwX497OZzIaCPqBYVQF8kTRBcOqZqPUk4EERRTv7G5wdqgvliMCEjXet0Vwxvmsq3/ZRWQuCBLuUUTfK7iZgCB8IFLF/Pg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785126508; c=relaxed/relaxed;
-	bh=S0TbUMAJpxumCye6eK5ADRCc3bJxOKQaIyrfgtMjKiY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CoCSRlfygOFnpdSFoFSRJZ7lbFAIJWvqaD1tW9p0SzXWrHNjPUfUmOyxgpXa7C6iuhyyeqvBEDgoPbVbBjbDb92BwbzL9Dgy2mRTuc/uu1tmWx8caI+Alx+eWv6MN/Jzy676yeDH/f9Opwzlj5yDNX70Wmcu27UnmCEzlhb50bkMKVe2wyond4vKjYFvKRas22RbIx95st/v06+mp1XxQ6R3bWgGITuLH0jsfjUpboeEQsZuXNTQ+kvNfPDD66x4bHU1aLiaPd4yD5DnmDvaIThRpKaA9lnYPIfYabEF90/Xw5n7r+HCA+AZG/FmSa3Urn9qdbuiAFTl031/e6baCA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jf6/uSdk; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1785139310; c=relaxed/relaxed;
+	bh=Pxe7RpMMYYPWZX2JNu88q4AXedb37JQOq+RTpKLIDQU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=JtcGjnSyPrfz40GP6ae8sE6S/gGu6TTT1umYeL6He6BGVXVH6RvnCM1fWJIzH99kwyKWt0P1ybbFAL73iuIa50NWQ8n+siC/uIrllhdPFU3ddyVHbfC54p+Issup16BqaT4y4v8wAExYAoG3lVlH497+JBLxxzSBQ92Y6bRpNt0v9wilEOQSW+oW6Qup70cBwPot2HcGetFckTIxKDV3P4gYQzNnukSUZPLaGtwIRL4LkL77b4uMWQtONcjNAvIoyIIefJ6PItb7Mve7cbe/LQKpJMprXwSbklnN+TdFslDvOIMOU/S7lJkzXgDVzJRwXSdj7WUiEHIRYZOnHKhH4g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UlMi8EyH; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UlMi8EyH; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Jf6/uSdk;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UlMi8EyH;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UlMi8EyH;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7lvv1TTdz2xwN
-	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 14:28:27 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 2200F40592;
-	Mon, 27 Jul 2026 04:28:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F103D1F000E9;
-	Mon, 27 Jul 2026 04:28:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785126503;
-	bh=S0TbUMAJpxumCye6eK5ADRCc3bJxOKQaIyrfgtMjKiY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Jf6/uSdkCjRURlUOyF42ZUQO9AX+mMVynWTHRjtWhkCitbQZ0QV614etaTWncPbiI
-	 V1DAO0CPDB5u/I0gmC975pJWpmr/MB312vz1dGzoDExSMyaH++Gtt0BoK4Ef43YbKW
-	 cc+QE5VqOpe0wbMHuCvM5QztNLmyvLBgY1Ftyi5KLXgjX8AOAogyvVbfGQCNz99pH8
-	 TfM2wVE05I1izTqqj2HsLUEHy79GrwbhMQ7xU+/49N7YbRVANqSJslpYnBuJYafrWi
-	 BRmeMpGs5SYtnPtcxHiVUwX5Ccr3sOEQo/8wbsXLL7mEhqMH9o0CJkhLya34LsLbBD
-	 rBVgsdqLzhJUA==
-From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Gao Xiang <xiang@kernel.org>,
-	Hongbo Li <hongbohbli@tencent.com>
-Subject: [PATCH v2] erofs: ensure valid f_path for page cache sharing
-Date: Mon, 27 Jul 2026 12:27:39 +0800
-Message-ID: <20260727042739.2156-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260723050313.2273-1-xiang@kernel.org>
-References: <20260723050313.2273-1-xiang@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h7rf44r3Fz2ygn
+	for <linux-erofs@lists.ozlabs.org>; Mon, 27 Jul 2026 18:01:46 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785139302;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Pxe7RpMMYYPWZX2JNu88q4AXedb37JQOq+RTpKLIDQU=;
+	b=UlMi8EyHp4aNT4rt44xG2IxbtZ6oEB2A2ynsIqZx7pHf/ZjCKZF8JezFemw81xUYA9LSAG
+	FfAaNGGulQusAPDtPZyTymmFvtxn+PA4UEPStQZUx6fwjCcMVnHu2shm1obvaKD7A3oQu+
+	OrDMzZGQCC5p2LqYWcJJNWpTDPYl4iE=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785139302;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Pxe7RpMMYYPWZX2JNu88q4AXedb37JQOq+RTpKLIDQU=;
+	b=UlMi8EyHp4aNT4rt44xG2IxbtZ6oEB2A2ynsIqZx7pHf/ZjCKZF8JezFemw81xUYA9LSAG
+	FfAaNGGulQusAPDtPZyTymmFvtxn+PA4UEPStQZUx6fwjCcMVnHu2shm1obvaKD7A3oQu+
+	OrDMzZGQCC5p2LqYWcJJNWpTDPYl4iE=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-680-8rFxiEBcPcmCneZw1HcBwg-1; Mon,
+ 27 Jul 2026 04:01:38 -0400
+X-MC-Unique: 8rFxiEBcPcmCneZw1HcBwg-1
+X-Mimecast-MFC-AGG-ID: 8rFxiEBcPcmCneZw1HcBwg_1785139297
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3E8F21955F3E;
+	Mon, 27 Jul 2026 08:01:37 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.41])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 66F7419560AB;
+	Mon, 27 Jul 2026 08:01:35 +0000 (UTC)
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+To: Gao Xiang <hsiangkao@linux.alibaba.com>
+Cc: Christian Brauner <brauner@kernel.org>,  linux-erofs@lists.ozlabs.org,
+  cyphar@cyphar.com,  linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v4] erofs: accept source file descriptor via fsconfig
+In-Reply-To: <95a5fc3a-4259-44a7-bb72-8ff35a49a26f@linux.alibaba.com> (Gao
+	Xiang's message of "Fri, 24 Jul 2026 06:38:20 +0800")
+References: <20260717134147.1602735-1-gscrivan@redhat.com>
+	<20260722-notnagel-allemal-kampfsport-8fd4e4d98a15@brauner>
+	<6d1ac697-d5f8-4952-ba68-27610f17bf3c@linux.alibaba.com>
+	<20260723-wickeln-schindel-rotstift-d987d4e9c036@brauner>
+	<95a5fc3a-4259-44a7-bb72-8ff35a49a26f@linux.alibaba.com>
+Date: Mon, 27 Jul 2026 10:01:34 +0200
+Message-ID: <87mrvckgip.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -66,191 +90,131 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: OB507NFjiuQYVPhmH515GYuAq_PLSTml-diIXjQWX8k_1785139297
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-Previously, backing files for page cache sharing were set up with
-f_path left as NULL (only f_inode was valid).  It worked, but a recent
-mincore fix relies on f_path.mnt and crashes (found by "erofs/028" on
-7.2-rc4):
+Gao Xiang <hsiangkao@linux.alibaba.com> writes:
 
- BUG: kernel NULL pointer dereference, address: 0000000000000018
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: Oops: 0000 [#1] SMP PTI
- CPU: 3 UID: 0 PID: 675528 Comm: fincore Not tainted 7.2.0-rc4-00002-g[]-dirty #1 PREEMPT(lazy)
- Hardware name: Red Hat KVM, BIOS 1.16.0-4.al8 04/01/2014
- RIP: 0010:__do_sys_mincore+0xc0/0x2c0
- ...
+> Hi Christian,
+>
+> On 2026/7/23 22:46, Christian Brauner wrote:
+>>> I'm not quite sure if I catched the point, I think Giuseppe's patch here
+>>> tried to record `file` into `sbi->dif0.file` (which indicates the primary
+>>> "device" later.)
+>>>
+>>> And if `sbi->dif0.file` is set up by erofs_fc_parse_source(),
+>>> erofs_fc_get_tree() will just use `sbi->dif0.file` instead of
+>>> `fc->source` according to this patch.
+>> Oh, so you only do it for file-backed mounts. Do you only allow
+>> regular
+>> files or do you also support block devices with
+>> CONFIG_EROFS_FS_BACKED_BY_FILE?
+>
+> Block devices with CONFIG_EROFS_FS_BACKED_BY_FILE are supported,
+> but with only `fc->source` (not this way.)
+>
+> That is the limitation I see in Giuseppe's patch. I'd hoped
+> bdev-backed mounts could work the same way, but that would require
+> changes to the VFS flow.
+>
+> Since this is a side improvement, I think it's fine as long as
+> it's documented somewhere, and I do hope Giuseppe can at least
+> address the documentation.
 
-Specify valid paths using valid disconnected dentries together with
-erofs_ishare_mnt instead of leaving f_path empty, so they are more
-like real backing files in a pseudo filesystem and standard
-backing_file_open() can be used directly.
+would something like the following be enough?
 
-Fixes: e187bc02f8fa ("mm: do file ownership checks with the proper mount idmap")
-Acked-by: Hongbo Li <hongbohbli@tencent.com>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
----
-v2:
- - resolve sashiko's reports.
-
- fs/erofs/Kconfig    |  1 +
- fs/erofs/internal.h |  4 ++--
- fs/erofs/ishare.c   | 58 ++++++++++++++++++++++-----------------------
- 3 files changed, 31 insertions(+), 32 deletions(-)
-
-diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
-index 4789b1077d8c..1feb28cfe557 100644
---- a/fs/erofs/Kconfig
-+++ b/fs/erofs/Kconfig
-@@ -189,6 +189,7 @@ config EROFS_FS_PCPU_KTHREAD_HIPRI
- config EROFS_FS_PAGE_CACHE_SHARE
- 	bool "EROFS page cache share support (experimental)"
- 	depends on EROFS_FS && EROFS_FS_XATTR
-+	select FS_STACK
- 	help
- 	  This enables page cache sharing among inodes with identical
- 	  content fingerprints on the same machine.
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 580f8d9f14e7..57bd21859c65 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -288,8 +288,8 @@ struct erofs_inode {
- 			struct erofs_inode_fingerprint fingerprint;
- 			spinlock_t ishare_lock;
- 		};
--		/* for each real inode */
--		struct inode *sharedinode;
-+		/* for each real filesystem inode */
-+		struct dentry *sharedentry;
- 	};
- #endif
- 	/* the corresponding vfs inode */
-diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-index a1a20a5ba548..fa7d4112dec5 100644
---- a/fs/erofs/ishare.c
-+++ b/fs/erofs/ishare.c
-@@ -2,14 +2,13 @@
- /*
-  * Copyright (C) 2024, Alibaba Cloud
-  */
-+#include <linux/backing-file.h>
- #include <linux/xxhash.h>
- #include <linux/mount.h>
- #include <linux/security.h>
- #include "internal.h"
- #include "xattr.h"
+diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
+index 4230884fb359..768e1d43dfcc 100644
+--- a/Documentation/filesystems/erofs.rst
++++ b/Documentation/filesystems/erofs.rst
+@@ -139,6 +139,29 @@ inode_share            Enable inode page sharing for this filesystem.  Inodes wi
+                        page cache.
+ ===================    =========================================================
  
--#include "../internal.h"
--
- static struct vfsmount *erofs_ishare_mnt;
- 
- static int erofs_ishare_iget5_eq(struct inode *inode, void *data)
-@@ -33,10 +32,12 @@ static int erofs_ishare_iget5_set(struct inode *inode, void *data)
- 
- bool erofs_ishare_fill_inode(struct inode *inode)
- {
-+	static const struct file_operations empty_fops = {};
- 	struct erofs_sb_info *sbi = EROFS_SB(inode->i_sb);
- 	const struct address_space_operations *aops;
- 	struct erofs_inode *vi = EROFS_I(inode);
- 	struct erofs_inode_fingerprint fp;
-+	struct dentry *sd;
- 	struct inode *si;
- 
- 	aops = erofs_get_aops(inode);
-@@ -49,7 +50,9 @@ bool erofs_ishare_fill_inode(struct inode *inode)
- 			  xxh32(fp.opaque, fp.size, 0),
- 			  erofs_ishare_iget5_eq, erofs_ishare_iget5_set, &fp);
- 	if (si && (inode_state_read_once(si) & I_NEW)) {
-+		si->i_fop = &empty_fops;
- 		si->i_mapping->a_ops = aops;
-+		si->i_mode = 0444 | S_IFREG;
- 		si->i_size = inode->i_size;
- 		unlock_new_inode(si);
- 	} else {
-@@ -65,7 +68,10 @@ bool erofs_ishare_fill_inode(struct inode *inode)
- 			return false;
- 		}
- 	}
--	vi->sharedinode = si;
-+	sd = d_obtain_alias(si); /* disconnected denties for sharedinodes */
-+	if (IS_ERR(sd))
-+		return false;
-+	vi->sharedentry = sd;
- 	INIT_LIST_HEAD(&vi->ishare_list);
- 	spin_lock(&EROFS_I(si)->ishare_lock);
- 	list_add(&vi->ishare_list, &EROFS_I(si)->ishare_list);
-@@ -75,48 +81,40 @@ bool erofs_ishare_fill_inode(struct inode *inode)
- 
- void erofs_ishare_free_inode(struct inode *inode)
- {
--	struct erofs_inode *vi = EROFS_I(inode);
--	struct inode *sharedinode = vi->sharedinode;
-+	struct erofs_inode *vi = EROFS_I(inode), *svi;
- 
--	if (!sharedinode)
-+	if (!vi->sharedentry)
- 		return;
--	spin_lock(&EROFS_I(sharedinode)->ishare_lock);
-+	svi = EROFS_I(d_inode(vi->sharedentry));
-+	spin_lock(&svi->ishare_lock);
- 	list_del(&vi->ishare_list);
--	spin_unlock(&EROFS_I(sharedinode)->ishare_lock);
--	iput(sharedinode);
--	vi->sharedinode = NULL;
-+	spin_unlock(&svi->ishare_lock);
-+	dput(vi->sharedentry);
-+	vi->sharedentry = NULL;
- }
- 
- static int erofs_ishare_file_open(struct inode *inode, struct file *file)
- {
--	struct inode *sharedinode = EROFS_I(inode)->sharedinode;
--	struct file *realfile;
-+	struct path sharedpath = {
-+		.mnt = erofs_ishare_mnt,
-+		.dentry = EROFS_I(inode)->sharedentry,
-+	};
-+	struct file *rf;
- 
- 	if (file->f_flags & O_DIRECT)
- 		return -EINVAL;
--	realfile = alloc_empty_backing_file(O_RDONLY|O_NOATIME, current_cred(),
--					    file);
--	if (IS_ERR(realfile))
--		return PTR_ERR(realfile);
--	ihold(sharedinode);
--	realfile->f_op = &erofs_file_fops;
--	realfile->f_inode = sharedinode;
--	realfile->f_mapping = sharedinode->i_mapping;
--	path_get(&file->f_path);
--	backing_file_set_user_path(realfile, &file->f_path);
--
--	file_ra_state_init(&realfile->f_ra, file->f_mapping);
--	realfile->private_data = EROFS_I(inode);
--	file->private_data = realfile;
++File-backed mounts
++==================
 +
-+	rf = backing_file_open(file, file->f_flags | O_NOATIME,
-+			       &sharedpath, current_cred());
-+	if (IS_ERR(rf))
-+		return PTR_ERR(rf);
-+	file->private_data = rf;
- 	return 0;
- }
++When ``CONFIG_EROFS_FS_BACKED_BY_FILE`` is enabled, EROFS can mount filesystem
++images stored as regular files directly, without requiring a loopback block
++device.  The source can be specified either by path or by passing an
++already-opened file descriptor via ``fsconfig(fd, FSCONFIG_SET_FD, "source",
++NULL, source_fd)``.  Only regular files are accepted; block devices must use
++the standard block device mount path.
++
++The backing file content must remain stable for the lifetime of the mount.
++EROFS never writes to it, but concurrent modifications by other processes lead
++to undefined behavior.
++
++Ioctls
++======
++
++``EROFS_IOC_GET_SOURCE_FD``
++  Return a read-only file descriptor (``O_CLOEXEC``) for the backing file of a
++  file-backed mount.  Returns ``-ENOENT`` on block-device-backed mounts.
++  Requires ``CAP_SYS_ADMIN`` in the initial user namespace (returns ``-EPERM``
++  otherwise).
++
+ Sysfs Entries
+ =============
  
- static int erofs_ishare_file_release(struct inode *inode, struct file *file)
- {
--	struct file *realfile = file->private_data;
--
--	iput(realfile->f_inode);
--	fput(realfile);
-+	fput(file->private_data);
- 	file->private_data = NULL;
- 	return 0;
- }
--- 
-2.47.3
+Regards,
+Giuseppe
+
+
+> I'd also like to make sure the way fc->source is filled
+> out of fd passing follows common practice, so that if fd-based
+> bdev-backed mounts land in the VFS later, they can keep
+> the same fc->source convention, otherwise it will cause
+> a userspace behavior change.
+>
+>> Do you document the expected behavior for the file you're consuming?
+>> Meaning, are concurrent modifications supported and what type of
+>> behavior does this exhibit?
+>
+>
+> As I perhaps mentioned, EROFS itself (or many EROFS) won't do any
+> modification to the underlayfs bdev or files by design so the
+> standard behavior is the blob devices / files won't get any change.
+> Beyond that, both the on-disk format and the implementation are
+> designed to tolerate unexpected external modifications (or storage
+> media damage). Even in the worst case, where the underlying storage
+> (block device or backing filesystem) is malicious, corrupted on-disk
+> (meta)data will not lead to the kind of complex, hard-to-resolve
+> inconsistencies you see in general-purpose writable filesystems,
+> whose ondisk/in-memory cached metadata is much harder to reconcile.
+>
+> I'm not sure whether you'll agree, but I want to emphasize that
+> again this is one of EROFS core design goals: the on-disk and
+> implementation design ensure that. If there is any human bug, it
+> will be addressed and fixed as long as it discloses: it won't be
+> hard to fixed.
+>
+> But if you really want to avoid concurrent modifications or keep
+> the image golden, I think dmverity or fsverify should be enforced
+> to ensure the filesystem won't be modified unexpectedly or expectedly.
+>
+>> 
+>>> The reason why `fc->source` is set was discussed in the
+>>> thread of the previous version suggested by Aleksa.
+>>>
+>>>>
+>>>> If they close it before this means you can mount something completely
+>>>> different. The other thing is even if they keep the fd open someone
+>>>> could just rename the damn thing and fc->source ends up pointing
+>>>> somwhere completely different. The could switch namespaces as well in
+>>>> some circumstances and then it points again into wherever.
+>>>>
+>>>> I've played with that fd idea before. The only way to make this work
+>>>> correctly is if you plumb this down into get_tree_nodev()
+>>>
+>>> fc->source in this case has no use in erofs_fc_get_tree() (`fc->source`
+>>> is just used for mountinfo for example), `sbi->dif0.file` works instead
+>>> I hope I don't misunderstand something.
+>> No, I misunderstood this.
+>
+> Thanks,
+> Gao Xiang
 
 
