@@ -1,70 +1,45 @@
-Return-Path: <linux-erofs+bounces-4025-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4026-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67B41C531F9
-	for <linux-erofs@archiver.kernel.org>; Tue, 28 Jul 2026 11:19:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 862FFC53219
+	for <linux-erofs@archiver.kernel.org>; Tue, 28 Jul 2026 12:34:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h8Y075WKTz2xyk;
-	Tue, 28 Jul 2026 21:19:51 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.18
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785237591;
-	cv=none; b=EJZ1bZ5zf2zZ9EqNyvq9L7ZRg1UJDXvxFGUd5ujmoTST+GJETfgA+OxwNgguRKEEyYBtkJPSfM5dz504Pc6dU9+SknFKfp95yMLKRwBiS7p8FJtAwn7HiMcOTbPjwt1cIwKj8MjZtOTEX+ottqYDwT3/bOKpAjdnRPbSHZf3hrLRZWVjmBR0HDA7FqcMS02ObA67Zz9u9kdE3VkgpYu5Y2qq+Hx4U7vWCxqwqb/XMentBsDBHkmhrPypkFVNrinncOzeybVkx9NnezQa40YsQfCTqRLeviBVILHQpd95tvJEN7JVWVIr3nj7uPG4GyUcbACUVL/lj5cMA9NyyufqWg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h8Zdl6C4fz2yRl;
+	Tue, 28 Jul 2026 22:34:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.113
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785242043;
+	cv=none; b=c5Q9nQ4ousTMus5FL1zsXy/JdKNkLpbI6Ii+w8nt9onRXuJj4iiEv3HLl4/ZhH+0UZj8jSUxYpe98JaygzvOmHvXM85RSn1QZle4Dakc1e/RdbScrLsrLGHYo5JFjhPsxu5a8uBiH7/U9u59HjBNE+xjA0MY2R5lUfJqI2ZWBY/rPgxEuVFjjfQyB3+sG9+NZFkulPQsrKkSfhnXDvHYfrPUhK4HPvOmd24NzCrN066HBXZv/iWSVBEb0/OFRisAImzrKWPLu855MQqkwcuIQhCtEAa+94Vv1KPU7frNiKfsLOT5JLEhyG7VBFSJc54OOvDYokkYk51eZlydxQsPyg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785237591; c=relaxed/relaxed;
-	bh=LSh67P9xFpckUhRzpas/bsBM6NzRfLo2WD39+fCdPSk=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=mWvnA29aQUwHGYxKSN3HDgiyjCkdGOvLIOZHUHqsPwsHvIxiKBIgYXDDbIK7OPYJl1X+v6pN51inkd3SRNHJzrLqikdAxIdk06ggU8t+HG91civpgzAYF0zXpIIrkxFSBnclYXV1KoQk9Jpb6VXocw+2namrIWONei4jjkYfZgP3ylsk5QapQLd8S0JNSskbZIiJ31NOH9e0PwZmnQ6VAAculpEcgDUXps/eOdWHifzcyADAjEXjZ8mJ0fGi1ug8COobzYoTj36D50pOuLvQOf3GnKXsIpk10222w9BUxhSuCCLSHYW/NVeFm9Ndne2GS47eSdyeO9T3J+d2uEx37Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kkXO4Twq; dkim-atps=neutral; spf=pass (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	t=1785242043; c=relaxed/relaxed;
+	bh=HZYbAcie+5Exfmk84qOueCdd8pPr5SW+ez9Sxtfghyc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KbuTa+jcvs7KCZwecQNcg1pVD1nnOYwVqUp2YA/eaMisFrQHJ1cv5Ltwwi03lS1Ij8HeeLfzxK0mCFlC/7J5IzrKtuPVRUtYf7GFpfjBMT8NCesOH/+QYhto47sInJTF7cJVtllcfgFc1WsO45yEH57nKB1XP2lzObcHMpmsgS+rJmNZDizmF94z5Xs6rORlW1fP0o/NI4mWfzqyKYzzRJ0WNfBG4W8V99kQsy5wuLCbPqd7rzAAZYztZmEbJIPexhQDomCMSJX3zBYLvhCcsusNgszbUEpuVUnyN72B4lCKwqvkIPObDTkg4hKki79iSMzP/hpC7C6ncw5duLhwvA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F+bWeDXP; dkim-atps=neutral; spf=pass (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kkXO4Twq;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F+bWeDXP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.113; helo=out30-113.freemail.mail.aliyun.com; envelope-from=hsiangkao@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h8Y03719mz2xJR
-	for <linux-erofs@lists.ozlabs.org>; Tue, 28 Jul 2026 21:19:46 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1785237588; x=1816773588;
-  h=date:from:to:cc:subject:message-id;
-  bh=uU8kjNE91bxUJpNUHXr8XLZMrNpzisMI5hD5iykHXV0=;
-  b=kkXO4TwqEYC8mXxp6NZD/qoOSFV204hUjpuqcg4/3yLFIkgtimxG00Uk
-   42HHb2ijGu7I+ezBLVpsiQFvsXtocBemrLfsCIYOehZ3vQAvivgJ58fW8
-   TuejSJoifMqNmgAW8Ow6P51zAjgHWXU3RHkvUo/pMUlZfcdXKQlJ54Lr8
-   AbtZz4mTxp1EzL2ubMwlCHMY9yhk4tFPOgSDCFnA3QgpMNyOodP1IcyH7
-   uiC0KFCoKvJIVgirBGNKO1o6kN4YcrcR2nMs1Z9Za/Z2aeERihg1pL3nX
-   KTjtdiYLh2c6Png7xbEMGNeK5FdaCTtfn0Jbdd2tPUoZ3u++aPi8sZG2H
-   g==;
-X-CSE-ConnectionGUID: iFalD+XHRt+RXKPDmXiM6Q==
-X-CSE-MsgGUID: FZn6JZ1fRnm8jMZiXGXupg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11858"; a="84943841"
-X-IronPort-AV: E=Sophos;i="6.25,190,1779174000"; 
-   d="scan'208";a="84943841"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jul 2026 04:19:42 -0700
-X-CSE-ConnectionGUID: xVCfqRJJT9y31m9aKV7Riw==
-X-CSE-MsgGUID: QDoPBAVJQteSu8PjBcdSIQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,190,1779174000"; 
-   d="scan'208";a="257870633"
-Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
-  by orviesa006.jf.intel.com with ESMTP; 28 Jul 2026 04:19:41 -0700
-Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wofqU-00000000eIh-2IxM;
-	Tue, 28 Jul 2026 11:19:38 +0000
-Date: Tue, 28 Jul 2026 19:18:59 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Xiang Gao <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
-Subject: [xiang-erofs:fixes] BUILD SUCCESS
- c9b47e6b23114e939b17f818471c7a46e59006e7
-Message-ID: <202607281937.al3VZMPd-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h8Zdj5r90z2xyk
+	for <linux-erofs@lists.ozlabs.org>; Tue, 28 Jul 2026 22:34:00 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1785242035; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=HZYbAcie+5Exfmk84qOueCdd8pPr5SW+ez9Sxtfghyc=;
+	b=F+bWeDXPaFiGx0qxGSqqS3z9tIHgbZUNRqm5gXN8dre3FH3PnwVWTmcIkYffJ2l3Q9UPJ/NWsojcy5b734Wt7Uh0FyNHxe3n1t2wxpImqg7CWMxx27OL0sCwarLw7jpV9zDBqvnwfhnF6fT0lEjvc87Q+WsXLE9AmfBhU9QA7nI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0X8-vD6H_1785242032;
+Received: from 30.180.139.68(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0X8-vD6H_1785242032 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 28 Jul 2026 20:33:53 +0800
+Message-ID: <ba39c0d9-1b7a-43d6-9a91-e729cb3a2731@linux.alibaba.com>
+Date: Tue, 28 Jul 2026 20:33:52 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -75,66 +50,118 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] erofs: accept source file descriptor via fsconfig
+To: Giuseppe Scrivano <gscrivan@redhat.com>
+Cc: Christian Brauner <brauner@kernel.org>, linux-erofs@lists.ozlabs.org,
+ cyphar@cyphar.com, linux-fsdevel@vger.kernel.org
+References: <20260717134147.1602735-1-gscrivan@redhat.com>
+ <20260722-notnagel-allemal-kampfsport-8fd4e4d98a15@brauner>
+ <6d1ac697-d5f8-4952-ba68-27610f17bf3c@linux.alibaba.com>
+ <20260723-wickeln-schindel-rotstift-d987d4e9c036@brauner>
+ <95a5fc3a-4259-44a7-bb72-8ff35a49a26f@linux.alibaba.com>
+ <87mrvckgip.fsf@redhat.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+In-Reply-To: <87mrvckgip.fsf@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git fixes
-branch HEAD: c9b47e6b23114e939b17f818471c7a46e59006e7  erofs: cap LZMA stream pool size
+Hi Giuseppe,
 
-elapsed time: 916m
+On 2026/7/27 16:01, Giuseppe Scrivano wrote:
+> Gao Xiang <hsiangkao@linux.alibaba.com> writes:
+> 
+>> Hi Christian,
+>>
+>> On 2026/7/23 22:46, Christian Brauner wrote:
+>>>> I'm not quite sure if I catched the point, I think Giuseppe's patch here
+>>>> tried to record `file` into `sbi->dif0.file` (which indicates the primary
+>>>> "device" later.)
+>>>>
+>>>> And if `sbi->dif0.file` is set up by erofs_fc_parse_source(),
+>>>> erofs_fc_get_tree() will just use `sbi->dif0.file` instead of
+>>>> `fc->source` according to this patch.
+>>> Oh, so you only do it for file-backed mounts. Do you only allow
+>>> regular
+>>> files or do you also support block devices with
+>>> CONFIG_EROFS_FS_BACKED_BY_FILE?
+>>
+>> Block devices with CONFIG_EROFS_FS_BACKED_BY_FILE are supported,
+>> but with only `fc->source` (not this way.)
+>>
+>> That is the limitation I see in Giuseppe's patch. I'd hoped
+>> bdev-backed mounts could work the same way, but that would require
+>> changes to the VFS flow.
+>>
+>> Since this is a side improvement, I think it's fine as long as
+>> it's documented somewhere, and I do hope Giuseppe can at least
+>> address the documentation.
+> 
+> would something like the following be enough?
+> 
+> diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
+> index 4230884fb359..768e1d43dfcc 100644
+> --- a/Documentation/filesystems/erofs.rst
+> +++ b/Documentation/filesystems/erofs.rst
+> @@ -139,6 +139,29 @@ inode_share            Enable inode page sharing for this filesystem.  Inodes wi
+>                          page cache.
+>   ===================    =========================================================
+>   
+> +File-backed mounts
+> +==================
+> +
+> +When ``CONFIG_EROFS_FS_BACKED_BY_FILE`` is enabled, EROFS can mount filesystem
+> +images stored as regular files directly, without requiring a loopback block
+> +device.  The source can be specified either by path or by passing an
+> +already-opened file descriptor via ``fsconfig(fd, FSCONFIG_SET_FD, "source",
+> +NULL, source_fd)``.  Only regular files are accepted; block devices must use
 
-configs tested: 45
-configs skipped: 1
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+File-backed mounts
+==================
 
-tested configs:
-alpha                            allnoconfig    gcc-16.1.0
-alpha                           allyesconfig    gcc-16.1.0
-alpha                              defconfig    gcc-16.1.0
-arc                             allmodconfig    gcc-16.1.0
-arc                             allyesconfig    gcc-16.1.0
-arm64                randconfig-001-20260728    gcc-8.5.0
-arm64                randconfig-002-20260728    clang-17
-arm64                randconfig-003-20260728    clang-24
-arm64                randconfig-004-20260728    gcc-8.5.0
-csky                            allmodconfig    gcc-16.1.0
-csky                 randconfig-001-20260728    gcc-16.1.0
-csky                 randconfig-002-20260728    gcc-10.5.0
-i386                            allmodconfig    gcc-14
-i386       buildonly-randconfig-001-20260728    gcc-14
-i386       buildonly-randconfig-003-20260728    clang-22
-i386       buildonly-randconfig-005-20260728    gcc-13
-loongarch                          defconfig    clang-24
-loongarch            randconfig-001-20260728    gcc-16.1.0
-nios2                           allmodconfig    gcc-11.5.0
-nios2                            allnoconfig    gcc-11.5.0
-parisc                          allmodconfig    gcc-16.1.0
-parisc                          allyesconfig    gcc-16.1.0
-parisc                             defconfig    gcc-16.1.0
-powerpc                canyonlands_defconfig    clang-22
-riscv                randconfig-001-20260728    clang-20
-riscv                randconfig-002-20260728    gcc-8.5.0
-s390                 randconfig-001-20260728    clang-22
-s390                 randconfig-002-20260728    gcc-8.5.0
-sh                                 defconfig    gcc-16.1.0
-sh                   randconfig-001-20260728    gcc-16.1.0
-sh                   randconfig-002-20260728    gcc-14.3.0
-sparc                randconfig-001-20260728    gcc-13.4.0
-sparc                randconfig-002-20260728    gcc-8.5.0
-sparc64              randconfig-001-20260728    gcc-13.4.0
-sparc64              randconfig-002-20260728    gcc-8.5.0
-um                   randconfig-001-20260728    clang-24
-um                   randconfig-002-20260728    clang-24
-x86_64               randconfig-011-20260728    clang-22
-x86_64               randconfig-012-20260728    clang-22
-x86_64               randconfig-013-20260728    clang-22
-x86_64               randconfig-014-20260728    clang-22
-x86_64               randconfig-015-20260728    clang-22
-x86_64               randconfig-016-20260728    gcc-14
-xtensa               randconfig-001-20260728    gcc-8.5.0
-xtensa               randconfig-002-20260728    gcc-11.5.0
+When ``CONFIG_EROFS_FS_BACKED_BY_FILE`` is enabled, EROFS file-backed images
+can be mounted directly without a loopback block device.  The backing file
+can be given either as a path, or as an already-opened file descriptor via
+``fsconfig(fd, FSCONFIG_SET_FD, "source", NULL, source_fd)``.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Only regular files are accepted as backing files; to mount an image that
+resides on a block device, use the traditional block device mount path
+instead.
+
+
+It's just my own sketch of this; you could just fold this into this patch
+with modification (I'm not quite good at English.)
+
+Also it lacks how `fc->source is filled` when source_fd is specified, we
+may need to document here as well (and hopefully vfs maintainers can ack
+on this so it can be stable.)
+
+> +the standard block device mount path.
+
+> +
+> +The backing file content must remain stable for the lifetime of the mount.
+> +EROFS never writes to it, but concurrent modifications by other processes lead
+> +to undefined behavior.
+
+Yes, I explained to Christian but I don't think it should be included
+in this patch, maybe we need to document this as a new section
+in a seperate patch later (possibly as a formal security model.)
+
+> +
+> +Ioctls
+> +======
+> +
+> +``EROFS_IOC_GET_SOURCE_FD``
+> +  Return a read-only file descriptor (``O_CLOEXEC``) for the backing file of a
+> +  file-backed mount.  Returns ``-ENOENT`` on block-device-backed mounts.
+> +  Requires ``CAP_SYS_ADMIN`` in the initial user namespace (returns ``-EPERM``
+> +  otherwise).
+
+I hope document this part in the corresponding patch but I guess we have
+to get a consensus between filesystems first.
+
+Thanks,
+Gao Xiang
 
