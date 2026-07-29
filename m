@@ -1,68 +1,99 @@
-Return-Path: <linux-erofs+bounces-4030-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4031-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD442C53200
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jul 2026 08:55:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E13AAC53200
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jul 2026 09:57:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h95lH0dcQz2xrL;
-	Wed, 29 Jul 2026 18:55:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=157.180.15.194
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785315339;
-	cv=none; b=MByvCTMLprzJgU1JxmT15EjSw+f4ZXyGIDBMXOEIQpSqWgGB/GyZsBrHHfzRmLlKzZBdypkLj2npL2hUEPmxTofC/keyW8RfeaiNsYlyOpMKFFIxMqvmn8pI3Sh6OELTsQHJEDv7iufVumRKFnQPFMTX8NT7j8RYyZ0HeVUo2fNOJTp1sWJXIBADZuQU4qyUas2q2d99kpoxf7Ur2GSJa8GdVpbxlH5TQXteKGyBwdUPsTCSiGsUHNQ9rv4J09eXnnZaeJdLjUDDDwy+sVxdGJLP4KHq85qfntFepLYl5gjp9MDz9SfjtXHA6n/p7wnvbba1pqmc8iBgxbpryO4Xxw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h97772h7nz2yjg;
+	Wed, 29 Jul 2026 19:57:55 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.135.223.131
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785319075;
+	cv=none; b=QHBb4zEO3FXxGsDYsmA/3s+QS7ympVq3NvV+lfIMzzF5wCFCrmkY8nox75jkIr4LAwaj8VsyN0tjF2zUWkDD/+617Stimp+7sVBq3LD5eJ77PJd/o1dV1lVv8Kublv4boqIaxv6+2304k4k6Ha86bYUfu45Gret/VPqo0Q0aoBvZrePHzX99bpYSoDmgzQasY4A1exUkEpldVajA0LT0nupoviVwJz8CAAnLqUL7vPSWbBKZvr1rnPBKhB2RF9AlGihUiAhydl/LCZdw4UPlp8bnhfuBASXwMJ2veg/GsmuAwk1lH+Uc6oYe/EfKkd80hCp3LdIZdyuAFRsTl3WStQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785315339; c=relaxed/relaxed;
-	bh=Ca3qkNHic8rR3X/AP7JbZLGtPa++G6cubzXyiDrZHTQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D43iZg+hboDzNM79mERlBZvqTBw6VIcT2M/jfD8FDXsNmU1stulHgcbcwMvD9u1CEjUW/DqdDFasGU4pDfgr/wZeVyBYxlxL4/E71aYCB/GK02d0BwYENDIJpoG0qnTUXn/B8p8BnQHxuGMHm/bo7zknbsW+nmIvroaP1XfJrzDTlgpftg5/7H/Eq/9LeVeaXPE+RyOzoXLkKXlYiWq7nyYAylMLLSVkOEp9kaImSnrYXYuE9iFUjvWBzKcnXifObbrHW5nMOi8gsxIep3ZO2vwPQHLdGCxw+NfBQ8qlBVeIUEr4YfmDLsJDj/sBgnWE0s2vZJQj0Zoci8q9cOo4nw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net; dkim=pass (4096-bit key; secure) header.d=envs.net header.i=@envs.net header.a=rsa-sha256 header.s=modoboa header.b=Xl4WkHPX; dkim-atps=neutral; spf=pass (client-ip=157.180.15.194; helo=mail.envs.net; envelope-from=xtex@envs.net; receiver=lists.ozlabs.org) smtp.mailfrom=envs.net
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net
+	t=1785319075; c=relaxed/relaxed;
+	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nPLhkSbab1em/VvNbVIdJPH8wBiOAC/zDzZoHqvL/aMhodjLzfXYQQeTQCMnQqqmPsbCZMvCjJz6a+v0jDfBj1FtCB0dwvyRgtsKsjgroe7VowV4AyOiPIjl2D1K1t2leuBKjuRQLyrg/x6oSNJASgba4WS3Y7p4Sr0CCYCAGT/mpF2JgkKKTI0HL3vUk1TuPVp7VrO9uNY2bJ54fhmp19AtqcwHnVOrKRIV3K+vlWJb1Th4H2FTaAFKNsLMIccv7yMK8fo0q1vpqMK2P2UJYBNmaMLY5aHv7IFHll4W2UvQL10w3IChfU5Qs4Wy9RvHnTB6uas465gIo7fSDLnesg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz; dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=BMOYxe4Z; dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HyQJ9wf4; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=2f/SBpsE; dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=zkuqGP7d; dkim-atps=neutral; spf=pass (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org) smtp.mailfrom=suse.cz
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (4096-bit key; secure) header.d=envs.net header.i=@envs.net header.a=rsa-sha256 header.s=modoboa header.b=Xl4WkHPX;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=BMOYxe4Z;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HyQJ9wf4;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=2f/SBpsE;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=zkuqGP7d;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=envs.net (client-ip=157.180.15.194; helo=mail.envs.net; envelope-from=xtex@envs.net; receiver=lists.ozlabs.org)
-Received: from mail.envs.net (mail.envs.net [157.180.15.194])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h95lD2H8Yz2xFc
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jul 2026 18:55:34 +1000 (AEST)
-Received: from localhost (mail.envs.net [127.0.0.1])
-	by mail.envs.net (Postfix) with ESMTP id 0EF341C00C8;
-	Wed, 29 Jul 2026 08:55:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=envs.net; s=modoboa;
-	t=1785315331; bh=Ca3qkNHic8rR3X/AP7JbZLGtPa++G6cubzXyiDrZHTQ=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Xl4WkHPXQWFTPVjoaS6iQmFpX/kc3t2C+Nx0wG1heriNX0svW2reeljXWtQYAvY9Q
-	 z7DRh/USu20IAR5x7qrSRUPZ2ZdC00SBas+J8Ry2ezMcksc6JvTl1c2TqBN8GwAy4m
-	 CwrlUV486rOrpx+qtoR4jKZx18tFI9U3ToJLqH6uE39b/5zkepAqXcXPDLsQFSv+Rh
-	 1mN4niwlujpZKW3VcRyT+hfWLw8Lg1wJxrb1FqfOvEpLVwt40HccIxqKXnlw2KOsSn
-	 hT84x+v1Ta6UmQD8hVr2xXX4hpyftLRd1Rjp4K8SRlLQXbaBis4YOBVV8H/qldH68+
-	 JduzNM4ihgt9KssAFQkAC6Ed5cl5yori4WhGQk0u2mYKxtSMvrfq8dywp2zrs70Q4p
-	 X7CbRjvHZ+161ZoSzGd/6kVfj27xlmHMXY+7TVgXfNAEWT5voPtIZt0QDtKOO5dbyw
-	 OvQZwp93TnBZ2cW22jAvHoMQBLhYmkI+HS/Et81FS9iXveKjHWzI14ZykePthSFsTg
-	 0JWfLZ8y/j7/ZFC6BE0PC66Tr9+7IlqRLXt5f3i6Lf1+pYwCjG5vtvR3g1Lmg7otsa
-	 ZGatzux12DFnoc0a8lJx7iyZYKaycNZFdIODT7kgl7qjuBtvtk/OIrv+Se0nvP+6l7
-	 pUpbKEpvoqxsX3B8s9XPORDE=
-X-Virus-Scanned: Debian amavisd-new at mail.envs.net
-Received: from mail.envs.net ([127.0.0.1])
-	by localhost (mail.envs.net [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id sthl5KdgIcl6; Wed, 29 Jul 2026 08:55:28 +0000 (UTC)
-Received: from xtexx.eu.org (unknown [211.136.168.2])
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h977455W6z2ygW
+	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jul 2026 19:57:52 +1000 (AEST)
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mail.envs.net (Postfix) with ESMTPSA;
-	Wed, 29 Jul 2026 08:55:28 +0000 (UTC)
-From: Bingwu Zhang <xtex@envs.net>
-To: linux-erofs <linux-erofs@lists.ozlabs.org>,
-	Gao Xiang <xiang@kernel.org>
-Cc: Bingwu Zhang <xtex@astrafall.org>
-Subject: [PATCH RESEND] erofs-utils: lib: fix memory leak in erofs_fragment_commit
-Date: Wed, 29 Jul 2026 16:55:27 +0800
-Message-ID: <20260729085527.124698-1-xtex@envs.net>
-X-Mailer: git-send-email 2.55.0
+	by smtp-out2.suse.de (Postfix) with ESMTPS id B55053E16;
+	Wed, 29 Jul 2026 09:57:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1785319064; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
+	b=BMOYxe4ZOMx7A9Umer1Jei/NJwRNmHtd4MJF3Ytytf5aC/45cBwSNCKSuXD3wZjUEYDZJB
+	YRJ7Xrr5xn+pdvspEJFo9fo5XJuzyH2LrlowyB+45uITlH80o9XXxHP4YLD+ec1oI4YtK+
+	7wsqHz/RoEt1sv4oQuNOI+nxwfrhxvA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1785319064;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
+	b=HyQJ9wf4f7xPE7SpMy7fcOowQN3nmEHUzvWe33NyWzO3lhEWCPQUz1WlmgHiaYbfPX0SPn
+	kynuuziz+szwdSCQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1785319060; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
+	b=2f/SBpsExr+x1qlk84aEp9G1GTtCEf4FsHH205mXjMsizcqaWCPwFW/+Vqxu2J7KPyQK8d
+	iMWgBbb9uS3YRQVWqFstxMhSEquxGdMmU+T2cMks4IjGcyO7ZCwkMbsUX3D6vDeKUsnb7L
+	MHuLadXNxwvtH2QKgE+Gu+LO7ou3ILY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1785319060;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
+	b=zkuqGP7dit6pemP7Udz0pDxCy2xwsP3bQhg7KdmlNJBMcQzI0SMp8kZSkuU+hPzh+P1Sqe
+	X2CoVWJSJiTTWyBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AD6E5779A1;
+	Wed, 29 Jul 2026 09:57:40 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id gJtMKpTOaWo4JwAAD6G6ig
+	(envelope-from <jack@suse.cz>); Wed, 29 Jul 2026 09:57:40 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 5996BA131F; Wed, 29 Jul 2026 11:57:25 +0200 (CEST)
+Date: Wed, 29 Jul 2026 11:57:25 +0200
+From: Jan Kara <jack@suse.cz>
+To: Gao Xiang <xiang@kernel.org>
+Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org, 
+	cyphar@cyphar.com, linux-fsdevel@vger.kernel.org, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v5] erofs: accept source file descriptor via fsconfig
+Message-ID: <7kgp355d25csimg5txuxhp33zmc5onxpyxdtkarmun62rblp7j@etbql27573dl>
+References: <20260728160619.853924-1-gscrivan@redhat.com>
+ <amlaIt8jjy_mSK-j@XiangdeMacBook-Pro.local>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -74,67 +105,85 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <amlaIt8jjy_mSK-j@XiangdeMacBook-Pro.local>
+X-Spamd-Result: default: False [-3.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[7];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_THREE(0.00)[3];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCVD_TLS_LAST(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
 
-From: Bingwu Zhang <xtex@astrafall.org>
+On Wed 29-07-26 09:40:50, Gao Xiang wrote:
+> On Tue, Jul 28, 2026 at 06:05:32PM +0200, Giuseppe Scrivano wrote:
+> > Allow userspace to pass an already-opened file descriptor as the mount
+> > source instead of a path string.  This is useful for tools that already
+> > hold an fd to the image, such as composefs reusing an existing erofs
+> > backing file.
+> > 
+> > Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+> > ---
+> > v4: https://lore.kernel.org/linux-fsdevel/20260717134147.1602735-1-gscrivan@redhat.com/
+> > v3: https://lore.kernel.org/linux-fsdevel/20260714154917.489993-1-gscrivan@redhat.com/
+> > v2: https://lore.kernel.org/linux-fsdevel/20260711071137.4130824-1-gscrivan@redhat.com/
+> > v1: https://lore.kernel.org/linux-fsdevel/ak5GfvVfWLJU1EwK@debian/
+> > 
+> >  Documentation/filesystems/erofs.rst | 15 ++++++
+> >  fs/erofs/super.c                    | 73 ++++++++++++++++++++++++-----
+> >  2 files changed, 77 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
+> > index 4230884fb359..774e8b236d09 100644
+> > --- a/Documentation/filesystems/erofs.rst
+> > +++ b/Documentation/filesystems/erofs.rst
+> > @@ -139,6 +139,21 @@ inode_share            Enable inode page sharing for this filesystem.  Inodes wi
+> >                         page cache.
+> >  ===================    =========================================================
+> >  
+> > +File-backed mounts
+> > +==================
+> > +
+> > +When CONFIG_EROFS_FS_BACKED_BY_FILE is enabled, EROFS file-backed images
+> > +can be mounted directly without a loopback block device.  The backing file
+> > +can be given either as a path, or as an already-opened file descriptor.
+> > +
+> > +When a file descriptor is used, the kernel resolves its path and records it
+> > +so that /proc/mounts and similar interfaces can still report the mount
+> > +source.
+> > +
+> > +Only regular files are accepted as backing files; to mount an image that
+> > +resides on a block device, use the traditional block device mount path
+> > +instead.
+> 
+> Reviewed-by: Gao Xiang <xiang@kernel.org>
+> 
+> Hi Christian, Jan, could you ack this (`fc->source` filling when
+> `source_fd` is used) if possible?
 
-erofs_fragment_pack may initialize fi->list as a
-new list head instead of adding it to a bucket.
-If fi->pos is non-zero, the fragmentitem and
-data buffer is not released by erofs_fragment_commit,
-leading to a memory leak.
+Whenever I see a use of d_path() (or file_path() in this case) I'm a bit
+watchful because its result is inherently racy and unsafe. But in this case
+the result is only used for alloc_vfsmnt() which uses it for mnt_devname so
+in the worst case we'll get an unreliable path in /proc/mounts or similar.
+I guess that's acceptable. So feel free to add:
 
-Signed-off-by: Bingwu Zhang <xtex@astrafall.org>
----
-Reproducer:
-mkfs.erofs -d9 -Eztailpacking -Einline_data \
-	-Efragments -zzstd --zD data.erofs data
+Acked-by: Jan Kara <jack@suse.cz>
 
-Direct leak of 5080 byte(s) in 127 object(s) allocated from:
-    #0 0x559bf549b788 in malloc (/home/xtex/src/erofs/erofs-utils/mkfs/mkfs.erofs+0x10f788)
-    #1 0x559bf554391e in erofs_fragment_pack /home/xtex/src/erofs/erofs-utils/lib/fragments.c:205:7
-    #2 0x559bf554426a in erofs_pack_file_from_fd /home/xtex/src/erofs/erofs-utils/lib/fragments.c:302:7
-    #3 0x559bf552e89f in erofs_write_compress_dir /home/xtex/src/erofs/erofs-utils/lib/compress.c:2074:8
-    #4 0x559bf5507421 in erofs_write_dir_file /home/xtex/src/erofs/erofs-utils/lib/inode.c:744:9
-    #5 0x559bf5507421 in erofs_mkfs_jobfn /home/xtex/src/erofs/erofs-utils/lib/inode.c:1654:9
-    #6 0x559bf5507421 in z_erofs_mt_dfops_worker /home/xtex/src/erofs/erofs-utils/lib/inode.c:1723:9
-    #7 0x559bf5498fca in asan_thread_start(void*) asan_interceptors.cpp.o
-
-Indirect leak of 7135 byte(s) in 127 object(s) allocated from:
-    #0 0x559bf549b788 in malloc (/home/xtex/src/erofs/erofs-utils/mkfs/mkfs.erofs+0x10f788)
-    #1 0x559bf55439c5 in erofs_fragment_pack /home/xtex/src/erofs/erofs-utils/lib/fragments.c:218:13
-    #2 0x559bf554426a in erofs_pack_file_from_fd /home/xtex/src/erofs/erofs-utils/lib/fragments.c:302:7
-    #3 0x559bf552e89f in erofs_write_compress_dir /home/xtex/src/erofs/erofs-utils/lib/compress.c:2074:8
-    #4 0x559bf5507421 in erofs_write_dir_file /home/xtex/src/erofs/erofs-utils/lib/inode.c:744:9
-    #5 0x559bf5507421 in erofs_mkfs_jobfn /home/xtex/src/erofs/erofs-utils/lib/inode.c:1654:9
-    #6 0x559bf5507421 in z_erofs_mt_dfops_worker /home/xtex/src/erofs/erofs-utils/lib/inode.c:1723:9
-    #7 0x559bf5498fca in asan_thread_start(void*) asan_interceptors.cpp.o
----
- lib/fragments.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/lib/fragments.c b/lib/fragments.c
-index 13afce3be537..f137e41b7365 100644
---- a/lib/fragments.c
-+++ b/lib/fragments.c
-@@ -325,6 +325,10 @@ int erofs_fragment_commit(struct erofs_inode *inode, u32 tofh)
- 
- 	if (fi->pos) {
- 		inode->fragmentoff = fi->pos - len;
-+		if (list_empty(&fi->list)) {
-+			free(fi->data);
-+			free(fi);
-+		}
- 		return 0;
- 	}
- 
-
----
-base-commit: 30711d4b2e234fe3e8aaeb779ade4cb609b0d920
-change-id: 20260706-fix-frag-leak-f7a6cf172168
-
-Best regards,
---  
-Bingwu Zhang <xtex@astrafall.org>
-
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
 
