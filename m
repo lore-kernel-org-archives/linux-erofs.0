@@ -1,99 +1,51 @@
-Return-Path: <linux-erofs+bounces-4031-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4032-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E13AAC53200
-	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jul 2026 09:57:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B333C53200
+	for <linux-erofs@archiver.kernel.org>; Wed, 29 Jul 2026 19:57:31 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h97772h7nz2yjg;
-	Wed, 29 Jul 2026 19:57:55 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.135.223.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785319075;
-	cv=none; b=QHBb4zEO3FXxGsDYsmA/3s+QS7ympVq3NvV+lfIMzzF5wCFCrmkY8nox75jkIr4LAwaj8VsyN0tjF2zUWkDD/+617Stimp+7sVBq3LD5eJ77PJd/o1dV1lVv8Kublv4boqIaxv6+2304k4k6Ha86bYUfu45Gret/VPqo0Q0aoBvZrePHzX99bpYSoDmgzQasY4A1exUkEpldVajA0LT0nupoviVwJz8CAAnLqUL7vPSWbBKZvr1rnPBKhB2RF9AlGihUiAhydl/LCZdw4UPlp8bnhfuBASXwMJ2veg/GsmuAwk1lH+Uc6oYe/EfKkd80hCp3LdIZdyuAFRsTl3WStQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h9NQx3DNGz2xwP;
+	Thu, 30 Jul 2026 05:57:29 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=37.120.164.117
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785355049;
+	cv=none; b=QlXa1t3HunJE+Vwu+PohnsdRIbz9LzhBvDXrefVRCGE+wMnIg0wdnbH0Io0DW1L+TCrJJC1O0w5iQdo/8HiiPo/gAzQqlNO6GWR6BjuEyJScJPatMPyOvHJVntx67D14GeWbPpcj0TdPOuzFJIwdClGbQjTcZugXbvXdg2uoruGF1TGAN7oOmv5g4sRHiyXU2lwJQG90uQEJB61v8tTAteRmZSSWOkF61sk9f/v56JjbUrmZu4DtPIqAcHZOMkOLCzWp3LZDAOvJ0DP75SpIaYcEJR+nVajp23AlFDhGvvVL5I28JGq1kDKn/38nhrRB8n/Z6ffNY+rdrhrOBDiTfg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785319075; c=relaxed/relaxed;
-	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nPLhkSbab1em/VvNbVIdJPH8wBiOAC/zDzZoHqvL/aMhodjLzfXYQQeTQCMnQqqmPsbCZMvCjJz6a+v0jDfBj1FtCB0dwvyRgtsKsjgroe7VowV4AyOiPIjl2D1K1t2leuBKjuRQLyrg/x6oSNJASgba4WS3Y7p4Sr0CCYCAGT/mpF2JgkKKTI0HL3vUk1TuPVp7VrO9uNY2bJ54fhmp19AtqcwHnVOrKRIV3K+vlWJb1Th4H2FTaAFKNsLMIccv7yMK8fo0q1vpqMK2P2UJYBNmaMLY5aHv7IFHll4W2UvQL10w3IChfU5Qs4Wy9RvHnTB6uas465gIo7fSDLnesg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz; dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=BMOYxe4Z; dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HyQJ9wf4; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=2f/SBpsE; dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=zkuqGP7d; dkim-atps=neutral; spf=pass (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org) smtp.mailfrom=suse.cz
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz
+	t=1785355049; c=relaxed/relaxed;
+	bh=SBEUFOAolSKqYeDYtWCw2pBbqmUF3RgJ7xfj3QFRiI4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=lfLKo6kK8GkHHGwUEwXId/f0AhT/jLNdkVFmt11TNUlWH4wqRspkuSxTA0Q3dQv6b9Faf6xf9kQ/HkdiCT3MB88fjjD4BdjE4GSvEowQismPs0iM19uYJbism2T8fxkLjo5iXpi37Mq0LA+qLRE433VmyXfRCU7me27pYypsV6xhGTvia8VcYEn4oPQU2JRsY7w3TV0ScuPvIPDO7P6ysC0GfQnf2Ww7alf5tuZK1bwNEsQM9WO13DYlJ73mIpB5NtEPGJJH78q2oRMpNWVqvak6GC078kxXBpeF0OPw5TB7gPFpFRsKHJmA0Fh6/ZS+eVqjRiuEjFRWrYFN4YUKSA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=piware.de; dkim=pass (2048-bit key; unprotected) header.d=piware.de header.i=@piware.de header.a=rsa-sha256 header.s=2025 header.b=ZjAv+cgw; dkim-atps=neutral; spf=pass (client-ip=37.120.164.117; helo=mail.piware.de; envelope-from=martin@piware.de; receiver=lists.ozlabs.org) smtp.mailfrom=piware.de
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=piware.de
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=BMOYxe4Z;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=HyQJ9wf4;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=2f/SBpsE;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=zkuqGP7d;
+	dkim=pass (2048-bit key; unprotected) header.d=piware.de header.i=@piware.de header.a=rsa-sha256 header.s=2025 header.b=ZjAv+cgw;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h977455W6z2ygW
-	for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jul 2026 19:57:52 +1000 (AEST)
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id B55053E16;
-	Wed, 29 Jul 2026 09:57:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1785319064; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
-	b=BMOYxe4ZOMx7A9Umer1Jei/NJwRNmHtd4MJF3Ytytf5aC/45cBwSNCKSuXD3wZjUEYDZJB
-	YRJ7Xrr5xn+pdvspEJFo9fo5XJuzyH2LrlowyB+45uITlH80o9XXxHP4YLD+ec1oI4YtK+
-	7wsqHz/RoEt1sv4oQuNOI+nxwfrhxvA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1785319064;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
-	b=HyQJ9wf4f7xPE7SpMy7fcOowQN3nmEHUzvWe33NyWzO3lhEWCPQUz1WlmgHiaYbfPX0SPn
-	kynuuziz+szwdSCQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1785319060; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
-	b=2f/SBpsExr+x1qlk84aEp9G1GTtCEf4FsHH205mXjMsizcqaWCPwFW/+Vqxu2J7KPyQK8d
-	iMWgBbb9uS3YRQVWqFstxMhSEquxGdMmU+T2cMks4IjGcyO7ZCwkMbsUX3D6vDeKUsnb7L
-	MHuLadXNxwvtH2QKgE+Gu+LO7ou3ILY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1785319060;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Gpqm3qXNMEEYU33pegSYP4qns9JRmr0RwOBLDBlH9AE=;
-	b=zkuqGP7dit6pemP7Udz0pDxCy2xwsP3bQhg7KdmlNJBMcQzI0SMp8kZSkuU+hPzh+P1Sqe
-	X2CoVWJSJiTTWyBw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AD6E5779A1;
-	Wed, 29 Jul 2026 09:57:40 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id gJtMKpTOaWo4JwAAD6G6ig
-	(envelope-from <jack@suse.cz>); Wed, 29 Jul 2026 09:57:40 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 5996BA131F; Wed, 29 Jul 2026 11:57:25 +0200 (CEST)
-Date: Wed, 29 Jul 2026 11:57:25 +0200
-From: Jan Kara <jack@suse.cz>
-To: Gao Xiang <xiang@kernel.org>
-Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org, 
-	cyphar@cyphar.com, linux-fsdevel@vger.kernel.org, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH v5] erofs: accept source file descriptor via fsconfig
-Message-ID: <7kgp355d25csimg5txuxhp33zmc5onxpyxdtkarmun62rblp7j@etbql27573dl>
-References: <20260728160619.853924-1-gscrivan@redhat.com>
- <amlaIt8jjy_mSK-j@XiangdeMacBook-Pro.local>
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=piware.de (client-ip=37.120.164.117; helo=mail.piware.de; envelope-from=martin@piware.de; receiver=lists.ozlabs.org)
+X-Greylist: delayed 310 seconds by postgrey-1.37 at boromir; Thu, 30 Jul 2026 05:57:25 AEST
+Received: from mail.piware.de (mail.piware.de [37.120.164.117])
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h9NQt01KVz2xg8
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 05:57:25 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=piware.de; s=2025;
+	t=1785354729; bh=ajDVHpB8wjp3iSsXmXv6y8idletV8Hbb4flUl5PIwrg=;
+	h=Date:From:To:Cc:Subject:From;
+	b=ZjAv+cgwTmyKkoDMf7NFPby/E6k84g40S0lJGwzyqfiXvJpaR5Cy8PhpbV9ChSHEq
+	 350zHGJYRqySdQehtJllCPissvyBfRYo2O/G0FAEtafPdK7qQe+B1Wcxey2S2Q2hcj
+	 4Pmsfz85Rf4y+/E+381qIiaVtqVc0ldu33jjpqaKgWRrUOvGRFSZ2vapv3eoF1+c98
+	 jOqQ6Ovm9OcQYdOXqfc/5kANN8gTYXTaSWnk7ul2vsD8FfWcMDY+RMpSGNTAaK8NXZ
+	 KnmOz5+PisbZnpwM57qLHMyTMMK0WYWziSjUF4i4Ig06yJNypXIAx82xLl6DTuqjhR
+	 ljOLsaEq7WpSw==
+Received: from piware.de (localhost [127.0.0.1])
+	by mail.piware.de (Postfix) with SMTP id 75D37FF88A;
+	Wed, 29 Jul 2026 21:52:09 +0200 (CEST)
+Date: Wed, 29 Jul 2026 21:52:08 +0200
+From: Martin Pitt <martin@piware.de>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>, Yifan Zhao <zhaoyifan28@huawei.com>
+Subject: [PATCH] erofs-utils: mkfs: emit an inode's xattrs in a canonical
+ order
+Message-ID: <ampZ6MVV1nN3YzQ_@piware.de>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -107,83 +59,193 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <amlaIt8jjy_mSK-j@XiangdeMacBook-Pro.local>
-X-Spamd-Result: default: False [-3.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_THREE(0.00)[3];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCVD_TLS_LAST(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo]
 
-On Wed 29-07-26 09:40:50, Gao Xiang wrote:
-> On Tue, Jul 28, 2026 at 06:05:32PM +0200, Giuseppe Scrivano wrote:
-> > Allow userspace to pass an already-opened file descriptor as the mount
-> > source instead of a path string.  This is useful for tools that already
-> > hold an fd to the image, such as composefs reusing an existing erofs
-> > backing file.
-> > 
-> > Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
-> > ---
-> > v4: https://lore.kernel.org/linux-fsdevel/20260717134147.1602735-1-gscrivan@redhat.com/
-> > v3: https://lore.kernel.org/linux-fsdevel/20260714154917.489993-1-gscrivan@redhat.com/
-> > v2: https://lore.kernel.org/linux-fsdevel/20260711071137.4130824-1-gscrivan@redhat.com/
-> > v1: https://lore.kernel.org/linux-fsdevel/ak5GfvVfWLJU1EwK@debian/
-> > 
-> >  Documentation/filesystems/erofs.rst | 15 ++++++
-> >  fs/erofs/super.c                    | 73 ++++++++++++++++++++++++-----
-> >  2 files changed, 77 insertions(+), 11 deletions(-)
-> > 
-> > diff --git a/Documentation/filesystems/erofs.rst b/Documentation/filesystems/erofs.rst
-> > index 4230884fb359..774e8b236d09 100644
-> > --- a/Documentation/filesystems/erofs.rst
-> > +++ b/Documentation/filesystems/erofs.rst
-> > @@ -139,6 +139,21 @@ inode_share            Enable inode page sharing for this filesystem.  Inodes wi
-> >                         page cache.
-> >  ===================    =========================================================
-> >  
-> > +File-backed mounts
-> > +==================
-> > +
-> > +When CONFIG_EROFS_FS_BACKED_BY_FILE is enabled, EROFS file-backed images
-> > +can be mounted directly without a loopback block device.  The backing file
-> > +can be given either as a path, or as an already-opened file descriptor.
-> > +
-> > +When a file descriptor is used, the kernel resolves its path and records it
-> > +so that /proc/mounts and similar interfaces can still report the mount
-> > +source.
-> > +
-> > +Only regular files are accepted as backing files; to mount an image that
-> > +resides on a block device, use the traditional block device mount path
-> > +instead.
+listxattr(2) makes no promise about the order it reports: while e.g.
+ext4 returns a reproducible order, tmpfs varies it from inode to inode,
+so building the same tree twice can lay the same set of xattrs out
+differently and yield images that differ byte for byte. This makes the
+erofs images unreproducible.
+
+Insert into the inode's list ordered by attribute name instead, and move
+inline attributes onto the on-stack list with list_add_tail() so the
+emitted order matches. This is the same approach as the shared attribute
+pool already does with comp_shared_xattritem().
+
+Signed-off-by: Martin Pitt <martin@amutable.com>
+---
+
+See the attached reproducer below (that was written by Claude Opus 5). With
+$TMPDIR pointing to tmpfs (most modern distros should have the default /tmp/ on
+tmpfs), it does 8 runs with lots of jitter:
+
+> run  1  listxattr: gpt_label gpt_type_uuid mount_point            sha256: d81df9744f252cf3
+> run  4  listxattr: gpt_label gpt_type_uuid mount_point            sha256: 6bad887d59e1e404
+> run  7  listxattr: gpt_label gpt_type_uuid mount_point            sha256: a16c9aca9449e61b
+> [...]
 > 
-> Reviewed-by: Gao Xiang <xiang@kernel.org>
-> 
-> Hi Christian, Jan, could you ack this (`fc->source` filling when
-> `source_fd` is used) if possible?
+> FAIL: mkfs.erofs output depends on listxattr(2) order
 
-Whenever I see a use of d_path() (or file_path() in this case) I'm a bit
-watchful because its result is inherently racy and unsafe. But in this case
-the result is only used for alloc_vfsmnt() which uses it for mnt_devname so
-in the worst case we'll get an unreliable path in /proc/mounts or similar.
-I guess that's acceptable. So feel free to add:
+With the fix, the shas are all identical.
 
-Acked-by: Jan Kara <jack@suse.cz>
+fsck.erofs is happy with images carrying shared, inline and multi-prefix
+attributes.
 
-								Honza
+The script needs setfattr/getfattr from attr, and a tmpfs $TMPDIR to vary the
+reported order; it says so when the order came out stable, so a pass on ext4
+does not mean much. I have not proposed the reproducer as a patch since the
+repo has no tests. But if you want me to do that, let me know.
+
+Also: Kernel process newbie here, sorry if I messed up formatting/structure.
+
+Thanks,
+
+Martin
+
+
+#!/bin/sh
+# Reproducer: mkfs.erofs output depends on listxattr(2) order.
+#
+# mkfs.erofs stores an inode's extended attributes in the order listxattr(2)
+# reports them. That order is not specified, and tmpfs varies it from inode to
+# inode, so building the very same tree twice can produce different images.
+#
+# Every run below writes identical content and sets the same three xattrs on the
+# root inode in the same order; only the staging directory (hence its inode)
+# differs. That is exactly what systemd-repart does when it builds a DDI: it
+# stages each partition in a fresh mkdtemp() directory and sets its
+# user.validatefs.* xattrs there before calling mkfs.erofs.
+#
+# Usage: ./xattr-order-reproducer.sh [path-to-mkfs.erofs] [runs]
+#
+# Exit status: 0 output is independent of listxattr order, 1 it is not,
+# 77 prerequisites missing (autotools "skipped" convention).
+
+set -eu
+
+MKFS=${1:-mkfs.erofs}
+RUNS=${2:-8}
+
+# -x first: command -v does not look up a bare relative path such as mkfs/mkfs.erofs.
+[ -x "$MKFS" ] || command -v "$MKFS" >/dev/null 2>&1 || { echo "cannot run $MKFS"; exit 77; }
+command -v setfattr >/dev/null 2>&1 || { echo "need setfattr from the attr package"; exit 77; }
+command -v getfattr >/dev/null 2>&1 || { echo "need getfattr from the attr package"; exit 77; }
+
+WORK=$(mktemp -d "${TMPDIR:-/tmp}/erofs-xattr-order.XXXXXX")
+trap 'rm -rf "$WORK"' EXIT
+
+echo "mkfs:     $MKFS"
+echo "work dir: $WORK on a $(stat -f -c %T "$WORK") filesystem"
+echo
+
+i=1
+while [ "$i" -le "$RUNS" ]; do
+	src=$WORK/src$i
+	mkdir -p "$src/dir"
+	echo payload > "$src/dir/file"
+
+	# Always set in this order; listxattr(2) need not report it back this way.
+	setfattr -n user.validatefs.gpt_label -v root-x86-64 "$src"
+	setfattr -n user.validatefs.gpt_type_uuid \
+		-v 2c7357ed-ebd2-46d9-aec1-23d437ec2bf5 "$src"
+	setfattr -n user.validatefs.mount_point -v / "$src"
+
+	order=$(getfattr -d --absolute-names "$src" |
+		sed -n 's/^user\.validatefs\.\([a-z_]*\)=.*/\1/p' | tr '\n' ' ')
+
+	# -T and -U pin the timestamp and the filesystem UUID, so the xattr order
+	# is the only thing that can differ between runs.
+	SOURCE_DATE_EPOCH=1739577600 "$MKFS" --quiet -T1739577600 \
+		-U 5230d7cf-f2ce-43ed-9ae2-39e7e2fe48ca "$WORK/img$i" "$src"
+
+	printf 'run %2d  listxattr: %-46s sha256: %s\n' \
+		"$i" "$order" "$(sha256sum < "$WORK/img$i" | cut -c1-16)"
+	i=$((i + 1))
+done
+
+echo
+distinct=$(sha256sum "$WORK"/img* | awk '{print $1}' | sort -u | wc -l)
+orders=$(for f in "$WORK"/src*; do
+		getfattr -d --absolute-names "$f" |
+			sed -n 's/^user\.validatefs\.\([a-z_]*\)=.*/\1/p' | tr '\n' ' '
+		echo
+	done | sort -u | wc -l)
+echo "$RUNS identical trees: $orders distinct listxattr order(s), $distinct distinct image(s)"
+
+if [ "$distinct" -ne 1 ]; then
+	echo "FAIL: mkfs.erofs output depends on listxattr(2) order"
+	exit 1
+fi
+
+if [ "$orders" -eq 1 ]; then
+	echo "PASS, but inconclusive: this filesystem reported one stable order."
+	echo "Point TMPDIR at a tmpfs to vary it, e.g. TMPDIR=/dev/shm $0 $MKFS $RUNS"
+else
+	echo "PASS: output is independent of listxattr(2) order"
+fi
+
+ lib/xattr.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 051fdd8..cc74e16 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -400,17 +400,39 @@ static struct erofs_xattritem *erofs_get_selabel_xattr(struct erofs_sb_info *sbi
+ 	return NULL;
+ }
+ 
++static int comp_inode_xattritem(const struct erofs_xattritem *a,
++				const struct erofs_xattritem *b)
++{
++	int ret = memcmp(a->kvbuf, b->kvbuf, min(a->len[0], b->len[0]));
++
++	if (ret)
++		return ret;
++	if (a->len[0] != b->len[0])
++		return a->len[0] < b->len[0] ? -1 : 1;
++	return 0;
++}
++
+ static int erofs_inode_xattr_add(struct list_head *hlist,
+ 				 struct erofs_xattritem *item)
+ {
+-	struct erofs_inode_xattr_node *node;
++	struct erofs_inode_xattr_node *node, *pos;
+ 
+ 	node = malloc(sizeof(*node));
+ 	if (!node)
+ 		return -ENOMEM;
+ 	init_list_head(&node->list);
+ 	node->item = item;
+-	list_add(&node->list, hlist);
++
++	/*
++	 * Keep each inode's xattrs ordered by name.  listxattr(2) makes no
++	 * promise about the order it reports, and tmpfs varies it from inode
++	 * to inode, so appending in listing order would emit the same set of
++	 * xattrs differently from run to run and make images unreproducible.
++	 */
++	list_for_each_entry(pos, hlist, list)
++		if (comp_inode_xattritem(item, pos->item) < 0)
++			break;
++	list_add_tail(&node->list, &pos->list);
+ 	return 0;
+ }
+ 
+@@ -1091,10 +1113,10 @@ char *erofs_export_xattr_ibody(struct erofs_inode *inode)
+ 		item = node->item;
+ 		list_del(&node->list);
+ 
+-		/* move inline xattrs to the onstack list */
++		/* move inline xattrs to the onstack list, order preserved */
+ 		if (item->shared_xattr_id < 0 ||
+ 		    header->h_shared_count >= UCHAR_MAX) {
+-			list_add(&node->list, &ilst);
++			list_add_tail(&node->list, &ilst);
+ 			continue;
+ 		}
+ 
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.55.0
+
 
