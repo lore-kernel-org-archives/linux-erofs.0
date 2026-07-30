@@ -1,63 +1,86 @@
-Return-Path: <linux-erofs+bounces-4035-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4036-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 539D7C531D0
-	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 04:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF6EFC54FDF
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 07:03:05 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h9bB72CdBz2xwH;
-	Thu, 30 Jul 2026 14:02:07 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=157.180.15.194
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785384127;
-	cv=none; b=cZOhSMKN6Xp2Bf8CkPuY9bnT4JFZnFgdYKpqB8HiADUPX6E5IiH+3hx1E11TprVcdD659HjZbj5Yamk63pkUTTdl6vpGYll78IrO5I7/di+ranMC3iktp9J1z7HybcJVH9Lw0r8Aeb5i2VlFj4dR1Ym0aAdfVzV4P8clabiq92JHUiIgaxbwWarIeeH438r3Hugy93odLJU/f4eimaXp5k2JaWKnq4swGADs6XMDJfwyTQ7Gwsn1SzN+00cMWlrG4BjL1dWh341zWgG/LRQMfLR9J1MLeDYyDhVTHHYcIgaJxtKgwkQjGQ4PZsL/S83qEgKglokYWbWWX72CrU0fOQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h9gBv6SHhz2yDs;
+	Thu, 30 Jul 2026 17:03:03 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=148.163.135.74
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785394983;
+	cv=none; b=VxAjJXs1BfYpLEvEF69oK77Tw4ZZRAVwqS6Y04Pmui7BQD+dzj/tJhXWJ8R3pqRsCq32UI7Cqq+68OfE4O96UHc22/euyNhFazsFTO5s6rnDgg/JeIeDoz+LETzA5tDgSdFhZC5HsFjA87SLgIAwaRu3wcdQLXt9bmbcaOcZmd0fQBEbJdIV+bbNEwFmnGSvz6AIuSW9+xM5TXTTVfFtx3NnPEiSQ7ORAnuFo3mcry/YIUd6r5HWBKM1IK26eoI2+O82v7xCvo2x9Q1+LHZlw0eiHfr21jBBO48jDdiLLsnPo8+m3hKffHgthIEqYoGxbd4rSacmRLjND+vue3Im1g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785384127; c=relaxed/relaxed;
-	bh=laJjoQFY1+saKwac32EvHbOrpLNgF4De3LkuMOa5KGU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=RQU2HYCmpxoVa+wFEZQSV5imqZaCV3T5id6a0a8Nm69JnL3ilMWcUp/buEvzBl6SuNmG54o/JTAdAwqqtmG31h+vZceUURWoSubyzdBm6q42RKnHdDtrrUwHa/0N+s6Q0ySB2Jz1md933MKJ4d88Q08fBpFym23dewA0Ro/MMio04IwyTu5Guy3+GEjDd0QhmSvES3kF4nCBOAiOSEfce1RE7xy4xi9Y5ZT7nMAscBL5qOdu5K0KON6BXLV0DxGi9AFIOXlEdE8XrEVf5tddZV0ndnRbgN9fBywfPKqWc0GqBMzLvCXgq4fZYhU2eh410h6OL0kQv8Gq0Q8IUAHp9g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net; dkim=pass (4096-bit key; secure) header.d=envs.net header.i=@envs.net header.a=rsa-sha256 header.s=modoboa header.b=HQZneBJ3; dkim-atps=neutral; spf=pass (client-ip=157.180.15.194; helo=mail.envs.net; envelope-from=xtex@envs.net; receiver=lists.ozlabs.org) smtp.mailfrom=envs.net
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=envs.net
+	t=1785394983; c=relaxed/relaxed;
+	bh=Nh80I+Q86ue/QvLYmdk7AAI26tQVa9m2Msk1A1FG0Nk=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=UhYMc1vgsvkhdZui1wgQX9EDXDgMVCZryDtO0+ts9Txoae4QJ6JnL/71gdFZFWOc7gaQ8tWZ+xUto+0YxUdW2rOFyFb27rBT+CQ7D/qptvHBIhf6k5ziOfV6qmrdVR5YrtTjNqqe0GT8TXv8FPtRB0KdTmodxArl4jRC14jqh52AN5BLs88ZRjFemIbAwL0sea+PPEHMT97BoFtbXFeT4wXwzlgU51CcDQqkXeMFXfw1Vk7UUHhWqNJoytMV1blz507SBMgkelb/9WjrictmJDp2m9dcApsC3BEY/DEMBfuRIOkjjX/Dzq8cn/VwGcQrgb0jCSzKMLwbqnLvRcTjYg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=columbia.edu; dkim=pass (2048-bit key; unprotected) header.d=columbia.edu header.i=@columbia.edu header.a=rsa-sha256 header.s=pps01 header.b=uU43ShrF; dkim-atps=neutral; spf=pass (client-ip=148.163.135.74; helo=mx0a-00364e01.pphosted.com; envelope-from=tz2294@columbia.edu; receiver=lists.ozlabs.org) smtp.mailfrom=columbia.edu
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=columbia.edu
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (4096-bit key; secure) header.d=envs.net header.i=@envs.net header.a=rsa-sha256 header.s=modoboa header.b=HQZneBJ3;
+	dkim=pass (2048-bit key; unprotected) header.d=columbia.edu header.i=@columbia.edu header.a=rsa-sha256 header.s=pps01 header.b=uU43ShrF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=envs.net (client-ip=157.180.15.194; helo=mail.envs.net; envelope-from=xtex@envs.net; receiver=lists.ozlabs.org)
-Received: from mail.envs.net (mail.envs.net [157.180.15.194])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=columbia.edu (client-ip=148.163.135.74; helo=mx0a-00364e01.pphosted.com; envelope-from=tz2294@columbia.edu; receiver=lists.ozlabs.org)
+X-Greylist: delayed 231 seconds by postgrey-1.37 at boromir; Thu, 30 Jul 2026 17:02:59 AEST
+Received: from mx0a-00364e01.pphosted.com (mx0a-00364e01.pphosted.com [148.163.135.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h9bB36bJ0z2xF8
-	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 14:02:02 +1000 (AEST)
-Received: from localhost (mail.envs.net [127.0.0.1])
-	by mail.envs.net (Postfix) with ESMTP id C97E41C0095;
-	Thu, 30 Jul 2026 04:01:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=envs.net; s=modoboa;
-	t=1785384116; bh=laJjoQFY1+saKwac32EvHbOrpLNgF4De3LkuMOa5KGU=;
-	h=From:Date:Subject:To:Cc:From;
-	b=HQZneBJ3i+mGwNIDRVcCAVHWjCC6ke16akiBILr7QjbJucUGaoETmaaBzr5tsGbhy
-	 v1ExtDhpuVUa33dWEV4gLn6ANwPcVAw5blM9S4FdEmZr2B69jgQlpTYmwhaimKp2WA
-	 jPVdryOTAwLDozxEfbqtTNtCAVpjKc6EzLmL0YCih0QY1VSPNFXsf/AI0EEDKuwyeP
-	 swK7K9B7d73VeZJVuK5/ox0BC6j4G6ANsBepA6/bz4Y21mzYyAtac5N6es25KnbyrU
-	 sF9bzneehKf0pkucjEVuEg0SS5Ofw+p5tlelwnxM7hddSjdIVI1NANhA1yLjdHHJqd
-	 ZvuGxHbUhPHUwsvCcWOeFBgc9iqwYuAHVtz6itrLC3iZedjH+9x/R5w/xtZSSsMNtl
-	 4k1aeJ/VAOftEk6OLoWg98xT2B2fbL/H4G5BNSorXP1jzeYgpdFRA10ULHFM0v+avg
-	 bYZQfA+3dsts6KygUu6ml9QZF20hjFHMTTTrJEHCF2JIDn5quN3jKAyalwVyNrhorJ
-	 IBTDxBwHyC/DcLskhguLHZmCuL/rMf8dYc8ZaXMWwqR3lWZ6g8+O0whOnBeXAtkxI7
-	 BO2Qj7Wppv85e8qm+mTHMuVrddZxmsXMQgFBn1rJgjn6QcCo+5nGwwhZ34gvNglNGG
-	 RaGYq0hNIzKNUuwd8nz0kzjI=
-X-Virus-Scanned: Debian amavisd-new at mail.envs.net
-Received: from mail.envs.net ([127.0.0.1])
-	by localhost (mail.envs.net [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id Fz7N3zBZ__4Q; Thu, 30 Jul 2026 04:01:39 +0000 (UTC)
-Received: from [192.168.20.41] (unknown [211.136.168.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.envs.net (Postfix) with ESMTPSA;
-	Thu, 30 Jul 2026 04:01:39 +0000 (UTC)
-From: Bingwu Zhang <xtex@envs.net>
-Date: Thu, 30 Jul 2026 12:01:20 +0800
-Subject: [PATCH] erofs: weaken full memory barriers to r/w barriers
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h9gBq74lxz2xwH
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 17:02:59 +1000 (AEST)
+Received: from pps.filterd (m0167072.ppops.net [127.0.0.1])
+	by mx0a-00364e01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66U6uIXk2006471
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 02:59:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=columbia.edu; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps01; bh=Nh80I+Q86ue/QvLYmdk7AAI26t
+	QVa9m2Msk1A1FG0Nk=; b=uU43ShrFazA4tvr8sWy125pCBFiKOZ35wt17opAAE0
+	5SUrElN5h7WWWLjaV4SQZkx24E1fUMmGTHchhcxUxi4i0bnkNUsFtEyHp5foc8Vq
+	3+VnDFkCOg9ZWqf6DYg6xofJQSoqwHxnSyL9gx9SH29q+1fUY2Ivro+YGZw72ysx
+	aoIrqk0Yg1tj85VK7ZDmme9UoZ4WAPoJbugj3l4KZaMVZjqdKvwiwe93N3Ih7leb
+	GFP/7LsDyPgdgyg/f8ktUSx6QX1xKOFvz1UcRz5y/RY4Cw9ohquoaYEl22Gau2eD
+	RJU1lP7zJUUr++Aaq2xRf1eI6/rA0XmyLQatnu06z2dg==
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
+	by mx0a-00364e01.pphosted.com (PPS) with ESMTPS id 4fqrjyj5dw-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 02:59:05 -0400 (EDT)
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-92ea24a2db9so201721185a.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 29 Jul 2026 23:59:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785394738; x=1785999538;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=Nh80I+Q86ue/QvLYmdk7AAI26tQVa9m2Msk1A1FG0Nk=;
+        b=JGdpcoxqncEYH4uDzA0hj1eFtsyZ9f/nHq7zbvXkylS0maxigJzQZk/6KUszSTq4B4
+         upt7xLqfFAsc8lcmi+r/nDOjWPZDwazBKC8hFDc9X/SRp3+j0QiEPF1Ct8jSNn6VDk9j
+         Uf9DGg80qmeh3A+Rs2u8jtTodQN2M9D2EUqnQ532t8p8iHKEG1OhL11J2OFPbHsqGVsK
+         XVM0/AW5A2v9ORl9NrM6QmnXZNDfjbi79KSYwHxxQXQ4fdxrZHye9REUjWZ4teuYcp2c
+         QiIhBGaXcXF53RrjdnXPirz4Cj5KhtUny4TYhZ6iYmv9Ju6VjrIKHzyL2EXERhvchvIa
+         Om9w==
+X-Forwarded-Encrypted: i=1; AHgh+RoaX6oef++M2whfLVw91kTetUmr51Hr3NyN13qpHQuwvs4Lw7sSvcpJQfYNwa6JnWGSngWtK0D+sgb1PA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YzA39p4rHj/lMRFdJ/fgMshPWHTqagd0JjnyDAM8vjKWd6RBAEf
+	j6GWVKbC8iiRlQrn6QdlaBfyapCIP+gtZaABSm129xM0dx+1GmdoppuyAvmveNqRfKxPnEi3H/+
+	LwgLhuOATTSspN2bl9v/Nah8Db3KDXg+JITHr556daMDZK7lOHyx2yDTwxUm4qw==
+X-Gm-Gg: AR+sD115y+ydJ6nFP8Na9NIHOlp0dCU0l/V/t8oF88OdiRWa1JU9RrIon/sySw3IrpA
+	jdndpUQTWx81GlVTjabWPcERCLx0Lqdd+TyTxWNSPZHRm3797rqj0s2AAfGK614kKaTT7XwD3u6
+	IwZ+MUqaG/EBgyrHtZ90RH+tymEee3lF+Fh56nay7/NGZTBFo4kOtEY8fs041hk8Mp4pUqWghoG
+	nyOOtGVZ0tGVt8R2mieBCKS+y7r8uIqMOAj5RTqVhHe2pIR5WXTkTDjhdGHi4r02HWWx0WbhBtY
+	PabuAxv53l9SiqQ0aDQVfh6EO/iLgViKlpTnN9HnTT5IuVHODH87AHrjUNtOUxdHRHXg4CNN68H
+	8SPPuDnharBJg5fsvw9lsJT/D3imNVD99Yq7Mp0mes4vaKQ==
+X-Received: by 2002:a05:620a:470f:b0:92e:6c8a:2a1a with SMTP id af79cd13be357-93485f8799dmr141187985a.7.1785394737607;
+        Wed, 29 Jul 2026 23:58:57 -0700 (PDT)
+X-Received: by 2002:a05:620a:470f:b0:92e:6c8a:2a1a with SMTP id af79cd13be357-93485f8799dmr141184485a.7.1785394736887;
+        Wed, 29 Jul 2026 23:58:56 -0700 (PDT)
+Received: from [127.0.1.1] (dyn-160-39-33-242.dyn.columbia.edu. [160.39.33.242])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-933d3221bc7sm349752485a.7.2026.07.29.23.58.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 23:58:56 -0700 (PDT)
+From: Tal Zussman <tz2294@columbia.edu>
+Subject: [PATCH v7 0/5] block: enable RWF_DONTCACHE for block devices
+Date: Thu, 30 Jul 2026 02:57:50 -0400
+Message-Id: <20260730-blk-dontcache-v7-0-3e8e6850068d@columbia.edu>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,174 +94,260 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260730-erofs-weaken-dbar-v1-1-dc2d9eacc07e@astrafall.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMywrCMBBG4Vcps3YgBqrEVxEXafOPjkIqM96g9
- N0bdfktzpnJYQqnQzeT4aWuU23YbjoaL7mewVqaKYa4C/uYGDaJ8xv5hsplyMZJSkQRSQE9te5
- uEP38nsfT3/4crhgf3xEtywr5XOuPdQAAAA==
-X-Change-ID: 20260729-erofs-weaken-dbar-9fd2edff90e5
-To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, 
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>, 
- Chunhai Guo <guochunhai@vivo.com>, Nick Terrell <terrelln@fb.com>, 
- David Sterba <dsterba@suse.com>
-Cc: linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
- Bingwu Zhang <xtex@astrafall.org>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openssh-sha256; t=1785384124; l=5753;
- i=xtex@astrafall.org; h=from:subject:message-id;
- bh=2odAyWrV/pcFHfic8/cQgMPB6sTfN3aPBUY7LKKEvjk=;
- b=U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgL1erbbl1jNM9AtzeLFJ5FKVqr/ylJ
- MBUj5+W9IwwCl4AAAAGcGF0YXR0AAAAAAAAAAZzaGE1MTIAAABTAAAAC3NzaC1lZDI1NTE5AAAA
- QG9K247TfeIR03rMkrwiPtYMIfwS1UU2tE0iJcspMC39ve8vq0OHaey4eOqVzAgPpBI9iWCEAdT
- ecx2okcGpEg0=
-X-Developer-Key: i=xtex@astrafall.org; a=openssh;
- fpr=SHA256:IEYEjkZlkUTr5U9GiDAmZU/4eZus2t2RsxusyhQqwao
+X-B4-Tracking: v=1; b=H4sIAO71amoC/3XQy27CMBAF0F9BXtdobI8fdNX/qLrwY9xYpUmVQ
+ FSE8u84bIJCWN6R7tHoXtlAfaGBve+urKexDKVra7BvOxYb334TL6lmJkEakMLxcPzhqWtP0ce
+ GuFJOKJUSoCZWO3895fJ/9z6/am7KcOr6y50fxXx9JY2CC559MsZqylbkj9gdz7+h+D2lM5uxU
+ T4AUq8ByYFbIOsj1j64DUA9AnYNqArEpOAQY9LObAG4AOr5A5wBDNqkgCob3AD0AiA8baArABk
+ cRAn+YLY2MAugBa4BM2/gJMnsLVobVsA0TTdQ43q58gEAAA==
+X-Change-ID: 20260218-blk-dontcache-338133dd045e
+To: Jens Axboe <axboe@kernel.dk>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Carlos Maiolino <cem@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@infradead.org>, Gao Xiang <xiang@kernel.org>,
+        Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Sandeep Dhavale <dhavale@google.com>,
+        Hongbo Li <lihongbo22@huawei.com>, Chunhai Guo <guochunhai@vivo.com>
+Cc: Dave Chinner <dgc@kernel.org>, Bart Van Assche <bvanassche@acm.org>,
+        Hillf Danton <hdanton@sina.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-erofs@lists.ozlabs.org,
+        Tal Zussman <tz2294@columbia.edu>, Christoph Hellwig <hch@lst.de>
+X-Mailer: b4 0.14.3-dev-d7477
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785394735; l=8495;
+ i=tz2294@columbia.edu; s=20250528; h=from:subject:message-id;
+ bh=aWu7BOn5GohnRYxURL3oAHwZ5cHf4aE4kBCU34sAm1s=;
+ b=i7kTq/xKpl6wc2j1Nlg01vDlZMOfxoqdmbN5qS3mBj8WIj2cibNqh2r2fUl9u49JQrAsz/EcW
+ GCakIuY/GaWBl034kywR3hYqCwil8RdUzFGTe0/O1kZ1rWNv7dkSFK1
+X-Developer-Key: i=tz2294@columbia.edu; a=ed25519;
+ pk=BIj5KdACscEOyAC0oIkeZqLB3L94fzBnDccEooxeM5Y=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDA0OCBTYWx0ZWRfXyEm5KP6Kv7yr
+ eNbNUIg6GlbLT6cZ1T3AYF07lnhVq6bVWSzARGJDQJp0nJ0UY/SBMmKT9difM8eU7jie9A0+RFX
+ hmcpWZfJ2LmK3Yg2kUttf1Y+wssnij8w0WGXqwP8OrkEeEuL28IuBxj5cwaiJKltKyNM6JOR3i/
+ TDObBBkTmMTwvHKF5SJi8OhMsk+rlP6o83WjZK4/4LgWn12I8dZwup/C+45Y5yKkZUJxKhbD1lM
+ IaiQwK4TYNDStZEbkpRxE3JaW4Sq6BthkBjeSZ77bWD4R4w2+WHdnsffvDgSnOUY5Pvn8SLWQkQ
+ h89X/U0DNj9Mk65zOfm2+viFcOhUKmVpnnDrJo+DddcjMYuE3cpAilch6QMCl+KTblBkuVzJUNb
+ jUTXVQIws493W/vZ/qDZpLs2cC6q06fHPWSDQlSAQbJUCTWNkwcuYuP/0BDRQI8VLHL2TnUgqY/
+ ypRcQV9D+G87CiKfvxA==
+X-Proofpoint-ORIG-GUID: jDwLa3ZxT05egVKYcSlIMnOUpKWHLR8-
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDA0OCBTYWx0ZWRfXxex5AK160INZ
+ SsCv/MGMXZ6QHqqMPBJib9o2NcHln4r3pFpq0QfvrS+8FaAXrBt1+zyKuh3EddobM1PnsV/GZ4V
+ j53lV7+vS6Yb+E8xRUqYOmVNwhzU//4qImsIBY7P72AEAn2IDC6G
+X-Authority-Analysis: v=2.4 cv=EYD4hvmC c=1 sm=1 tr=0 ts=6a6af63a cx=c_pps
+ a=HLyN3IcIa5EE8TELMZ618Q==:117 a=GaPK54s0Se3oFqK5NkZy0g==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=x7bEGLp0ZPQA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Da8U98TiO7q1upZEImrf:22 a=SsB-OO3BMngHh3ZO9fOt:22
+ a=VwQbUJbxAAAA:8 a=RwdnMBCSlJgOLVuh71sA:9 a=QEXdDO2ut3YA:10
+ a=bTQJ7kPSJx9SKPbeHEYW:22
+X-Proofpoint-GUID: jDwLa3ZxT05egVKYcSlIMnOUpKWHLR8-
+X-Proofpoint-Virus-Version: vendor=nai engine=6900 definitions=11859
+ signatures=596817
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 suspectscore=0 lowpriorityscore=10 spamscore=0 bulkscore=10
+ malwarescore=0 adultscore=0 impostorscore=10 phishscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607300048
 
-From: Bingwu Zhang <xtex@astrafall.org>
+Add support for using RWF_DONTCACHE with block devices.
 
-fs/erofs/{xattr.c,zmap.c} both implemented one-time initialization locks
-with general memory barriers.
+Dropbehind pruning needs to be done in non-IRQ context, but block
+devices complete writeback in IRQ context. To fix this, we defer
+dropbehind invalidation to task context. Add infrastructure that lets
+bi_end_io callbacks run from a worker, in two forms:
 
-Weaken these unnecessarily-strong general memory barriers to SMP
-(ordering) read/write barriers for better performance on weakly-ordered
-architectures.
+  1. BIO_COMPLETE_IN_TASK, a bio flag the submitter sets when it knows
+     upfront that the callback needs task context, as in the dropbehind
+     writeback paths.
 
-Signed-off-by: Bingwu Zhang <xtex@astrafall.org>
----
-(All test results below are done using QEMU with KVM; guest VM root FS
-are mounted with v9fs; test target is an EROFS mounted on a loop device
-backed by a file in tmpfs, in attempt to reduce error caused by physical
-disks; mkfs flags: --zD=1 --all-root -zzstd -E48bit)
+  2. bio_complete_in_task(), a helper that callbacks can invoke from
+     bi_end_io() when the decision to defer is dynamic, as in iomap
+     fserror reporting.
 
-On x86-64, with x86-TSO, a full barrier lowers to a fence instruction and
-read/write barriers are just compiler barriers. This patch removes
-several fence instructions although they don't affect performance much.
+These queue the bio to a per-CPU list and schedule a per-CPU work item
+to run the completions from task context.
 
-On weakly-ordered architectures, a full memory barrier could be very
-expensive. Thus, on these platforms, this patch saves more performance
-than x86-64.
+Patch 1 moves erofs's atomic context detection into the block layer as
+bio_in_atomic() and converts erofs to use it.
 
-Test result on x86-64:
-(host: AMD Ryzen 7 255 (@ 3.3GHz))
-(guest VM: ArchLinux, test data: linux.git/drivers @ commit fc02acf6ac0c)
-  Original:
-    read: IOPS=1684, BW=6737KiB/s (6899kB/s)(1006MiB/152838msec)
-    clat (usec): min=25, max=26293, avg=578.58, stdev=426.55
-     lat (usec): min=25, max=26293, avg=578.70, stdev=426.56
-   bw (  KiB/s): min= 1976, max=10904, per=100.00%, avg=6749.91,
-      stdev=1883.80, samples=305
-   iops        : min=  494, max= 2726, avg=1687.48, stdev=470.95, samples=305
+Patch 2 adds the block layer task-context completion infrastructure,
+with both the flag and the procedural helper. This builds on top of
+suggestions by Matthew and Christoph: the procedural helper and
+bio_in_atomic() come from Christoph's "bio completion in task
+enhancements / experiments" series [1]. The procedural helper is unused
+in this series, but has multiple users planned [1][2].
 
-  New:
-   read: IOPS=1687, BW=6751KiB/s (6913kB/s)(1006MiB/152513msec)
-    clat (usec): min=25, max=19136, avg=577.00, stdev=425.66
-     lat (usec): min=25, max=19136, avg=577.09, stdev=425.67
-   bw (  KiB/s): min= 2192, max=11088, per=100.00%, avg=6770.26
-      stdev=1870.55, samples=304
-   iops        : min=  548, max= 2772, avg=1692.44, stdev=467.65, samples=304
+Patch 3 wires BIO_COMPLETE_IN_TASK into iomap writeback for dropbehind
+folios, removes IOMAP_IOEND_DONTCACHE, and removes the DONTCACHE
+workqueue deferral from XFS.
 
-IOPS +0.17%, bandwidth +0.20%, max completion latency -27.22%
+Patch 4 sets up DONTCACHE support for buffer-head-based I/O by setting
+BIO_COMPLETE_IN_TASK in __bh_submit() for the CONFIG_BUFFER_HEAD path.
 
-Test result on ARM64:
-(host: HUAWEI Kunpeng 920 @ 2.6GHz, both host & VM are AOSC OS)
-(test data:
-1. AOSC OS: aosc-os_base_20260621_arm64.squashfs, /usr/bin directory is
-   repacked as EROFS.
-2. linux.git at commit fc02acf6ac0c, drivers/ subdirectory
-)
-  Original:
-   read: IOPS=12.3k, BW=47.9MiB/s (50.2MB/s)(1291MiB/26950msec)
-    clat (nsec): min=910, max=37500k, avg=56026.68, stdev=198628.59
-     lat (nsec): min=960, max=37500k, avg=56167.70, stdev=198639.09
-   bw (  KiB/s): min= 3888, max=94328, per=100.00%, avg=49790.64,
-      stdev=31594.09, samples=53
-   iops        : min=  972, max=23582, avg=12447.57, stdev=7898.51, samples=53
+Patch 5 enables RWF_DONTCACHE for block devices based on the previous
+support. This support is useful for databases that operate on raw block
+devices, among other userspace applications.
 
-  New:
-   read: IOPS=13.8k, BW=54.0MiB/s (56.6MB/s)(1315MiB/24375msec)
-    clat (nsec): min=930, max=34271k, avg=53069.97, stdev=145651.76
-     lat (nsec): min=980, max=34271k, avg=53221.68, stdev=145661.24
-   bw (  KiB/s): min= 5843, max=95054, per=100.00%, avg=55988.58,
-      stdev=30477.44, samples=48
-   iops        : min= 1460, max=23763, avg=13997.00, stdev=7619.37, samples=48
+I tested this (with CONFIG_BUFFER_HEAD=y) for reads and writes on a
+single block device on a VM, so results may be noisy.
 
-IOPS min +50.20%, avg +12.44%
-bandwidth min +50.28%, max +0.76%, avg +12.44%
-completion latency max -8.61%, avg -5.27%
+Reads were tested on the root partition with a 45GB range (~2x RAM).
+Writes were tested on a disabled swap partition (~1GB) in a memcg of
+size 244MB to force reclaim pressure.
 
-I am not pretty sure why the minimum completion latencies vary so much on
-AArch64. Even when I repeat the test with the same kernel without
-rebooting/re-mounting, clat min fluctuates randomly, sometimes spiking to
-over 1000 and sometimes dropping to as low as 2, but I think this patch
-still improves the overall throughput performance.
----
- fs/erofs/xattr.c | 8 ++++----
- fs/erofs/zmap.c  | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+Results:
 
-diff --git a/fs/erofs/xattr.c b/fs/erofs/xattr.c
-index df7ea019526d..0b252cfe616a 100644
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -44,10 +44,10 @@ static int erofs_init_inode_xattrs(struct inode *inode)
- 	/* the most case is that xattrs of this inode are initialized. */
- 	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags)) {
- 		/*
--		 * paired with smp_mb() at the end of the function to ensure
-+		 * paired with smp_wmb() at the end of the function to ensure
- 		 * fields will only be observed after the bit is set.
- 		 */
--		smp_mb();
-+		smp_rmb();
- 		return 0;
- 	}
- 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_XATTR_BIT, TASK_KILLABLE))
-@@ -111,8 +111,8 @@ static int erofs_init_inode_xattrs(struct inode *inode)
- 		vi->xattr_shared_xattrs[i] = le32_to_cpu(*xattr_id);
- 	}
- 
--	/* paired with smp_mb() at the beginning of the function. */
--	smp_mb();
-+	/* paired with smp_rmb() at the beginning of the function. */
-+	smp_wmb();
- 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
- out_unlock:
- 	erofs_put_metabuf(&buf);
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index 5811556a7b71..d5b001a537f4 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -628,10 +628,10 @@ static int z_erofs_fill_inode(struct inode *inode, struct erofs_map_blocks *map)
- 
- 	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags)) {
- 		/*
--		 * paired with smp_mb() at the end of the function to ensure
-+		 * paired with smp_wmb() at the end of the function to ensure
- 		 * fields will only be observed after the bit is set.
- 		 */
--		smp_mb();
-+		smp_rmb();
- 		return 0;
- 	}
- 
-@@ -704,8 +704,8 @@ static int z_erofs_fill_inode(struct inode *inode, struct erofs_map_blocks *map)
- 			goto out_unlock;
- 	}
- done:
--	/* paired with smp_mb() at the beginning of the function */
--	smp_mb();
-+	/* paired with smp_rmb() at the beginning of the function */
-+	smp_wmb();
- 	set_bit(EROFS_I_Z_INITED_BIT, &vi->flags);
- out_unlock:
- 	clear_and_wake_up_bit(EROFS_I_BL_Z_BIT, &vi->flags);
+===== READS (/dev/nvme0n1p2) =====
+ sec   normal MB/s  dontcache MB/s
+----  ------------  --------------
+   1        1098.6          1609.0
+   2        1270.3          1506.6
+   3        1093.3          1576.5
+   4        1141.8          2393.9
+   5        1365.3          2793.8
+   6        1324.6          2065.9
+   7         879.6          1920.7
+   8        1434.1          1662.4
+   9        1184.9          1857.9
+  10        1166.4          1702.8
+  11        1161.4          1653.4
+  12        1086.9          1555.4
+  13        1198.5          1718.9
+  14        1111.9          1752.2
+----  ------------  --------------
+ avg        1173.7          1828.8  (+56%)
+
+==== WRITES (/dev/nvme0n1p3) =====
+ sec   normal MB/s  dontcache MB/s
+----  ------------  --------------
+   1         692.4          9297.7
+   2        4810.8          9342.8
+   3        5221.7          2955.2
+   4         396.7          8488.3
+   5        7249.2          9249.3
+   6        6695.4          1376.2
+   7         122.9          9125.8
+   8        5486.5          9414.7
+   9        6921.5          8743.5
+  10          27.9          8997.8
+----  ------------  --------------
+ avg        3762.5          7699.1  (+105%)
+
+[1]: https://lore.kernel.org/all/20260409160243.1008358-1-hch@lst.de/
+[2]: https://lore.kernel.org/linux-block/20260723145000.116419-1-hch@lst.de/
 
 ---
-base-commit: 11028ab62899e4191e074ee364c712b77823a9c4
-change-id: 20260729-erofs-weaken-dbar-9fd2edff90e5
+Changes in v7:
+- Rebase on v7.2-rc5.
+- 1/5: New patch. Move the atomic context detection into the block
+  layer as bio_in_atomic() and convert erofs to use it, per Christoph.
+- 2/5: Drop the 1-jiffie completion delay and schedule the completion
+  work immediately. Use a plain work item instead of delayed_work
+  accordingly, per Jan and Christoph.
+- 2/5: Drop the local_lock and use local IRQ disabling instead to
+  resolve PREEMPT_RT concerns raised by Sashiko.
+- 2/5: Drop the need_resched() requeue from the work function loop, per
+  Christoph and Hillf.
+- 2/5: Use BIO_COMPLETE_IN_TASK as a sentinel in bio_complete_in_task()
+  so a callback running from the worker does not re-defer, per Sashiko.
+- 2/5: Requeue pending completions when a CPU comes back online, per
+  Sashiko.
+- 4/5: Check for op_is_write() before deferring to avoid deferring read
+  completions, per Sashiko.
+- 4/5: Set BIO_COMPLETE_IN_TASK in __bh_submit() for dropbehind write
+  bios instead of introducing block_write_begin_iocb() and threading the
+  kiocb through buffer_head writeback. This was dead code.
+- 5/5: Drop the blkdev_write_begin() conversion accordingly.
+- Link to v6: https://lore.kernel.org/r/20260514-blk-dontcache-v6-0-782e2fa7477b@columbia.edu
+
+Changes in v6:
+- Remove RFC tag
+- Rebase on v7.1-rc3.
+- 1/4: Revert to using a bio_list, per Jens.
+- 1/4: Restructure and simplify work function loop.
+- 1/4: Expose both the flag and procedural version, in order to allow
+  static and dynamic deferral decisions, per conversation with Matthew
+  and Christoph at LSFMM.
+- 1/4: Use bio_in_atomic() predicate, per Christoph.
+- 1/4: Use the CPU hot-unplug protocol from mm/vmstat.c, to take into
+  account use of delayed_work.
+- 1/4: Mark the workqueue WQ_PERCPU.
+- 1/4: Add comments.
+- 3/4 and 4/4: Split into two patches, per Christoph.
+- 3/4: Drop the cont_write_begin() change. Block devices don't go
+  through cont_write_begin(), so it was out of scope and was left over
+  from v1.
+- Link to v5: https://lore.kernel.org/r/20260408-blk-dontcache-v5-0-0f080c20a96f@columbia.edu
+
+Changes in v5:
+- 1/3: Replace local_lock + bio_list with struct llist, per Dave.
+- 1/3: Use delayed_work with 1-jiffie delay, per Dave.
+- 1/3: Add dedicated workqueue to avoid deadlocks, per Christoph.
+- 1/3: Restructure work function as do/while loop and only schedule work
+  originally when the list was previously empty, per Jens.
+- 2/3: Delete IOMAP_IOEND_DONTCACHE and its NOMERGE entry, per Matthew
+  and Christoph.
+- Link to v4: https://lore.kernel.org/r/20260325-blk-dontcache-v4-0-c4b56db43f64@columbia.edu
+
+Changes in v4:
+- 1/3: Move dropbehind deferral from folio-level to bio-level using
+  BIO_COMPLETE_IN_TASK, per Matthew and Jan.
+- 1/3: Work function yields on need_resched() to avoid hogging the CPU,
+  per Jan.
+- 2/3: New patch. Set BIO_COMPLETE_IN_TASK on iomap writeback bios for
+  DONTCACHE folios, removing the need for XFS-specific workqueue
+  deferral.
+- 3/3: Set BIO_COMPLETE_IN_TASK in submit_bh_wbc() for buffer_head
+  path.
+- 3/3: Update commit message to mention CONFIG_BUFFER_HEAD=n path.
+- Link to v3: https://lore.kernel.org/r/20260227-blk-dontcache-v3-0-cd309ccd5868@columbia.edu
+
+Changes in v3:
+- 1/2: Convert dropbehind deferral to per-CPU folio_batches protected by
+  local_lock using per-CPU work items, to reduce contention, per Jens.
+- 1/2: Call folio_end_dropbehind_irq() directly from
+  folio_end_writeback(), per Jens.
+- 1/2: Add CPU hotplug dead callback to drain the departing CPU's folio
+  batch.
+- 2/2: Introduce block_write_begin_iocb(), per Christoph.
+- 2/2: Dropped R-b due to changes.
+- Link to v2: https://lore.kernel.org/r/20260225-blk-dontcache-v2-0-70e7ac4f7108@columbia.edu
+
+Changes in v2:
+- Add R-b from Jan Kara for 2/2.
+- Add patch to defer dropbehind completion from IRQ context via a work
+  item (1/2).
+- Add initial performance numbers to cover letter.
+- Link to v1: https://lore.kernel.org/r/20260218-blk-dontcache-v1-1-fad6675ef71f@columbia.edu
+
+---
+Tal Zussman (5):
+      block: introduce bio_in_atomic()
+      block: add task-context bio completion infrastructure
+      iomap: use BIO_COMPLETE_IN_TASK for dropbehind writeback
+      buffer: set BIO_COMPLETE_IN_TASK for dropbehind writeback
+      block: enable RWF_DONTCACHE for block devices
+
+ block/bio.c               | 132 +++++++++++++++++++++++++++++++++++++++++++++-
+ block/fops.c              |   2 +-
+ fs/buffer.c               |   3 ++
+ fs/erofs/zdata.c          |  11 +---
+ fs/iomap/ioend.c          |   5 +-
+ fs/xfs/xfs_aops.c         |   4 --
+ include/linux/bio.h       |  39 ++++++++++++++
+ include/linux/blk_types.h |   1 +
+ include/linux/iomap.h     |   5 +-
+ 9 files changed, 180 insertions(+), 22 deletions(-)
+---
+base-commit: f5098b6bae761e346ebcd9da7f95622c04733cff
+change-id: 20260218-blk-dontcache-338133dd045e
 
 Best regards,
---  
-Bingwu Zhang <xtex@astrafall.org>
+-- 
+Tal Zussman <tz2294@columbia.edu>
 
 
