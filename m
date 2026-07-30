@@ -1,81 +1,62 @@
-Return-Path: <linux-erofs+bounces-4057-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4058-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C8B9C55167
-	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 13:49:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1FC3C55165
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 13:57:51 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h9rCw1Pm7z2xnp;
-	Thu, 30 Jul 2026 23:49:32 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785419372;
-	cv=none; b=Bh2UclNYaZOW2tVfmkDSi6refyVxyZfF0ltzGXPsU4k8HXRwciPUpjq+XgFLGUm6FJihiht6DcAwQ+ahPx06vWyQnwTSTlpStaIcEWA9jWIkVZ5pOVif8AH+Q0hLIfxfJkR9Nfp7oWBL68T24R/auz656+b18/uzQTo52X4LKOfdtwPXx6w2QaBjFtgUOZGCY1XyvTKvKGF2CxDulVVl/2I7dov2tCZhzom9rxEUgH3wNIBvrIT3E5UPpkAyKhCU233vY7xaprEBCdaMcC4ueza2/4rrBrPwICyBHZsCdP6NPr4UytfwKkhPB71i7+Npf1x+a+a5V1Io3jEJzmMnqA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4h9rPV0C00z2yhb;
+	Thu, 30 Jul 2026 23:57:50 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785419869;
+	cv=none; b=OTQwpwF6QDl8aas2a+LQiduX9oWgCStl3M/HThL+xinUSvXT//at47u7ra3rsSI3NuLScZa1t48LJ7L2KFDhVpwirp5OdDD6WSV5bgGWn1356vSGmn+zKrV7vCDnph44TpsD84k88gSJV+ipEqRnLP8UpVhiDV15F08FNiCwTZILYMDZljqWgvNimEt2wQVt6qhTBTFl2JKqovUSaCsg2w8bgBonpnySJbODxOpRus2P2ZukuRsktZClCT9rTpnXykt+3eoaIfQG0BYkht1oIaZSueRVrHsuuTk7ncyJhuyI0GbYqR3uQNEhiiAVOJZVM9LdLaoZVT+BGojNqx3m4w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785419372; c=relaxed/relaxed;
-	bh=b4EqHffQZ+7yOTPccLs7D+jOVNUfFcke1CghDWdjZE8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=ggQ4nigcp3+JNrRH+NTEk0Q8ltbSg1OyZIV5DxgZWdEkqaOip4VsxHGyA+ZDK8cUwe5kWB2OPibV3IYOVEASAnNOq6aI/+n4MCDTZLiuuMimVSsHlkDg6DgLzwZO63oQNvAcADc/9TwhYBqEngbfYHTNBTZYro+ftdGS5CY5DfbXvSp5wdM3qWLYFH7rhm5qmWNdeKdHF+jI1VN567i7iacPEpmZ/G2GzRlUeXReTe+BhmfmHY41f5QGUU8B+31Om9PFS/yMLqfGvAOgXkYCI22OtmJdq1fNv+AbAdoUk/aPaAHTPu4pxv9HdIYft0ZJHYjNIexfqwneulc2MY2Lng==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FOxBGy4E; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FOxBGy4E; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1785419869; c=relaxed/relaxed;
+	bh=Oz4ni0SjIgyNOKjMms23AjFfChPcr687pUNnZOhDNiU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dmYzP3lFbgjCo404UhE6GI1s0RriebwusUfsttmU0g9w1CUJYT7N7CQHrDCZmnzbJvd8T7L/eyUs58lPRMilw34hHAFsGXO+P2CMTsfbKUEAsE6zm3pqo5ZcZj6uWfV2/wr0OoeiNrI9t2sZF93uOH/TFTbUxB+blwNLrB8iJ41lb/pBqU9GU/W+2kUXlgbBqplm/wxrPYaJelG0L0JdewkjLwY7h8J/uNc3ylci8Vi/Om67VChLHHXi6tXTk9tsTePlaintFx/Xlla1Dgx600t9v8V/s+j5PBpf4hUnN+V82XCmdNERrJpM4kuY3ztcX5++hrt9bPuH4E5Rbaf+2w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LQdH+7OV; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FOxBGy4E;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FOxBGy4E;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LQdH+7OV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h9rCt66C7z2xd2
-	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 23:49:28 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785419365;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=b4EqHffQZ+7yOTPccLs7D+jOVNUfFcke1CghDWdjZE8=;
-	b=FOxBGy4EcHDQu26oGN27oL4I62V4K/XkyyAfN2aA2RfTQg8+54Dpoog1ebE54Bl/RlmLFm
-	MjkrOh7HVmSnnlquedJxPIFh6apYnawD74WlqaIUkj4Fi8eaPx8zWHuILj95+y9zuXJZ0V
-	XbJvpe1PfHBjGQP2KBaNO45yuaFi4sk=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785419365;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=b4EqHffQZ+7yOTPccLs7D+jOVNUfFcke1CghDWdjZE8=;
-	b=FOxBGy4EcHDQu26oGN27oL4I62V4K/XkyyAfN2aA2RfTQg8+54Dpoog1ebE54Bl/RlmLFm
-	MjkrOh7HVmSnnlquedJxPIFh6apYnawD74WlqaIUkj4Fi8eaPx8zWHuILj95+y9zuXJZ0V
-	XbJvpe1PfHBjGQP2KBaNO45yuaFi4sk=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-638-shRJlmpBPsm3LdaYnEvU1Q-1; Thu,
- 30 Jul 2026 09:49:19 -0400
-X-MC-Unique: shRJlmpBPsm3LdaYnEvU1Q-1
-X-Mimecast-MFC-AGG-ID: shRJlmpBPsm3LdaYnEvU1Q_1785419357
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E1561195608D;
-	Thu, 30 Jul 2026 13:49:16 +0000 (UTC)
-Received: from localhost (unknown [10.44.49.125])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 390E11956089;
-	Thu, 30 Jul 2026 13:49:15 +0000 (UTC)
-From: Giuseppe Scrivano <gscrivan@redhat.com>
-To: Pedro Falcato <pfalcato@suse.de>
-Cc: linux-erofs@lists.ozlabs.org,  xiang@kernel.org,
-  linux-fsdevel@vger.kernel.org,  amir73il@gmail.com
-Subject: Re: [PATCH] erofs: reuse superblock for file-backed mounts
-In-Reply-To: <amtJX8aTZT5d_sP3@pedro-suse.lan> (Pedro Falcato's message of
-	"Thu, 30 Jul 2026 13:57:29 +0100")
-References: <20260730124120.1501126-1-gscrivan@redhat.com>
-	<amtJX8aTZT5d_sP3@pedro-suse.lan>
-Date: Thu, 30 Jul 2026 15:49:14 +0200
-Message-ID: <8733x0k2p1.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4h9rPR3bGnz2yDs
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 23:57:47 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 0443E408FC;
+	Thu, 30 Jul 2026 13:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C50981F000E9;
+	Thu, 30 Jul 2026 13:57:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785419863;
+	bh=Oz4ni0SjIgyNOKjMms23AjFfChPcr687pUNnZOhDNiU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LQdH+7OVwpD5K5PFll7+cMZ/zkdcnC8rrqvUd5QCrSMPMFLsaTjY4JD8IvC/k+lL0
+	 M5h/ls8lB70tE8dGkOcBsuafwnLo26cXwEQCiZc7+stA3uq2wHgQnr8rDvq3y4uFX+
+	 o8t3Sl6slP5vlNAiJmoP5e2KKXhUrfrpAOD7T8f/cLKM/Bs7Xxd1U4QfsK57ZBUy0w
+	 EZQ+hqgfJOu5NwLpvr2FXM/AS/Ca27liMWuzIyt88onqnqoX/w1pO4wbUuNk1ng6wd
+	 D/bW9TlMRWV+MxQJJL3SdMXzJnPoQT0Ms/vbObQfOUvIf2yO6FX4eb8EUNQA2OB8Mw
+	 B6+11xIphVEeg==
+Date: Thu, 30 Jul 2026 15:57:39 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: Miklos Szeredi <mszeredi@redhat.com>, 
+	Giuseppe Scrivano <gscrivan@redhat.com>, linux-fsdevel@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-api@vger.kernel.org, linux-erofs@lists.ozlabs.org, 
+	Amir Goldstein <amir73il@gmail.com>, Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [RFC PATCH] fs: allow opening overlayfs/erofs layers through
+ O_ALT
+Message-ID: <20260730-abwesend-raumgewinn-teppich-12ac54467d14@brauner>
+References: <20260715101107.973997-1-mszeredi@redhat.com>
+ <20260722-fundort-zogen-kormoran-09fb867f1b59@brauner>
+ <CALCETrU9KdLsvZzUE-5sh7KkP5-cPh=hwErGmN=THsDatFJLfA@mail.gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -87,81 +68,74 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: Q2rZfYhSX_4kOhtxRX713nYHnEjN6ldIPWyMuzCcB8c_1785419357
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CALCETrU9KdLsvZzUE-5sh7KkP5-cPh=hwErGmN=THsDatFJLfA@mail.gmail.com>
 
-Pedro Falcato <pfalcato@suse.de> writes:
+On Wed, Jul 22, 2026 at 09:29:22AM -0700, Andy Lutomirski wrote:
+> On Wed, Jul 22, 2026 at 9:06 AM Christian Brauner <brauner@kernel.org> wrote:
+> 
+> > Like I said before: I'm fine with an API where we can use open_tree() to
+> > see through into underlying layers, and given the right permission pull
+> > a mount out of it. That is a narrow, checkable primitive and it needs
+> > none of this. No new open flag, no second ->show_options, no metafs, no
+> > mnt_devname surgery. That part we can potentially do.
+> 
+> What, exactly, do you mean as the distinction between "[seeing]
+> through into underlying layers" and "[pulling] a mount out of it".  I
+> have a guess, but I'm not convinced that my guess is right.
 
-> On Thu, Jul 30, 2026 at 02:41:20PM +0200, Giuseppe Scrivano wrote:
->> When the same file is mounted multiple times (via path or fd), reuse
->> the existing superblock instead of creating a new one.  This allows
->> multiple mounts of the same image to share in-kernel data structures
->> more efficiently.
->> 
->> The backing file is identified by its inode and fsoffset.  If mount
->> options conflict, a separate superblock is created transparently as
->> a fallback.
->> 
->> Tested by mounting a 177M Fedora EROFS image 20 times with full
->> traversal:
->> 
->> ```
->> \#!/bin/sh
->> IMG=${1:-/root/fedora.erofs}
->> N=20
->> DIR=$(mktemp -d)
->> trap "umount $DIR/m* 2>/dev/null; rm -rf $DIR" EXIT
->> 
->> sync; echo 3 > /proc/sys/vm/drop_caches
->> INODES_BEFORE=$(grep erofs_inode /proc/slabinfo | awk '{print $2}')
->> MEM_BEFORE=$(grep ^Slab: /proc/meminfo | awk '{print $2}')
->> 
->> for i in $(seq 1 $N); do mkdir $DIR/m$i && mount -t erofs "$IMG"
->> $DIR/m$i && find $DIR/m$i > /dev/null; done
->> 
->> echo "Superblocks: $(grep $DIR /proc/self/mountinfo | awk '{print $3}' | sort -u | wc -l)"
->> echo "erofs_inode delta: +$(( $(grep erofs_inode /proc/slabinfo | awk '{print $2}') - INODES_BEFORE ))"
->> echo "Slab delta: +$(( $(grep ^Slab: /proc/meminfo | awk '{print $2}') - MEM_BEFORE )) kB"
->> ```
->> 
->> unpatched kernel:
->> 
->> Superblocks: 20
->> erofs_inode delta: +46368
->> Slab delta: +39952 kB
->> 0.08user 0.82system 0:00.98elapsed 93%CPU (0avgtext+0avgdata 4796maxresident)k
->> 19168inputs+10304outputs (24major+16672minor)pagefaults 0swaps
->> 
->> patched kernel:
->> 
->> Superblocks: 1
->> erofs_inode delta: +2044
->> Slab delta: +1088 kB
->> 0.07user 0.21system 0:00.31elapsed 91%CPU (0avgtext+0avgdata 4848maxresident)k
->> 19024inputs+6784outputs (25major+16810minor)pagefaults 0swaps
->> 
->> The time difference shows that sharing the superblock also benefits
->> the page cache and inode cache, as subsequent mounts of the same image
->> avoid re-reading the backing file.  This is particularly useful for
->> container hosts running multiple containers from the same base image.
->
-> Doesn't this approach break-down as soon as you get to change SB flags (through
-> e.g mount -o remount)? It will change superblock flags for all of them, right?
->
-> (I don't think you can switch off the superblock transparently on a
-> reconfigure?)
+Two operations that the proposal merges into one.
 
-This is the same preexisting behavior for block device mounts.  That
-said, I realize this can feel confusing since EROFS is not a block
-device and allowed this so far.
+Seeing through is introspection. You want to know that the overlay has
+three lower layers, that lower[0] is an erofs, which image it came
+from, what its fsid is. That's information. It should come back as
+data, from statmount(), the way every other mount property does. It
+hands out no new reachability, so it needs no new permission model, and
+it's roughly what Amir is arguing for in this thread. I think he's
+right that this half covers most of the actual use case.
 
-One way to solve this could be an explicit mount option "share_sb" that
-is opt-in and, once set, blocks any remount operations.  Would that
-work?
+Pulling a mount out is acquisition. You want a usable mount for that
+lower layer. That's a capability transfer and the layer is an internal
+mount with no mountpoint anywhere, and afterwards you can walk it. That
+needs to be an explicit, privileged operation with a single call site,
+and what it hands back should be a detached mount fd, which is exactly
+what open_tree(OPEN_TREE_CLONE) already gives you. Same lifetime rules,
+same move_mount() to attach it, nothing new to reason about.
 
-Regards,
-Giuseppe
+The reason to keep them apart is that they have entirely different
+security answers, and merging them into one path walk is precisely what
+forces "whose creds" to be answered per node instead of once. Split,
+the introspection half never has to ask, and the acquisition half
+answers it at the top, before anything is reachable.
 
+And neither half needs O_ALT. Introspection is statmount() with more
+fields. Acquisition is a flag on open_tree()/open_tree_attr(), or an
+operation on a mount fd. No new resolution mode, no second namespace
+hanging off every fd, nothing for a symlink to accidentally point into.
+That is the whole of my objection to the RFC, and dropping the mount
+options half doesn't address any of it.
+
+Which I think is close to your capability-fd sketch minus the tree. You
+wanted privilege captured by the call that hands you the fd rather than
+rechecked on use. If the only thing that call returns is a mount fd,
+that's already how it behaves. And we don't have to invent a per-node
+cred model or a new set of rules about what a dirfd is and isn't
+allowed to do.
+
+Giuseppe, this is also your requirement. What you actually
+need is something persistable, so a restarted daemon can find the erofs
+mount again without anyone having to hold an fd open for it. That's the
+introspection half producing a stable identifier and the acquisition
+half consuming one. Much narrower to specify than a generic metadata
+tree, and it doesn't require settling anything about O_ALT first.
+
+> Other than that question, I think I generally agree with you.  The
+> interesting operations here (getting an fd to something that was
+> previously inaccessible) are different enough from normal path lookups
+> that I think they deserve to be explicit syscalls or syscall modes,
+> not magic links.
+
+Yes.
 
