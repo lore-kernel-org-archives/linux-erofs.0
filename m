@@ -1,81 +1,86 @@
-Return-Path: <linux-erofs+bounces-4059-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4060-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17F95C55164
-	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 16:13:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77AA6C5516D
+	for <linux-erofs@archiver.kernel.org>; Thu, 30 Jul 2026 20:39:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4h9vPq0z0Qz2yMy;
-	Fri, 31 Jul 2026 02:13:19 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785427999;
-	cv=none; b=GgfDkHQaTqYInWil3kiDxKz72Nnu4Cwax5LNaeQNZekDIBT3WbmFBD2dyg3f8Sqn4Q4xS/rU56O5SLK4/s+23zE89CA+aJnjBSEv+NpKQxzI+kedIF3k5ynkd867Nj8XkNU8QH2Krz+Tof3XiuFrZbPBMc0B3Dz/HSMhC6ZiyRDDoHqeeDGXD3F0j90r7EtzSFOhg6okvacyFeTJy2ENvFM+T+KXrhkQzV0GCLaP3VvC2E0s2iUyw1NHZlb/eTSpb7JVJ8dnD6qZHstloBDfobsClsvAaJSvQv0MBITacMoNK5qxt2p4VF1Jr7K7YP3e47+vrsgMHUmxWi8UAh3d9A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hB1Jm4h9Qz2yH4;
+	Fri, 31 Jul 2026 06:39:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=148.163.135.74
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785443960;
+	cv=none; b=cAQJHTykQtAsUkTE9EJ2H1U6vkJRxwmnzLem6eXVU+IjNGgdDTcgdePj89fxzuEip6yf/9EsjkssMPsupi8SLUcoLEz4eb6Dz1izY0lsMELDUg4C9d55X10aTQASHe3ayTawAfEikctgAq+M3zby9+Gdp2948LD65kjsbkSOpMq5p8lY1VCVLTm60A/JomcesSbdAr/EQrrSRKlabVsnQhhXZ7GVm5I/huwefzltTuhkDFUNahYD1L//eTLtXf86FcZwgBVwHQ4bNRcYEYAtGCZpQXcWQhKnKz8g9uoHsKnoChXy6AzBUlZ/FujbENV1PJ9KexiJSeo+cyUcpY3cOQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785427999; c=relaxed/relaxed;
-	bh=bqoieD2YmNVSXtZenEKBk8kOT7R3kpMGyQwFIje0FU4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=BY22kHgjHs9OO95MZwn3PtJBb64Gvpj1zfrVTSydXWVKVZBIAhdrs/MPvSm8MW/DXJ/561aAIw9RUzS5rhUlh10y4lPQ73iqjQQYuxtkWbKesCKQge7IVpnunsAAdZeqiMdTZnqtmqOdMASKXMYWXAGbRvRRxn77Bwa0c1AAa0bJjgf1yRXtfkYf4S9Bqico+0+KCY3z78aPPffXkpaGW3g23C0EOlMj6Nov0yXIYqogb5BXDvXH7XyoNr8g0wuZeO0FxRzKp/SN3+MUTYbn8e2qC7NCdFEIGlrJA7cvr8lqt1vGlVcmsYzXYSXdnLDFvgWDf2X3CDu9qA1Y5Y6Ztw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IHwSxzRO; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IHwSxzRO; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1785443960; c=relaxed/relaxed;
+	bh=T8e8k+5EzrTp13lWK2mQytn9hp17i2RRCkab9M9He5A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aMRh0bkZpxVjJ6pgiu2GVmor8jMbS4mDGDOuO82+L8i57ed5VyF3rcsGeDJ9z6o1+du4Kc2NrFD9LXmsIbL6+UvAmSj8mt61QWtw8mVJF4aLcjuyLCzfCGfsMhPkKEbVsMWIpVkE16oEZL5w3DZKxvIVLAhS2tIaEsi7gZx1A5Z460YSaPd7CKLQ8vFMLi8vyZK7P8IKx34jEQQRMHtruL3N41NN+JrZUwZ8TaSHk4+TZra0nFQXi9ukJPPzu9xYKXC8WI0RZrEtOf2p+fMA6De1B4ipS55RbStIQ7iDaq2/H81khGaAKwa6ohHSpuVS6RtWhBKZd2HoZVE09DqeUA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=columbia.edu; dkim=pass (2048-bit key; unprotected) header.d=columbia.edu header.i=@columbia.edu header.a=rsa-sha256 header.s=pps01 header.b=WQ7HnPHx; dkim-atps=neutral; spf=pass (client-ip=148.163.135.74; helo=mx0a-00364e01.pphosted.com; envelope-from=tz2294@columbia.edu; receiver=lists.ozlabs.org) smtp.mailfrom=columbia.edu
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=columbia.edu
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IHwSxzRO;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IHwSxzRO;
+	dkim=pass (2048-bit key; unprotected) header.d=columbia.edu header.i=@columbia.edu header.a=rsa-sha256 header.s=pps01 header.b=WQ7HnPHx;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=columbia.edu (client-ip=148.163.135.74; helo=mx0a-00364e01.pphosted.com; envelope-from=tz2294@columbia.edu; receiver=lists.ozlabs.org)
+Received: from mx0a-00364e01.pphosted.com (mx0a-00364e01.pphosted.com [148.163.135.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4h9vPn50d3z2y8c
-	for <linux-erofs@lists.ozlabs.org>; Fri, 31 Jul 2026 02:13:15 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785427992;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bqoieD2YmNVSXtZenEKBk8kOT7R3kpMGyQwFIje0FU4=;
-	b=IHwSxzROS7E2MchDL3VyPBsnZ0kzHbtFtxYSMQJs9z6LATCY5T2cyO2bU8IMpHqThkzP+9
-	mIpr1HGWU5pdHR7vEq5y023qwdMNBNIdMCWhxo895ZFIkpZ2EgqFRRXX3TLi5GrncVOfMg
-	yLykb16hgaw8Fg3RR1+hZLpxcBAgv5E=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785427992;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bqoieD2YmNVSXtZenEKBk8kOT7R3kpMGyQwFIje0FU4=;
-	b=IHwSxzROS7E2MchDL3VyPBsnZ0kzHbtFtxYSMQJs9z6LATCY5T2cyO2bU8IMpHqThkzP+9
-	mIpr1HGWU5pdHR7vEq5y023qwdMNBNIdMCWhxo895ZFIkpZ2EgqFRRXX3TLi5GrncVOfMg
-	yLykb16hgaw8Fg3RR1+hZLpxcBAgv5E=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-654-aGW2d2IIO4ymuwbfuJuHDw-1; Thu,
- 30 Jul 2026 12:13:08 -0400
-X-MC-Unique: aGW2d2IIO4ymuwbfuJuHDw-1
-X-Mimecast-MFC-AGG-ID: aGW2d2IIO4ymuwbfuJuHDw_1785427985
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3EA2B180056E;
-	Thu, 30 Jul 2026 16:13:05 +0000 (UTC)
-Received: from localhost (unknown [10.44.49.125])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6A63130002E9;
-	Thu, 30 Jul 2026 16:13:04 +0000 (UTC)
-From: Giuseppe Scrivano <gscrivan@redhat.com>
-To: Pedro Falcato <pfalcato@suse.de>
-Cc: linux-erofs@lists.ozlabs.org,  xiang@kernel.org,
-  linux-fsdevel@vger.kernel.org,  amir73il@gmail.com
-Subject: Re: [PATCH] erofs: reuse superblock for file-backed mounts
-In-Reply-To: <8733x0k2p1.fsf@redhat.com> (Giuseppe Scrivano's message of "Thu,
-	30 Jul 2026 15:49:14 +0200")
-References: <20260730124120.1501126-1-gscrivan@redhat.com>
-	<amtJX8aTZT5d_sP3@pedro-suse.lan> <8733x0k2p1.fsf@redhat.com>
-Date: Thu, 30 Jul 2026 18:13:02 +0200
-Message-ID: <87fr10h2wh.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hB1Jh3zclz2y8c
+	for <linux-erofs@lists.ozlabs.org>; Fri, 31 Jul 2026 06:39:08 +1000 (AEST)
+Received: from pps.filterd (m0167069.ppops.net [127.0.0.1])
+	by mx0a-00364e01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UKY2eT3319730
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 16:39:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=columbia.edu; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pps01; bh=T8e8
+	k+5EzrTp13lWK2mQytn9hp17i2RRCkab9M9He5A=; b=WQ7HnPHxqZL+jR81XllF
+	JTKnzPju6U39UyyWhhTcphUfZ+xAg2wqUa791ebQ1v5NhvW0IuF//dLqtiOJvHMi
+	fmyKW7M+TGXkdSy8yhCZpU5HL/IpFm8hExjB6Zd8ZTnCZBp0FfiM/4VmQMN3Nyjj
+	wy9qKWJdLe5TFEiS34dauGmL0aNhbdETHjmjDl6ehafIPC0BA5I6nCfjcLjVALJk
+	9EAViui9QVuK3SVhaPP15FKa4Vxbk1NUe/8NEuykcAZ7ZyTVvPKKcmrPB5R0nGP7
+	1xqHFPEmX+ojBlGjFW+JqGfOPxg4M0VGW9uE0F4ziDhKljsql7UvZhC9GapkEQy5
+	vw==
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+	by mx0a-00364e01.pphosted.com (PPS) with ESMTPS id 4frbkhh43v-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 16:39:06 -0400 (EDT)
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-51a8db414c7so2965581cf.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 30 Jul 2026 13:39:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785443945; x=1786048745;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=T8e8k+5EzrTp13lWK2mQytn9hp17i2RRCkab9M9He5A=;
+        b=T9BbX769Z9GnLcF/JkoFh428P9drkry3KQZTR3pulvjPUiAZzMhgM01Ukq66BdlgnW
+         j3oj0xewcKhIudvU2U6goAU69aIjn4GLJw+60aazdm16lr3gOVHw7zSDBxsDjaUDsm9Y
+         MV+6xFfVQcX1gHrHTPySVbc67hG/Zkxu3dvMTomW1PDGUnVyYH4SA7t/hg2cNFkDEVi3
+         /NAUhqY9ee/EPDpRBAp1Q8rX//rqs04v3iySw94zC2jRElleLREKLSh2zUOYIlAKEj8f
+         tbwZlXxTnAkSiHfvxFl37jJYSgq+VLQWa6MjjhQINdjzDAgs37tQCtYm+wU+ri8lm0eZ
+         dy4A==
+X-Forwarded-Encrypted: i=1; AHgh+Rpad9wM1yRVZSDvUIQe9XfZCKyof/1rrD5n4l72hTdpX/NbyOhJ1YnCtt6Syxix0E63UqTHlJ391+9eKA==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0YwuxhSrTDmkYsl9fwY7iq5CEFyvyniio+myFfpdUyFjcCPKWyWI
+	OM/y6f1ynABJ5YxN529UTcjDhaLqffo13ZEIatDjOtgMQypwZYacXzY/uCnCZLPSbaDIZmyTK+8
+	FaWhMgdg+TzJlTcMb4vn1r/XamjY/1fqy+6ojaLcz2BfcxxsYy2umYQLhIsi2ZQ==
+X-Gm-Gg: AR+sD11G31uFgzB4GK4LwXvI1LOA3Qh1XH9gdXY8wWxi+YGvWQyUVYXc2e0abAeTRmX
+	RNm2NIskD51gqrqBQhJ6RduVahMV1NF5xIVL38ERy0/5B17KAkOPP5GhXfztvwytvgm5/O7ePhT
+	XqwQ3HozRJYAIwpnWlmdlRALEMisxFTx8fdyRbZ0tyv2W3c5wN3Q6OgYRczoxNv2wmAvzZlxKiR
+	a5clotEeDxxFFl3Pl6gxgVVuHd9xeD/ANGrbnjCdWYiK5x9uRqBUk+6R6jpEJzHLBrDBsP+uhHS
+	xgnucxRq+FdMtA0brvKKKpztiJkFiSNT21J3gg5qeJghrUXwb92MvolrSCT7S6Wmidh7SqIdZ4S
+	gjdGbHjLx8Qe63AU=
+X-Received: by 2002:a05:622a:3d0:b0:51c:7b11:41a9 with SMTP id d75a77b69052e-52b38757e60mr44335551cf.86.1785443945531;
+        Thu, 30 Jul 2026 13:39:05 -0700 (PDT)
+X-Received: by 2002:a05:622a:3d0:b0:51c:7b11:41a9 with SMTP id d75a77b69052e-52b38757e60mr44335011cf.86.1785443945082;
+        Thu, 30 Jul 2026 13:39:05 -0700 (PDT)
+Received: from [10.206.71.35] ([129.236.231.134])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-529e2d8251asm48127221cf.19.2026.07.30.13.39.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2026 13:39:04 -0700 (PDT)
+Message-ID: <15506dc8-e5b8-4fa8-a85f-912a92edb83f@columbia.edu>
+Date: Thu, 30 Jul 2026 16:39:03 -0400
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -87,152 +92,112 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
-X-Mimecast-MFC-PROC-ID: DrJlCSnhXzYNEiLxlvq0UCmc_4AtQWNYMtsDM2g1wEE_1785427985
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 3/5] iomap: use BIO_COMPLETE_IN_TASK for dropbehind
+ writeback
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jens Axboe <axboe@kernel.dk>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        "Darrick J. Wong"
+ <djwong@kernel.org>,
+        Carlos Maiolino <cem@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+        Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Sandeep Dhavale <dhavale@google.com>,
+        Hongbo Li <lihongbo22@huawei.com>, Chunhai Guo <guochunhai@vivo.com>,
+        Dave Chinner <dgc@kernel.org>, Bart Van Assche <bvanassche@acm.org>,
+        Hillf Danton <hdanton@sina.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-erofs@lists.ozlabs.org,
+        Christoph Hellwig <hch@lst.de>
+References: <20260730-blk-dontcache-v7-0-3e8e6850068d@columbia.edu>
+ <20260730-blk-dontcache-v7-3-3e8e6850068d@columbia.edu>
+ <amsHrVCJnuXzeGG1@infradead.org>
+Content-Language: en-US
+From: Tal Zussman <tz2294@columbia.edu>
+In-Reply-To: <amsHrVCJnuXzeGG1@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Authority-Analysis: v=2.4 cv=Jp/Bas4C c=1 sm=1 tr=0 ts=6a6bb66a cx=c_pps
+ a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=Mx06nvryMUGB95QVe9e23A==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=x7bEGLp0ZPQA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Da8U98TiO7q1upZEImrf:22 a=JR4YdQiviy7OQf72WyZ1:22
+ a=qsXxR-sLYAu0WPx4Yu8A:9 a=QEXdDO2ut3YA:10 a=a_PwQJl-kcHnX1M80qC6:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDE0OSBTYWx0ZWRfX7HfzrRMxvela
+ 4zUEtQz7yTpIr5JYQNn5CTCDZTeqd0YgavVO/ZP/N7f/Z9/eaaoGnoH9nkwLm/dkdZpOLcVawku
+ MVuaDmRQ6ps7WySrv9Nv6r6qLjtv2AvkGNzIEbGeVtg1x8ukYUYv
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDE0OSBTYWx0ZWRfX1nDC4+g+qYg6
+ OEzT/wf6fzZohXvOS7BJYWDAl0Mwne/Ib4a+nB7ybLc49S2Qc6yVehZKVRk1mOGhB/v18f/2FJd
+ rDWvO7HkrrDzrFEAlEAAeQNYhEJlcIFVj6J4bSyjhDSRUR8QdDwkvY/eG23WVHioEwyOAIFdd6h
+ FC1R4jGRo8krDmupapcRFuqabIpkAVQtSHpjflepa5rOyYKM1L7NUhA9bX/ZBE3EYGa+MB0BCaI
+ KOnA9Y9rTwAMZBji3yebFY+vPUmv6LtUaMdmvw/EO2TpkrT8VUagApT0Nv4zOSrd8RdPhT34Fz5
+ HTgp1GYVKGfz9HWla9ggd3sgb2oBveeHERA1sXm8k7bf4RrH/nPX2mW5BoZ78xE+JYshZvjsl/V
+ 5qHQEg7hUQcW2Ug62iZM55QLhDPQD/B0V4UMCpfZhAQuIXk6TafZbGPd1C0Jjyh3KIhjKfNXgrd
+ UvPCzhQSR80gR+ZW0XA==
+X-Proofpoint-ORIG-GUID: QQG_WI1EiGymEwOg6wduqhKjCdmfQP9Z
+X-Proofpoint-GUID: QQG_WI1EiGymEwOg6wduqhKjCdmfQP9Z
+X-Proofpoint-Virus-Version: vendor=nai engine=6900 definitions=11860
+ signatures=596817
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=10 suspectscore=0 bulkscore=10 clxscore=1015 phishscore=0
+ malwarescore=0 priorityscore=1501 adultscore=0 lowpriorityscore=10
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607300149
 
-Giuseppe Scrivano <gscrivan@redhat.com> writes:
+On 7/30/26 4:13 AM, Christoph Hellwig wrote:
+> On Thu, Jul 30, 2026 at 02:57:53AM -0400, Tal Zussman wrote:
+>> Set BIO_COMPLETE_IN_TASK on iomap writeback bios when a dropbehind folio
+>> is added. This ensures that bi_end_io runs in task context, where
+>> folio_end_dropbehind() can safely invalidate folios.
+>> 
+>> With the bio layer now handling task-context deferral generically,
+>> IOMAP_IOEND_DONTCACHE is no longer needed, as XFS no longer needs to
+>> route DONTCACHE ioends through its completion workqueue. Remove the flag
+>> and its NOMERGE entry.
+>> 
+>> Without the NOMERGE, regular I/Os that get merged with a dropbehind
+>> folio will also have their completion deferred to task context.
+>> 
+>> Reviewed-by: Christoph Hellwig <hch@lst.de>
+>> Signed-off-by: Tal Zussman <tz2294@columbia.edu>
+> 
+> This seems to be missing the bug fix you identified for the double
+> deferral?
 
-> Pedro Falcato <pfalcato@suse.de> writes:
->
->> On Thu, Jul 30, 2026 at 02:41:20PM +0200, Giuseppe Scrivano wrote:
->>> When the same file is mounted multiple times (via path or fd), reuse
->>> the existing superblock instead of creating a new one.  This allows
->>> multiple mounts of the same image to share in-kernel data structures
->>> more efficiently.
->>> 
->>> The backing file is identified by its inode and fsoffset.  If mount
->>> options conflict, a separate superblock is created transparently as
->>> a fallback.
->>> 
->>> Tested by mounting a 177M Fedora EROFS image 20 times with full
->>> traversal:
->>> 
->>> ```
->>> \#!/bin/sh
->>> IMG=${1:-/root/fedora.erofs}
->>> N=20
->>> DIR=$(mktemp -d)
->>> trap "umount $DIR/m* 2>/dev/null; rm -rf $DIR" EXIT
->>> 
->>> sync; echo 3 > /proc/sys/vm/drop_caches
->>> INODES_BEFORE=$(grep erofs_inode /proc/slabinfo | awk '{print $2}')
->>> MEM_BEFORE=$(grep ^Slab: /proc/meminfo | awk '{print $2}')
->>> 
->>> for i in $(seq 1 $N); do mkdir $DIR/m$i && mount -t erofs "$IMG"
->>> $DIR/m$i && find $DIR/m$i > /dev/null; done
->>> 
->>> echo "Superblocks: $(grep $DIR /proc/self/mountinfo | awk '{print $3}' | sort -u | wc -l)"
->>> echo "erofs_inode delta: +$(( $(grep erofs_inode /proc/slabinfo | awk '{print $2}') - INODES_BEFORE ))"
->>> echo "Slab delta: +$(( $(grep ^Slab: /proc/meminfo | awk '{print $2}') - MEM_BEFORE )) kB"
->>> ```
->>> 
->>> unpatched kernel:
->>> 
->>> Superblocks: 20
->>> erofs_inode delta: +46368
->>> Slab delta: +39952 kB
->>> 0.08user 0.82system 0:00.98elapsed 93%CPU (0avgtext+0avgdata 4796maxresident)k
->>> 19168inputs+10304outputs (24major+16672minor)pagefaults 0swaps
->>> 
->>> patched kernel:
->>> 
->>> Superblocks: 1
->>> erofs_inode delta: +2044
->>> Slab delta: +1088 kB
->>> 0.07user 0.21system 0:00.31elapsed 91%CPU (0avgtext+0avgdata 4848maxresident)k
->>> 19024inputs+6784outputs (25major+16810minor)pagefaults 0swaps
->>> 
->>> The time difference shows that sharing the superblock also benefits
->>> the page cache and inode cache, as subsequent mounts of the same image
->>> avoid re-reading the backing file.  This is particularly useful for
->>> container hosts running multiple containers from the same base image.
->>
->> Doesn't this approach break-down as soon as you get to change SB flags (through
->> e.g mount -o remount)? It will change superblock flags for all of them, right?
->>
->> (I don't think you can switch off the superblock transparently on a
->> reconfigure?)
->
-> This is the same preexisting behavior for block device mounts.  That
-> said, I realize this can feel confusing since EROFS is not a block
-> device and allowed this so far.
->
-> One way to solve this could be an explicit mount option "share_sb" that
-> is opt-in and, once set, blocks any remount operations.  Would that
-> work?
+Sorry, I misunderstood and assumed you'd take care of it in a follow-up.
+I'll adjust it as below and send v8.
 
-Would something like the following fixup on top of the previous patch be
-acceptable (suggestions for better names are welcome)?
+> I although thought a bit how that could be done cleaner, see below:
+> 
+>>  		ioend_flags |= IOMAP_IOEND_SHARED;
+>> -	if (folio_test_dropbehind(folio))
+>> -		ioend_flags |= IOMAP_IOEND_DONTCACHE;
+> 
+> I'd keep this flag.
+> 
+>>  	if (pos == wpc->iomap.offset && (wpc->iomap.flags & IOMAP_F_BOUNDARY))
+>>  		ioend_flags |= IOMAP_IOEND_BOUNDARY;
+>>  
+>> @@ -256,6 +254,9 @@ ssize_t iomap_add_to_ioend(struct iomap_writepage_ctx *wpc, struct folio *folio,
+>>  	if (!bio_add_folio(&ioend->io_bio, folio, map_len, poff))
+>>  		goto new_ioend;
+>>  
+>> +	if (folio_test_dropbehind(folio))
+>> +		bio_set_flag(&ioend->io_bio, BIO_COMPLETE_IN_TASK);
+> 
+> And move setting the flag to iomap_ioend_writeback_submit, and only
+> for the case where no io_bio.bi_end_io is already assigned.
+> 
 
-Thanks,
-Giuseppe
-
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 580f8d9f14e7..ac26daf4f78a 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -156,6 +156,7 @@ struct erofs_sb_info {
- #define EROFS_MOUNT_DAX_NEVER		0x00000080
- #define EROFS_MOUNT_DIRECT_IO		0x00000100
- #define EROFS_MOUNT_INODE_SHARE		0x00000200
-+#define EROFS_MOUNT_SHARE_SB		0x00000400
- 
- #define clear_opt(opt, option)	((opt)->mount_opt &= ~EROFS_MOUNT_##option)
- #define set_opt(opt, option)	((opt)->mount_opt |= EROFS_MOUNT_##option)
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index cbd76727f0d3..dd2a351811c8 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -386,7 +386,7 @@ static void erofs_default_options(struct erofs_sb_info *sbi)
- enum {
- 	Opt_user_xattr, Opt_acl, Opt_cache_strategy, Opt_dax, Opt_dax_enum,
- 	Opt_device, Opt_domain_id, Opt_directio, Opt_fsoffset, Opt_inode_share,
--	Opt_source,
-+	Opt_source, Opt_share_sb,
- };
- 
- static const struct constant_table erofs_param_cache_strategy[] = {
-@@ -414,6 +414,7 @@ static const struct fs_parameter_spec erofs_fs_parameters[] = {
- 	fsparam_flag_no("directio",		Opt_directio),
- 	fsparam_u64("fsoffset",			Opt_fsoffset),
- 	fsparam_flag("inode_share",		Opt_inode_share),
-+	fsparam_flag("share_sb",		Opt_share_sb),
- 	fsparam_file_or_string("source",	Opt_source),
- 	{}
- };
-@@ -560,6 +561,12 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 		else
- 			set_opt(&sbi->opt, INODE_SHARE);
- 		break;
-+	case Opt_share_sb:
-+		if (!IS_ENABLED(CONFIG_EROFS_FS_BACKED_BY_FILE))
-+			errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
-+		else
-+			set_opt(&sbi->opt, SHARE_SB);
-+		break;
- 	case Opt_source:
- 		return erofs_fc_parse_source(fc, param);
- 	}
-@@ -798,6 +805,8 @@ static int erofs_fc_test_file_super(struct super_block *sb,
- 		return 0;
- 	if (!sbi->dif0.file || !new_sbi->dif0.file)
- 		return 0;
-+	if (!test_opt(&new_sbi->opt, SHARE_SB))
-+		return 0;
- 	return file_inode(sbi->dif0.file) == file_inode(new_sbi->dif0.file) &&
- 	       sbi->dif0.fsoff == new_sbi->dif0.fsoff &&
- 	       sbi->opt.mount_opt == new_sbi->opt.mount_opt &&
-@@ -874,6 +883,9 @@ static int erofs_fc_reconfigure(struct fs_context *fc)
- 
- 	DBG_BUGON(!sb_rdonly(sb));
- 
-+	if (test_opt(&sbi->opt, SHARE_SB))
-+		return -EBUSY;
-+
- 	if (new_sbi->domain_id)
- 		erofs_info(sb, "ignoring reconfiguration for domain_id.");
- 
+To confirm, this would only work because XFS provides its own task context
+and is the only consumer of iomap that sets its own io_bio.bi_end_io.
+If another filesystem set it and didn't provide task context, this would
+break, right? I can add a comment about this requirement, but I want to
+confirm the intent, as it feels a little fragile as-is.
 
 
