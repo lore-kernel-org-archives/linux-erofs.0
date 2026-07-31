@@ -1,62 +1,70 @@
-Return-Path: <linux-erofs+bounces-4063-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4064-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CE24C54F54
-	for <linux-erofs@archiver.kernel.org>; Fri, 31 Jul 2026 13:32:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2C39C5516D
+	for <linux-erofs@archiver.kernel.org>; Fri, 31 Jul 2026 14:16:43 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hBRng2RlKz2y1F;
-	Fri, 31 Jul 2026 23:32:23 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785504743;
-	cv=none; b=Q18y24SYfNXCFaIaS5NkS/DVPOfPaa7KnT3WhdKbhVbFzdF6bLEn6O3QBOC50P5x3RXUl0axwI3FxNJil5vP0T9V2wjs2SNGFj2N7+5rjhxDgB1xZc5S1snBu2FwNVQeHYs08xEtFT4tRgqcgIJUCRLEiO7Gg74WOFs6cdrLzkLA8Yi+ofQB2tyLmLsieR1jKTy6wMbPtGgCaOUoU7dorsrAFCnL8HYM3nyNVDoghyjs95f4eHe9sfR8ERH4Z9HE89snU2BDuEHnbsOSqbFJJjth3ncB9EUBiJ35EQK5kBMTAp7RrUn7UMBauqfcRa9EYkt2e6QUCJpD1epC/FRGpg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hBSmn706Xz2yY1;
+	Sat, 01 Aug 2026 00:16:41 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.9
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785507401;
+	cv=none; b=JSlymTDML3SQKImVCQ3EmmMnsq2nrFxWHnTHvV+j46Uf8Ad0GvXplvAYEX6OLmHOD+2uuMREDtml2j0PZJXNv47KeG0+2ZuCbFi0Mbh6FQ5SOFlLqyAJ+NLSQrcHt0fG5hBwEMq7bgHeScNL2VQU2/FgWxVVnz8PHS7Qw7aevCfQgZvX2kPG/XILegYKqWIwDf5KdWS1U3gEDeFjkAjeeb4s/8WtTiQMOOV30SvER5pty54ymVmlCmGFAIxK1s5X7JUkxE8KqaRTMp7dYdCSjTpbL9rAvQ8eyy0wXbeh852JWfOw4ODFZDJPd8T+lpD6k2TMv0AgPjlKNwME/dbs1g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785504743; c=relaxed/relaxed;
-	bh=q5ZBFRjSaRWG49SYZwkFXwAI+svIJcrU39TitSzCLBY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=l0XnEFZ5dnkgN/iOrQGMcVclV8dka8Igov7asHxRzzSTMWm5nLUptGu/PFCl6qnHOF3yz1NcN0sxj9D4B1/Euu7VtpGDh3TZ0/GDI4paUInWWZbAtwKPk/3OiOyhiYlWdabS0hVZcw7M2OspCB8iXdXi2SdHklIbWkboga2y4RlNzP5mW749AZt9Qo64STQkRsdF8hsGzPSMxGrELTJrv/N5uADT4uK9nN3V2zzRz4Z4RZDZ7NYRdZ12yHFfsdZidB+6R27GHWb+M/A33KAifzsg3OYpDUMf97mHJh7lE1C4TfFZPcDCp7dwmx77q8Wr7Czv2H6nzlzoxlCd4QUdXQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cghnf9Y7; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1785507401; c=relaxed/relaxed;
+	bh=avc82mK1UmZAD3w/nysJCQ0MMMUepmVdTRAqRneNAu8=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=V/s2N+7KsrU7xjVR86MfC1T7UJOwOj2wYlgtvyFmr0liyyuEXG0uppyci25wGNql4q2EFD4lSahfkoGrM2Ok0JtEAE2o65Hg+oBliCB48V10oZDdfX+48U9GsrJFXzNvCqBX5UBMwFPmokOc7rN11jKoNrdrdm/ORakx+4tuLnT9dL6ZteRxxQSlA8av5uwrImHdJNrcw9FugG9FY90t8aPNnEveb9tLx3wILESOOlOU/0E4/skS4mjG4Kl8nZmXfw+DE9D1Q8uadmd9yFwsZG8P5eNgG4ow5WEiv9WwY9+JWusOCVvVcnBLXPOVgc548fT5McJ7BhXRK5kiR49Z6w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=G8vT6R5g; dkim-atps=neutral; spf=pass (client-ip=198.175.65.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cghnf9Y7;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=G8vT6R5g;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hBRnf2cRwz2xl5
-	for <linux-erofs@lists.ozlabs.org>; Fri, 31 Jul 2026 23:32:22 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id A23DE6004E;
-	Fri, 31 Jul 2026 13:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB0281F000E9;
-	Fri, 31 Jul 2026 13:32:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785504739;
-	bh=q5ZBFRjSaRWG49SYZwkFXwAI+svIJcrU39TitSzCLBY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=cghnf9Y7m8MyEdcVdGGtuv0KC9YXXAr1PAJJwjsKSvF36iYMcLbKLJFyiqGYY44TX
-	 0Ji9gvJVwsEwrxwTJ/UIOndwlJbbMwf0EsokkC2iRbBddxaTFoM4jmmHc4TllPO1jo
-	 EDG4nbpuwJDImziUksRNRSDxW0+hHYWqXI4PVNpdlQJDBNqdiBKv6LLz4k5EXHCe3G
-	 PN3cQzIXUxmmKIisdwKmHNpaRfC8cDYq8Z5nDc2BGetjkQZ+BmVNB9NIWse8YD1cOh
-	 MZEFkKGADviTAoD2GWXRmE7uPFrYK0UEBKyRCydoL+QHnso3vVVVgXf+e2ZU7kmhW/
-	 Pc/207QXqETow==
-Date: Fri, 31 Jul 2026 15:32:15 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Giuseppe Scrivano <gscrivan@redhat.com>
-Cc: Pedro Falcato <pfalcato@suse.de>, linux-erofs@lists.ozlabs.org, 
-	xiang@kernel.org, linux-fsdevel@vger.kernel.org, amir73il@gmail.com
-Subject: Re: [PATCH] erofs: reuse superblock for file-backed mounts
-Message-ID: <20260731-geheilt-launenhaft-lehrjahr-7cc61610ee1c@brauner>
-References: <20260730124120.1501126-1-gscrivan@redhat.com>
- <amtJX8aTZT5d_sP3@pedro-suse.lan>
- <8733x0k2p1.fsf@redhat.com>
- <87fr10h2wh.fsf@redhat.com>
- <20260731-geeilt-hasen-demografie-83c895f789ea@brauner>
- <8733wz1ekh.fsf@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hBSmk2xX8z2xwH
+	for <linux-erofs@lists.ozlabs.org>; Sat, 01 Aug 2026 00:16:35 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785507399; x=1817043399;
+  h=date:from:to:cc:subject:message-id;
+  bh=rZFfmC5zSz6qN4Qr2AafrTUfJQ4s2m8zFRa/f86P4Qw=;
+  b=G8vT6R5gIuLn7B8Boa5hrBeshiRtQt6Q6bQT2mgMcmOYySuT/IUKDq8k
+   Xj1IkczgkOysU2wOoPiTi2xquDnx08DMg+KNAQlZ4zbiKRqpo0V4PB7cc
+   MUkB0SFyjQTx6prxsdu9BIb+iXb6j4e9sEbwGiOr7TsJzMJr1GYNGT/NK
+   BNqGhUtL8VMYwQt3l7O7KODzak2/XNzZ8L0+RrADnvlYAfPalSWrp7dBS
+   MoIcnsS/UWvxehMlQ47FhePqJ4BYldf79+2gPv2Qgb18B+IHghWczAO3O
+   DQnwfiyOskdjIsbzx75UBiYe/CmP9KaYfDvW8aPAAHbaNJ6I0aEXrWloI
+   w==;
+X-CSE-ConnectionGUID: BQdTAteiRd+Kxvou9qE08g==
+X-CSE-MsgGUID: OhUA6nQPTrC9ui3d1XHhXg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11861"; a="108928887"
+X-IronPort-AV: E=Sophos;i="6.25,196,1779174000"; 
+   d="scan'208";a="108928887"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jul 2026 07:16:30 -0700
+X-CSE-ConnectionGUID: TP6FrodcTDuVZVNLWHZomQ==
+X-CSE-MsgGUID: QqdzEilYTyqHrGwkdBB98Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,196,1779174000"; 
+   d="scan'208";a="264399041"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 31 Jul 2026 07:16:29 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wpo2F-000000001Ax-1IFC;
+	Fri, 31 Jul 2026 14:16:27 +0000
+Date: Fri, 31 Jul 2026 22:16:10 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <xiang@kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ e1a16b5ff51218dce414629f7634923162824001
+Message-ID: <202607312259.WqfShluW-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -67,66 +75,126 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <8733wz1ekh.fsf@redhat.com>
 
-On Fri, Jul 31, 2026 at 03:19:58PM +0200, Giuseppe Scrivano wrote:
-> Christian Brauner <brauner@kernel.org> writes:
-> 
-> >> >>> The time difference shows that sharing the superblock also benefits
-> >> >>> the page cache and inode cache, as subsequent mounts of the same image
-> >> >>> avoid re-reading the backing file.  This is particularly useful for
-> >> >>> container hosts running multiple containers from the same base image.
-> >> >>
-> >> >> Doesn't this approach break-down as soon as you get to change SB flags (through
-> >> >> e.g mount -o remount)? It will change superblock flags for all of them, right?
-> >> >>
-> >> >> (I don't think you can switch off the superblock transparently on a
-> >> >> reconfigure?)
-> >> >
-> >> > This is the same preexisting behavior for block device mounts.  That
-> >
-> > Yeah, and it sucks ass. :)
-> > Only an incompatible vfs-level RO/RW property causes a silent reuse to
-> > fail. Otherwise it not possible to detect that a superblock has been
-> > created and requested mount options silently ignore.
-> >
-> > In other words, doing this unconditionally is incompatible with current
-> > userspace.
-> >
-> > Btw, I added FSCONFIG_CMD_CREATE_EXCL for this reason which refuses to
-> > reuse an existing superblock for filesystems that would otherwise end up
-> > sharing a superblock. This way userspace is guaranteed to not silently
-> > get filesystem options ignored.
-> >
-> >> > said, I realize this can feel confusing since EROFS is not a block
-> >> > device and allowed this so far.
-> >> >
-> >> > One way to solve this could be an explicit mount option "share_sb" that
-> >> > is opt-in and, once set, blocks any remount operations.  Would that
-> >> > work?
-> >> 
-> >> Would something like the following fixup on top of the previous patch be
-> >> acceptable (suggestions for better names are welcome)?
-> >
-> > The patch as written still means that a task A creates a new erofs mount
-> > with for file F and marks it as shared. Another task B creates new erofs
-> > mount expecting to get a new superblock and will end up sharing it with
-> > task A instead.
-> >
-> > That is still quite the behavior change and could be used to subvert
-> > workloads expectations and be used in (odd) attacks.
-> 
-> no, my suggestion is that task B gets the same superblock created by A
-> only if it also specifies share_sb.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: e1a16b5ff51218dce414629f7634923162824001  erofs: accept source file descriptor via fsconfig
 
-Yeah, that works.
+elapsed time: 800m
 
-> If the option is not specified, as is the case for existing workloads,
-> then it gets a new superblock even if A is already mounted with
-> share_sb.
+configs tested: 105
+configs skipped: 0
 
-Sounds good! Ship it.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha                            allnoconfig    gcc-16.1.0
+alpha                           allyesconfig    gcc-16.1.0
+alpha                              defconfig    gcc-16.1.0
+arc                             allmodconfig    gcc-16.1.0
+arc                             allyesconfig    gcc-16.1.0
+arc                  randconfig-001-20260731    clang-17
+arc                  randconfig-002-20260731    clang-17
+arm                           mmp2_defconfig    gcc-16.1.0
+arm                  randconfig-001-20260731    clang-17
+arm                  randconfig-002-20260731    clang-17
+arm                  randconfig-003-20260731    clang-17
+arm                  randconfig-004-20260731    clang-17
+arm64                randconfig-001-20260731    gcc-8.5.0
+arm64                randconfig-002-20260731    gcc-8.5.0
+arm64                randconfig-003-20260731    gcc-8.5.0
+arm64                randconfig-004-20260731    gcc-8.5.0
+csky                            allmodconfig    gcc-16.1.0
+csky                 randconfig-001-20260731    gcc-8.5.0
+csky                 randconfig-002-20260731    gcc-8.5.0
+hexagon                       randconfig-001    clang-24
+hexagon              randconfig-001-20260731    clang-24
+hexagon              randconfig-002-20260731    clang-24
+i386                            allmodconfig    gcc-14
+i386       buildonly-randconfig-001-20260731    clang-22
+i386       buildonly-randconfig-002-20260731    clang-22
+i386       buildonly-randconfig-003-20260731    clang-22
+i386       buildonly-randconfig-004-20260731    clang-22
+i386       buildonly-randconfig-005-20260731    clang-22
+i386       buildonly-randconfig-006-20260731    clang-22
+i386                 randconfig-001-20260731    gcc-14
+i386                 randconfig-002-20260731    gcc-14
+i386                 randconfig-003-20260731    gcc-14
+i386                 randconfig-004-20260731    gcc-14
+i386                 randconfig-005-20260731    gcc-14
+i386                 randconfig-006-20260731    gcc-14
+i386                 randconfig-007-20260731    gcc-14
+i386                 randconfig-011-20260731    clang-22
+i386                 randconfig-012-20260731    clang-22
+i386                 randconfig-013-20260731    clang-22
+i386                 randconfig-014-20260731    clang-22
+i386                 randconfig-015-20260731    clang-22
+i386                 randconfig-016-20260731    clang-22
+i386                 randconfig-017-20260731    clang-22
+loongarch                          defconfig    clang-24
+loongarch            randconfig-001-20260731    clang-24
+loongarch            randconfig-002-20260731    clang-24
+nios2                           allmodconfig    gcc-11.5.0
+nios2                            allnoconfig    gcc-11.5.0
+nios2                randconfig-001-20260731    clang-24
+nios2                randconfig-002-20260731    clang-24
+parisc                          allmodconfig    gcc-16.1.0
+parisc                          allyesconfig    gcc-16.1.0
+parisc                             defconfig    gcc-16.1.0
+parisc                        randconfig-001    gcc-8.5.0
+parisc               randconfig-001-20260731    gcc-8.5.0
+parisc               randconfig-002-20260731    gcc-8.5.0
+powerpc              randconfig-001-20260731    gcc-8.5.0
+powerpc              randconfig-002-20260731    gcc-8.5.0
+powerpc64            randconfig-001-20260731    gcc-8.5.0
+powerpc64            randconfig-002-20260731    gcc-8.5.0
+riscv                   nommu_k210_defconfig    clang-24
+riscv                         randconfig-001    clang-19
+riscv                randconfig-001-20260731    clang-19
+riscv                randconfig-002-20260731    clang-19
+s390                 randconfig-001-20260731    clang-19
+s390                 randconfig-002-20260731    clang-19
+sh                                 defconfig    gcc-16.1.0
+sh                   randconfig-001-20260731    clang-19
+sh                   randconfig-002-20260731    clang-19
+sparc                         randconfig-001    gcc-14
+sparc                randconfig-001-20260731    gcc-14
+sparc                randconfig-002-20260731    gcc-14
+sparc64              randconfig-001-20260731    gcc-14
+sparc64              randconfig-002-20260731    gcc-14
+um                   randconfig-001-20260731    gcc-14
+um                   randconfig-002-20260731    gcc-14
+x86_64     buildonly-randconfig-001-20260731    gcc-14
+x86_64     buildonly-randconfig-002-20260731    gcc-14
+x86_64     buildonly-randconfig-003-20260731    gcc-14
+x86_64     buildonly-randconfig-004-20260731    gcc-14
+x86_64     buildonly-randconfig-005-20260731    gcc-14
+x86_64     buildonly-randconfig-006-20260731    gcc-14
+x86_64                                 kexec    clang-22
+x86_64                        randconfig-001    gcc-14
+x86_64               randconfig-001-20260731    gcc-14
+x86_64               randconfig-002-20260731    gcc-14
+x86_64               randconfig-003-20260731    gcc-14
+x86_64               randconfig-004-20260731    gcc-14
+x86_64               randconfig-005-20260731    gcc-14
+x86_64               randconfig-006-20260731    gcc-14
+x86_64               randconfig-011-20260731    gcc-14
+x86_64               randconfig-012-20260731    gcc-14
+x86_64               randconfig-013-20260731    gcc-14
+x86_64               randconfig-014-20260731    gcc-14
+x86_64               randconfig-015-20260731    gcc-14
+x86_64               randconfig-016-20260731    gcc-14
+x86_64               randconfig-071-20260731    clang-22
+x86_64               randconfig-072-20260731    clang-22
+x86_64               randconfig-073-20260731    clang-22
+x86_64               randconfig-074-20260731    clang-22
+x86_64               randconfig-075-20260731    clang-22
+x86_64               randconfig-076-20260731    clang-22
+x86_64                          rhel-9.4-bpf    gcc-14
+xtensa               randconfig-001-20260731    gcc-14
+xtensa               randconfig-002-20260731    gcc-14
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
