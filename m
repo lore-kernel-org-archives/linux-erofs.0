@@ -1,61 +1,69 @@
-Return-Path: <linux-erofs+bounces-4081-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4082-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28AEEC55162
-	for <linux-erofs@archiver.kernel.org>; Sun,  2 Aug 2026 13:30:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9D3AC55184
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 08:09:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hCgfP32Qfz2yhD;
-	Sun, 02 Aug 2026 23:30:21 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785677421;
-	cv=none; b=GcoclCELHeAmBJMJCcXuha6diEjcG60u3o7AdPjq+hEc8ShR3JvfAOC/UH9xIyIgn3yXqrbes+STmkb+zH3y1ecpku07A6SAcGH2ZXHwYzsqz/8WdlJsxC6ymKEug4lzBA5+8FO7ntJuqba3gvCoTY0TgUgmWv47fLlpvnBQNgeaZFYbdiWGcOpuEcb25pGV1tg5X7CFt/4X1sUC/1lfoQjqiHm4whi6HiNVERK8P0x58qAoKCiIHcJQGJNR7b61qHgSD9/prg6oPI4qVVhh/dMvGze+hHhnmfeWt1rD1yoJMcnMLlq5DJbiO+soSTe5yIX4NFRDGlKrRSQl41Kk5g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hD8Tf3BQNz2yhP;
+	Mon, 03 Aug 2026 18:09:26 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.221.178
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785744566;
+	cv=none; b=OG47dRhB8OxJcs7qQiV7lRJ60yi4wP7kdoJY2vrVDnHibLeixKeIbXu8eQ6OBf4wl1GvPaxcZKCXN+xwPxsA7tX3rKFxib7QJbNbzB5jCYpCGIkl2BFzLNY6/UtAgH/8E5NV2d27trTbD7aQVqKnn3LRoUfAz4QDzGDX4drBsIhvJPjFrgGjqEZjs067Dxt9lh8F/nbmeGrVQzqS58gm3ld4SuPZHM14F5v6M2KkWbubxqYZ4+f+BLMYDWz/OOe5rXOA9qLIsqoqTh5njPwOb57cyg6LShYnMr6SKHmDuUm3jLT7z13pLHL1VsC36v4M1sOi/7xxKIcR4fGgcledRw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785677421; c=relaxed/relaxed;
-	bh=32WFtoJYrT1ev5zp+qz9lc1y5HRwtO/8VuA8v9ZZbnk=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TGQm9he+HLMoYzZym+YgEujv0QD1Eyp2xL0cS5/8/eocuH0xGUzwfW3TwrusFHOobD2RRKS+AXXRU/JtPPF+unyczDWAajJdsMKKSazBpK1EFFJWYcdVFGv/zma1E2nwCgtrkcHUT4uXechYEguPZ+t1sXmA8VFCIYomEXaxLXT/cQGmk6Pfj8omWUEK7ylR0YwOt2OvP1sABZRxtnEDrc2OCMzpyVsawVAPsVHmomE/WDn6rSPL0NHOg2Ga2nEZnWAtAbEjmh1Hc4P4UIUbpm14jeeIo1v0Z88Cr4OJHARa5R6N3mllqFJTDmp00dThdeannr640XjKEmhFKF7kvQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l3ZQY98U; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l3ZQY98U;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+	t=1785744566; c=relaxed/relaxed;
+	bh=gt9Uv9rnheC+lhk+WKX3mjSr+Y1yldd4f4F/prMteYw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=krre7lqYeS7CNPSW7eyNdvJqRgSrLsT58AY1jmZ+1BN4KTfcP+3N2WE6BwShRztGfCYz57rfMCk1MJBZyz8y9ZG3E5VDMnlHCPPgLi6RQZEN4KxYuhR05PcyK6oxpyhbOMEnk955hCdiEVoPhwLmKKFCRbD5KzGztf/eWQvx54tIWITPJQBpKV1r1se12FOOBywfjOXCnWbGF5n4dfrK4b0a1QwoCbwcqWNyBiOUMrmgHTiA0NcLa3Lwsx61RY3moNF5OsBuYaZNBV/XcqqWRjH43hW42oqe9zFRlB+6lDWblhd8FasjmvmtXTThcmW5RfMg1L6sRSrwpFrzOMwsrQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass (client-ip=209.85.221.178; helo=mail-vk1-f178.google.com; envelope-from=geert.uytterhoeven@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=209.85.221.178; helo=mail-vk1-f178.google.com; envelope-from=geert.uytterhoeven@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hCgfN4JSvz2ygp
-	for <linux-erofs@lists.ozlabs.org>; Sun, 02 Aug 2026 23:30:20 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 8434060DC3;
-	Sun,  2 Aug 2026 13:30:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429871F000E9;
-	Sun,  2 Aug 2026 13:30:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785677418;
-	bh=32WFtoJYrT1ev5zp+qz9lc1y5HRwtO/8VuA8v9ZZbnk=;
-	h=Date:From:To:Subject:References:In-Reply-To;
-	b=l3ZQY98UR1w6IsG78BEzfolgUFoLdwioCFfo99JaLO2tirBxaLwPJ7Q1lliXEbjCr
-	 UeuLtJotZMGaA6g8H4SQe5Bl1l1ISfQfEk3/BXByjdVsy2mF0eYr2nQMnwwicD6Pvc
-	 NTb8Pu4sj4ZlDhVltSVsm/u9X6AzcZGq9uhw//UTjvd7Tm7euw5oLeqRPDY1yeO+hG
-	 B5UOkuadzRSMswUwgkrIzhPY1zMQu4QXWZgMhd0OOk98P+vz4uS04KRCmFnuq5G0UU
-	 hH9CGU50bg5m1DjF+K0HqKiwT4UYYlZpYzpXGOGCSoQGpUZNCSVLlOwkGlR8UQTKpw
-	 6fbVJHW4SX8bg==
-Date: Sun, 2 Aug 2026 21:30:12 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Martin Pitt <martin@piware.de>, linux-erofs@lists.ozlabs.org,
-	Gao Xiang <xiang@kernel.org>, Yifan Zhao <zhaoyifan28@huawei.com>
-Subject: Re: [PATCH] erofs-utils: mkfs: emit an inode's xattrs in a canonical
- order
-Message-ID: <am9GZFlgLYn9HFci@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Martin Pitt <martin@piware.de>,
-	linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>,
-	Yifan Zhao <zhaoyifan28@huawei.com>
-References: <ampZ6MVV1nN3YzQ_@piware.de>
- <am9FM_v9vAAzlR5H@XiangdeMacBook-Pro.local>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hD8Tc5Hk4z2yfH
+	for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 18:09:24 +1000 (AEST)
+Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-5c2dbaf828eso1116017e0c.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 01:09:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785744561; x=1786349361;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=gt9Uv9rnheC+lhk+WKX3mjSr+Y1yldd4f4F/prMteYw=;
+        b=as4DewuJZSutOzMqNurQjW99mPcRVzb+CNwhH4zcty+xtjpWb0l6xBfhGB48nfquBZ
+         sqUtsZM1yOzSN564UYRD4WGOaPtH6bvDKChy77j8C0Dm8J+jOoVv6fqZxuKUTyEpdbuP
+         ahb6fxxrMxYSSJpuHxEpjHgwqxCDyJm0Dmeyul91HOr976Z0+YZu+q7pE9pHUGHpQCXN
+         xIgB+qEaUNtc/rbguT/hg5swJt4GPaTMiTW0j5qFh5ooZnO1M7iz4yoCPOSwYVXgJ5ZO
+         AWTa2pRHD5+i767SM91Q4PtT0q6tERgDsluZWJfPKf/8Td5jgVMp3s4cdDzzfhZWNNOa
+         AlyQ==
+X-Forwarded-Encrypted: i=1; AHgh+RoPbOwnhDU5RjWCqtCTJy/2FzYbA1N2/ehE5dxYuzk21txROG698WFLLZMdMKEvxDKuqBCs70EawCd69w==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yxi0qpkIRGYjnq8suX00csIYMd6oGwyiWGDnep4EjFoCjmt525m
+	dGnRKaKJeVNnHBq66rObU3dWjd7JeGmPNcns7Fk8BT8tsU2+D2IUNLNScnuHiwD0
+X-Gm-Gg: AR+sD13mcgRpTcJyhpmgXGbrFambfwI2/CCafcCFXsOYSP9dKgwEDiRjlUDyOrr6sHk
+	tQ0QfzKt6v0AsmAZEkukNXHbXG9vbA483jQqmMPRxlDJ8GPb81L4IGWZu5LeCJc75zyq1mX5Gad
+	6LQIA9MJPc+TPphvsuKybdzBvx+kjxGUViynK5zzUxhwZLfczb1hlR0B4q8zRDsyNJGSqDznd2X
+	gLOqrRHsF3OZGVu1/0YT+Gk62V6Z/WzeUigfahmmlQxMF0kd3bOUoD03EBjHP5n1RZmDwa96J4c
+	EdMee71YmebcgA8fQlTbrAlNUjRPhJGu1mJ3HALmvt8s/zifcQYKd3K8FfHw2H1NZEnHY1nshys
+	/E7qYx5XxZax5giXPQRn2APfMnrlDvKEIsAihhch0T0DW/19Lqj3OARUGJWp35eU/aVc4zZ1Tub
+	Oh/aiiE4d7iFsYjm3IdEE6LJ+5cDbhZov1HFwKQtDzlTaXldtdnAwF4ZV8zHvsbp6tU3jSEErX8
+	D58VeXEy4eXCykzYXoFeAWnPg==
+X-Received: by 2002:a05:6122:c8b:b0:5be:2177:70b3 with SMTP id 71dfb90a1353d-5c3877e0185mr2317416e0c.10.1785744560821;
+        Mon, 03 Aug 2026 01:09:20 -0700 (PDT)
+Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com. [209.85.217.43])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c37eb6befasm8173000e0c.8.2026.08.03.01.09.19
+        for <linux-erofs@lists.ozlabs.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Aug 2026 01:09:19 -0700 (PDT)
+Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-745497ac8fcso1037524137.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 01:09:19 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RpRI6isgyW0cHp8t6nHg8YVO1x2xW9mcD+sftj8gQoHfW7yP9Zr8+r9f5GZQ09Lw/5dFoKaE4dk2NNHTw==@lists.ozlabs.org
+X-Received: by 2002:a05:6102:2908:b0:631:4cd8:b6aa with SMTP id
+ ada2fe7eead31-75b2448670emr6347076137.13.1785744559459; Mon, 03 Aug 2026
+ 01:09:19 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -67,137 +75,163 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <am9FM_v9vAAzlR5H@XiangdeMacBook-Pro.local>
+References: <amhMsk5Z6P0IA8sr@XiangdeMacBook-Pro.local> <20260728065447.91511-1-sj@kernel.org>
+In-Reply-To: <20260728065447.91511-1-sj@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 3 Aug 2026 10:09:06 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
+X-Gm-Features: AUfX_mz8E88NlF3yJaoWsAs-_X60XcGyI0leJ6VCoCD_dQDxMNf3uAZ6BaUJpTw
+Message-ID: <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
+Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
+To: SJ Park <sj@kernel.org>
+Cc: Gao Xiang <xiang@kernel.org>, Gao Xiang <hsiangkao@linux.alibaba.com>, 
+	Michael Bommarito <michael.bommarito@gmail.com>, Yue Hu <zbestahu@gmail.com>, 
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
+	Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, David Hildenbrand <david@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, Aug 02, 2026 at 09:25:07PM +0800, Gao Xiang wrote:
-> Hi Martin,
-> 
-> On Wed, Jul 29, 2026 at 09:52:08PM +0200, Martin Pitt wrote:
-> > listxattr(2) makes no promise about the order it reports: while e.g.
-> > ext4 returns a reproducible order, tmpfs varies it from inode to inode,
-> > so building the same tree twice can lay the same set of xattrs out
-> > differently and yield images that differ byte for byte. This makes the
-> > erofs images unreproducible.
-> > 
-> > Insert into the inode's list ordered by attribute name instead, and move
-> > inline attributes onto the on-stack list with list_add_tail() so the
-> > emitted order matches. This is the same approach as the shared attribute
-> > pool already does with comp_shared_xattritem().
-> > 
-> > Signed-off-by: Martin Pitt <martin@amutable.com>
-> 
-> Thanks for the patch!
-> 
-> I wonder if the following diff works too (but untested):
-> 
+On Tue, 28 Jul 2026 at 08:55, SJ Park <sj@kernel.org> wrote:
+>
+> On Tue, 28 Jul 2026 14:31:14 +0800 Gao Xiang <xiang@kernel.org> wrote:
+>
+> > Hi SJ,
+> >
+> > On Mon, Jul 27, 2026 at 08:46:32PM -0700, SJ Park wrote:
+> > > Hello,
+> > >
+> > > On Tue, 21 Jul 2026 11:44:04 +0800 Gao Xiang <hsiangkao@linux.alibaba.com> wrote:
+> > >
+> > > > Hi Machael,
+> > > >
+> > > > On 2026/7/17 11:43, Gao Xiang wrote:
+> > > > >
+> > > > >
+> > > > > On 2026/7/14 19:47, Michael Bommarito wrote:
+> >
+> > ...
+> >
+> > > > >
+> > > > I submitted the following version to -next:
+> > > >
+> > > >  From 4ec57610a769cd93027d12134c75160390b23b08 Mon Sep 17 00:00:00 2001
+> > > > From: Michael Bommarito <michael.bommarito@gmail.com>
+> > > > Date: Tue, 14 Jul 2026 07:47:29 -0400
+> > > > Subject: erofs: cap LZMA stream pool size
+> > > >
+> > > > fs/erofs/decompressor_lzma.c sizes the module-global MicroLZMA stream
+> > > > pool from num_possible_cpus() when the lzma_streams module parameter is
+> > > > unset, then z_erofs_load_lzma_config() preallocates one image-supplied
+> > > > dictionary per stream, accepting dictionaries up to 8 MiB.  On high-CPU
+> > > > systems, a small EROFS image can pin hundreds of MiB of vmalloc-backed
+> > > > decoder state until the erofs module is unloaded.
+> > > >
+> > > > Impact: An EROFS image mounted by the system can pin up to 8 MiB of
+> > > > vmalloc memory per LZMA stream, either as intended or unexpectedly.
+> > > >
+> > > > Bound the default stream count by a new
+> > > > CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS option, default 16, so the
+> > > > worst-case default preallocation is 128 MiB if the number of CPUs is no
+> > > > less than 16 while preserving the existing per-image dictionary limit.
+> > > > An explicit lzma_streams module parameter is still honoured as-is, so
+> > > > administrators who deliberately size the pool are not affected.
+> > > >
+> > > > Fixes: 622ceaddb764 ("erofs: lzma compression support")
+> > > > Cc: stable@vger.kernel.org
+> > > > Assisted-by: Claude:claude-opus-4-8
+> > > > Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+> > > > Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> > > > Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+> > > > ---
+> > > >   fs/erofs/Kconfig             | 14 ++++++++++++++
+> > > >   fs/erofs/decompressor_lzma.c |  3 ++-
+> > > >   2 files changed, 16 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/fs/erofs/Kconfig b/fs/erofs/Kconfig
+> > > > index 4789b1077d8ce..36f027c1c5ac5 100644
+> > > > --- a/fs/erofs/Kconfig
+> > > > +++ b/fs/erofs/Kconfig
+> > > > @@ -131,6 +131,20 @@ config EROFS_FS_ZIP_LZMA
+> > > >
+> > > >             Say N if you want to disable LZMA compression support.
+> > > >
+> > > > +config EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS
+> > > > + int "EROFS LZMA default maximum decompression streams"
+> > > > + depends on EROFS_FS_ZIP_LZMA
+> > > > + range 1 NR_CPUS
+> > >
+> > > Hello, I just found this breaks CONFIG_NR_CPUS undefined builds.  For example,
+> > > my m68k build test [1] shows problems like below:
+> > >
+> > >     $ build_m68k_w1.sh
+> > >     [...]
+> > >     fs/erofs/Kconfig:137:warning: range is invalid
+> > >     .config:13480:warning: symbol value 'NR_CPUS' invalid for EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS
+> > >
+> > > I confirmed using 1024 as the upperlimit of the range, like the original patch,
+> > > fixes the problem.  I'm not sure if that's the right and preferred fix, though.
+> > > I'm just reporting my finding.
+> > >
+> > > [1] https://github.com/damonitor/damon-tests/blob/master/corr/tests/build_m68k_w1.sh
+> >
+> > Thanks for the report, but may I ask if it was a warning instead of
+> > a configuration failure?
+>
+> Indeed it didn't directly fails.  Instead, it was trying to do config again,
+> like below.
+>
+> [...]
+> fs/erofs/Kconfig:137:warning: range is invalid
+> .config:13479:warning: symbol value 'NR_CPUS' invalid for EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS
+> *
+> * Restart config...
+> *
+> *
+> * Miscellaneous filesystems
+> *
+> Miscellaneous filesystems (MISC_FILESYSTEMS) [Y/n/?] y
+>   ORANGEFS (Powered by PVFS) support (ORANGEFS_FS) [Y/n/m/?] y
+>   ADFS file system support (ADFS_FS) [Y/n/m/?] y
+>     ADFS write support (DANGEROUS) (ADFS_FS_RW) [Y/n/?] y
+> [...]
+>   UFS file system support (read only) (UFS_FS) [Y/n/m/?] y
+>     UFS file system write support (DANGEROUS) (UFS_FS_WRITE) [Y/n/?] y
+>     UFS debugging (UFS_DEBUG) [Y/n/?] y
+>   EROFS filesystem support (EROFS_FS) [Y/n/m/?] y
+>     EROFS debugging feature (EROFS_FS_DEBUG) [Y/n/?] y
+>     EROFS extended attributes (EROFS_FS_XATTR) [Y/n/?] y
+>       EROFS Access Control Lists (EROFS_FS_POSIX_ACL) [Y/n/?] y
+>       EROFS Security Labels (EROFS_FS_SECURITY) [Y/n/?] y
+>     File-backed EROFS filesystem support (EROFS_FS_BACKED_BY_FILE) [Y/n/?] y
+>     EROFS Data Compression Support (EROFS_FS_ZIP) [Y/n/?] y
+>       EROFS LZMA compressed data support (EROFS_FS_ZIP_LZMA) [Y/n/?] y
+>         EROFS LZMA default maximum decompression streams (EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS) [NR_CPUS] (NEW)
+>
+> And, I find no way to go out of the prompt other than Ctrl-C.
+>
+> > (because I didn't see a report on -next also
+> > I don't have a m68k testfarm).
+>
+> I don't have a m68k testfarm, either.  I'm doing crossbuild [1].  Hopefully you
+> could also reproduce it.
 
-...
+I think you can reproduce some of the issues on most architectures
+with a non-SMP kernel, cfr. my reply[1] to Uwe's proposed fix.
+Unfortunately the Kconfig warning only shows up on architectures that
+don't define NR_CPUS (because they do not support SMP) at all,
+while ending up with zero streams is probably a runtime failure.
 
-> 
-> Since I'd like to unify comp_shared_xattritem, if yes, could you resend
-> a new version (or if some bug happens) as this so I could merge this.
-> 
+[1] https://lore.kernel.org/CAMuHMdVGKX=3cfOrLWp1uSHX76xf1-=C0+GVCXkA8JTqNPg-ew@mail.gmail.com
 
-Sorry... It should be 
+Gr{oetje,eeting}s,
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index a9486e4..6a8775b 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -400,17 +400,44 @@ static struct erofs_xattritem *erofs_get_selabel_xattr(struct erofs_sb_info *sbi
- 	return NULL;
- }
- 
-+static int erofs_comp_xattritem(const void *a, const void *b)
-+{
-+	const struct erofs_xattritem *ia, *ib;
-+	unsigned int la, lb;
-+	int ret;
-+
-+	ia = *((const struct erofs_xattritem **)a);
-+	ib = *((const struct erofs_xattritem **)b);
-+	la = EROFS_XATTR_KVSIZE(ia->len);
-+	lb = EROFS_XATTR_KVSIZE(ib->len);
-+
-+	ret = memcmp(ia->kvbuf, ib->kvbuf, min(la, lb));
-+	if (ret != 0)
-+		return ret;
-+	return cmpsgn(la, lb);
-+}
-+
- static int erofs_inode_xattr_add(struct list_head *hlist,
- 				 struct erofs_xattritem *item)
- {
--	struct erofs_inode_xattr_node *node;
-+	struct erofs_inode_xattr_node *node, *pos;
- 
- 	node = malloc(sizeof(*node));
- 	if (!node)
- 		return -ENOMEM;
- 	init_list_head(&node->list);
- 	node->item = item;
--	list_add(&node->list, hlist);
-+
-+	/*
-+	 * Keep each inode's xattrs ordered by name.  listxattr(2) makes no
-+	 * promise about the order it reports, and tmpfs varies it from inode
-+	 * to inode, so appending in listing order would emit the same set of
-+	 * xattrs differently from run to run and make images unreproducible.
-+	 */
-+	list_for_each_entry(pos, hlist, list)
-+		if (erofs_comp_xattritem(item, pos->item) < 0)
-+			break;
-+	list_add_tail(&node->list, &pos->list);
- 	return 0;
- }
- 
-@@ -848,24 +875,6 @@ static unsigned int erofs_cleanxattrs(struct erofs_xattrmgr *xamgr,
- 	return count;
- }
- 
--static int comp_shared_xattritem(const void *a, const void *b)
--{
--	const struct erofs_xattritem *ia, *ib;
--	unsigned int la, lb;
--	int ret;
--
--	ia = *((const struct erofs_xattritem **)a);
--	ib = *((const struct erofs_xattritem **)b);
--	la = EROFS_XATTR_KVSIZE(ia->len);
--	lb = EROFS_XATTR_KVSIZE(ib->len);
--
--	ret = memcmp(ia->kvbuf, ib->kvbuf, min(la, lb));
--	if (ret != 0)
--		return ret;
--
--	return la > lb;
--}
--
- int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain)
- {
- 	const struct erofs_importer_params *params = im->params;
-@@ -1015,7 +1024,7 @@ int erofs_load_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *pa
- 	}
- 	DBG_BUGON(i != sharedxattr_count);
- 	sorted_n[i] = NULL;
--	qsort(sorted_n, sharedxattr_count, sizeof(n), comp_shared_xattritem);
-+	qsort(sorted_n, sharedxattr_count, sizeof(n), erofs_comp_xattritem);
- 
- 	buf = calloc(1, shared_xattrs_size);
- 	if (!buf) {
-@@ -1096,10 +1105,10 @@ char *erofs_export_xattr_ibody(struct erofs_inode *inode)
- 		item = node->item;
- 		list_del(&node->list);
- 
--		/* move inline xattrs to the onstack list */
-+		/* move inline xattrs to the onstack list, order preserved */
- 		if (item->shared_xattr_id < 0 ||
- 		    header->h_shared_count >= UCHAR_MAX) {
--			list_add(&node->list, &ilst);
-+			list_add_tail(&node->list, &ilst);
- 			continue;
- 		}
- 
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 
