@@ -1,128 +1,70 @@
-Return-Path: <linux-erofs+bounces-4092-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4093-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9D24C55182
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 18:13:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9D5DEC55182
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 22:08:07 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hDPv339yqz2xrC;
-	Tue, 04 Aug 2026 04:13:51 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a01:111:f403:c110::1" arc.chain=microsoft.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785780831;
-	cv=pass; b=nPbTB8UUS71u0uzA/wViz02e70tJOFwoxWx+Oq+MaAJmjA2bDC0/uVjtId3PeElgye6xao62hF/bg6F5WQDXuwHOdtqf/PNjzGCVDrRuZ+DenGza5A3atzCXCnjYHJ5Kr5tDNijs3IWBgWh24bOTauvH/WXQR0boyHHOo9gpOn6eRVNK1noVqzbYjpaDQBDomBn55XEILn+0jlIJRr+53kj1HMV/ppuO2DN3QeKl9BL4W37xk0O03abc+1qBbYo/10isZeIHtAFAerDPhCX95L+q3s2Av8eoGwlTSHAZ0uJTJS/jHRlytO0V+naTdW7YEFsIdut5QSfYXQ/jV/OGHQ==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785780831; c=relaxed/relaxed;
-	bh=eRjbsBRIUTAFpugKKLOjSbZ6YnFTaZPMTTSy9l9apTE=;
-	h=Content-Type:Date:Message-Id:Subject:Cc:To:From:References:
-	 In-Reply-To:MIME-Version; b=MVzYTETV2VJ5hrnEiYzfNpj/Y6SEs6HZdVptPWT8Nd1JOaxQGt30EqgZ8xK6rOaXRMhVGHnsuyz50gh2VvK8lYuXM8s4bLHnuXshv09ljM/ERxMsQiiFS13y7GgOhBTEjjbj086HkUr2utwYYBLEZjrJCShmJckasxs3eDAwYWTl+nt9UUnPKYNwWmIELmuFAcA6l9khMnWx6lA5FDO0CjsrDiNEcCASW4ik4d6EpmG5EhmZ7e0EVYlcnOwBLJJIHp/JWUlp+yL8bTbRekL5LTgqYPnOAqIhwTlrt5HlZ7HCyx5tOlH1zAt1F0NewKF5lveDtayO7Xlf6bwfIjFoLQ==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=gxRy5BNS; dkim-atps=neutral; spf=pass (client-ip=2a01:111:f403:c110::1; helo=bn1pr04cu002.outbound.protection.outlook.com; envelope-from=ziy@nvidia.com; receiver=lists.ozlabs.org) smtp.mailfrom=nvidia.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hDW5K25Cbz2xqM;
+	Tue, 04 Aug 2026 08:08:05 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.17
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785794885;
+	cv=none; b=XpFWriChGlJbUsulukfGyxTTCpGG27iCWmfxFZWhAMG1L3tpDWlErLBRRj3JM/ZeWy/uN5cXOMOhXsx/T30ELndZSnnf3bj+Q/qORLUET6Q2AdPzCZB7h+97SecpNvHvrxxTCU2H0LqClULGTKx0O6X0OyCTVdKPHHKy4cOdVkmp4XPuUkOVL4/swxyN8MHMB3/QNfVde37rDXnnROKUJLe6exuPtbA5FY7NC7EyX/m+XlHXa/afKsq8fut2JX5jW1JUx8Ax4SEyDyQeXNqOQi8tNhO4sRmjwqKIdFBPf/E96jEtRl4Shd0whTCT/m0D7XZwC6/tQuRe4Nh+/kMfCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1785794885; c=relaxed/relaxed;
+	bh=fOOgcSyC1q7CYK5FpOLsfzAEIk8W7+yEgmXcX8Mfj1c=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=L5H7CsXKnTQ4Yr0zOste3akVBdvIgn2038s6xMtQcx4d47nLvuJ0Cqlylif2QVP6/V3//MJhLt1X7CvtM0ysUIRuoOlY2n27iy7Utuvczm/Sb2lbU9N0Gdcbn4eqop/gS72IABWSsHrQEhz4/MCVg+vh48sMYDJRQizwNl9I14UOwE3yKGsY8Y2BLhxaS2ND43Ob7Lg/8ssVgU4Ozo5X46h3QBcP/sgkokAXwhAwZm1JD371pcXC14IK18QbcU38UAxoBIMAAx+BWfLxsKEyzSYyQoCpis6dtWNWD24sVRtC5fdnLaGd2j6oeIJGeYclFhhuxVVKlD7+L+MX0yEMsA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Ccf5OhZf; dkim-atps=neutral; spf=pass (client-ip=192.198.163.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=gxRy5BNS;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Ccf5OhZf;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=nvidia.com (client-ip=2a01:111:f403:c110::1; helo=bn1pr04cu002.outbound.protection.outlook.com; envelope-from=ziy@nvidia.com; receiver=lists.ozlabs.org)
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azlp170100001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c110::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange secp256r1 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.17; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDPv20Wq0z2xpn
-	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 04:13:49 +1000 (AEST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WD6ZOUp+WnBpKUL/Z/T7kHJS3gdbMiHPaDWLnG+FW2Ughc5kivpbHAl9m7v4kZtUlwne3dtTcxUKM7WrJyBjIzNunVwJE8YCw5xf460FYDTOx6lI06pdu9THT47XqNLtDLCdzux8qTLf/nbRDsOOv/8gNbNU4E2T2QAuULs2fA5qQHbM4xHgZv2o0OOWsIgB9IrcShazm0DicLCB2r0EQKH4D6YFHM6X6V09ySI5OEc6n7D3GLeeZQVOXqxWW+VbyMV7HL3rN70ZTujV0k0q4aAXFKUkqMGPn1t6bGDJN5lRp550zxCce4yQxpsqpaiJjD8UiJnfV95Vbq8C+ISS6g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eRjbsBRIUTAFpugKKLOjSbZ6YnFTaZPMTTSy9l9apTE=;
- b=axI4QwD0gDNm37sbZwPepJqFwCIiAQLsRb16JqMJC18kzIbTrEGCymZhb+s+VT3do6EhX/NunZoNzoqNMzdrVPiKGAHzZxXxgE3R9xuo+1Gti7a03F9fRjGK5P50Lt8AxaBXztxd5r9zFCY/UqUcakRm4oUcNJdIAnG/3xc01xoOvlR1WiMD7tpFinSy/n/j8hqvWefCeMnzCgHYzYcPJ8uU/jJoPnMGHd/+YZPkn0JJ2U3O95hflOwGfyepG+2jZsgsMfbSa132CavPOtTL6zLMDpd6I+fzR/hlKcTK94MwK5Xl/bUCYD9mr9kjrEYXGsa4Ph7cigPFSjEaaRhp/g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eRjbsBRIUTAFpugKKLOjSbZ6YnFTaZPMTTSy9l9apTE=;
- b=gxRy5BNSr6u+YqAfadGamez0ES69ulGmVjdQ7wL80choytSsnxQAlwikJcKnY7d7Uw564V87JyMSSqEMqm6I3eyQ8hHwQgGFREoi4hLHlGzS9JCT9FEDSrgt5yoHWS9vKZEID6DWzvgO/uM68mWZ19n7kvMB+gzmij0pdwS5RPmRbSJIRi0JMJdUya8s9PYMz1a0gliFwwRvb7ymFruUVGm7IrQhIxbKxZt2k3pI13FRQ2A68aYiDbfeVVWpfh3Mmt76rm/50mIM4i03A/9AFOI/h98bANBM9Ic5xWGJvoXq7pwmi/JlRG0WcTtM7QctGHIP3ZNoYVG8sNcqXB0SMA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com (2603:10b6:208:40e::7)
- by PH7PR12MB6935.namprd12.prod.outlook.com (2603:10b6:510:1b9::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.18; Mon, 3 Aug
- 2026 18:13:18 +0000
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16]) by IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16%5]) with mapi id 15.21.0270.017; Mon, 3 Aug 2026
- 18:13:18 +0000
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 03 Aug 2026 14:13:13 -0400
-Message-Id: <DKFIGJBRSDB1.O204NIB7HZMR@nvidia.com>
-Subject: Re: [PATCH RFC 00/14] Remove PG_private by using
- page/folio->private checks instead
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>, "Minchan Kim"
- <minchan@kernel.org>, "Sergey Senozhatsky" <senozhatsky@chromium.org>,
- "Peter Zijlstra" <peterz@infradead.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Arnaldo Carvalho de Melo" <acme@kernel.org>, "Namhyung Kim"
- <namhyung@kernel.org>, "Thomas Gleixner" <tglx@kernel.org>, "Borislav
- Petkov" <bp@alien8.de>, "Dave Hansen" <dave.hansen@linux.intel.com>,
- <x86@kernel.org>, "Mark Rutland" <mark.rutland@arm.com>, "Alexander
- Shishkin" <alexander.shishkin@linux.intel.com>, "Jiri Olsa"
- <jolsa@kernel.org>, "Ian Rogers" <irogers@google.com>, "Adrian Hunter"
- <adrian.hunter@intel.com>, "James Clark" <james.clark@linaro.org>, "H.
- Peter Anvin" <hpa@zytor.com>, <linux-perf-users@vger.kernel.org>, "Stefano
- Stabellini" <sstabellini@kernel.org>, "Oleksandr Tyshchenko"
- <oleksandr_tyshchenko@epam.com>, <xen-devel@lists.xenproject.org>, "Eric
- Biggers" <ebiggers@kernel.org>, "Theodore Y. Ts'o" <tytso@mit.edu>,
- "Jaegeuk Kim" <jaegeuk@kernel.org>, <linux-fscrypt@vger.kernel.org>, "Oscar
- Salvador" <osalvador@suse.de>, "Chao Yu" <chao@kernel.org>,
- <linux-f2fs-devel@lists.sourceforge.net>, "Gao Xiang" <xiang@kernel.org>,
- "Jan Kara" <jack@suse.cz>, "Yue Hu" <zbestahu@gmail.com>, "Jeffle Xu"
- <jefflexu@linux.alibaba.com>, "Sandeep Dhavale" <dhavale@google.com>,
- "Hongbo Li" <hongbohbli@tencent.com>, "Chunhai Guo" <guochunhai@vivo.com>,
- <linux-erofs@lists.ozlabs.org>, <linux-fsdevel@vger.kernel.org>, "Steven
- Rostedt" <rostedt@goodmis.org>, "Masami Hiramatsu" <mhiramat@kernel.org>,
- "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>, "Matthew Brost"
- <matthew.brost@intel.com>, "Joshua Hahn" <joshua.hahnjy@gmail.com>, "Rakie
- Kim" <rakie.kim@sk.com>, "Byungchul Park" <byungchul@sk.com>, "Axel
- Rasmussen" <axelrasmussen@google.com>, "Yuanchu Xie" <yuanchu@google.com>,
- "Wei Xu" <weixugc@google.com>, <linux-trace-kernel@vger.kernel.org>, "Trond
- Myklebust" <trondmy@kernel.org>, "Anna Schumaker" <anna@kernel.org>,
- <linux-nfs@vger.kernel.org>, "Song Liu" <song@kernel.org>, "Yu Kuai"
- <yukuai@fygo.io>, "Ilya Dryomov" <idryomov@gmail.com>, "Alex Markuze"
- <amarkuze@redhat.com>, "Viacheslav Dubeyko" <slava@dubeyko.com>, "Li Nan"
- <magiclinan@didiglobal.com>, "Xiao Ni" <xiao@kernel.org>,
- <linux-raid@vger.kernel.org>, <ceph-devel@vger.kernel.org>, "Richard
- Weinberger" <richard@nod.at>, "Zhihao Cheng" <chengzhihao1@huawei.com>,
- <linux-mtd@lists.infradead.org>, "Baoquan He" <baoquan.he@linux.dev>,
- "Pasha Tatashin" <pasha.tatashin@soleen.com>, "Pratyush Yadav"
- <pratyush@kernel.org>, "Jonathan Corbet" <corbet@lwn.net>, "Dave Young"
- <ruirui.yang@linux.dev>, "Shuah Khan" <skhan@linuxfoundation.org>,
- <kexec@lists.infradead.org>, <linux-doc@vger.kernel.org>
-To: =?utf-8?q?J=C3=BCrgen_Gro=C3=9F?= <jgross@suse.com>, "David Hildenbrand"
- <david@kernel.org>, "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- "Andrew Morton" <akpm@linux-foundation.org>, "Muchun Song"
- <muchun.song@linux.dev>, "Lorenzo Stoakes" <ljs@kernel.org>, "Liam R.
- Howlett" <liam@infradead.org>, "Vlastimil Babka" <vbabka@kernel.org>, "Mike
- Rapoport" <rppt@kernel.org>, "Suren Baghdasaryan" <surenb@google.com>,
- "Michal Hocko" <mhocko@suse.com>, "Baolin Wang"
- <baolin.wang@linux.alibaba.com>, "Nico Pache" <nico.pache@linux.dev>, "Ryan
- Roberts" <ryan.roberts@arm.com>, "Dev Jain" <dev.jain@arm.com>, "Barry
- Song" <baohua@kernel.org>, "Lance Yang" <lance.yang@linux.dev>, "Usama
- Arif" <usama.arif@linux.dev>, "Gregory Price" <gourry@gourry.net>, "Ying
- Huang" <ying.huang@linux.alibaba.com>, "Alistair Popple"
- <apopple@nvidia.com>, "Johannes Weiner" <hannes@cmpxchg.org>, "Qi Zheng"
- <qi.zheng@linux.dev>, "Shakeel Butt" <shakeel.butt@linux.dev>, "Kairui
- Song" <kasong@tencent.com>
-From: "Zi Yan" <ziy@nvidia.com>
-X-Mailer: aerc 0.21.0
-References: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
- <5ca4d0e4-1747-45a7-a916-a7516bb1692b@suse.com>
-In-Reply-To: <5ca4d0e4-1747-45a7-a916-a7516bb1692b@suse.com>
-X-ClientProxiedBy: BN1PR13CA0008.namprd13.prod.outlook.com
- (2603:10b6:408:e2::13) To IA0PR12MB8374.namprd12.prod.outlook.com
- (2603:10b6:208:40e::7)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDW5C3CwLz2xYg
+	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 08:07:57 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785794879; x=1817330879;
+  h=date:from:to:cc:subject:message-id;
+  bh=iQvkC/zpk1CX4tavAP61IEB7r2e4lBnAlJ9Oh8hIRNo=;
+  b=Ccf5OhZfgfmcjxwaNBAjdOTd040eSUpHFShunNoPtPZp+CsF6lkg4r2h
+   6kngncPpG4W1XFEt2UQRtdH0E42LEjh/yR/w4QvwD3ox9zRk0hefQFUWB
+   ayKRMNBmOTGc3j1ihqFnxe8pjgyjhbbllmjLDzcvGUX5l90DGVi50J3n6
+   sywOdJx7OOTtx2APt2ClAAI1uEZ01FQVRi3iV5l0zjK4pGtD7PNI3hHq3
+   eJDb/NPJBGINCfGyNh3iq27RO6Ia12TNLLLPgO5JmvDrxsUOxeiD1xfQ+
+   ZzeF/OG3rJcgQBQMhRa/TOpSEEvQh5QTO2TJoca9IZhpChelWvYbDzorC
+   w==;
+X-CSE-ConnectionGUID: TEn+jE32QaqMD/wQFqW8Aw==
+X-CSE-MsgGUID: apSyK8RESUm4oZNDmj7zyw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11864"; a="86216708"
+X-IronPort-AV: E=Sophos;i="6.25,203,1779174000"; 
+   d="scan'208";a="86216708"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2026 15:07:54 -0700
+X-CSE-ConnectionGUID: t7T8LNISQUWRAE8UIHtMxg==
+X-CSE-MsgGUID: qABSxbWhRL2fEzZQfErDug==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,203,1779174000"; 
+   d="scan'208";a="259537416"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by orviesa006.jf.intel.com with ESMTP; 03 Aug 2026 15:07:52 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wr0p4-0000000085D-2Rld;
+	Mon, 03 Aug 2026 22:07:50 +0000
+Date: Tue, 04 Aug 2026 06:07:20 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <xiang@kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev] BUILD SUCCESS
+ ae8673ccefbfc5996b2c55e0c3378a082f9b9972
+Message-ID: <202608040606.lsep3FtB-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -133,105 +75,173 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA0PR12MB8374:EE_|PH7PR12MB6935:EE_
-X-MS-Office365-Filtering-Correlation-Id: 22480e3c-b594-45b3-2d38-08def18ae4af
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|23010399003|1800799024|7416014|376014|56012099006|10067099003|11063799006|4143699003|22082099003|18002099003|921020;
-X-Microsoft-Antispam-Message-Info:
-	FGtzsi0Ff3pxghP3lc/P1ddrXZKj3w8+yJGJxor6kKDLvhXg+qE0BqULU2Yo4OHklIfrWOBiiWaCcUZnd8ysXvfpjMQVyqBTVvH/b0Q17IDGUvQ8gt4J4mT1pT8nL+gY1FWLJGaajKiB9bLXL2OjTnlzpUnhjYKRFUTTC7RGTKyqFnabJILfF0z8AU4m783vOuMWi1tH6BS67AbjJ4dVCwGPtnKldp5SDaCm2TxXxeP2ZK6wfMDiS18Gr47k19fmlmm0ZUGj0jp67G22umHBdhIuM/sszkroYKwIza/1o1owYO9aVUG8Kv5LLxa3I2WUu8Ak6QcEoCd3A2d3jHYGJW/+RNZgWm8LAjH1uSwDiuMBOFm3gYnB13ZB1YWOVqPwQNKUBqw2XePEUHqKE4fOH9Olf52EBU/o/jip+pXcqLAnmKr38c1u8C6/5d3be9P/UcA7qVZ6LQVHh1HhK+V2a0F4TWz2ERZK7VcaT0nO+9jiux83RgoLv9ibtvBSCrNZX0SkURZ0XZaQ0oYH8g5uGiBx9GzWnhS4/uZIqjBS3kSthtIogVRo5UtaDQmHcm2QBw0H8x81CRrgqFRLK1h46fKWbpTQB7QQyeITnN19I+9mhcOVt1PKHVji0hhO+J6TgRKcsFzS5/DlUr/Fqyiazhpd1b+TgYpo1iieuX06GMveH1pyl1ECk5P3tuqWv1WNYZcGmnoPQLT79hKI5uGaSg==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR12MB8374.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(1800799024)(7416014)(376014)(56012099006)(10067099003)(11063799006)(4143699003)(22082099003)(18002099003)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TXNoMVUva1pWRkd1aHNpSk54cGxMMXZJTnFmUUFPbkhLbnlRdVFGRC9Ueks3?=
- =?utf-8?B?aUZnZGZMSDNWdS96ZWJFRUNiQzRtejhxdjRJKzRyaGxHUVcwMy82UDRMWUhm?=
- =?utf-8?B?Q1VCeGJNT1YrbjFDa3pMRFp3WE9VekNKMG5TbXBaejhIK05pbXZwcEVjZjdr?=
- =?utf-8?B?TlRyV2JuRFZ6QVlaSm9iRWlPUjBTN1ZsTkwrcVcvdURjSXFlcXVHdm5rYVBy?=
- =?utf-8?B?cTYxazVUcVFFR3NvZU5jQUdjUEhHWVoyQzFvUTRUZDZJdjhRL0hPQ0llVnoy?=
- =?utf-8?B?ZXRCMzBQbWNteVRPemNMQ3hyTDNzN3UxU3ZkM3h3Rk9BQ1N3TTl1Zzl3NzE5?=
- =?utf-8?B?SHNIcDZ2S0RVRzNjVENoUVdWZzVXUDJpNzRockZoZjhzT1ROWXhxQjJtc0Nj?=
- =?utf-8?B?QTRHTTh4a1E5eGJuMWpwLzY3cko0bSs2WUlTQklTekE1Tm9qRVA3dFRmbmRS?=
- =?utf-8?B?d1Z1eUtZNmJ6aWlJbDBGNVVOb0JNMXdqbEg5eVZlYmJyakxzenB6cEt1OVA5?=
- =?utf-8?B?SFVBYTllZkhOQXlwU3JZend2NjNLVGxVWmt6b3FlandDdHJrZ3R1Y3N4RVNt?=
- =?utf-8?B?MHdCTmpsNTc3b3lLYnkySXlhZDVaQVZZQmZFTElscUdhakFGd2xibS9NajVV?=
- =?utf-8?B?TmxCYzk2bmIwLzZXWnF6NFhsMUFHTUZMMGN0R25vaFllczhkVXFaSVdtZyt3?=
- =?utf-8?B?MlJ4NXA4VFVaWUw5c1FvMXg0UWdLUkxKUk8vMWlBeUJ1M2k2NjlFcGc2RDc3?=
- =?utf-8?B?aGk1em1DbnFlSUN4b3Z0S2p0UlQ2dEdhRXJaZ0FhLzVkN2MxQS9tekRKS1ZR?=
- =?utf-8?B?Vy9tRkpMWmdaZ3hUcGtDL2lPTHN5YUFpa1JJY0N1Q2RCWVUvSXlCRFJpOEEy?=
- =?utf-8?B?YVFkb1RHaVVCcm9oNU1wTmp0ZHZDazQ3QkRoTDRwR2gvT1gwUW1VUzd1MTR3?=
- =?utf-8?B?dHBzZXdWOTkrck81QXRjUDVHOFo2ZUUvazRpc0xYSDd3MUg3V1FGZjV6dVA2?=
- =?utf-8?B?VlhRUHRaOGJ5SnlTT1d6WUV2TG5VdHA2R296TW5KZ2pnWGtxbFpqSTZDeC9p?=
- =?utf-8?B?TDE4TFRzMkwrMmhrR2h6dTZwb3hXYkxTMkl0Z0dtRmE1RFNtZDZ3eHpGdDVG?=
- =?utf-8?B?N1Q1SWRvQlZEQzhlUHhzSFMvc3JkaVliZG5OZlZySGkrYXl2UVlJZENtR2NX?=
- =?utf-8?B?dUc1cWNRYjhidlNzN0VOTFBwYUpwMytFRmJQejc4MXUxNnNWaTA0MytrYm1W?=
- =?utf-8?B?U0NCM0gxSlNZd0tiTnJoeTIzZGlxYmdVajdqeTFOYVdKcEYxQXhqdU9aVVVK?=
- =?utf-8?B?NDM0U0xSaTdBT3NrTWpxdTFldTdJblVLbGFvanBSTW92cVhBYmhINnFlNDY2?=
- =?utf-8?B?WWRPSGIrVUh6Mm5sY1RBS2huYkwxZlJnMkNmQ3pFUitwYUg5K2drOGhMZEJH?=
- =?utf-8?B?VFpldlFLdzN3NXJYNDVWa0hSaGxiaHpQWjJlTFcwNTVxbG1uWXdlcm1HS3dj?=
- =?utf-8?B?RXhNdkRSTGNxdUVhSENVeHB4eGZZeWFRbnZFczdZbFNNMkl6b3pjT2tiK01u?=
- =?utf-8?B?TGtwQXlxN3lIWitmTUpiL3Vyckw5cHdHQTZwT3NrR0t5ZEYxRERQZVZqd0hX?=
- =?utf-8?B?MlFiUTFCNkJ1UTJPTTl5MEkrS1d3U2hTQnN0TExUdUxodVVvelJ2VFFDb1ZH?=
- =?utf-8?B?cEJ2YnhIZGtRSVVSZjRoWFU3V1o3NytYOW5COXJ2dVR2aUNQMmVoaHg4ZEFy?=
- =?utf-8?B?TDhGTXpYUEZTVUM3dHA4SzhKYjR0ZVVVbEROa3BrR3VHYmRVRlVHYS9yU0xl?=
- =?utf-8?B?dzc5bUlPWjM2R0Yvdm4rc0xLRnZZd3hYbnFDVG9BeEN6b2dqa3dQVDlHV3g1?=
- =?utf-8?B?dTBhWGpyVStjODlOYmJlUkJjVVM3WS8yaUtpaGhDN2M5UjhlR01qZGdVdmRZ?=
- =?utf-8?B?RHVuZHB2K2FFQ0tPSXFLdW10cVZsQ3ljSGNIbm9GaGlzb0lETi9WcmZ0ZHZC?=
- =?utf-8?B?cGJpQnpFUmpLc3UrRDNMVi9kaHloUUVhdjhTb2I5dUNWVFc3MlZkbmk0Z012?=
- =?utf-8?B?MmtxVUJOSnRBTElMVGNQeUJaOXhDbGNrSElrdFQ5VnAycDRrS1c5QVZ3VXF2?=
- =?utf-8?B?NGd2TXhnK25kNFhtdUwzU3RoWE1BaHpnNzYwVW9nek93dXJNaHhNMEo1QlFz?=
- =?utf-8?B?Q3haWDFpZkhkL0FXRlpsQzFLUzZiSHRYYTlvUWRXbmRVY0tpRDFORG9CaDBj?=
- =?utf-8?B?OE9CVlZrcFRhWDhTQlZ6c0Fnc3BRdmRZeHZQcWhDbFJaZlFrcUxFZTRtVVJl?=
- =?utf-8?Q?vOMDLuS+uZ6B+uZb7U?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22480e3c-b594-45b3-2d38-08def18ae4af
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR12MB8374.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 18:13:17.9727
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: P4jLnqIwTNmEW1LtTpM+2MhjKsFG8QpvIYdQ6DM5UZU3RRUlEMTS746tqky9GXuA
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6935
 
-On Mon Aug 3, 2026 at 5:07 AM EDT, J=C3=BCrgen Gro=C3=9F wrote:
-> On 01.08.26 04:13, Zi Yan wrote:
->> Hi all,
->>=20
->> This patchset removes PG_private to make space for upcoming PG_folio
->> (reserved as __PG_folio) for identifying pages from a folio (more detail=
-s
->> in Note below). Instead of checking PG_private, all code is changed to
->> check page/folio->private !=3D NULL instead.
->
-> I'm a little bit worried that page/folio->private is in a union, so today
-> it could (in theory) be !=3D NULL while PG_private isn't set.
->
-> Is it really not possible to enter a path where PG_private is tested whil=
-e
-> page/folio->private !=3D NULL due to the union being used otherwise (PG_p=
-rivate
-> not set)?
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
+branch HEAD: ae8673ccefbfc5996b2c55e0c3378a082f9b9972  erofs: fix typo in error messages
 
-Yes, it is possible. See: #5 in the exceptional users: erofs uses
-->private for reverse linked list and in-flight counters without setting
-PG_private. I get rid of the first one and converted the second one to
-use folio_attach/detach/get_private() to follow the general ->private
-use pattern..
+elapsed time: 733m
 
-For non file system folios, anon swapcache puts swap_entry_t in
-->private and hugetlb puts its flags in ->private. I added
-folio_test_fs_private() to exclude them, but this helper is planned to
-be used by core MM, since filesystem code should not encounter these
-two.
+configs tested: 152
+configs skipped: 0
 
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
---=20
-Best Regards,
-Yan, Zi
+tested configs:
+alpha                            allnoconfig    gcc-16.1.0
+alpha                           allyesconfig    gcc-16.1.0
+alpha                              defconfig    gcc-16.1.0
+arc                             allmodconfig    gcc-16.1.0
+arc                             allyesconfig    gcc-16.1.0
+arc                  randconfig-001-20260803    gcc-8.5.0
+arc                  randconfig-001-20260804    gcc-8.5.0
+arc                  randconfig-002-20260803    gcc-8.5.0
+arc                  randconfig-002-20260804    gcc-8.5.0
+arm                  randconfig-001-20260803    gcc-8.5.0
+arm                  randconfig-001-20260804    gcc-8.5.0
+arm                  randconfig-002-20260803    gcc-8.5.0
+arm                  randconfig-002-20260804    gcc-8.5.0
+arm                  randconfig-003-20260803    gcc-8.5.0
+arm                  randconfig-003-20260804    gcc-8.5.0
+arm                  randconfig-004-20260803    gcc-8.5.0
+arm                  randconfig-004-20260804    gcc-8.5.0
+arm                          stm32_defconfig    gcc-16.1.0
+arm64                randconfig-001-20260803    gcc-12.5.0
+arm64                randconfig-001-20260804    gcc-11.5.0
+arm64                randconfig-002-20260803    gcc-12.5.0
+arm64                randconfig-002-20260804    gcc-11.5.0
+arm64                randconfig-003-20260803    gcc-12.5.0
+arm64                randconfig-003-20260804    gcc-11.5.0
+arm64                randconfig-004-20260803    gcc-12.5.0
+arm64                randconfig-004-20260804    gcc-11.5.0
+csky                            allmodconfig    gcc-16.1.0
+csky                 randconfig-001-20260803    gcc-12.5.0
+csky                 randconfig-001-20260804    gcc-11.5.0
+csky                 randconfig-002-20260803    gcc-12.5.0
+csky                 randconfig-002-20260804    gcc-11.5.0
+hexagon              randconfig-001-20260803    clang-18
+hexagon              randconfig-001-20260804    gcc-16.1.0
+hexagon              randconfig-002-20260803    clang-18
+hexagon              randconfig-002-20260804    gcc-16.1.0
+i386                            allmodconfig    gcc-14
+i386                buildonly-randconfig-001    clang-22
+i386       buildonly-randconfig-001-20260803    clang-22
+i386       buildonly-randconfig-002-20260803    clang-22
+i386       buildonly-randconfig-003-20260803    clang-22
+i386       buildonly-randconfig-004-20260803    clang-22
+i386       buildonly-randconfig-005-20260803    clang-22
+i386       buildonly-randconfig-006-20260803    clang-22
+i386                          randconfig-001    gcc-13
+i386                 randconfig-001-20260803    gcc-13
+i386                 randconfig-001-20260804    clang-22
+i386                 randconfig-002-20260803    gcc-13
+i386                 randconfig-002-20260804    clang-22
+i386                 randconfig-003-20260803    gcc-13
+i386                 randconfig-003-20260804    clang-22
+i386                 randconfig-004-20260803    gcc-13
+i386                 randconfig-004-20260804    clang-22
+i386                 randconfig-005-20260803    gcc-13
+i386                 randconfig-005-20260804    clang-22
+i386                 randconfig-006-20260803    gcc-13
+i386                 randconfig-006-20260804    clang-22
+i386                 randconfig-007-20260803    gcc-13
+i386                 randconfig-007-20260804    clang-22
+i386                 randconfig-011-20260803    clang-22
+i386                 randconfig-012-20260803    clang-22
+i386                 randconfig-013-20260803    clang-22
+i386                 randconfig-014-20260803    clang-22
+i386                 randconfig-015-20260803    clang-22
+i386                 randconfig-016-20260803    clang-22
+i386                 randconfig-017-20260803    clang-22
+loongarch                          defconfig    clang-24
+loongarch            randconfig-001-20260803    clang-18
+loongarch            randconfig-001-20260804    gcc-16.1.0
+loongarch            randconfig-002-20260803    clang-18
+loongarch            randconfig-002-20260804    gcc-16.1.0
+nios2                           allmodconfig    gcc-11.5.0
+nios2                            allnoconfig    gcc-11.5.0
+nios2                randconfig-001-20260803    clang-18
+nios2                randconfig-001-20260804    gcc-16.1.0
+nios2                randconfig-002-20260803    clang-18
+nios2                randconfig-002-20260804    gcc-16.1.0
+parisc                          allmodconfig    gcc-16.1.0
+parisc                          allyesconfig    gcc-16.1.0
+parisc                             defconfig    gcc-16.1.0
+parisc                        randconfig-001    gcc-15.2.0
+parisc               randconfig-001-20260803    gcc-15.2.0
+parisc               randconfig-001-20260804    gcc-8.5.0
+parisc               randconfig-002-20260803    gcc-15.2.0
+parisc               randconfig-002-20260804    gcc-8.5.0
+powerpc              randconfig-001-20260803    gcc-15.2.0
+powerpc              randconfig-001-20260804    gcc-8.5.0
+powerpc              randconfig-002-20260803    gcc-15.2.0
+powerpc              randconfig-002-20260804    gcc-8.5.0
+powerpc                    redwood_defconfig    clang-24
+powerpc                    taishan_defconfig    clang-21
+powerpc64            randconfig-001-20260803    gcc-15.2.0
+powerpc64            randconfig-001-20260804    gcc-8.5.0
+powerpc64            randconfig-002-20260803    gcc-15.2.0
+powerpc64            randconfig-002-20260804    gcc-8.5.0
+riscv                         randconfig-001    gcc-8.5.0
+riscv                randconfig-001-20260803    gcc-8.5.0
+riscv                randconfig-002-20260803    gcc-8.5.0
+s390                 randconfig-001-20260803    gcc-8.5.0
+s390                 randconfig-002-20260803    gcc-8.5.0
+sh                                 defconfig    gcc-16.1.0
+sh                   randconfig-001-20260803    gcc-8.5.0
+sh                   randconfig-002-20260803    gcc-8.5.0
+sparc                randconfig-001-20260803    gcc-16.1.0
+sparc                randconfig-001-20260804    gcc-16.1.0
+sparc                randconfig-002-20260803    gcc-16.1.0
+sparc                randconfig-002-20260804    gcc-16.1.0
+sparc64              randconfig-001-20260803    gcc-16.1.0
+sparc64              randconfig-001-20260804    gcc-16.1.0
+sparc64              randconfig-002-20260803    gcc-16.1.0
+sparc64              randconfig-002-20260804    gcc-16.1.0
+um                   randconfig-001-20260803    gcc-16.1.0
+um                   randconfig-001-20260804    gcc-16.1.0
+um                   randconfig-002-20260803    gcc-16.1.0
+um                   randconfig-002-20260804    gcc-16.1.0
+x86_64     buildonly-randconfig-001-20260803    clang-22
+x86_64     buildonly-randconfig-002-20260803    clang-22
+x86_64     buildonly-randconfig-003-20260803    clang-22
+x86_64     buildonly-randconfig-004-20260803    clang-22
+x86_64     buildonly-randconfig-005-20260803    clang-22
+x86_64     buildonly-randconfig-006-20260803    clang-22
+x86_64                                 kexec    clang-22
+x86_64                        randconfig-001    gcc-14
+x86_64               randconfig-001-20260803    gcc-14
+x86_64               randconfig-002-20260803    gcc-14
+x86_64               randconfig-003-20260803    gcc-14
+x86_64               randconfig-004-20260803    gcc-14
+x86_64               randconfig-005-20260803    gcc-14
+x86_64               randconfig-006-20260803    gcc-14
+x86_64               randconfig-011-20260803    gcc-14
+x86_64               randconfig-011-20260804    clang-22
+x86_64               randconfig-012-20260803    gcc-14
+x86_64               randconfig-012-20260804    clang-22
+x86_64               randconfig-013-20260803    gcc-14
+x86_64               randconfig-013-20260804    clang-22
+x86_64               randconfig-014-20260803    gcc-14
+x86_64               randconfig-014-20260804    clang-22
+x86_64               randconfig-015-20260803    gcc-14
+x86_64               randconfig-015-20260804    clang-22
+x86_64               randconfig-016-20260803    gcc-14
+x86_64               randconfig-016-20260804    clang-22
+x86_64                        randconfig-071    clang-22
+x86_64               randconfig-071-20260803    clang-22
+x86_64               randconfig-072-20260803    clang-22
+x86_64               randconfig-073-20260803    clang-22
+x86_64               randconfig-074-20260803    clang-22
+x86_64               randconfig-075-20260803    clang-22
+x86_64               randconfig-076-20260803    clang-22
+x86_64                          rhel-9.4-bpf    gcc-14
+xtensa               randconfig-001-20260803    gcc-16.1.0
+xtensa               randconfig-001-20260804    gcc-16.1.0
+xtensa               randconfig-002-20260803    gcc-16.1.0
+xtensa               randconfig-002-20260804    gcc-16.1.0
 
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
