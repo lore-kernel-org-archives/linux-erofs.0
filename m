@@ -1,92 +1,114 @@
-Return-Path: <linux-erofs+bounces-4084-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4085-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 45806C55175
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 09:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 658CFC55184
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 09:54:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hD9v03YrJz3078;
-	Mon, 03 Aug 2026 19:13:00 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::42c"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785748380;
-	cv=none; b=YmfIMUEmvocRYOJ1/nyQNjadGB2nQHmx2/yFbVu7U2NFIPQTEKYrD1P0RBiXFUX+b6xGSKQ6uW0GaBiz2ma2s2hsSriQ2de0MlGFUT932bwo8UP5T0yVEbkvmlLq3FxfTnRmiEi0YVtd03gkZI+GCZfwdXOz+Q30cHPrqaoUzRmzECzqXiTwS/C+focG1Zy/gWgqaszmqFfFGmbs7fCGFe9KadBH+kv930/byXBjz/SzxqZxrqi4zWe9oNdXHXHwcmniTk+BwcLL7v3gWVKAOFJicWNG9M1uhnGfzdq7/+gXZ3vt4LibKUcStHT8VJpOLEixfXZS79p+qTMQuSHP+Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hDBqJ4L9Rz2yhP;
+	Mon, 03 Aug 2026 19:54:52 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.135.223.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785750892;
+	cv=none; b=NzFmWxulENQQBQ2MCrENz1FWwi00Iz5ITLWqv8AfdjHx0kaMoY0pizfYU2ZlGtTM0kDSHf4K6HcKywG/JZm93DhIQ5tibj0SfPiAWjv3gPxkWGc4vQ0TKY3LPWZDEAECRULSLqfJ4YDqKbZ8ZPZ3YpzjcfzMDRacmd8Z3vhO9Kw3ujPy+eiFdskWc6AGw3kmWxHSC7nK/y+c2oAdAyDBs8UR+s2IhkS34J7GqwTt7BbWCYOaZOJyjInqEArORHOIC9MswzJ5cM/fY9e00o18IWEcXcUiz6iH1fsfN2xJrisSPKB/qc0BhThMm3Noni9eu3urgWkCcgU9OkQIG01mXw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785748380; c=relaxed/relaxed;
-	bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
+	t=1785750892; c=relaxed/relaxed;
+	bh=iROqidNnIXSZtIIk8nl3VK4dOUo3dfGu6PFD6UoFhbw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I56m1fFs1u+QrX7CriSN6GGkbhdQMtMFvTGejmy1fVlxBDAK6qqIVy5tutSZqsSyb9N3D7e/0h1LX8jhDS28wfgDgucro8Vc2wbZlZRdzzHy4RCNsO5kF0wmuRE5HYMg+djf3QFzDvRzxCkHD8jIaTHawftgmV+ace1bhOzHRfeFWNR2FTia1jtpYKRPwqhaM/+wC4eCqLZUkKHFR/SLiwVt6p5+qTMJPUO8opzXW+SSgQfBJUwDyOZ11sWg6tXQZeFO7mJWf1gR9c7J1NUUoVaUx4GyjmVTCytUUc802Qkylp9arh1WxMBHjqU6u49K2VjkO5CnI/ZcYUP3KBfX7w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=baylibre.com; dkim=pass (2048-bit key; secure) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bbm4okhj; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=ukleinek@baylibre.com; receiver=lists.ozlabs.org) smtp.mailfrom=baylibre.com
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=W5u11puaxGyMF1vFFXxIwm2YmXTdLQSMdcZEfDxSo1gOFARAavBJmD3AfRfsZL7cRfWyMxCAscnq4v8MC0f5sj0u4HjOLuCAwSiWNJyxOuE8uxRYI2UyK2QwjhnquC+wKdQDA7t3zXSkUR1ILY6s5RhxDNKGpEr8etaNac+AnJ7RuT8+eGhAqDlPrWqxvyWwYDi9FZg+xgKhrMbXapzvlbrOzxiczAblbB2dHjlKkoEu5zviv/9IOAXhZW5KjozSf17OJj6QXxCTT+1jtQ3T7rtF0eAMiUtANGbqNCpt2H2vJg9/IaoSVHmh/GaMMIFECDzgdsGj2A30mLwh9PVczg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz; dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=fHiUgDc/; dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Lqn1zzlt; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=pDooKbr/; dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=CLT1mS7S; dkim-atps=neutral; spf=pass (client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org) smtp.mailfrom=suse.cz
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bbm4okhj;
+	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=fHiUgDc/;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=Lqn1zzlt;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=pDooKbr/;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=CLT1mS7S;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=baylibre.com (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=ukleinek@baylibre.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=195.135.223.130; helo=smtp-out1.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hD9tx32Gkz2yQJ
-	for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 19:12:55 +1000 (AEST)
-Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-47f7027ca11so1935461f8f.3
-        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 02:12:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1785748372; x=1786353172; darn=lists.ozlabs.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
-        b=bbm4okhjGAY5V96wv8ewgiNV9DKJ6GPdsTxefPScTVwCy/Bx0RIG3LOTr8iWTeKtYD
-         5QlrKy7zcArpY2lBiQXv+iJBnk2h+q6GqD9cFlokP+1HuTDI69vTzCPvCBbswJ2xgVTL
-         cto3fh17Vkg8t6oBU3iQJklwdjyMqtbyXNaqaOgWWDoWzefHUOfNr2HNnwVGYvfi5QLL
-         64+y3oYbFGxX/pPuLeJTusgRzH3X1ObS4MHfVNNlbLrHz3W7TL7hbHej/izHsDNw7XkY
-         JskzgYD6G8qq0ursm87qLWTUM63BDXBjYIXiblHl43DOP+GpIHxVzYHVWz3ESPbglytC
-         a/pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785748372; x=1786353172;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
-        b=c99KheQu9fY7sOdhOqq5wYqDDc4PgXoBnCdbz1JN1TpTbEHntFCDX6nlIzu2mxbLrL
-         /dlt5fXixzOvkEEmJ3hN6OUNiIMy2TtHBT7juSRrU/uT86gTzfd9gxTPK1qzxzYf6jPb
-         xv76RmTg1UDJHIYEbSuK01hqIpaiCSagkLiYvFHyBsqp8l3Acd6buD5K9JEohZyvRjIf
-         EGzRbV3CS1PQ3rgqtNHpraZ+fDlaAGQPl1HKRUveLM13k8MuJDVVkNuhOIAYAH1wnZ0W
-         yAVgLaNwyxry8ryJ3vCt/6BlDuTCEvXBjwMH3ccMKyc0OR8ypjwzEH053fIUU9toWjKY
-         UCTQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rrn2wELisCPg+6PcN6CJY75nBOFYa4Vq/7LculDGYxlehBNB5xmUjoLQY//a9NrpPpk81cBf940vhe30Q==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yy6njAq1OIw5ZDumUMElsYR+zBCjYLyaSOctk1hdNdEAo9qpKyZ
-	7cENbPFsckq4iuWrj8q9zmNmDG6BFldtxAAZVhCJGnazIozKySnr4dPN1+5lKzCAN9M=
-X-Gm-Gg: AR+sD11XOUSJ78UXIHNOGeLWOS58/jN6XxpKSB1rsU8/ex3MIzglcOeqdWwZx2gWfez
-	NkhWJjhoHUTmsFMLutj1FsfzyUmBIPRM19DXLxMp2pJRVhTRAaRx8ZSatU99sKYcH/RKri7efFw
-	lizyo7H0HyK1E3bXxKxcpJtT5vst6HGJ8pifC1TYada8xE3HPjnPLshcSCSAA5qmqVNVaaLA8Mt
-	rPA4GiFCxAzmE8INZcpW+gDa6Wv7boLIAnfsmVZC1r+oA7K50IeQEL7TNJO0AApjiYkpBzUOWs8
-	tj57b9kGGIVh4KwSTV7uUx8nCuWWiOe9IpvXn4LdRN0XC2pLBt50rvFn6X74vMkZU9Vl0nfwbBf
-	TiUwJKoujiJ5Sz247MECqrn0iZvu9xfRNd5l/862DSuuQWQeUVo2PSgGPMbgaeTcXEsgQJ6lhSW
-	J6BVeyBQ0rrv51VtINDve4b0ALvCrINwgCurn3Qg0LJiXctBdNDfvURLjYMFbBdqAjWhjf4cyPn
-	fXrI0KLSjJcGeeo
-X-Received: by 2002:a05:6000:2203:b0:47f:cb39:10c4 with SMTP id ffacd0b85a97d-47fd72c75d5mr20472888f8f.12.1785748372101;
-        Mon, 03 Aug 2026 02:12:52 -0700 (PDT)
-Received: from localhost (p5dc68b01.dip0.t-ipconnect.de. [93.198.139.1])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47fe742936csm85878f8f.31.2026.08.03.02.12.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 02:12:51 -0700 (PDT)
-Date: Mon, 3 Aug 2026 11:12:49 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: SJ Park <sj@kernel.org>, Gao Xiang <xiang@kernel.org>, 
-	Gao Xiang <hsiangkao@linux.alibaba.com>, Michael Bommarito <michael.bommarito@gmail.com>, 
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, 
-	Sandeep Dhavale <dhavale@google.com>, Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
-	David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
-Message-ID: <anBYnPELPotUiNjv@monoceros>
-References: <amhMsk5Z6P0IA8sr@XiangdeMacBook-Pro.local>
- <20260728065447.91511-1-sj@kernel.org>
- <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDBqG55dBz2yQJ
+	for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 19:54:49 +1000 (AEST)
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 9B5F77EFF8;
+	Mon,  3 Aug 2026 09:54:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1785750881; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iROqidNnIXSZtIIk8nl3VK4dOUo3dfGu6PFD6UoFhbw=;
+	b=fHiUgDc/gBWZNPYTfUL+/RKtJMvY4YDCOJBMBuxQzU5xto7ubw4eaPSQkzSlU46dks7UBX
+	ruxnjVfs10OfQlbHXoApIdA1V9BstCp9eGS8uYEWOZo6w+PuO0/uuVZs4UhrgGet0VOHQS
+	ALWCsVaUyzTGnAoYHqbDwYDkvPKvxQY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1785750881;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iROqidNnIXSZtIIk8nl3VK4dOUo3dfGu6PFD6UoFhbw=;
+	b=Lqn1zzltP7SCM9HQ6qrUpcN9jfu8MXAXViLUoliKx+AzkXpws+spjIvH4se097r8DHkyEP
+	Kfu4eglMl+CVnBCQ==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1785750877; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iROqidNnIXSZtIIk8nl3VK4dOUo3dfGu6PFD6UoFhbw=;
+	b=pDooKbr/7Sc7/HRKzOzWRfK+N7685sWi2sBn2+fcCVca6XP+3RJ0SzE+9VqVH3VR9aO+Ub
+	RmCm+VpxU6OwY8SqzrioAod+X5fHjMen/sbX/cAD9QfOdkGUoTmtjhfVH57TYfX1Ue9JPa
+	elh4I9oIIZ0Mjc4RhC+lll0YdIppR/0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1785750877;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iROqidNnIXSZtIIk8nl3VK4dOUo3dfGu6PFD6UoFhbw=;
+	b=CLT1mS7SoLb60oRjTZ+JbcfZfJ79SMp450+duotun2UxsMTeGEme3vUvdiIRHgqn4qsUvq
+	zAmEZumhqT1xMcAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8FE4A779A1;
+	Mon,  3 Aug 2026 09:54:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 1MAWI11lcGoWNAAAD6G6ig
+	(envelope-from <jack@suse.cz>); Mon, 03 Aug 2026 09:54:37 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 2C4BFA13A4; Mon, 03 Aug 2026 11:54:33 +0200 (CEST)
+Date: Mon, 3 Aug 2026 11:54:33 +0200
+From: Jan Kara <jack@suse.cz>
+To: Zi Yan <ziy@nvidia.com>
+Cc: David Hildenbrand <david@kernel.org>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Gregory Price <gourry@gourry.net>, 
+	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Kairui Song <kasong@tencent.com>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
+	Jan Kara <jack@suse.cz>, Yue Hu <zbestahu@gmail.com>, 
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
+	Hongbo Li <hongbohbli@tencent.com>, Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+	linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH RFC 07/14] fs/erofs: mm/pagemap: add
+ readahead_folio_reverse() to avoid folio->private
+Message-ID: <332rknj4vo3cfhvfhhlf6pvg37s3lbrnzbbnv4swa6gctsiu6a@ndotgokvnglc>
+References: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
+ <20260731-remove-pg_private-v1-7-142c97ba3562@nvidia.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -98,91 +120,120 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="sfor6dhu35gfvxc4"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
+In-Reply-To: <20260731-remove-pg_private-v1-7-142c97ba3562@nvidia.com>
+X-Spamd-Result: default: False [-3.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[37];
+	URIBL_BLOCKED(0.00)[vivo.com:email,infradead.org:email,suse.cz:email,alibaba.com:email,suse.com:email,imap1.dmz-prg2.suse.org:helo];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	R_RATELIMIT(0.00)[to_ip_from(RLc5chj8mdhigtayhgqted7wkp)];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.org,infradead.org,linux-foundation.org,linux.dev,google.com,suse.com,linux.alibaba.com,arm.com,gourry.net,nvidia.com,cmpxchg.org,tencent.com,kvack.org,vger.kernel.org,suse.cz,gmail.com,vivo.com,lists.ozlabs.org];
+	RCVD_COUNT_THREE(0.00)[3];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_TLS_LAST(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,tencent.com:email,alibaba.com:email,suse.cz:email,imap1.dmz-prg2.suse.org:helo,infradead.org:email]
 
+On Fri 31-07-26 22:13:30, Zi Yan wrote:
+> erofs needs to traverse readahead folios in reverse order to achieve
+> maximum performance by
+> 1. reading all folios from readahead_folio();
+> 2. storing the prior folio pointer in folio->private;
+> 3. traverse from the last folio to the first one.
+> 
+> Add readahead_folio_reverse() to achieve the same function without using
+> folio->private.
+> 
+> It prepares for a future commit that replaces PG_private checks with
+> !folio->private checks. After switching the checks, erofs's use of
+> folio->private without bumping folio refcount can cause unexpected
+> outcomes, e.g., in filemap_release_folio(), try_to_free_buffers() becomes
+> reachable.
+> 
+> No funtional change intended.
+> 
+> Assisted-by: Claude:claude-opus-4-8
+> Assisted-by: Codex:gpt-5
+> Signed-off-by: Zi Yan <ziy@nvidia.com>
+> To: Gao Xiang <xiang@kernel.org>
+> To: Chao Yu <chao@kernel.org>
+> To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> To: Jan Kara <jack@suse.cz>
+> Cc: Yue Hu <zbestahu@gmail.com>
+> Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+> Cc: Sandeep Dhavale <dhavale@google.com>
+> Cc: Hongbo Li <hongbohbli@tencent.com>
+> Cc: Chunhai Guo <guochunhai@vivo.com>
+> Cc: linux-erofs@lists.ozlabs.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-mm@kvack.org
 
---sfor6dhu35gfvxc4
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
-MIME-Version: 1.0
+One comment regarding the generic infrastructure below.
 
-Hello,
+> diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+> index 4e8b2b29f6d3e..90904a4d173b7 100644
+> --- a/include/linux/pagemap.h
+> +++ b/include/linux/pagemap.h
+> @@ -1549,6 +1549,37 @@ static inline struct folio *readahead_folio(struct readahead_control *ractl)
+>  	return folio;
+>  }
+>  
+> +/**
+> + * readahead_folio_reverse - Get the next folio to read, from the tail.
+> + * @ractl: The current readahead request.
+> + *
+> + * Like readahead_folio(), but walks the range back-to-front. The folio is
+> + * returned locked with its refcount dropped; the caller unlocks it once I/O
+> + * completes. Compound folios are returned once, at their head index.
+> + *
+> + * Context: The folio is locked.
+> + * Return: A pointer to the next folio, or %NULL when done.
+> + */
+> +static inline struct folio *readahead_folio_reverse(struct readahead_control *ractl)
+> +{
+> +	struct folio *folio;
+> +
+> +	if (!ractl->_nr_pages)
+> +		return NULL;
+> +
+> +	/* xa_load() follows sibling entries, so a tail index returns the head */
+> +	folio = xa_load(&ractl->mapping->i_pages,
+> +			ractl->_index + ractl->_nr_pages - 1);
+> +	VM_WARN_ON_ONCE_FOLIO(!folio_test_locked(folio), folio);
+> +
+> +	/* Shrink the window from the tail down to this folio's head index */
+> +	ractl->_nr_pages = folio->index - ractl->_index;
+> +	ractl->_batch_count = 0;
 
-On Mon, Aug 03, 2026 at 10:09:06AM +0200, Geert Uytterhoeven wrote:
-> On Tue, 28 Jul 2026 at 08:55, SJ Park <sj@kernel.org> wrote:
-> > I don't have a m68k testfarm, either.  I'm doing crossbuild [1].  Hopef=
-ully you
-> > could also reproduce it.
+Thanks for the patch! Currently there's the invariant that the returned
+folio is still inside the _index .. _index+_nr_pages range. I think when we
+are providing a generic helper, we should keep that to make code more
+robust for the future when more people start using it.
 
-FTR, I don't have m68k hardware either, but as this is a build time
-failure installing the Debian package gcc-m68k-linux-gnu and then doing
-builds using
+What I'd suggest doing is add bool in struct readahead_control telling
+whether the last folio (batch) was taken from the head or tail of the
+range, advance _nr_pages and _index accordingly in the functions returning
+folios (probably hide this in a helper function __readahead_advance()
+because it will be used in 3 places) and maybe call this new function
+readahead_folio_last() instead of _reverse() (but I have only a slight
+preference here so .._reverse() is ok with me if other people prefer it).
 
-	make ARCH=3Dm68k CROSS_COMPILE=3Dm68k-linux-gnu-
-
-is good enough to reproduce the failure.
-
-> I think you can reproduce some of the issues on most architectures
-> with a non-SMP kernel, cfr. my reply[1] to Uwe's proposed fix.
-> Unfortunately the Kconfig warning only shows up on architectures that
-> don't define NR_CPUS (because they do not support SMP) at all,
-> while ending up with zero streams is probably a runtime failure.
->=20
-> [1] https://lore.kernel.org/CAMuHMdVGKX=3D3cfOrLWp1uSHX76xf1-=3DC0+GVCXkA=
-8JTqNPg-ew@mail.gmail.com
-
-I guess EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS should depend on SMP and
-it's use should be conditionalized using something like
-
-diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
-index 6b0cdb446c6a..c00e94f8206f 100644
---- a/fs/erofs/decompressor_lzma.c
-+++ b/fs/erofs/decompressor_lzma.c
-@@ -50,9 +50,13 @@ static int __init z_erofs_lzma_init(void)
- 	unsigned int i;
-=20
- 	/* by default, use # of possible CPUs instead */
--	if (!z_erofs_lzma_nstrms)
--		z_erofs_lzma_nstrms =3D min_t(unsigned int, num_possible_cpus(),
--				CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS);
-+	if (!z_erofs_lzma_nstrms) {
-+		if (IS_ENABLED(CONFIG_SMP))
-+			z_erofs_lzma_nstrms =3D min_t(unsigned int, num_possible_cpus(),
-+					CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS);
-+		else
-+			z_erofs_lzma_nstrms =3D 1;
-+	}
-=20
- 	for (i =3D 0; i < z_erofs_lzma_nstrms; ++i) {
- 		struct z_erofs_lzma *strm =3D kzalloc_obj(*strm);
-
-I played a bit with the definition of
-EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS in fs/erofs/Kconfig, but didn't
-find a way to define it that both uses NR_CPUS and doesn't generate a
-warning with ARCH=3Dm68k.
-
-Best regards
-Uwe
-
---sfor6dhu35gfvxc4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpwW40ACgkQj4D7WH0S
-/k5LwAf/cdL6nHd/eq299wreF7wmJ/uzYymvnXI6g+WJKc5gZTwGHYeRdcLbnNux
-3HBeU54Tekgm2/c8Dzf1HKMr8yW83g9d+dnWpEhjjrBtU1neZDCs8SkUV5cZmtAZ
-eBU0DQ6xEvWD5+uUuCkoluWU/0jQXAzzdhpGcGBTCFRIORwXEwDpRK/190nXO64u
-TNhzAxYRmmWop9WnxcL6ZsVv/d/bcRHM+th39zYaV3bfh6XDNsjhYriUqkcJVezF
-+XTq18Wb4HY77xH61A0s/5cd75E3/zLtHfoqb6oGX7PpiEsliZxqUKdIPPpytxBf
-xOsHM7j3e1USwS8UybcC6AKsa7K+bw==
-=9m7x
------END PGP SIGNATURE-----
-
---sfor6dhu35gfvxc4--
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
 
