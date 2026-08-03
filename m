@@ -1,81 +1,92 @@
-Return-Path: <linux-erofs+bounces-4083-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4084-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1ECA1C55184
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 09:07:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 45806C55175
+	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 09:13:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hD9n31wh8z3078;
-	Mon, 03 Aug 2026 19:07:51 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::630"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785748071;
-	cv=none; b=VYAHGHxrRJ3RRCBE11X8cy6Lysvxau5t5C6qFd5YL4NUBek25qC2JXYNuGX7oxRpuyXoSPA91EstokycMdtAl5Njxlwi/do0wJ2oZZReunt0hjZFtQ73+3nOUyeb6mIceYa9pn1ixUwT55OIjt/ZcvAhfQGq8pJLCztPuuo3pi0PFef4Y1tXdntdycDtjXWowVfZwp7wnn6jipWzKV4DWeZonG9ZNDcETIdSc2gHbwb9ADPuN0QwOoHfdTxIS95Pm82KY41XEb7plePP3oLy0kVJFF1iL/9UiT9L+MdTBdquC1EfukasrI0FHNlBoaERb4AOALG837O6BU+OuHRqPw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hD9v03YrJz3078;
+	Mon, 03 Aug 2026 19:13:00 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::42c"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785748380;
+	cv=none; b=YmfIMUEmvocRYOJ1/nyQNjadGB2nQHmx2/yFbVu7U2NFIPQTEKYrD1P0RBiXFUX+b6xGSKQ6uW0GaBiz2ma2s2hsSriQ2de0MlGFUT932bwo8UP5T0yVEbkvmlLq3FxfTnRmiEi0YVtd03gkZI+GCZfwdXOz+Q30cHPrqaoUzRmzECzqXiTwS/C+focG1Zy/gWgqaszmqFfFGmbs7fCGFe9KadBH+kv930/byXBjz/SzxqZxrqi4zWe9oNdXHXHwcmniTk+BwcLL7v3gWVKAOFJicWNG9M1uhnGfzdq7/+gXZ3vt4LibKUcStHT8VJpOLEixfXZS79p+qTMQuSHP+Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785748071; c=relaxed/relaxed;
-	bh=b16T4GW68hAFFc0osm9lAVRPnORne6TE2Xjz+8jsFek=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZqQ9K1yfvYYjs2qS+fzKesWMGNIhrBjx5pgVcEDTxfWxIl7Y43sjF+Cd/70Z2U8AGogBELJ/bVIMOsCehuVwEn+bznvkKbeY2k07BbUzX1WjcCOVuw4dsHuIgkvpj2g7G0MrjOsvq3WxO4hMbYrX5Kd7DUPyIR60DSluoxxbGSOptNSqssC+mBzA5yUb/Ob43kWZwwkxz+/iIcEft/lvvEPUoKH8Sd3Mab4AaowB6xL1gzJQmjb2PeZ0SNQ4dYHdUbjZukY3A8sJJp0+hffcqdRYziPJQEWW+KFVKoY7GEbfpwSvo1tH4bXpQ+uPS5J/LKjxPod/By4H7uu5cYqhIw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; dkim=pass (2048-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=gO8KJKQ2; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::630; helo=mail-ej1-x630.google.com; envelope-from=jgross@suse.com; receiver=lists.ozlabs.org) smtp.mailfrom=suse.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+	t=1785748380; c=relaxed/relaxed;
+	bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I56m1fFs1u+QrX7CriSN6GGkbhdQMtMFvTGejmy1fVlxBDAK6qqIVy5tutSZqsSyb9N3D7e/0h1LX8jhDS28wfgDgucro8Vc2wbZlZRdzzHy4RCNsO5kF0wmuRE5HYMg+djf3QFzDvRzxCkHD8jIaTHawftgmV+ace1bhOzHRfeFWNR2FTia1jtpYKRPwqhaM/+wC4eCqLZUkKHFR/SLiwVt6p5+qTMJPUO8opzXW+SSgQfBJUwDyOZ11sWg6tXQZeFO7mJWf1gR9c7J1NUUoVaUx4GyjmVTCytUUc802Qkylp9arh1WxMBHjqU6u49K2VjkO5CnI/ZcYUP3KBfX7w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=baylibre.com; dkim=pass (2048-bit key; secure) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bbm4okhj; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=ukleinek@baylibre.com; receiver=lists.ozlabs.org) smtp.mailfrom=baylibre.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=google header.b=gO8KJKQ2;
+	dkim=pass (2048-bit key; secure) header.d=baylibre.com header.i=@baylibre.com header.a=rsa-sha256 header.s=google header.b=bbm4okhj;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.com (client-ip=2a00:1450:4864:20::630; helo=mail-ej1-x630.google.com; envelope-from=jgross@suse.com; receiver=lists.ozlabs.org)
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=baylibre.com (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=ukleinek@baylibre.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hD9n20L0Mz2yQJ
-	for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 19:07:49 +1000 (AEST)
-Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-c167bda216fso468174666b.2
-        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 02:07:49 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hD9tx32Gkz2yQJ
+	for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 19:12:55 +1000 (AEST)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-47f7027ca11so1935461f8f.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 02:12:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1785748061; x=1786352861; darn=lists.ozlabs.org;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=b16T4GW68hAFFc0osm9lAVRPnORne6TE2Xjz+8jsFek=;
-        b=gO8KJKQ246bdGFru0M2JnTdekYSGGJ0uOc1kA9y0EXWnEYWq6aBMH9vg1rOIGdyVJj
-         aTjcTEeMC9p9pSKg7LxzlfOWG4msnSeev3qUFOdJfmiCFfzEKdUa8+KEGyMQg9GTh5p8
-         3tkHbJCMMoPq1Zpp3GqaCWc1SdwKvizVt47vQCt3Q9RBPxRiU1+H0Ulqd9D+TVqF2z77
-         YNlvs3sTyBZO+DLa6O3nJzvxdDse1JBu8/3u5R4TIvHKxbnyhJVOOm+JgoK1rfTWjgxs
-         0HEaw4WjOF0SWXGQ/IfXdk8rhF5ZFL3tDbw3gy3DsCqhUmK/12zCLX9t3uA3UD+aIjqx
-         f/QQ==
+        d=baylibre.com; s=google; t=1785748372; x=1786353172; darn=lists.ozlabs.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
+        b=bbm4okhjGAY5V96wv8ewgiNV9DKJ6GPdsTxefPScTVwCy/Bx0RIG3LOTr8iWTeKtYD
+         5QlrKy7zcArpY2lBiQXv+iJBnk2h+q6GqD9cFlokP+1HuTDI69vTzCPvCBbswJ2xgVTL
+         cto3fh17Vkg8t6oBU3iQJklwdjyMqtbyXNaqaOgWWDoWzefHUOfNr2HNnwVGYvfi5QLL
+         64+y3oYbFGxX/pPuLeJTusgRzH3X1ObS4MHfVNNlbLrHz3W7TL7hbHej/izHsDNw7XkY
+         JskzgYD6G8qq0ursm87qLWTUM63BDXBjYIXiblHl43DOP+GpIHxVzYHVWz3ESPbglytC
+         a/pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785748061; x=1786352861;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
+        d=1e100.net; s=20251104; t=1785748372; x=1786353172;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=b16T4GW68hAFFc0osm9lAVRPnORne6TE2Xjz+8jsFek=;
-        b=Q6pD3wifIpcVJhanp//8I1RFlOE2mFkUPAKUuzZN5EYkkJDX4WawrfzPl/09ojdM9d
-         QKW+6zvK+wARTFLHZk/SBwJsD4K1AVi70mGBQfhc15vEATZLPsXTCbph6CU+KzQfe7zM
-         TGBalhworh19J1F/LvLSZsr2ALVDkbbcwi3rK7D0xtTWfB4ZeDmgzJ++VoCd+4SjgqxH
-         Qrji8PDTE+M5kd3g/2Ar/Qs5Q/KY554jFf+mqwnpfd5/L5AONGJa7ZIXavtfcDbJU6bF
-         CReXgCdpB1KMkIKCshxYXreNYY9YcJDVifUmofgn9N1Lz0nE5aTA7QqE2PFo70acCUZV
-         oTnw==
-X-Forwarded-Encrypted: i=1; AHgh+RovUcFKh6evXRpSpiSCnYf0VfhSF0LkafbrqW+64NvXqndJcIQn72n2RBBZyBssx4cAxCOJJfSr4u/q+g==@lists.ozlabs.org
-X-Gm-Message-State: AOJu0Yyq8A6JQi+2N2giyKvLzXlEASNkfHtreciJKROk2siRLhuXInnw
-	La6/UDAt3jBCBu4oUvwjWaIktI9X457QPnlvpEkY/7wAmIkAase9YUsjhE2NFddb5wg=
-X-Gm-Gg: AR+sD13ZIRcU/1zK6wGtw6+8mg3VUIp3FIuddraiNi4mvJVQQp7KAcPcUGzBpuGRVs5
-	VYmuy9wzVQpHtzKl7QrJQFy/YPpVJYwMskT7mCVRxCldB7XYdvdXTD5zP0WnkcfqlEGI/2lVtxU
-	eXLGZ6YouegHTb9oVwPE9dPL6cRzYUD4+j10YEwJu+1xJYsIG6yxz5nkvwME0aKoM8hdu2XJjkQ
-	9ZLZfkWVEeHYma7cPx/vn4aw5DfWL+kN9Thbdz2bzEu7EreoPVOc04lGhGgPRlN4NoAdMfuDpfE
-	KaDuDvXz8L5QbtXL31Ceegdi1zCHZK1L34dbyyGZCRcCT2Bocb6Gnhs56IKC0/5+98v0Kmi8ldR
-	EVE0YlO7dNw/N+inQS4XhMT3eHKdW5SYTuAYUDb446N2kyfeobdrAUI+YwYr+OE3Lb5P2mW2sg2
-	Q8BPc0IcVDL9Tnr4LzD9GLMvsZkRhLsYDS1XO5eWjOiQozxRjNf+NP4uISREDgCWW+NRvDwyKla
-	EZBexF9DTt5P/tMlucLLM7Ag21GFKRx2kIrf2AlcAmcmMlyUmmRBvYestD2imKh595Ukn8a4np7
-	6HyNOWs/udNX4kY=
-X-Received: by 2002:a17:907:76fa:b0:c19:fb6e:5ff0 with SMTP id a640c23a62f3a-c1fe81a5d9fmr582774266b.15.1785748061532;
-        Mon, 03 Aug 2026 02:07:41 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1fd445432dsm507440166b.41.2026.08.03.02.07.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Aug 2026 02:07:41 -0700 (PDT)
-Message-ID: <5ca4d0e4-1747-45a7-a916-a7516bb1692b@suse.com>
-Date: Mon, 3 Aug 2026 11:07:39 +0200
+        bh=Tf9PxesmSKIPqmzevqF82I/y3pP5pgGQ+7FsJ/KVC3M=;
+        b=c99KheQu9fY7sOdhOqq5wYqDDc4PgXoBnCdbz1JN1TpTbEHntFCDX6nlIzu2mxbLrL
+         /dlt5fXixzOvkEEmJ3hN6OUNiIMy2TtHBT7juSRrU/uT86gTzfd9gxTPK1qzxzYf6jPb
+         xv76RmTg1UDJHIYEbSuK01hqIpaiCSagkLiYvFHyBsqp8l3Acd6buD5K9JEohZyvRjIf
+         EGzRbV3CS1PQ3rgqtNHpraZ+fDlaAGQPl1HKRUveLM13k8MuJDVVkNuhOIAYAH1wnZ0W
+         yAVgLaNwyxry8ryJ3vCt/6BlDuTCEvXBjwMH3ccMKyc0OR8ypjwzEH053fIUU9toWjKY
+         UCTQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rrn2wELisCPg+6PcN6CJY75nBOFYa4Vq/7LculDGYxlehBNB5xmUjoLQY//a9NrpPpk81cBf940vhe30Q==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yy6njAq1OIw5ZDumUMElsYR+zBCjYLyaSOctk1hdNdEAo9qpKyZ
+	7cENbPFsckq4iuWrj8q9zmNmDG6BFldtxAAZVhCJGnazIozKySnr4dPN1+5lKzCAN9M=
+X-Gm-Gg: AR+sD11XOUSJ78UXIHNOGeLWOS58/jN6XxpKSB1rsU8/ex3MIzglcOeqdWwZx2gWfez
+	NkhWJjhoHUTmsFMLutj1FsfzyUmBIPRM19DXLxMp2pJRVhTRAaRx8ZSatU99sKYcH/RKri7efFw
+	lizyo7H0HyK1E3bXxKxcpJtT5vst6HGJ8pifC1TYada8xE3HPjnPLshcSCSAA5qmqVNVaaLA8Mt
+	rPA4GiFCxAzmE8INZcpW+gDa6Wv7boLIAnfsmVZC1r+oA7K50IeQEL7TNJO0AApjiYkpBzUOWs8
+	tj57b9kGGIVh4KwSTV7uUx8nCuWWiOe9IpvXn4LdRN0XC2pLBt50rvFn6X74vMkZU9Vl0nfwbBf
+	TiUwJKoujiJ5Sz247MECqrn0iZvu9xfRNd5l/862DSuuQWQeUVo2PSgGPMbgaeTcXEsgQJ6lhSW
+	J6BVeyBQ0rrv51VtINDve4b0ALvCrINwgCurn3Qg0LJiXctBdNDfvURLjYMFbBdqAjWhjf4cyPn
+	fXrI0KLSjJcGeeo
+X-Received: by 2002:a05:6000:2203:b0:47f:cb39:10c4 with SMTP id ffacd0b85a97d-47fd72c75d5mr20472888f8f.12.1785748372101;
+        Mon, 03 Aug 2026 02:12:52 -0700 (PDT)
+Received: from localhost (p5dc68b01.dip0.t-ipconnect.de. [93.198.139.1])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47fe742936csm85878f8f.31.2026.08.03.02.12.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Aug 2026 02:12:51 -0700 (PDT)
+Date: Mon, 3 Aug 2026 11:12:49 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: SJ Park <sj@kernel.org>, Gao Xiang <xiang@kernel.org>, 
+	Gao Xiang <hsiangkao@linux.alibaba.com>, Michael Bommarito <michael.bommarito@gmail.com>, 
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, 
+	Sandeep Dhavale <dhavale@google.com>, Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>, Guenter Roeck <linux@roeck-us.net>, 
+	David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
+Message-ID: <anBYnPELPotUiNjv@monoceros>
+References: <amhMsk5Z6P0IA8sr@XiangdeMacBook-Pro.local>
+ <20260728065447.91511-1-sj@kernel.org>
+ <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -87,270 +98,91 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 00/14] Remove PG_private by using page/folio->private
- checks instead
-To: Zi Yan <ziy@nvidia.com>, David Hildenbrand <david@kernel.org>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Gregory Price <gourry@gourry.net>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
- Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>,
- Shakeel Butt <shakeel.butt@linux.dev>, Kairui Song <kasong@tencent.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Minchan Kim <minchan@kernel.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, James Clark
- <james.clark@linaro.org>, "H. Peter Anvin" <hpa@zytor.com>,
- linux-perf-users@vger.kernel.org, Stefano Stabellini
- <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- xen-devel@lists.xenproject.org, Eric Biggers <ebiggers@kernel.org>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, Jaegeuk Kim <jaegeuk@kernel.org>,
- linux-fscrypt@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Chao Yu <chao@kernel.org>, linux-f2fs-devel@lists.sourceforge.net,
- Gao Xiang <xiang@kernel.org>, Jan Kara <jack@suse.cz>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
- Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org,
- linux-fsdevel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Axel Rasmussen
- <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, linux-trace-kernel@vger.kernel.org,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- linux-nfs@vger.kernel.org, Song Liu <song@kernel.org>,
- Yu Kuai <yukuai@fygo.io>, Ilya Dryomov <idryomov@gmail.com>,
- Alex Markuze <amarkuze@redhat.com>, Viacheslav Dubeyko <slava@dubeyko.com>,
- Li Nan <magiclinan@didiglobal.com>, Xiao Ni <xiao@kernel.org>,
- linux-raid@vger.kernel.org, ceph-devel@vger.kernel.org,
- Richard Weinberger <richard@nod.at>, Zhihao Cheng <chengzhihao1@huawei.com>,
- linux-mtd@lists.infradead.org, Baoquan He <baoquan.he@linux.dev>,
- Pasha Tatashin <pasha.tatashin@soleen.com>,
- Pratyush Yadav <pratyush@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Dave Young <ruirui.yang@linux.dev>, Shuah Khan <skhan@linuxfoundation.org>,
- kexec@lists.infradead.org, linux-doc@vger.kernel.org
-References: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
-Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------Vg9NJvq3ine0Gyx1IX0BEzQC"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="sfor6dhu35gfvxc4"
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------Vg9NJvq3ine0Gyx1IX0BEzQC
-Content-Type: multipart/mixed; boundary="------------1XNOHvG0ftKOzuceeKWaT2Id";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Zi Yan <ziy@nvidia.com>, David Hildenbrand <david@kernel.org>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Gregory Price <gourry@gourry.net>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
- Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>,
- Shakeel Butt <shakeel.butt@linux.dev>, Kairui Song <kasong@tencent.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Minchan Kim <minchan@kernel.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>, James Clark
- <james.clark@linaro.org>, "H. Peter Anvin" <hpa@zytor.com>,
- linux-perf-users@vger.kernel.org, Stefano Stabellini
- <sstabellini@kernel.org>,
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
- xen-devel@lists.xenproject.org, Eric Biggers <ebiggers@kernel.org>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, Jaegeuk Kim <jaegeuk@kernel.org>,
- linux-fscrypt@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Chao Yu <chao@kernel.org>, linux-f2fs-devel@lists.sourceforge.net,
- Gao Xiang <xiang@kernel.org>, Jan Kara <jack@suse.cz>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
- Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org,
- linux-fsdevel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Axel Rasmussen
- <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, linux-trace-kernel@vger.kernel.org,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- linux-nfs@vger.kernel.org, Song Liu <song@kernel.org>,
- Yu Kuai <yukuai@fygo.io>, Ilya Dryomov <idryomov@gmail.com>,
- Alex Markuze <amarkuze@redhat.com>, Viacheslav Dubeyko <slava@dubeyko.com>,
- Li Nan <magiclinan@didiglobal.com>, Xiao Ni <xiao@kernel.org>,
- linux-raid@vger.kernel.org, ceph-devel@vger.kernel.org,
- Richard Weinberger <richard@nod.at>, Zhihao Cheng <chengzhihao1@huawei.com>,
- linux-mtd@lists.infradead.org, Baoquan He <baoquan.he@linux.dev>,
- Pasha Tatashin <pasha.tatashin@soleen.com>,
- Pratyush Yadav <pratyush@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Dave Young <ruirui.yang@linux.dev>, Shuah Khan <skhan@linuxfoundation.org>,
- kexec@lists.infradead.org, linux-doc@vger.kernel.org
-Message-ID: <5ca4d0e4-1747-45a7-a916-a7516bb1692b@suse.com>
-Subject: Re: [PATCH RFC 00/14] Remove PG_private by using page/folio->private
- checks instead
-References: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
-In-Reply-To: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
 
---------------1XNOHvG0ftKOzuceeKWaT2Id
-Content-Type: multipart/mixed; boundary="------------emnYBJyIfA0mAuf1FBk0JrWD"
-
---------------emnYBJyIfA0mAuf1FBk0JrWD
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-T24gMDEuMDguMjYgMDQ6MTMsIFppIFlhbiB3cm90ZToNCj4gSGkgYWxsLA0KPiANCj4gVGhp
-cyBwYXRjaHNldCByZW1vdmVzIFBHX3ByaXZhdGUgdG8gbWFrZSBzcGFjZSBmb3IgdXBjb21p
-bmcgUEdfZm9saW8NCj4gKHJlc2VydmVkIGFzIF9fUEdfZm9saW8pIGZvciBpZGVudGlmeWlu
-ZyBwYWdlcyBmcm9tIGEgZm9saW8gKG1vcmUgZGV0YWlscw0KPiBpbiBOb3RlIGJlbG93KS4g
-SW5zdGVhZCBvZiBjaGVja2luZyBQR19wcml2YXRlLCBhbGwgY29kZSBpcyBjaGFuZ2VkIHRv
-DQo+IGNoZWNrIHBhZ2UvZm9saW8tPnByaXZhdGUgIT0gTlVMTCBpbnN0ZWFkLg0KDQpJJ20g
-YSBsaXR0bGUgYml0IHdvcnJpZWQgdGhhdCBwYWdlL2ZvbGlvLT5wcml2YXRlIGlzIGluIGEg
-dW5pb24sIHNvIHRvZGF5DQppdCBjb3VsZCAoaW4gdGhlb3J5KSBiZSAhPSBOVUxMIHdoaWxl
-IFBHX3ByaXZhdGUgaXNuJ3Qgc2V0Lg0KDQpJcyBpdCByZWFsbHkgbm90IHBvc3NpYmxlIHRv
-IGVudGVyIGEgcGF0aCB3aGVyZSBQR19wcml2YXRlIGlzIHRlc3RlZCB3aGlsZQ0KcGFnZS9m
-b2xpby0+cHJpdmF0ZSAhPSBOVUxMIGR1ZSB0byB0aGUgdW5pb24gYmVpbmcgdXNlZCBvdGhl
-cndpc2UgKFBHX3ByaXZhdGUNCm5vdCBzZXQpPw0KDQoNCkp1ZXJnZW4NCg==
---------------emnYBJyIfA0mAuf1FBk0JrWD
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
+--sfor6dhu35gfvxc4
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
+MIME-Version: 1.0
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+Hello,
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+On Mon, Aug 03, 2026 at 10:09:06AM +0200, Geert Uytterhoeven wrote:
+> On Tue, 28 Jul 2026 at 08:55, SJ Park <sj@kernel.org> wrote:
+> > I don't have a m68k testfarm, either.  I'm doing crossbuild [1].  Hopef=
+ully you
+> > could also reproduce it.
 
---------------emnYBJyIfA0mAuf1FBk0JrWD--
+FTR, I don't have m68k hardware either, but as this is a build time
+failure installing the Debian package gcc-m68k-linux-gnu and then doing
+builds using
 
---------------1XNOHvG0ftKOzuceeKWaT2Id--
+	make ARCH=3Dm68k CROSS_COMPILE=3Dm68k-linux-gnu-
 
---------------Vg9NJvq3ine0Gyx1IX0BEzQC
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+is good enough to reproduce the failure.
+
+> I think you can reproduce some of the issues on most architectures
+> with a non-SMP kernel, cfr. my reply[1] to Uwe's proposed fix.
+> Unfortunately the Kconfig warning only shows up on architectures that
+> don't define NR_CPUS (because they do not support SMP) at all,
+> while ending up with zero streams is probably a runtime failure.
+>=20
+> [1] https://lore.kernel.org/CAMuHMdVGKX=3D3cfOrLWp1uSHX76xf1-=3DC0+GVCXkA=
+8JTqNPg-ew@mail.gmail.com
+
+I guess EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS should depend on SMP and
+it's use should be conditionalized using something like
+
+diff --git a/fs/erofs/decompressor_lzma.c b/fs/erofs/decompressor_lzma.c
+index 6b0cdb446c6a..c00e94f8206f 100644
+--- a/fs/erofs/decompressor_lzma.c
++++ b/fs/erofs/decompressor_lzma.c
+@@ -50,9 +50,13 @@ static int __init z_erofs_lzma_init(void)
+ 	unsigned int i;
+=20
+ 	/* by default, use # of possible CPUs instead */
+-	if (!z_erofs_lzma_nstrms)
+-		z_erofs_lzma_nstrms =3D min_t(unsigned int, num_possible_cpus(),
+-				CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS);
++	if (!z_erofs_lzma_nstrms) {
++		if (IS_ENABLED(CONFIG_SMP))
++			z_erofs_lzma_nstrms =3D min_t(unsigned int, num_possible_cpus(),
++					CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS);
++		else
++			z_erofs_lzma_nstrms =3D 1;
++	}
+=20
+ 	for (i =3D 0; i < z_erofs_lzma_nstrms; ++i) {
+ 		struct z_erofs_lzma *strm =3D kzalloc_obj(*strm);
+
+I played a bit with the definition of
+EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS in fs/erofs/Kconfig, but didn't
+find a way to define it that both uses NR_CPUS and doesn't generate a
+warning with ARCH=3Dm68k.
+
+Best regards
+Uwe
+
+--sfor6dhu35gfvxc4
+Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmpwWlsFAwAAAAAACgkQsN6d1ii/Ey/i
-jgf/ZwJPxlL37xKWgHvTpcOyxx9OjPwR5NnmxhKYC+qK1G+dCKRR2aNsNRd92IvtuR/zlwoSK3Bz
-7Knn/QAX+Sr8+MzzkoSZZy4464mITxuVnjBsYOy1wmVfTRA9xJ5kPDsLcow9h9fba5YWY5JKjJEr
-fuIk59vC3iZC8TXbrwFnUB118QfIzPMfnHvl18ioDjqN/X6ooFJudXLB3hTrlpzsxtdu1OFI+TsY
-0FUiNapbbcLYtM5X9v/bo7LSqQNdjZKmfV2DVQHs8Vj2bH/TyrIG+SvEggEztdqBgec9T7Ix66uU
-FOasApx6jWOz0UmYAKKBF0iBOhSZaPnQhSA6xqkzCw==
-=lraB
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpwW40ACgkQj4D7WH0S
+/k5LwAf/cdL6nHd/eq299wreF7wmJ/uzYymvnXI6g+WJKc5gZTwGHYeRdcLbnNux
+3HBeU54Tekgm2/c8Dzf1HKMr8yW83g9d+dnWpEhjjrBtU1neZDCs8SkUV5cZmtAZ
+eBU0DQ6xEvWD5+uUuCkoluWU/0jQXAzzdhpGcGBTCFRIORwXEwDpRK/190nXO64u
+TNhzAxYRmmWop9WnxcL6ZsVv/d/bcRHM+th39zYaV3bfh6XDNsjhYriUqkcJVezF
++XTq18Wb4HY77xH61A0s/5cd75E3/zLtHfoqb6oGX7PpiEsliZxqUKdIPPpytxBf
+xOsHM7j3e1USwS8UybcC6AKsa7K+bw==
+=9m7x
 -----END PGP SIGNATURE-----
 
---------------Vg9NJvq3ine0Gyx1IX0BEzQC--
+--sfor6dhu35gfvxc4--
 
