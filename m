@@ -1,84 +1,88 @@
-Return-Path: <linux-erofs+bounces-4099-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4100-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B208C55184
-	for <linux-erofs@archiver.kernel.org>; Tue,  4 Aug 2026 03:32:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 14714C55184
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Aug 2026 03:32:44 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hDfHl1rp2z2yMl;
-	Tue, 04 Aug 2026 13:32:35 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::331"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785814355;
-	cv=none; b=VAJwull7+DxhbbuD5gB6Yv0MHeev728HqGSvlKZxlZlUeE8BiJIv2v0vpZoH1cwu2+HdNQAGsuzhJ/7mey4m4F5fO/j2AUjCdA4D/R1GINOxKZLhQzsqFgyBUm8t6NHgCGybOecmz7modPVIB4dAOjqzSCbGonYAJk4i0evqeSQ56ZpHUHQAbLzdpHk6kOoayXykDEPKrIGozkOSHLJbjAZfyXyBupWh5FNXxhZPEKOk6o5m7Z1Gi5I1v/k69q+53n6TT8fnFraYYjTI6J1pS84P8nVjmN+cgZWqSXEFDAVgHPtaQoumgSI/eWS1ib6CzVOaZRmvFBQHZ2hdJMi3Ug==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hDfHt0Z87z2yYs;
+	Tue, 04 Aug 2026 13:32:42 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::436"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785814362;
+	cv=none; b=eiNzI0p64H0/KUa3NjA7NylsLAh6yYZBk9YBf4jSyALWpU43t3GZPAeHjO5qEh/eeMBYRFvVVIOoH/4DRQGesgng95Xl1+v5xwzYHdvJkX0lrc/3C8LShDUipJKfOEwWKW+Xrrv8Mp6DTrL0RRmwLXJq4ZmiiJHtHRz79ABwUDdc9lcSefPY5wXubGAmmK0FoRE5Ic8k56UbprCfGpZfYSC09LAUt1J2LJF0Rnt1iWPrRmaRAr+S5k56jmeerQoWtTr+Q8frWxnwZQjpn/FNP3oy2ycPtHjZ9vmQk/OMMVkySop7v/6uf0m+DnD8e5S9xlHc/EE5pmSJlUg/1QOV6g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785814355; c=relaxed/relaxed;
-	bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HyU/sMTwzKORDr+qwKjDYf/W8ztfsuaP2gj6D2D5g8l5Rc6WlpI4CgsewLW9VUDTWGRVJPW20ZcJSH1+bEk6kI8ZPoM/Vqypyb412VYbJ2/+CZQgavP4GMLZNsQntB1ygD316VcaGn9zrIDj6oH65IsyuZ0ubweBk7t2husDltEn10fSPfQbU+S9d2z9UU3CooA9KHFGyvF4LZOA4QR+6SYDbjxTrhx4ivXeFo5EobLd2QbKaobV7zqOI3HfqlLeM6wav4eq2RCbdc44jpttcmsJXhwQuYiaAvWcsKUWAFu8ecVkDbOTn2wO0LeuZ0J2lnOBJ2ZiB+DEFsFWQ2RacA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=K3lk5fJV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
+	t=1785814362; c=relaxed/relaxed;
+	bh=xdmUrICWc9i+Ly/B/B4LyV6Wyg/mY/8lKR+7W8dS1p0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gr84ajyfYpCGWJBX93/OxHvLionUeO0xDPnHDKwPRtQF06JqIeJ8PtZ+R1OkrGi3lsAPPzhgsJ5weGEqkRZRpqRVWAYq6XIzXGviZ13KyZRbZ7iVF5/dcvQLSrbNLrIMRBOWI1inZrwBztRokL8E2w1Ax2TsXnhvL6VPZfIgHF1i28eYe+EODmdptYolg/p9akm5OsmEmQ3/Euv021KNiOtgFgy9h/eFVqoQXmPT+0X3vRsH+BOCqCdUJ6lpVyLEhbtIatXmpAmK58kRzvkHyGNllvXc933M1q8XMYJYZzzZ8+Vig0uQQtia2D56PxPPGi//U3eXnEbiGbQU7+cGhA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=UMU4bzm0; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=K3lk5fJV;
+	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=UMU4bzm0;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDfHh6Hfjz2xns
-	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 13:32:32 +1000 (AEST)
-Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-4954dff6536so18730475e9.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 20:32:32 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDfHs1sTJz2xns
+	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 13:32:41 +1000 (AEST)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-47fde295992so374840f8f.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 20:32:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amutable-com.20251104.gappssmtp.com; s=20251104; t=1785814348; x=1786419148; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
-        b=K3lk5fJVoVM0jTGwg2+RbL81eVqTOziiIRsrPfWRgl12pFQJwkMw2yP7pbX46lk1K4
-         iBJmUy36lcHQuBm4tRAhSWrfgr/oKmHxJIyF2xoEm1hcqkWYHlMSclPvusvnf6EOT/52
-         TiN4Y0/3yF1v5Rsrrd7wl2iW8W921Zsdg+xnju4Mu0d2vj65hLiI9Z/bBH07/O02dYGL
-         SEnSFD76P3FGx5QtJFUTqBz7OdDzDqNH8QEb3yPw8OCrElRoOj97WId7Ymv5K7PeYZ8F
-         8FOMNR9U9hAzp3R7KmoFg3IcEX7zBQ+aryw1Jnu7dIrXPH0waE8QKsz6fDV33rvmhb1b
-         pjQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785814348; x=1786419148;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=amutable-com.20251104.gappssmtp.com; s=20251104; t=1785814358; x=1786419158; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
-        b=CzKkdyTXsNccs15K4WWwfKgDA+uVIaLZODxdGv89YvX7T8yOO74cmTOwhUuFLZpBlf
-         S7oWLxbgyZo4dALN+XgXhOV5Za9D7HAznLx2IaQz5KqgZh2qr/a+ITnXdPBywu3grrYx
-         TL9S4KKXmXuLtR67Hw70KjnkDhjgRJ5ixk6W69vu1gnZ5ZrjBx0WOeLySDd20+i5kvZR
-         yvfngHgX35DpJL6YL94rimld0uDqDFo5JOblj3RRESxBcPUEhePZqNpBuTiDPUZssAMo
-         3sp4idtExom7Cs7zw0cEOGIdprRedf+PZGMzJvqYh7/540038FA4u4gfk5qiGTxxaYIB
-         uy7w==
-X-Gm-Message-State: AOJu0YyQHREmhhyYY1765Lp1IEHUY0t2VUQrkMCrTCQoma4I2KvJzddG
-	F14SMJzzbnuNP2Pr6OqI2cOeGBGWGpBE+DHSW9XgU1DYOM03NnWed570nsG2BkXpHRzd3gbfaa/
-	DYy7GhK2D
-X-Gm-Gg: AR+sD12EoEx9KaqdToBRAWNojLJPNSG867PtVONpXi5e4Az52uA/vjB3ETPzhAZYhCu
-	jHuEtsyOJVlV6/xm0Y3RWmZoeCFNXxvEhWwuY/oGkx40iXi/j8kDgyLbiFkNJ24OIePOHGzSHwo
-	b19BDmg1VORI7Wa4MkVhkg01IRwTgckTgZgDjF9S0PmtMdXoAfKJRbMDDVvWfqMSujSutSF29Ao
-	Xxq/2hLKad6ls5tv67MMry0pRY5Hpdp7wbjizfSNytkZ34UPJva0QUf5zRYeg9Sc9nz1ntdDZuf
-	BVqnVI8deqkuOuzck0DYNpQcc7JrtYJUSC6tYl86c802xGC1DHm8JRfXgUS/wJAP46cqX4nOpcM
-	aMKgzNZZfAVCLyCML6mEjk+h2dAsOHr8kxbgzkrkz5MBTG1hZJakmHSrQ+2Hhqn/eTmD3TW2W4Y
-	oSCZ4mkvLa9QFa0kBC1cE28d4qq5GI0wij1qQxqr0zPM037TKmLO3IpKtLuXyB3xf8xgb96MMGe
-	44tCYnqq1ex9t12ny2DQIEUB2Hzruxe1eNL+7GnTcUzrFsy2fWs28tduBE=
-X-Received: by 2002:a05:6000:2211:b0:47f:853d:4768 with SMTP id ffacd0b85a97d-47fd72b518emr31588300f8f.20.1785814348046;
-        Mon, 03 Aug 2026 20:32:28 -0700 (PDT)
+        bh=xdmUrICWc9i+Ly/B/B4LyV6Wyg/mY/8lKR+7W8dS1p0=;
+        b=UMU4bzm0Lh1Hyf7FKsHPB/gpF9H8qDQqmLkGUk+LxpkovIUrO0B5ELMh1Ay7o1w3dE
+         cjJPHROB4/8GDds1CNa7ljJd5rSgxsN/D61RyQlaD49mqEEFuSkFzwIkg8PmeSRD3Ply
+         I8faRVRVejd5wxFDOJ4fq2gvoHuVCI18aJnN0Suwga0FKXBZsvF0Wc2rZFk5QEtvs6En
+         KuVtxsn/qaUzLzozz89ybHgPJz7Giml1IsLCJ0s1ykhUD5kKUVyEsnh0O45vQFEH2Wxx
+         G5hga81wuqPXSsQc0p9o9Lai8Ci/Wc8v+5gNKf83k0DjPtiRUnIe4T5Ai4Fyk1ujd/up
+         hOxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785814358; x=1786419158;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xdmUrICWc9i+Ly/B/B4LyV6Wyg/mY/8lKR+7W8dS1p0=;
+        b=RaZTzIES6427+qp7/jzAJ7vcdB6daBHod6cIbIworWIKIEEfnzdf+LrcqYtTjqZVqa
+         sLyb0Uca41Kvjw5pYCf0GFud0jbAjpTUvGqO9Zkka+/DOJcXUYiETd/N1U91BuHJOzFz
+         V6bW/GuncOkl7Poduc7wsCdxHJWp2Xz+wtfsZu+gbJCABbhT0NylOdgG1Z+vkYwIF4Tb
+         VDsx4IpxIX918gg/GetP0uP48nHXutKDvvzKy1qcEVPaUQceSDD/6gYzMgCSWO5f1mTr
+         LaZd0giCKesdswISvfWGRyi66wvg3crXB7BmnXGiKNXxRlBYh+3E1G34Gjq71EFKQvbf
+         0PNg==
+X-Gm-Message-State: AOJu0YwLHvPyXXgSJRcHfd+6nEnzcOVgOdyCSdtbxr75lIuvcq60EnrG
+	uYMUJaP8WOvooHqlIw6QQAj8QK7zKYnTgzncAtfc4ikV2tEOSKBToeZ609vWXV5SJ+kzsPyQXOu
+	4Ush2R/m7
+X-Gm-Gg: AR+sD12b8FTs6xc05+jp5jXkau1efPe/zVjRjT9T8pV4MConXpmuDfkIr2X9eiTHohQ
+	YBwtUHrKcVSBBc8yygHBf0qm2Hse31/5Z7v4MvZ+aQTYqaCbUsFVDs1Wzcz07ComsTaweirwdcY
+	tTisNbZPOgVbUNOb1Zs/7hDjm71WfCglntbrPxEngV3P7xAqHox3Pup1wMIea4nsdDdXWeb2y2Q
+	hz+MvmDsPel4b0F1FR94O+jwugiNRoavySAnoCO85uiCP3QWjVkqyYYzUwSdkRk0hQxTKsK1k49
+	kYVBmPXbPA8qXPXdogEaqkQteQebzlPYJPiktLDAVc63IU8aXORveuiYK1M/Gk4wbDk6x1Vbs5G
+	bklTGT9EDXYEHNXS0juKT820bijeWrScu2IEosqacafYv/k6GUaGUcryNOYwfwvI9SsnCa8wetD
+	varC8abJ6wMQL78/+KyKd6j0VENku256XFJ8UZFhYJlYFbTG+Ecn0podKsJfbuy5PRScQ1Ap7pW
+	d64eKvgTpxaQbpOgho6KVCAp6FuCFR/w8118Zym8qklLhwg+qslaGb4bNU=
+X-Received: by 2002:a05:6000:310a:b0:45e:dd32:92fa with SMTP id ffacd0b85a97d-47fe81cb7ccmr3804246f8f.12.1785814357795;
+        Mon, 03 Aug 2026 20:32:37 -0700 (PDT)
 Received: from fedora.fritz.box (p200300c78f45f4002fc0e22e545c127a.dip0.t-ipconnect.de. [2003:c7:8f45:f400:2fc0:e22e:545c:127a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd42d91bfsm41286329f8f.15.2026.08.03.20.32.27
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd42d91bfsm41286329f8f.15.2026.08.03.20.32.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 20:32:27 -0700 (PDT)
+        Mon, 03 Aug 2026 20:32:37 -0700 (PDT)
 From: Martin Pitt <martin@amutable.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <xiang@kernel.org>,
 	Yifan Zhao <zhaoyifan28@huawei.com>,
 	Martin Pitt <martin@amutable.com>
-Subject: [PATCH 0/3] erofs-utils: tests: cover the canonical xattr order
-Date: Tue,  4 Aug 2026 05:32:11 +0200
-Message-ID: <20260804033214.211267-1-martin@amutable.com>
+Subject: [PATCH 1/3] erofs-utils: tests: fix broken loop in POSIX shells
+Date: Tue,  4 Aug 2026 05:32:12 +0200
+Message-ID: <20260804033214.211267-2-martin@amutable.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260804033214.211267-1-martin@amutable.com>
+References: <20260804033214.211267-1-martin@amutable.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -92,31 +96,31 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A test for b260119b8edb ("erofs-utils: mkfs: emit an inode's xattrs in a
-canonical order"), plus two portability fixes that I ran into along
-the way. Based on experimental-tests (a3b00c4).
+`{1..n}` is a bashism. A POSIX shell iterates once over that literal
+string, so the test silently sets a single attribute instead of three and
+nothing crosses the block boundary any more. Sadly, `seq` is also not
+POSIX (although ubiquitous).
 
-The test stages the same tree twice with the same attributes set in
-opposite order and compares the two images, so it needs neither root nor a
-mount. It is red without b260119b8edb and green with it. That commit is
-currently only in experimental, so the test fails as long as
-experimental-tests is run without it.
+Spell out the loop.
 
-Martin Pitt (3):
-  erofs-utils: tests: fix broken loop in POSIX shells
-  erofs-utils: tests: look up programs with command -v
-  erofs-utils: tests: check that the xattr layout is order-independent
+Signed-off-by: Martin Pitt <martin@amutable.com>
+---
+ tests/erofs/021 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- tests/Makefile.am   |  5 ++-
- tests/common/rc     |  8 ++---
- tests/erofs/021     |  2 +-
- tests/erofs/028     |  6 ++--
- tests/erofs/032     | 77 +++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/032.out |  2 ++
- 6 files changed, 91 insertions(+), 9 deletions(-)
- create mode 100755 tests/erofs/032
- create mode 100644 tests/erofs/032.out
-
+diff --git a/tests/erofs/021 b/tests/erofs/021
+index d36aa56..b77a8d7 100755
+--- a/tests/erofs/021
++++ b/tests/erofs/021
+@@ -39,7 +39,7 @@ mkdir -p $localdir
+ # cross the block boundary; besides set three xattrs to ensure at least
+ # one xattr name crosses the block boundary
+ touch $localdir/file1
+-for i in {1..3}; do
++for i in 1 2 3; do
+ 	setfattr -n user.p$(_random 249) -v $(_random 512) $localdir/file1 \
+ 		|| _notrun "no space for xattrs"
+ done
 -- 
 2.55.0
 
