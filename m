@@ -1,114 +1,84 @@
-Return-Path: <linux-erofs+bounces-4098-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4099-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A58A0C55182
-	for <linux-erofs@archiver.kernel.org>; Mon,  3 Aug 2026 23:55:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B208C55184
+	for <linux-erofs@archiver.kernel.org>; Tue,  4 Aug 2026 03:32:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hDYT8734Xz306N;
-	Tue, 04 Aug 2026 09:55:24 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785801324;
-	cv=none; b=WwKXcROndj8f/t2zNAgYbsJExKV1hMZELm4FBxxZpb+X7Cur12ipKS0ps7hYWg2One7/yUHHycQhpgOxxEaWFcX9YJqiZf5Cdi+F4Ydim3Wjsm8GnGvhVE0hvyVO4k33FIj6sULv0gwnLyvxel753H+OYHVcL2aWFzf+59RuORDqaiciZnQAxTel997sKXz/YUe4PDEzAik/AsoSpVxofBQ79hVk37p/5JaPSikbpZv4/yl90kNguEgXfbrcjMDZuSqxe39G282ipyvQUQpZyIPUiaT70j+BbVINz/kVhF6eFWWFLoGOM4RnAWTeC94LaLElFypz67N95EHZLayaLQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hDfHl1rp2z2yMl;
+	Tue, 04 Aug 2026 13:32:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::331"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1785814355;
+	cv=none; b=VAJwull7+DxhbbuD5gB6Yv0MHeev728HqGSvlKZxlZlUeE8BiJIv2v0vpZoH1cwu2+HdNQAGsuzhJ/7mey4m4F5fO/j2AUjCdA4D/R1GINOxKZLhQzsqFgyBUm8t6NHgCGybOecmz7modPVIB4dAOjqzSCbGonYAJk4i0evqeSQ56ZpHUHQAbLzdpHk6kOoayXykDEPKrIGozkOSHLJbjAZfyXyBupWh5FNXxhZPEKOk6o5m7Z1Gi5I1v/k69q+53n6TT8fnFraYYjTI6J1pS84P8nVjmN+cgZWqSXEFDAVgHPtaQoumgSI/eWS1ib6CzVOaZRmvFBQHZ2hdJMi3Ug==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1785801324; c=relaxed/relaxed;
-	bh=QvcmvXr4acqUWBRh7hziDDp8JEZdMtVWzfIqcampLcw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=G0M6Bhhk7yI5IVyZLbt/G2qTXbpT4oleQ7y9TVr5ZvtADdgh/bJ7Xa/LWWn16VWUIG5CZZgjpw/tDewa6vZ0GeobrL2uSX9LwfQjrBBIQw6N0eASBEwd6NoS79khki4grl/N6w4PJ5PayFYfpaM8c0EbVNhWYLUrWfxDrf6CwtZN57YyKAA04qCz00HFO8CtEP3UgA6bIEPoNgG3JUhlQRlkUrqM0dVC2iIKtif/WP8Zg+dADu/3Irnvf5Z+xw+4fad5kwpn/0Iuia/7JpD+VUuGbz6RU6T3Kovtsq7P6QcWietxpiMGsAuJGm89jB/HnEN50PYqBp3E1PT8UbVokQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtGEZUNf; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1785814355; c=relaxed/relaxed;
+	bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HyU/sMTwzKORDr+qwKjDYf/W8ztfsuaP2gj6D2D5g8l5Rc6WlpI4CgsewLW9VUDTWGRVJPW20ZcJSH1+bEk6kI8ZPoM/Vqypyb412VYbJ2/+CZQgavP4GMLZNsQntB1ygD316VcaGn9zrIDj6oH65IsyuZ0ubweBk7t2husDltEn10fSPfQbU+S9d2z9UU3CooA9KHFGyvF4LZOA4QR+6SYDbjxTrhx4ivXeFo5EobLd2QbKaobV7zqOI3HfqlLeM6wav4eq2RCbdc44jpttcmsJXhwQuYiaAvWcsKUWAFu8ecVkDbOTn2wO0LeuZ0J2lnOBJ2ZiB+DEFsFWQ2RacA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=K3lk5fJV; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtGEZUNf;
+	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20251104.gappssmtp.com header.i=@amutable-com.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=K3lk5fJV;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::331; helo=mail-wm1-x331.google.com; envelope-from=martin@amutable.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDYT80CVXz2yWK
-	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 09:55:23 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id D0A1B60A60;
-	Mon,  3 Aug 2026 23:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77A071F000E9;
-	Mon,  3 Aug 2026 23:55:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785801320;
-	bh=QvcmvXr4acqUWBRh7hziDDp8JEZdMtVWzfIqcampLcw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RtGEZUNfVk1jOgNOJwApSJ93O6cVC45ktiN2j42C43XLae4gT7K0HxtErE329zu6Y
-	 4q1mEBzTDnzUbmn1OURLkSbBTmQJewI+Y6tf5wHTwUYU05Z3Meug4Fm+oc4/qqZqXE
-	 xSaSxhssLrPHFanyR2w62mPUk2uHFQDsY+APGSl/m/zgFlQfzvQqSXOELjBmVyK5Z2
-	 ZH2j1I/wSxiSXllvvgkwdz24/JoVF76jb877bCjAEig9Bko1o5oI3KFWoKE4hg+/Cl
-	 /ZTzrxndYjiGyPujGg8KW0p1CK5WBj4Vxu8QsyZXgGXwSUpyd7LTOBAIHjESgRcrXJ
-	 skL+Bc38weOCA==
-Date: Tue, 4 Aug 2026 07:55:09 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Zi Yan <ziy@nvidia.com>
-Cc: David Hildenbrand <david@kernel.org>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <nico.pache@linux.dev>,
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
-	Usama Arif <usama.arif@linux.dev>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Kairui Song <kasong@tencent.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Jan Kara <jack@suse.cz>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH RFC 07/14] fs/erofs: mm/pagemap: add
- readahead_folio_reverse() to avoid folio->private
-Message-ID: <anEqXXa69OpwJ7ej@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Zi Yan <ziy@nvidia.com>,
-	David Hildenbrand <david@kernel.org>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <nico.pache@linux.dev>,
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
-	Usama Arif <usama.arif@linux.dev>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Kairui Song <kasong@tencent.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Jan Kara <jack@suse.cz>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org
-References: <20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com>
- <20260731-remove-pg_private-v1-7-142c97ba3562@nvidia.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hDfHh6Hfjz2xns
+	for <linux-erofs@lists.ozlabs.org>; Tue, 04 Aug 2026 13:32:32 +1000 (AEST)
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-4954dff6536so18730475e9.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 03 Aug 2026 20:32:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amutable-com.20251104.gappssmtp.com; s=20251104; t=1785814348; x=1786419148; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
+        b=K3lk5fJVoVM0jTGwg2+RbL81eVqTOziiIRsrPfWRgl12pFQJwkMw2yP7pbX46lk1K4
+         iBJmUy36lcHQuBm4tRAhSWrfgr/oKmHxJIyF2xoEm1hcqkWYHlMSclPvusvnf6EOT/52
+         TiN4Y0/3yF1v5Rsrrd7wl2iW8W921Zsdg+xnju4Mu0d2vj65hLiI9Z/bBH07/O02dYGL
+         SEnSFD76P3FGx5QtJFUTqBz7OdDzDqNH8QEb3yPw8OCrElRoOj97WId7Ymv5K7PeYZ8F
+         8FOMNR9U9hAzp3R7KmoFg3IcEX7zBQ+aryw1Jnu7dIrXPH0waE8QKsz6fDV33rvmhb1b
+         pjQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785814348; x=1786419148;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=o98NXqnAYHwQybxb9Ge4hv5AGm9QJlt2H3CbqlJwKRU=;
+        b=CzKkdyTXsNccs15K4WWwfKgDA+uVIaLZODxdGv89YvX7T8yOO74cmTOwhUuFLZpBlf
+         S7oWLxbgyZo4dALN+XgXhOV5Za9D7HAznLx2IaQz5KqgZh2qr/a+ITnXdPBywu3grrYx
+         TL9S4KKXmXuLtR67Hw70KjnkDhjgRJ5ixk6W69vu1gnZ5ZrjBx0WOeLySDd20+i5kvZR
+         yvfngHgX35DpJL6YL94rimld0uDqDFo5JOblj3RRESxBcPUEhePZqNpBuTiDPUZssAMo
+         3sp4idtExom7Cs7zw0cEOGIdprRedf+PZGMzJvqYh7/540038FA4u4gfk5qiGTxxaYIB
+         uy7w==
+X-Gm-Message-State: AOJu0YyQHREmhhyYY1765Lp1IEHUY0t2VUQrkMCrTCQoma4I2KvJzddG
+	F14SMJzzbnuNP2Pr6OqI2cOeGBGWGpBE+DHSW9XgU1DYOM03NnWed570nsG2BkXpHRzd3gbfaa/
+	DYy7GhK2D
+X-Gm-Gg: AR+sD12EoEx9KaqdToBRAWNojLJPNSG867PtVONpXi5e4Az52uA/vjB3ETPzhAZYhCu
+	jHuEtsyOJVlV6/xm0Y3RWmZoeCFNXxvEhWwuY/oGkx40iXi/j8kDgyLbiFkNJ24OIePOHGzSHwo
+	b19BDmg1VORI7Wa4MkVhkg01IRwTgckTgZgDjF9S0PmtMdXoAfKJRbMDDVvWfqMSujSutSF29Ao
+	Xxq/2hLKad6ls5tv67MMry0pRY5Hpdp7wbjizfSNytkZ34UPJva0QUf5zRYeg9Sc9nz1ntdDZuf
+	BVqnVI8deqkuOuzck0DYNpQcc7JrtYJUSC6tYl86c802xGC1DHm8JRfXgUS/wJAP46cqX4nOpcM
+	aMKgzNZZfAVCLyCML6mEjk+h2dAsOHr8kxbgzkrkz5MBTG1hZJakmHSrQ+2Hhqn/eTmD3TW2W4Y
+	oSCZ4mkvLa9QFa0kBC1cE28d4qq5GI0wij1qQxqr0zPM037TKmLO3IpKtLuXyB3xf8xgb96MMGe
+	44tCYnqq1ex9t12ny2DQIEUB2Hzruxe1eNL+7GnTcUzrFsy2fWs28tduBE=
+X-Received: by 2002:a05:6000:2211:b0:47f:853d:4768 with SMTP id ffacd0b85a97d-47fd72b518emr31588300f8f.20.1785814348046;
+        Mon, 03 Aug 2026 20:32:28 -0700 (PDT)
+Received: from fedora.fritz.box (p200300c78f45f4002fc0e22e545c127a.dip0.t-ipconnect.de. [2003:c7:8f45:f400:2fc0:e22e:545c:127a])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd42d91bfsm41286329f8f.15.2026.08.03.20.32.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Aug 2026 20:32:27 -0700 (PDT)
+From: Martin Pitt <martin@amutable.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>,
+	Yifan Zhao <zhaoyifan28@huawei.com>,
+	Martin Pitt <martin@amutable.com>
+Subject: [PATCH 0/3] erofs-utils: tests: cover the canonical xattr order
+Date: Tue,  4 Aug 2026 05:32:11 +0200
+Message-ID: <20260804033214.211267-1-martin@amutable.com>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -120,87 +90,34 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260731-remove-pg_private-v1-7-142c97ba3562@nvidia.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 31, 2026 at 10:13:30PM -0400, Zi Yan wrote:
-> erofs needs to traverse readahead folios in reverse order to achieve
-> maximum performance by
-> 1. reading all folios from readahead_folio();
-> 2. storing the prior folio pointer in folio->private;
-> 3. traverse from the last folio to the first one.
-> 
-> Add readahead_folio_reverse() to achieve the same function without using
-> folio->private.
-> 
-> It prepares for a future commit that replaces PG_private checks with
-> !folio->private checks. After switching the checks, erofs's use of
-> folio->private without bumping folio refcount can cause unexpected
-> outcomes, e.g., in filemap_release_folio(), try_to_free_buffers() becomes
-> reachable.
-> 
-> No funtional change intended.
-> 
-> Assisted-by: Claude:claude-opus-4-8
-> Assisted-by: Codex:gpt-5
-> Signed-off-by: Zi Yan <ziy@nvidia.com>
-> To: Gao Xiang <xiang@kernel.org>
-> To: Chao Yu <chao@kernel.org>
-> To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> To: Jan Kara <jack@suse.cz>
-> Cc: Yue Hu <zbestahu@gmail.com>
-> Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
-> Cc: Sandeep Dhavale <dhavale@google.com>
-> Cc: Hongbo Li <hongbohbli@tencent.com>
-> Cc: Chunhai Guo <guochunhai@vivo.com>
-> Cc: linux-erofs@lists.ozlabs.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> ---
->  fs/erofs/zdata.c        | 11 ++---------
->  include/linux/pagemap.h | 31 +++++++++++++++++++++++++++++++
->  2 files changed, 33 insertions(+), 9 deletions(-)
-> 
-> diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-> index 74520e9102596..b59f2745a8e72 100644
-> --- a/fs/erofs/zdata.c
-> +++ b/fs/erofs/zdata.c
-> @@ -1902,21 +1902,14 @@ static void z_erofs_readahead(struct readahead_control *rac)
->  	struct inode *realinode = erofs_real_inode(sharedinode, &need_iput);
->  	Z_EROFS_DEFINE_FRONTEND(f, realinode, sharedinode, readahead_pos(rac));
->  	unsigned int nrpages = readahead_count(rac);
-> -	struct folio *head = NULL, *folio;
-> +	struct folio *folio;
->  	int err;
->  
->  	trace_erofs_readahead(realinode, readahead_index(rac), nrpages, false);
->  	z_erofs_pcluster_readmore(&f, rac, true);
-> -	while ((folio = readahead_folio(rac))) {
-> -		folio->private = head;
-> -		head = folio;
-> -	}
->  
->  	/* traverse in reverse order for best metadata I/O performance */
-> -	while (head) {
-> -		folio = head;
-> -		head = folio_get_private(folio);
-> -
-> +	while ((folio = readahead_folio_reverse(rac))) {
+A test for b260119b8edb ("erofs-utils: mkfs: emit an inode's xattrs in a
+canonical order"), plus two portability fixes that I ran into along
+the way. Based on experimental-tests (a3b00c4).
 
-Yes, it's needed due to EROFS compression metadata design and on-demand
-partial decompression, the last extent in the readahead request can be
-parsed as a partial extent (means from the starting logical offset of
-extents to the necessary offset.).   Since there may be many extents
-in a single readahead request, so it needs to iterate backwards here;
-but the actual compressed data I/Os will be issued forwards.
+The test stages the same tree twice with the same attributes set in
+opposite order and compares the two images, so it needs neither root nor a
+mount. It is red without b260119b8edb and green with it. That commit is
+currently only in experimental, so the test fails as long as
+experimental-tests is run without it.
 
-Previously I tend to avoid touching core-mm so it uses folio->private
-but if MM folks can provide a new helper, that would be very helpful
-(one more words: all folios are locked in the forward order previously,
-so it won't have any deadlock risk).
+Martin Pitt (3):
+  erofs-utils: tests: fix broken loop in POSIX shells
+  erofs-utils: tests: look up programs with command -v
+  erofs-utils: tests: check that the xattr layout is order-independent
 
-Thanks,
-Gao Xiang
+ tests/Makefile.am   |  5 ++-
+ tests/common/rc     |  8 ++---
+ tests/erofs/021     |  2 +-
+ tests/erofs/028     |  6 ++--
+ tests/erofs/032     | 77 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/032.out |  2 ++
+ 6 files changed, 91 insertions(+), 9 deletions(-)
+ create mode 100755 tests/erofs/032
+ create mode 100644 tests/erofs/032.out
+
+-- 
+2.55.0
+
 
