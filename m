@@ -1,70 +1,93 @@
-Return-Path: <linux-erofs+bounces-4185-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4186-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 19E23C5B567
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2026 19:37:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A61FC5AD7B
+	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2026 20:31:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hJlQG2QVMz2yvM;
-	Tue, 11 Aug 2026 05:37:26 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:8b0:10b:1236::1"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786390646;
-	cv=none; b=gHB8VQXcjd826AjIrocVjUd7PeqYlE0IZjascRo8x99fvDFLRME3rsTqmPiS4An6lHEiYX0tnUUa4Pu7OBSZiBUcMoGhou4UCHvPx11pFu7mKW3+IbZfRZ9tZOEcgQqzmXUEP6LOs9TmaSoCIQ/nHCGXxkuu70TqXMzpx9SUsWW6ZTHTuNLXT3sgFSi1Np8KF02tC3J4O8eQs5XtLtuC1da6COxLYiuwQorWHG0yfy9BevzpdR0tkE1/9Cm+7hT4z1YlTJ+SBNcbG3bNe5ISmgDa0JfcLX4s78j/iiT0/2207oPktHhpqRfMVwKfjgqTQdKvR4JNvrRnOLNCD37ETg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hJmcg32cLz2yrW;
+	Tue, 11 Aug 2026 06:31:31 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786393891;
+	cv=none; b=EzYSSKCyDT6GVpLCo9ikQWdUjCKW/jxgnFDRkEL8vpScEEOOu4PR/P4M5IfHAThMl1d28w0l7MoRYndEvS2ON6UUyZMygClitHQsHzBHR6Om2+kobtnQPLaNt86Qm4woWRmQkQWtWQx6Vjk+r+IYlhUMQfFRoJVa7Ic2gf8fxuXhpioisBJ/DtLhX/vjiEOc+yjo4hZKOgxYHYdc+8en2lpkRfZ3CI+U+Qft3ialrfaU+Ep6/W4kam6dUaq89klnTtl07y3sbpw9Jeue2VkfBsYQoNBeS8gu0nsF3dwbSk7BNeTUVScT7XQQhI2LpKAiNu6uflM2GAySPW5WP4Sd+w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786390646; c=relaxed/relaxed;
-	bh=w8yXT5X28jD8ZzH4O3pAXcMg6o723h3Ulp37jcRX8zM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dsUYdFlwdALQTDCC2QkCpAAsaFuY8/l1zR8m4x2g/ar9ybXgQriMyYK2TgTBchNJBLeJ1Zp1cp2hE2gdOKMfmq0vqxIA1Kq5xUtp5GniCMu2bkOF5ctjHowM1B9oqPnhJlvjWa+XVy/cog7ANxViQqeqZgDXb0rqxcXOfS87BBK4argBz4VYyFTjZcCrvvyQsfyqhfu9ztgrKOSwPImcaBvTR/lyz7zjAIZUgd9YgMjiqlivscRrYiz64t8MW6xw1iFc3tYRkbYGHM/7fislh5Dfmyh0hjCIiixNv3UeCe3parXqfDn8zkibZc3+GvCPOi4qwYPUPMnhB98bDN5xsw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org; dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=WyOU0EKD; dkim-atps=neutral; spf=pass (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org; envelope-from=willy@infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=infradead.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+	t=1786393891; c=relaxed/relaxed;
+	bh=N+nHIX4qndv3AfBXSobDAVXCw7W2PVPh2/yZZQrRWZU=;
+	h=From:In-Reply-To:References:To:Cc:Subject:MIME-Version:Date:
+	 Message-ID:Content-Type; b=PUH3i+iM171qSFSNGkxcnydYlBxBguWoNt70jKZtbssX3HtY1Bs8CwoAzSN05ro0zxKyIC03YJQnVT/foGlGADxoaQ1VhvLWE/7zdblCRJGwBrpslUUwghzxjNp8v/je7oionhX8qSsZvDSptpT5Ag/VcZ2roqrBWFCuBRl9XgrKWkVJAPnVUChEpX1Gh7D8blFxlgc0Kc4kJpVjGT/qpaK1ReYESbX0e6KRmZT2hCp00irLZ6e6hJbjtxFlKOaYJDvvDrte/pP2Jymy6yJpjiazewRxBa31icpYA0otkcljj3CNKdvwjehtNhp/x39rVgfAsYwZA5UIQKc7uZVmqw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cWLbI9Dj; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DFiienUg; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=WyOU0EKD;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cWLbI9Dj;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DFiienUg;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=infradead.org (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org; envelope-from=willy@infradead.org; receiver=lists.ozlabs.org)
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hJlQ54nvWz2yvG
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 05:37:16 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=w8yXT5X28jD8ZzH4O3pAXcMg6o723h3Ulp37jcRX8zM=; b=WyOU0EKDsMOUdYmkMDteNK0iH7
-	F7H7rskf1JokJLT1sQ+3xAt1pEzIgkcKhjpvQMcjn+SPkJuP24dAXc+GS5rOQWk3hyGKxtSvEnmBQ
-	pdSulUxOSO+5Ikl81Z6EJqFs1Z5Fe5ZdnwawU1wzR32ZA4dea55YLGSTXpEslBD5OWVpqJMwHiwW0
-	yAp7+IHx0GoJ+uRa2276XVR5u1tSr7g87aYgAVkRYjCRDfobiAsEyLcLUYHMeLGTRdnqN5Ecdwc2B
-	Bk6L64D/tgDrL4L6zUmRIYHoGlnCWfC9pUN73VJQM6UkqdDR48ZANjy8hz4tUKzR4rOLjtpRRUJ2B
-	qLnlp2Zg==;
-Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wtVn9-00000000ss5-2mP1;
-	Mon, 10 Aug 2026 19:36:11 +0000
-Date: Mon, 10 Aug 2026 20:36:11 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Christian Brauner <christian@brauner.io>,
-	Christoph Hellwig <hch@infradead.org>,
-	Paulo Alcantara <pc@manguebit.org>, Jens Axboe <axboe@kernel.dk>,
-	Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>,
-	ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Stefan Metzmacher <metze@samba.org>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Ilya Dryomov <idryomov@gmail.com>, netfs@lists.linux.dev,
-	linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
-	linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-	v9fs@lists.linux.dev, linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-block@vger.kernel.org
-Subject: Re: [PATCH v9 04/26] Add a function to kmap one page of a multipage
- bio_vec
-Message-ID: <anooK9-UCNTmoSAq@casper.infradead.org>
-References: <20260810144746.574036-1-dhowells@redhat.com>
- <20260810144746.574036-5-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hJmcd5TcQz2xLf
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 06:31:27 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786393883;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=N+nHIX4qndv3AfBXSobDAVXCw7W2PVPh2/yZZQrRWZU=;
+	b=cWLbI9DjNZqP0bOUzpNFWt4VUzsxt6tCIww0Ph97nrSdcZFKCYwjcVCddbpcrG4O4LJJa4
+	DE7QACMNte5lUMzuMX7mZWsc+HOQR86/6vFdJvLe1vbImzaLoJF1w3kKi3BfSY79taWME2
+	b2qxD0gRoL7DF8ClSY3qDTNmEGsRYQ8=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786393884;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=N+nHIX4qndv3AfBXSobDAVXCw7W2PVPh2/yZZQrRWZU=;
+	b=DFiienUgnF3IlOJMVoM+bk5Jlh6DaIAQmvROAblki+M0HbGvCADmIzd/awcB0k9hyuGH0e
+	Y1+YNy5ixtQ5bvLUlIXmU+sDUklUWvEC+aE/CCpe+ouoV76opboFK+Uo/78S7tQ4T5HST+
+	J6W+JO0P+2/7xQq77AORKmV6sZFABZw=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-278-8366SUk-OtWzAoVznGm_-g-1; Mon,
+ 10 Aug 2026 16:31:19 -0400
+X-MC-Unique: 8366SUk-OtWzAoVznGm_-g-1
+X-Mimecast-MFC-AGG-ID: 8366SUk-OtWzAoVznGm_-g_1786393877
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 03F33195608A;
+	Mon, 10 Aug 2026 20:31:15 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.44.32.44])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2A89D1800346;
+	Mon, 10 Aug 2026 20:31:04 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+	Kingdom.
+	Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <anooK9-UCNTmoSAq@casper.infradead.org>
+References: <anooK9-UCNTmoSAq@casper.infradead.org> <20260810144746.574036-1-dhowells@redhat.com> <20260810144746.574036-5-dhowells@redhat.com>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: dhowells@redhat.com, Christian Brauner <christian@brauner.io>,
+    Christoph Hellwig <hch@infradead.org>,
+    Paulo Alcantara <pc@manguebit.org>, Jens Axboe <axboe@kernel.dk>,
+    Leon Romanovsky <leon@kernel.org>, Steve French <sfrench@samba.org>,
+    ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
+    Marc Dionne <marc.dionne@auristor.com>,
+    Stefan Metzmacher <metze@samba.org>,
+    Eric Van Hensbergen <ericvh@kernel.org>,
+    Dominique Martinet <asmadeus@codewreck.org>,
+    Ilya Dryomov <idryomov@gmail.com>, netfs@lists.linux.dev,
+    linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
+    linux-nfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+    v9fs@lists.linux.dev, linux-erofs@lists.ozlabs.org,
+    linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+    linux-block@vger.kernel.org
+Subject: Re: [PATCH v9 04/26] Add a function to kmap one page of a multipage bio_vec
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -76,57 +99,27 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260810144746.574036-5-dhowells@redhat.com>
+Date: Mon, 10 Aug 2026 21:31:03 +0100
+Message-ID: <586048.1786393863@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-MFC-PROC-ID: bGKn2caPBYVVck_vaFDrdA0zQCpp-YUH9fplEmD7XYU_1786393877
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <586047.1786393863.1@warthog.procyon.org.uk>
 
-On Mon, Aug 10, 2026 at 03:47:21PM +0100, David Howells wrote:
-> Add a function to kmap one page of a multipage bio_vec by offset (which is
-> added to the offset in the bio_vec internally).  The caller is responsible
-> for calculating how much of the page is then available.
+Matthew Wilcox <willy@infradead.org> wrote:
 
-I think this should be kmap_local_bvec().  Living in bvec.h makes sense,
-but keeping it in the kmap_local_ namespace is better than putting it in
-the bvec_ namespace.
-
-The bvec should be const-qualified.  We're not very good at
-being const-clean, but let's try harder ;-)
-
-I think it's better to steal the same terminology for the kernel-doc
-used in highmem.h, just for consistency:
-
-/**
- * kmap_local_bvec - Map a page in this bvec for temporary usage
- * @bvec: The bvec containing the page.
- * @offset: The first byte within the bvec to map.
- *
- * This will not map the entire bvec, only the page containing @offset
- * from the start of @bvec.  Unmap the address with kunmap_local().
- * See kmap_local_page() for nesting rules.
- *
- * Context: Interrupt or process context.
- * Return: A pointer to a temporary mapping.
- */
-
-> +/**
-> + * bvec_kmap_partial - Map part of a bvec into the kernel virtual address space
-> + * @bvec: bvec to map
-> + * @offset: Offset into bvec
-> + *
-> + * Map the page containing the byte at @offset into the kernel virtual address
-> + * space.  The caller is responsible for making sure this doesn't overrun.
-> + *
-> + * Call kunmap_local on the returned address to unmap.
-> + */
-> +static inline void *bvec_kmap_partial(struct bio_vec *bvec, size_t offset)
-> +{
-> +	offset += bvec->bv_offset;
-> +
-> +	return kmap_local_page(bvec->bv_page + (offset >> PAGE_SHIFT)) +
-> +		(offset & ~PAGE_MASK);
-> +}
-> +
->  #endif /* __LINUX_BVEC_H */
+> On Mon, Aug 10, 2026 at 03:47:21PM +0100, David Howells wrote:
+> > Add a function to kmap one page of a multipage bio_vec by offset (which is
+> > added to the offset in the bio_vec internally).  The caller is responsible
+> > for calculating how much of the page is then available.
 > 
-> 
+> I think this should be kmap_local_bvec().  Living in bvec.h makes sense,
+> but keeping it in the kmap_local_ namespace is better than putting it in
+> the bvec_ namespace.
+
+Christoph disagrees with you:-/
+
+David
+
 
