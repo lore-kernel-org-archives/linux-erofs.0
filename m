@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-4158-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4159-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA3A5C5AD55
-	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2026 14:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C97DBC5AD55
+	for <linux-erofs@archiver.kernel.org>; Mon, 10 Aug 2026 14:48:58 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hJd1330n7z300M;
-	Tue, 11 Aug 2026 00:48:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786373319;
-	cv=none; b=RbMKXxUHjmwWcbMJ/a9tgpWplkuULE6+WULWQV2/vn/sof4Ft+zpDf7sG0e2xgtq92fRnazTlTehzHIJ4qlb4Qfi4Vma9ovdLQ9jPv4BVxE6MZtyqoiPANV10/Ma28WcZwHDbCCbW6YWHFf8hAQeZanXsAMtpWVmm+Ub/vfKhKBtLoRAT79u05qPvwwPrNB99u4B5saNzs/m+PRDzlIWHyFYo8FaP0cVmFFRG/h5yEbi0tONxYEPBFshSYrU0EcZhsXZgma1H3rkA5xxixWdMxCpZ8S5C2z5FctL1jlzSbHQtA2xQwVmYPBu9jTRUyHIh3EZwrEjNOhhtdsUL0ueyw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hJd1P2HHsz2yxG;
+	Tue, 11 Aug 2026 00:48:57 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786373337;
+	cv=none; b=aPqqJz7IC76GsPKQhHKVxeMcriBg+aU+FjpXzqsiu9fh/snkWDn+OzG11Kn1POKP2LjYvbNWcxu5nsxOv6HA/nbNZlLTvDXLy7Ot4ygaqiQW2vB7dG4U/wlGNVq8AG0UzAnDoMHuURftQsNKY4PH/hXlxknByF0NsZsZ9+N4vQr0x0R5fbakvdIVfOmj7V6B4d1aY6R7cvD9bgdpJLSXzcIwXOjccJ00GH5R44qmn9PtPCVRLCZlXZ225HO05wAxiqkRQIqx5TbQlt5CsEu4aBvdWKFvLD1sOHRWobt60fwhjpTohw91LBAuqzY15nUEA0sERp88uZOyQDQ9G1GRmA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786373319; c=relaxed/relaxed;
-	bh=g2BfpkPycKYVj+xjqdE/OxmX8KlAud6xJHumMYNTVLE=;
+	t=1786373337; c=relaxed/relaxed;
+	bh=w7ShGW+upZHR5mu8dwZINAuw/Lvw06ThB7+ja2GcOFA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=nCGTpkeKUjt4KSxCqHs0Sy1tgcB61qC0egmkROPTv5e98Cxd+q+ZjzlcoMaX4U7V/cw7RyG973s+2U3bDypI++M9zL7bgMuoZr7IHOwQK6qndMINce+WS/BInCI3oVpsRuJJIhOaoJmpFwaraM8N6ZXDgiOMW0NhIjxZ3Xi50AmNikwuQZ6+5lYs80mx6iyOdSUoo5VIuB4PZ63z6tt+D4NoPe8HRSgxklUqxGqyapssn/ntl5iO1OVWY5LjIJWjVDb6F8GPpG5dTS9Eer9qOobwAxI5Fgv4oSHhbwYrP4ProVhS6SNo+k7RTnvgdzHYdasHB21oXpYu+2kJM7NzhQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SXEerlCR; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=f2sDSarN; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=HrffZI88T6QL3GyP+qZGipSRRobMiKA2tIjmNXl5Y9m/YxOMzOKaX6EEWbXGHFDCZAuZd8RE43c4ftCpNhhP8mY85Ia/k2W23kjwQGIEoOHr9d/JPyakn9Ngtfo9jI0pxyUFQWQL44hHg2YwWtHXPC/DF37y3d2ty44ecZ+5O+0clas9mxSmRMGWyJlYc4yP0yhEUY+P+h1tC4twj8VZqm57dnOxW5It1BU0+fXIdMiLBuax2XKYtbm/DRmaCzlkhDsCTu6k+QeFcP0QypfQXjHkQyeF2lMfWbg25zN6AzqIJSLzu7QleWcDR2O+bkGOBpy+i2VwlhfFvj3baczNzQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EtKOEM3t; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EtKOEM3t; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SXEerlCR;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=f2sDSarN;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EtKOEM3t;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EtKOEM3t;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hJd116Swdz2ytv
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 00:48:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hJd1N27hpz2ytv
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 00:48:55 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786373314;
+	s=mimecast20190719; t=1786373332;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=g2BfpkPycKYVj+xjqdE/OxmX8KlAud6xJHumMYNTVLE=;
-	b=SXEerlCROjG/YLEf8gUUAc4g3A9lZTrOqADy0NIrAxV07GcDRsFXLPfOwtvg+pQy1Nb8YG
-	wO9pSukkMRnBdgh+BA5Smqx5PFqcz8OfxF6xOI1CEmHMD2fJsfXT6P3Ppjv6NfCfyJ+dex
-	9mfmY+31IAVXHvldsEjVFueOeLYFcQI=
+	bh=w7ShGW+upZHR5mu8dwZINAuw/Lvw06ThB7+ja2GcOFA=;
+	b=EtKOEM3tWxc7FFgRwuasVj1CRP228og5Oy6Z4Lu5WhcnoORROeHwiVd6tLX/4/O47nawtp
+	m9YfbLQe1LWBoVD797hw585p6kiM2m+86MljAat4wXS1+LdAvtuJ82XPR+TS7qVIsfLMKx
+	rlvCUK5GdmnK/CeHIFg3CW+nYOh/Jow=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786373315;
+	s=mimecast20190719; t=1786373332;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=g2BfpkPycKYVj+xjqdE/OxmX8KlAud6xJHumMYNTVLE=;
-	b=f2sDSarNnCUa9CKJfxuDZeJci9BAurTrs3nwFhWco6rbUEvKpzVylIy4Lt2da0+Da9OzIt
-	5Wt0H1Tj+L0BHevxruIAszNZ80ZBbMk984uVnaFAkGC4TyyMmKTRc1OfMO+18hj4L8+m4h
-	XNpV95jac+ow+XLSlrlUQowIgiD6mcI=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=w7ShGW+upZHR5mu8dwZINAuw/Lvw06ThB7+ja2GcOFA=;
+	b=EtKOEM3tWxc7FFgRwuasVj1CRP228og5Oy6Z4Lu5WhcnoORROeHwiVd6tLX/4/O47nawtp
+	m9YfbLQe1LWBoVD797hw585p6kiM2m+86MljAat4wXS1+LdAvtuJ82XPR+TS7qVIsfLMKx
+	rlvCUK5GdmnK/CeHIFg3CW+nYOh/Jow=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-550-tVVCHnIGOxqaJozPLMZICg-1; Mon,
- 10 Aug 2026 10:48:32 -0400
-X-MC-Unique: tVVCHnIGOxqaJozPLMZICg-1
-X-Mimecast-MFC-AGG-ID: tVVCHnIGOxqaJozPLMZICg_1786373309
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-115-pyJjQk5AMY6R7tA3wSApew-1; Mon,
+ 10 Aug 2026 10:48:47 -0400
+X-MC-Unique: pyJjQk5AMY6R7tA3wSApew-1
+X-Mimecast-MFC-AGG-ID: pyJjQk5AMY6R7tA3wSApew_1786373324
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3D51B1956045;
-	Mon, 10 Aug 2026 14:48:28 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3F3201800655;
+	Mon, 10 Aug 2026 14:48:44 +0000 (UTC)
 Received: from warthog.procyon.org.com (unknown [10.44.32.44])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9333F1800346;
-	Mon, 10 Aug 2026 14:48:21 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5092D180034C;
+	Mon, 10 Aug 2026 14:48:38 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>,
 	Matthew Wilcox <willy@infradead.org>,
@@ -90,10 +90,10 @@ Cc: David Howells <dhowells@redhat.com>,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-Subject: [PATCH v9 03/26] netfs: Bulk load the readahead-provided folios up front
-Date: Mon, 10 Aug 2026 15:47:20 +0100
-Message-ID: <20260810144746.574036-4-dhowells@redhat.com>
+	linux-block@vger.kernel.org
+Subject: [PATCH v9 05/26] iov_iter: Make iov_iter_get_pages*() wrap iov_iter_extract_pages()
+Date: Mon, 10 Aug 2026 15:47:22 +0100
+Message-ID: <20260810144746.574036-6-dhowells@redhat.com>
 In-Reply-To: <20260810144746.574036-1-dhowells@redhat.com>
 References: <20260810144746.574036-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -108,444 +108,229 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: x0GBn8dDBY8Ifb5FqdTdriyOXPkZh4zuOZzi03O_yqM_1786373309
+X-Mimecast-MFC-PROC-ID: Y-C3b8Ol46QjTo57VCI53GppSl-XYdQHjTUzXe4v2mw_1786373324
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Load all the folios by the VM for readahead up front into the folio queue.
-With the number of folios provided by the VM, the folio queue can be fully
-allocated first and then the loading happen in one go inside the RCU read
-lock.  The folio refs acquired from readahead are dropped in bulk once the
-first subrequest is dispatched as it's quite a slow operation.  The
-collector waits for NETFS_RREQ_NEED_PUT_RA_REFS to be cleared so that it
-doesn't unlock folios before the xarray has been scanned for them.
-
-This simplifies the buffer handling later and isn't noticeably slower as
-the xarray doesn't need to be modified and the folios are all already
-pre-locked.
+Make iov_iter_get_pages*() wrap iov_iter_extract_pages() for kernel
+iterator types (e.g. ITER_BVEC, ITER_FOLIOQ, ITER_XARRAY).  The pages
+obtained have their refcounts incremented afterwards if they're not slab
+pages.  ITER_KVEC is left returning -EFAULT.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 Reviewed-by: Paulo Alcantara (Red Hat) <pc@manguebit.org>
 cc: Matthew Wilcox <willy@infradead.org>
+cc: Christoph Hellwig <hch@infradead.org>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: linux-block@vger.kernel.org
 cc: netfs@lists.linux.dev
-cc: linux-mm@kvack.org
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/netfs/buffered_read.c       | 102 +++++++++++++++++++--------------
- fs/netfs/internal.h            |   1 +
- fs/netfs/misc.c                |  19 ++++++
- fs/netfs/read_collect.c        |   7 +++
- fs/netfs/read_retry.c          |   7 +++
- fs/netfs/rolling_buffer.c      |  75 ++++++++++++++++++++++++
- include/linux/netfs.h          |   1 +
- include/linux/rolling_buffer.h |   3 +
- include/trace/events/netfs.h   |   3 +
- 9 files changed, 176 insertions(+), 42 deletions(-)
+ lib/iov_iter.c | 164 ++++++-------------------------------------------
+ 1 file changed, 19 insertions(+), 145 deletions(-)
 
-diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
-index af14beeb6d11..55ef81173a44 100644
---- a/fs/netfs/buffered_read.c
-+++ b/fs/netfs/buffered_read.c
-@@ -54,6 +54,42 @@ static void netfs_rreq_expand(struct netfs_io_request *rreq,
- 	}
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index c2484551a4e8..31afc9687eb6 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -910,118 +910,34 @@ static int want_pages_array(struct page ***res, size_t size,
+ 	return count;
  }
  
+-static ssize_t iter_folioq_get_pages(struct iov_iter *iter,
 +/*
-+ * Drop the folio refs acquired from the readahead API.
++ * Wrap iov_iter_extract_pages() and then pin the non-slab pages we got back.
++ * This only works for non-user iterator types as get_pages uses get_user_pages
++ * not pin_user_pages.
 + */
-+static void netfs_bulk_drop_ra_refs(struct netfs_io_request *rreq)
-+{
-+	struct folio_batch fbatch;
-+	struct folio *folio;
-+	pgoff_t nr_pages = DIV_ROUND_UP(rreq->len, PAGE_SIZE);
-+	pgoff_t first = rreq->start / PAGE_SIZE;
-+	XA_STATE(xas, &rreq->mapping->i_pages, first);
-+
-+	folio_batch_init(&fbatch);
-+
-+	rcu_read_lock();
-+
-+	xas_for_each(&xas, folio,  first + nr_pages - 1) {
-+		if (xas_retry(&xas, folio))
-+			continue;
-+
-+		if (!folio_batch_add(&fbatch, folio))
-+			folio_batch_release(&fbatch);
-+	}
-+
-+	rcu_read_unlock();
-+	folio_batch_release(&fbatch);
-+	trace_netfs_rreq(rreq, netfs_rreq_trace_ra_put_ref);
-+	clear_bit_unlock(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags);
-+	wake_up(&rreq->waitq);
-+}
-+
-+static void netfs_maybe_bulk_drop_ra_refs(struct netfs_io_request *rreq)
-+{
-+	if (test_bit(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags))
-+		netfs_bulk_drop_ra_refs(rreq);
-+}
-+
- /*
-  * Begin an operation, and fetch the stored zero point value from the cookie if
-  * available.
-@@ -74,12 +110,8 @@ static int netfs_begin_cache_read(struct netfs_io_request *rreq, struct netfs_in
-  *
-  * Returns the limited size if successful and -ENOMEM if insufficient memory
-  * available.
-- *
-- * [!] NOTE: This must be run in the same thread as ->issue_read() was called
-- * in as we access the readahead_control struct.
-  */
--static ssize_t netfs_prepare_read_iterator(struct netfs_io_subrequest *subreq,
--					   struct readahead_control *ractl)
-+static ssize_t netfs_prepare_read_iterator(struct netfs_io_subrequest *subreq)
++static ssize_t iter_get_kernel_pages(struct iov_iter *iter,
+ 				     struct page ***ppages, size_t maxsize,
+ 				     unsigned maxpages, size_t *_start_offset)
  {
- 	struct netfs_io_request *rreq = subreq->rreq;
- 	size_t rsize = subreq->len;
-@@ -87,33 +119,6 @@ static ssize_t netfs_prepare_read_iterator(struct netfs_io_subrequest *subreq,
- 	if (subreq->source == NETFS_DOWNLOAD_FROM_SERVER)
- 		rsize = umin(rsize, rreq->io_streams[0].sreq_max_len);
+-	const struct folio_queue *folioq = iter->folioq;
+ 	struct page **pages;
+-	unsigned int slot = iter->folioq_slot;
+-	size_t extracted = 0, count = iter->count, iov_offset = iter->iov_offset;
++	ssize_t ret, done;
  
--	if (ractl) {
--		/* If we don't have sufficient folios in the rolling buffer,
--		 * extract a folioq's worth from the readahead region at a time
--		 * into the buffer.  Note that this acquires a ref on each page
--		 * that we will need to release later - but we don't want to do
--		 * that until after we've started the I/O.
--		 */
--		struct folio_batch put_batch;
+-	if (slot >= folioq_nr_slots(folioq)) {
+-		folioq = folioq->next;
+-		slot = 0;
+-		if (WARN_ON(iov_offset != 0))
+-			return -EIO;
+-	}
++	ret = iov_iter_extract_pages(iter, ppages, maxsize, maxpages,
++				     0, _start_offset);
++	if (ret <= 0)
++		return ret;
+ 
+-	maxpages = want_pages_array(ppages, maxsize, iov_offset & ~PAGE_MASK, maxpages);
+-	if (!maxpages)
+-		return -ENOMEM;
+-	*_start_offset = iov_offset & ~PAGE_MASK;
+ 	pages = *ppages;
++	for (done = ret + *_start_offset; done > 0; done -= PAGE_SIZE) {
++		struct folio *folio = page_folio(*pages);
+ 
+-	for (;;) {
+-		struct folio *folio = folioq_folio(folioq, slot);
+-		size_t offset = iov_offset, fsize = folioq_folio_size(folioq, slot);
+-		size_t part = PAGE_SIZE - offset % PAGE_SIZE;
 -
--		folio_batch_init(&put_batch);
--		while (rreq->submitted < subreq->start + rsize) {
--			ssize_t added;
+-		if (offset < fsize) {
+-			part = umin(part, umin(maxsize - extracted, fsize - offset));
+-			count -= part;
+-			iov_offset += part;
+-			extracted += part;
 -
--			added = rolling_buffer_load_from_ra(&rreq->buffer, ractl,
--							    &put_batch);
--			if (added < 0) {
--				folio_batch_release(&put_batch);
--				return added;
--			}
--
--			if (!rreq->progress_at)
--				rreq->progress_at = folioq_folio_size(rreq->buffer.tail, 0);
--			rreq->submitted += added;
+-			*pages = folio_page(folio, offset / PAGE_SIZE);
+-			get_page(*pages);
+-			pages++;
+-			maxpages--;
 -		}
--		folio_batch_release(&put_batch);
+-
+-		if (maxpages == 0 || extracted >= maxsize)
+-			break;
+-
+-		if (iov_offset >= fsize) {
+-			iov_offset = 0;
+-			slot++;
+-			if (slot == folioq_nr_slots(folioq) && folioq->next) {
+-				folioq = folioq->next;
+-				slot = 0;
+-			}
+-		}
 -	}
 -
- 	subreq->len = rsize;
- 	if (unlikely(rreq->io_streams[0].sreq_max_segs)) {
- 		size_t limit = netfs_limit_iter(&rreq->buffer.iter, 0, rsize,
-@@ -211,8 +216,7 @@ static void netfs_issue_read(struct netfs_io_request *rreq,
-  * slicing up the region to be read according to available cache blocks and
-  * network rsize.
-  */
--static void netfs_read_to_pagecache(struct netfs_io_request *rreq,
--				    struct readahead_control *ractl)
-+static void netfs_read_to_pagecache(struct netfs_io_request *rreq)
- {
- 	unsigned long long start = rreq->start;
- 	ssize_t size = rreq->len;
-@@ -291,7 +295,7 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq,
- 		break;
- 
- 	issue:
--		slice = netfs_prepare_read_iterator(subreq, ractl);
-+		slice = netfs_prepare_read_iterator(subreq);
- 		if (slice < 0) {
- 			ret = slice;
- 			netfs_cancel_read(subreq, ret);
-@@ -305,6 +309,7 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq,
- 		}
- 
- 		netfs_issue_read(rreq, subreq);
-+		netfs_maybe_bulk_drop_ra_refs(rreq);
- 
- 		if (test_bit(NETFS_RREQ_PAUSE, &rreq->flags))
- 			netfs_wait_for_paused_read(rreq);
-@@ -343,6 +348,7 @@ void netfs_readahead(struct readahead_control *ractl)
- 	struct netfs_io_request *rreq;
- 	struct netfs_inode *ictx = netfs_inode(ractl->mapping->host);
- 	unsigned long long start = readahead_pos(ractl);
-+	ssize_t added;
- 	size_t size = readahead_length(ractl);
- 	int ret;
- 
-@@ -363,11 +369,23 @@ void netfs_readahead(struct readahead_control *ractl)
- 
- 	netfs_rreq_expand(rreq, ractl);
- 
--	rreq->submitted = rreq->start;
--	if (rolling_buffer_init(&rreq->buffer, rreq->debug_id, ITER_DEST, rreq->gfp) < 0)
-+	/* Load the folios to be read into a bvecq chain.  Note that this
-+	 * acquires a ref on each folio that we will need to release later -
-+	 * but we don't want to do that until after we've started the I/O.
-+	 */
-+	added = rolling_buffer_bulk_load_from_ra(&rreq->buffer, ractl, rreq->debug_id);
-+	if (added < 0) {
-+		ret = added;
- 		goto cleanup_free;
--	netfs_read_to_pagecache(rreq, ractl);
-+	}
-+	__set_bit(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags);
-+
-+	rreq->submitted = rreq->start + added;
-+	rreq->cleaned_to = rreq->start;
-+	rreq->progress_at = folioq_folio_size(rreq->buffer.tail, 0);
- 
-+	netfs_read_to_pagecache(rreq);
-+	netfs_maybe_bulk_drop_ra_refs(rreq);
- 	return netfs_put_request(rreq, netfs_rreq_trace_put_return);
- 
- cleanup_free:
-@@ -461,7 +479,7 @@ static int netfs_read_gaps(struct file *file, struct folio *folio)
- 	iov_iter_bvec(&rreq->buffer.iter, ITER_DEST, bvec, i, rreq->len);
- 	rreq->submitted = rreq->start + flen;
- 
--	netfs_read_to_pagecache(rreq, NULL);
-+	netfs_read_to_pagecache(rreq);
- 
- 	ret = netfs_wait_for_read(rreq);
- 	if (ret >= 0) {
-@@ -536,7 +554,7 @@ int netfs_read_folio(struct file *file, struct folio *folio)
- 	if (ret < 0)
- 		goto discard;
- 
--	netfs_read_to_pagecache(rreq, NULL);
-+	netfs_read_to_pagecache(rreq);
- 	ret = netfs_wait_for_read(rreq);
- 	netfs_put_request(rreq, netfs_rreq_trace_put_return);
- 	return ret < 0 ? ret : 0;
-@@ -693,7 +711,7 @@ int netfs_write_begin(struct netfs_inode *ctx,
- 	if (ret < 0)
- 		goto error_put;
- 
--	netfs_read_to_pagecache(rreq, NULL);
-+	netfs_read_to_pagecache(rreq);
- 	ret = netfs_wait_for_read(rreq);
- 	netfs_put_request(rreq, netfs_rreq_trace_put_return);
- 	if (ret < 0)
-@@ -758,7 +776,7 @@ int netfs_prefetch_for_write(struct file *file, struct folio *folio,
- 	if (ret < 0)
- 		goto error_put;
- 
--	netfs_read_to_pagecache(rreq, NULL);
-+	netfs_read_to_pagecache(rreq);
- 	ret = netfs_wait_for_read(rreq);
- 	netfs_put_request(rreq, netfs_rreq_trace_put_return);
- 	return ret < 0 ? ret : 0;
-diff --git a/fs/netfs/internal.h b/fs/netfs/internal.h
-index 420ee7b26580..bd8b2d633f96 100644
---- a/fs/netfs/internal.h
-+++ b/fs/netfs/internal.h
-@@ -79,6 +79,7 @@ ssize_t netfs_wait_for_read(struct netfs_io_request *rreq);
- ssize_t netfs_wait_for_write(struct netfs_io_request *rreq);
- void netfs_wait_for_paused_read(struct netfs_io_request *rreq);
- void netfs_wait_for_paused_write(struct netfs_io_request *rreq);
-+void netfs_wait_for_put_ra_refs(struct netfs_io_request *rreq);
- 
- /*
-  * objects.c
-diff --git a/fs/netfs/misc.c b/fs/netfs/misc.c
-index 5d554512ed23..f5c1c463f4ff 100644
---- a/fs/netfs/misc.c
-+++ b/fs/netfs/misc.c
-@@ -563,3 +563,22 @@ void netfs_wait_for_paused_write(struct netfs_io_request *rreq)
- {
- 	return netfs_wait_for_pause(rreq, netfs_write_collection);
- }
-+
-+/*
-+ * Wait for the readahead-acquired refs to be put.
-+ */
-+void netfs_wait_for_put_ra_refs(struct netfs_io_request *rreq)
-+{
-+	DEFINE_WAIT(myself);
-+
-+	for (;;) {
-+		trace_netfs_rreq(rreq, netfs_rreq_trace_wait_put_ra_refs);
-+		prepare_to_wait(&rreq->waitq, &myself, TASK_UNINTERRUPTIBLE);
-+		if (!test_bit(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags))
-+			break;
-+		schedule();
-+	}
-+
-+	trace_netfs_rreq(rreq, netfs_rreq_trace_waited_put_ra_refs);
-+	finish_wait(&rreq->waitq, &myself);
-+}
-diff --git a/fs/netfs/read_collect.c b/fs/netfs/read_collect.c
-index 91b187db0bca..764579c76d3d 100644
---- a/fs/netfs/read_collect.c
-+++ b/fs/netfs/read_collect.c
-@@ -118,6 +118,13 @@ static void netfs_read_unlock_folios(struct netfs_io_request *rreq,
- 		slot = 0;
+-	iter->count = count;
+-	iter->iov_offset = iov_offset;
+-	iter->folioq = folioq;
+-	iter->folioq_slot = slot;
+-	return extracted;
+-}
+-
+-static ssize_t iter_xarray_populate_pages(struct page **pages, struct xarray *xa,
+-					  pgoff_t index, unsigned int nr_pages)
+-{
+-	XA_STATE(xas, xa, index);
+-	struct folio *folio;
+-	unsigned int ret = 0;
+-
+-	rcu_read_lock();
+-	for (folio = xas_load(&xas); folio; folio = xas_next(&xas)) {
+-		if (xas_retry(&xas, folio))
+-			continue;
+-
+-		/* Has the folio moved or been split? */
+-		if (unlikely(folio != xas_reload(&xas))) {
+-			xas_reset(&xas);
+-			continue;
+-		}
+-
+-		pages[ret] = folio_file_page(folio, xas.xa_index);
+-		folio_get(folio);
+-		if (++ret == nr_pages)
+-			break;
++		if (!folio_test_slab(folio))
++			folio_get(folio);
++		pages++;
  	}
- 
-+	/* We have to wait for readahead refs to have been released before we
-+	 * can unlock any folios as the ref-dropper walks i_pages and the only
-+	 * thing preventing these folios from being removed is the folio lock.
-+	 */
-+	if (test_bit(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags))
-+		netfs_wait_for_put_ra_refs(rreq);
-+
- 	for (;;) {
- 		struct folio *folio;
- 		unsigned long long fpos = rreq->cleaned_to, fend;
-diff --git a/fs/netfs/read_retry.c b/fs/netfs/read_retry.c
-index 2b42758e01ec..dd463a485139 100644
---- a/fs/netfs/read_retry.c
-+++ b/fs/netfs/read_retry.c
-@@ -292,6 +292,13 @@ void netfs_unlock_abandoned_read_pages(struct netfs_io_request *rreq)
- {
- 	struct folio_queue *p;
- 
-+	/* We have to wait for readahead refs to have been released before we
-+	 * can unlock any folios as the ref-dropper walks i_pages and the only
-+	 * thing preventing these folios from being removed is the folio lock.
-+	 */
-+	if (test_bit(NETFS_RREQ_NEED_PUT_RA_REFS, &rreq->flags))
-+		netfs_wait_for_put_ra_refs(rreq);
-+
- 	for (p = rreq->buffer.tail; p; p = p->next) {
- 		for (int slot = 0; slot < folioq_count(p); slot++) {
- 			struct folio *folio = folioq_folio(p, slot);
-diff --git a/fs/netfs/rolling_buffer.c b/fs/netfs/rolling_buffer.c
-index 8c0026836f9c..4e8584725b6a 100644
---- a/fs/netfs/rolling_buffer.c
-+++ b/fs/netfs/rolling_buffer.c
-@@ -153,6 +153,81 @@ ssize_t rolling_buffer_load_from_ra(struct rolling_buffer *roll,
- 	return size;
+-	rcu_read_unlock();
+ 	return ret;
  }
  
-+/*
-+ * Decant the entire list of folios to read into a rolling buffer.
-+ */
-+ssize_t rolling_buffer_bulk_load_from_ra(struct rolling_buffer *roll,
-+					 struct readahead_control *ractl,
-+					 unsigned int rreq_id)
-+{
-+	XA_STATE(xas, &ractl->mapping->i_pages, ractl->_index);
-+	struct folio_queue *fq;
-+	struct folio *folio;
-+	ssize_t loaded = 0;
-+	int nr, slot = 0, npages = 0;
-+
-+	/* First allocate all the folioqs we're going to need to avoid having
-+	 * to deal with ENOMEM later.
-+	 */
-+	nr = ractl->_nr_folios;
-+	do {
-+		fq = netfs_folioq_alloc(rreq_id, GFP_KERNEL,
-+					netfs_trace_folioq_make_space);
-+		if (!fq) {
-+			rolling_buffer_clear(roll);
-+			return -ENOMEM;
-+		}
-+		fq->prev = roll->head;
-+		if (!roll->tail)
-+			roll->tail = fq;
-+		else
-+			roll->head->next = fq;
-+		roll->head = fq;
-+
-+		nr -= folioq_nr_slots(fq);
-+	} while (nr > 0);
-+
-+	rcu_read_lock();
-+
-+	fq = roll->tail;
-+	xas_for_each(&xas, folio, ractl->_index + ractl->_nr_pages - 1) {
-+		unsigned int order;
-+
-+		if (xas_retry(&xas, folio))
-+			continue;
-+		VM_BUG_ON_FOLIO(!folio_test_locked(folio), folio);
-+
-+		order = folio_order(folio);
-+		fq->orders[slot] = order;
-+		fq->vec.folios[slot] = folio;
-+		loaded += PAGE_SIZE << order;
-+		npages += 1 << order;
-+		trace_netfs_folio(folio, netfs_folio_trace_read);
-+
-+		slot++;
-+		if (slot >= folioq_nr_slots(fq)) {
-+			fq->vec.nr = slot;
-+			fq = fq->next;
-+			if (!fq) {
-+				WARN_ON_ONCE(npages < readahead_count(ractl));
-+				break;
-+			}
-+			slot = 0;
-+		}
-+	}
-+
-+	rcu_read_unlock();
-+
-+	if (fq)
-+		fq->vec.nr = slot;
-+
-+	WRITE_ONCE(roll->iter.count, loaded);
-+	iov_iter_folio_queue(&roll->iter, ITER_DEST, roll->tail, 0, 0, loaded);
-+	ractl->_index    += npages;
-+	ractl->_nr_pages -= npages;
-+	return loaded;
-+}
-+
- /*
-  * Append a folio to the rolling buffer.
-  */
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index cc8d6500d059..f9dcf3f31cb8 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -279,6 +279,7 @@ struct netfs_io_request {
- #define NETFS_RREQ_FOLIO_COPY_TO_CACHE	10	/* Copy current folio to cache from read */
- #define NETFS_RREQ_UPLOAD_TO_SERVER	11	/* Need to write to the server */
- #define NETFS_RREQ_USE_IO_ITER		12	/* Use ->io_iter rather than ->i_pages */
-+#define NETFS_RREQ_NEED_PUT_RA_REFS	17	/* Need to put the folio refs RA gave us */
- #define NETFS_RREQ_USE_PGPRIV2		31	/* [DEPRECATED] Use PG_private_2 to mark
- 						 * write to cache on read */
- 	const struct netfs_request_ops *netfs_ops;
-diff --git a/include/linux/rolling_buffer.h b/include/linux/rolling_buffer.h
-index 9e5dad29669c..1e37750e4ff8 100644
---- a/include/linux/rolling_buffer.h
-+++ b/include/linux/rolling_buffer.h
-@@ -48,6 +48,9 @@ int rolling_buffer_make_space(struct rolling_buffer *roll, gfp_t gfp);
- ssize_t rolling_buffer_load_from_ra(struct rolling_buffer *roll,
- 				    struct readahead_control *ractl,
- 				    struct folio_batch *put_batch);
-+ssize_t rolling_buffer_bulk_load_from_ra(struct rolling_buffer *roll,
-+					 struct readahead_control *ractl,
-+					 unsigned int rreq_id);
- ssize_t rolling_buffer_append(struct rolling_buffer *roll, struct folio *folio,
- 			      unsigned int flags, gfp_t gfp);
- struct folio_queue *rolling_buffer_delete_spent(struct rolling_buffer *roll);
-diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
-index 082cb03c6131..9bda9302be90 100644
---- a/include/trace/events/netfs.h
-+++ b/include/trace/events/netfs.h
-@@ -59,6 +59,7 @@
- 	EM(netfs_rreq_trace_free,		"FREE   ")	\
- 	EM(netfs_rreq_trace_intr,		"INTR   ")	\
- 	EM(netfs_rreq_trace_ki_complete,	"KI-CMPL")	\
-+	EM(netfs_rreq_trace_ra_put_ref,		"RA-PUT ")	\
- 	EM(netfs_rreq_trace_recollect,		"RECLLCT")	\
- 	EM(netfs_rreq_trace_redirty,		"REDIRTY")	\
- 	EM(netfs_rreq_trace_resubmit,		"RESUBMT")	\
-@@ -70,9 +71,11 @@
- 	EM(netfs_rreq_trace_unpause,		"UNPAUSE")	\
- 	EM(netfs_rreq_trace_wait_ip,		"WAIT-IP")	\
- 	EM(netfs_rreq_trace_wait_pause,		"--PAUSED--")	\
-+	EM(netfs_rreq_trace_wait_put_ra_refs,	"WAIT-P-RA")	\
- 	EM(netfs_rreq_trace_wait_quiesce,	"WAIT-QUIESCE")	\
- 	EM(netfs_rreq_trace_waited_ip,		"DONE-IP")	\
- 	EM(netfs_rreq_trace_waited_pause,	"--UNPAUSED--")	\
-+	EM(netfs_rreq_trace_waited_put_ra_refs,	"DONE-P-RA")	\
- 	EM(netfs_rreq_trace_waited_quiesce,	"DONE-QUIESCE")	\
- 	EM(netfs_rreq_trace_wake_ip,		"WAKE-IP")	\
- 	EM(netfs_rreq_trace_wake_queue,		"WAKE-Q ")	\
+-static ssize_t iter_xarray_get_pages(struct iov_iter *i,
+-				     struct page ***pages, size_t maxsize,
+-				     unsigned maxpages, size_t *_start_offset)
+-{
+-	unsigned nr, offset, count;
+-	pgoff_t index;
+-	loff_t pos;
+-
+-	pos = i->xarray_start + i->iov_offset;
+-	index = pos >> PAGE_SHIFT;
+-	offset = pos & ~PAGE_MASK;
+-	*_start_offset = offset;
+-
+-	count = want_pages_array(pages, maxsize, offset, maxpages);
+-	if (!count)
+-		return -ENOMEM;
+-	nr = iter_xarray_populate_pages(*pages, i->xarray, index, count);
+-	if (nr == 0)
+-		return 0;
+-
+-	maxsize = min_t(size_t, nr * PAGE_SIZE - offset, maxsize);
+-	i->iov_offset += maxsize;
+-	i->count -= maxsize;
+-	return maxsize;
+-}
+-
+ /* must be done on non-empty ITER_UBUF or ITER_IOVEC one */
+ static unsigned long first_iovec_segment(const struct iov_iter *i, size_t *size)
+ {
+@@ -1044,22 +960,6 @@ static unsigned long first_iovec_segment(const struct iov_iter *i, size_t *size)
+ 	BUG(); // if it had been empty, we wouldn't get called
+ }
+ 
+-/* must be done on non-empty ITER_BVEC one */
+-static struct page *first_bvec_segment(const struct iov_iter *i,
+-				       size_t *size, size_t *start)
+-{
+-	struct page *page;
+-	size_t skip = i->iov_offset, len;
+-
+-	len = i->bvec->bv_len - skip;
+-	if (*size > len)
+-		*size = len;
+-	skip += i->bvec->bv_offset;
+-	page = i->bvec->bv_page + skip / PAGE_SIZE;
+-	*start = skip % PAGE_SIZE;
+-	return page;
+-}
+-
+ static ssize_t __iov_iter_get_pages_alloc(struct iov_iter *i,
+ 		   struct page ***pages, size_t maxsize,
+ 		   unsigned int maxpages, size_t *start)
+@@ -1095,36 +995,10 @@ static ssize_t __iov_iter_get_pages_alloc(struct iov_iter *i,
+ 		iov_iter_advance(i, maxsize);
+ 		return maxsize;
+ 	}
+-	if (iov_iter_is_bvec(i)) {
+-		struct page **p;
+-		struct page *page;
+ 
+-		page = first_bvec_segment(i, &maxsize, start);
+-		n = want_pages_array(pages, maxsize, *start, maxpages);
+-		if (!n)
+-			return -ENOMEM;
+-		p = *pages;
+-		for (int k = 0; k < n; k++) {
+-			struct folio *folio = page_folio(page + k);
+-			p[k] = page + k;
+-			if (!folio_test_slab(folio))
+-				folio_get(folio);
+-		}
+-		maxsize = min_t(size_t, maxsize, n * PAGE_SIZE - *start);
+-		i->count -= maxsize;
+-		i->iov_offset += maxsize;
+-		if (i->iov_offset == i->bvec->bv_len) {
+-			i->iov_offset = 0;
+-			i->bvec++;
+-			i->nr_segs--;
+-		}
+-		return maxsize;
+-	}
+-	if (iov_iter_is_folioq(i))
+-		return iter_folioq_get_pages(i, pages, maxsize, maxpages, start);
+-	if (iov_iter_is_xarray(i))
+-		return iter_xarray_get_pages(i, pages, maxsize, maxpages, start);
+-	return -EFAULT;
++	if (iov_iter_is_kvec(i))
++		return -EFAULT;
++	return iter_get_kernel_pages(i, pages, maxsize, maxpages, start);
+ }
+ 
+ ssize_t iov_iter_get_pages2(struct iov_iter *i, struct page **pages,
 
 
