@@ -1,58 +1,61 @@
-Return-Path: <linux-erofs+bounces-4191-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4192-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06D1BC5B574
-	for <linux-erofs@archiver.kernel.org>; Tue, 11 Aug 2026 08:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0194BC5CFCF
+	for <linux-erofs@archiver.kernel.org>; Tue, 11 Aug 2026 09:08:15 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hK46S1QLYz2ynH;
-	Tue, 11 Aug 2026 18:09:52 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786435792;
-	cv=none; b=HWxNrO/chIvoo5+9Hm67IpIpRG3iOzIm/837tjBHVThI1HRjBgW7puDNSLiVfFX8DHESsw5RQbXO7M77ES18uMgNsa9K6wO4BRSZEWyZPG8hSBVbPc+jki9yGQXKv7BEgrd15jMzoI8r35OGu+iqjtSgeai/pnLggIV811wCzG3CY7smqf/yYfD5fuSepth1AeEO5FiCdDBuBfSBEM8z45L/7fdAx3kJKVwoN+wG9+v/35WfOLygTZxyd4gQtX0Y81CSs4plhBOybiKlzU00pxHfN1pFR9CRQ+NJ9Rqm8LiQcx2QDOLSmexKFrEqYZ9B83Cqd9ObtQZyrBqpqT630g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hK5Pp2Wh2z301Y;
+	Tue, 11 Aug 2026 19:08:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786439294;
+	cv=none; b=ovq7p7l89zWco4XdUCX9lmfJKzOn5GPvZng4x1Ar83tfGEdHhI4vWH233MY2iAQRjuimcMb6Trp/g//R77U3ch4hZtETXOX+8Oh12wT+cSm2y4fnW5gN6Witu6AmnuO6sYt7IVVJae+lT6iVIyrmIfWg4VxtxgRlSAiDm67l/LgmPJbN+mNen9vsc/6Ja3Z1Og40oOe7RiQdcl2RZDI7EdM2dzH8bshMw4kebXJDtk6HY0rdoSs6TyVoJYFOi/PXQdXf17mjuA2Ukxpjj0O1wbUXrqkPz3I2hxuqIFVXYbfpTrGi2+AF+hdzl9zk06rugr07b2CEHtPx+2VZItugaQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786435792; c=relaxed/relaxed;
-	bh=ER+48gUvShuDpGFxzlH6RgLOHBWaduX/YfLNbHQ+YbE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h2+gCd+YqAoOcn77zQg6DKnSaYmH3S5k3ueF+g5GAlMAjWPMWYF0BGu0f6X4yRfYGrOQggPcl8jdV7YHmffGmoXSanAOtSm853vCsblGUCqGpat0G0/StjxwgU69jE09qf2oifhu5rpCpu+7iN8W84dkKw7gOsVOARGLYuR2sDXya5flEmpJde2YPwWUqjc1Ap4jpaUt21KzwSqtM5Gzy69z8XCx8k1Yn9wfGovvTxM5AalbXX62ycIyUn/UqIwhpMIl4Dzyen7pvEBkyLzJ7CLzRn5ShreTmlgvKdsatBTvotPb8rEtsDC5ZQlgcfz07BZSCUqyBnA5FY+/OtN0Tw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mun2L2El; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1786439294; c=relaxed/relaxed;
+	bh=Sir0LhP6dGrBzwhnRx4Za9tP8QkyBOJALnBa8aaWM3A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=F5C/KtgGLtt6DVrLmCNCDKcvXAfrmQ3UMdtTBxBDwDJvSFpdsbkxxnJrk/3SD8p2Tr+3sKES92J6XQ1A0U1h2SktJEs9Pdt2zKlCIINZo9dG5jRd2uD4Cl6CAbY3+Bvq1DdXtP/Gx9+R14FHp9UUyh0kv0zDk4qB/3TAi2PzzBjbEh7p4aKVTmqq2+4kKPV2oTKnNgTqh3tEupWer+IttE9Jsyw7zMmQutIj2R2Hplc9ZyZl5sPSWjsBWmmFcOUYnBcysTUzjKjNuU01R0s2v5hHjAXwh4xtxcyhh8WHFSqqKFhfYvN2IYErgtVIleXL4KfFNQjbD49BnX+DBxuAsw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L0Idwn0N; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mun2L2El;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L0Idwn0N;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hK46N1H5rz2yvG
-	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 18:09:48 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hK5Pn1rpfz2yvM
+	for <linux-erofs@lists.ozlabs.org>; Tue, 11 Aug 2026 19:08:13 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id DC13D403D2;
-	Tue, 11 Aug 2026 08:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952631F000E9;
-	Tue, 11 Aug 2026 08:09:42 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id A552C43359;
+	Tue, 11 Aug 2026 09:08:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2DA01F000E9;
+	Tue, 11 Aug 2026 09:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786435783;
-	bh=ER+48gUvShuDpGFxzlH6RgLOHBWaduX/YfLNbHQ+YbE=;
-	h=From:To:Cc:Subject:Date;
-	b=mun2L2ElGY5mqmSZG0bZZwT+SfRUz8ZlJkT+Q7I5S9b6YpEbZ2LpA0BgxSSBg3i28
-	 1ntZCqQBKb0fmI/M0qscBrXwfG6yY2iQHxVJQKIgmbEc7zhSLqq13dUamBDLLQUFxN
-	 ELf497BUviVkWDy8uLphdMkwxSo1HJQxrhaSfs5G4nQtni/AkImwKpBTNMp3LPi829
-	 SErNCp92SLHwUQvjAsPB9wnAbZuHMpi7Q+60rrhJ7hezfFf08nsoVylb0pnx5FaE//
-	 YTr4d9z/V+C7r0Hhi9iosuoBDbfZ3yfzuRyV/nUgbk0f1EUVRORnppAcqdqNkGCqGT
-	 uo+Lzbk/AKOaw==
+	s=k20260515; t=1786439290;
+	bh=Sir0LhP6dGrBzwhnRx4Za9tP8QkyBOJALnBa8aaWM3A=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=L0Idwn0Nv9NiWnMkbEzjX72zkJ7yMUCcvQSStC1qk11fG8JadJpBOmFKlGroGuf/j
+	 e6on5bvUmIAUy90VpMX59KbmlhZC/7Dvwr43Pb3FXqoZ1B3iUVb66q66v2E6SXq8qb
+	 Cjqq4vyT29O/74YIpPCbag0xc80VhFyDyLy2CSSmAgjYWMnSdUZktxPL/HSu2amP98
+	 kYVHGuMlwhfBHCDql/+oEeIncvCjPhsx+yoksBa7De4HfAQwPxWdFSd2b0yd4VNRGa
+	 H/IkJtOuuXTK2UTXQFHxLtCSwdaWt7vCWoYhA0tzMwIt3waZWVuPD2cTxOQBKI8FDS
+	 iOQp0RnAvikdQ==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
 Cc: LKML <linux-kernel@vger.kernel.org>,
 	Christoph Hellwig <hch@infradead.org>,
 	Chao Yu <chao@kernel.org>,
 	Gao Xiang <xiang@kernel.org>
-Subject: [PATCH] erofs: use dedicated meta inodes for file-backed mounts
-Date: Tue, 11 Aug 2026 16:08:52 +0800
-Message-ID: <20260811080852.29418-1-xiang@kernel.org>
+Subject: [PATCH v2] erofs: use dedicated meta inodes for file-backed mounts
+Date: Tue, 11 Aug 2026 17:07:17 +0800
+Message-ID: <20260811090717.29787-1-xiang@kernel.org>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260811080852.29418-1-xiang@kernel.org>
+References: <20260811080852.29418-1-xiang@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -82,15 +85,17 @@ a unique inode for all physical data access.
 
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
-Anyway, this is a late follow-up to address the previous Christoph's
-comments: https://lore.kernel.org/r/af2kDfHe0B3LnvVm@infradead.org
+v2:
+ - move iput(managed_cache) out of #ifdef CONFIG_EROFS_FS_ZIP, reported
+   by sashiko:
+    https://sashiko.dev/#/patchset/20260811080852.29418-1-xiang%40kernel.org
 
  fs/erofs/data.c     | 28 ++++++++--------------------
  fs/erofs/fileio.c   | 21 +++++++++++++++++++++
  fs/erofs/internal.h | 12 ++++++++----
- fs/erofs/super.c    | 33 ++++++++++++++++++++++++---------
+ fs/erofs/super.c    | 35 ++++++++++++++++++++++++-----------
  fs/erofs/zdata.c    | 13 ++++---------
- 5 files changed, 65 insertions(+), 42 deletions(-)
+ 5 files changed, 65 insertions(+), 44 deletions(-)
 
 diff --git a/fs/erofs/data.c b/fs/erofs/data.c
 index 9aa48c8d67d1..e3f3073779ac 100644
@@ -225,7 +230,7 @@ index 57bd21859c65..6de6e5a58e6b 100644
  			  erofs_off_t *offset, int *lengthp);
  void erofs_unmap_metabuf(struct erofs_buf *buf);
 diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 3d92caec8d3a..ff10b346ef4e 100644
+index 3d92caec8d3a..33e308e349f6 100644
 --- a/fs/erofs/super.c
 +++ b/fs/erofs/super.c
 @@ -633,6 +633,21 @@ static const struct export_operations erofs_export_ops = {
@@ -287,6 +292,17 @@ index 3d92caec8d3a..ff10b346ef4e 100644
  		if (err)
  			return err;
  
+@@ -913,10 +928,8 @@ static void erofs_drop_internal_inodes(struct erofs_sb_info *sbi)
+ 	sbi->packed_inode = NULL;
+ 	iput(sbi->metabox_inode);
+ 	sbi->metabox_inode = NULL;
+-#ifdef CONFIG_EROFS_FS_ZIP
+ 	iput(sbi->managed_cache);
+ 	sbi->managed_cache = NULL;
+-#endif
+ }
+ 
+ static void erofs_kill_sb(struct super_block *sb)
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
 index 74520e910259..602ba8b7cc79 100644
 --- a/fs/erofs/zdata.c
