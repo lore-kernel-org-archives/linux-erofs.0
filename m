@@ -1,65 +1,80 @@
-Return-Path: <linux-erofs+bounces-4212-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4213-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2FD7FC5B56A
-	for <linux-erofs@archiver.kernel.org>; Wed, 12 Aug 2026 14:26:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E093C5B56A
+	for <linux-erofs@archiver.kernel.org>; Wed, 12 Aug 2026 14:29:35 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hKrQS44hlz3brB;
-	Thu, 13 Aug 2026 00:26:24 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786544784;
-	cv=none; b=WZCO/uBxDFaF02rxY5A/dWLgJs5hsuE6/ujtu0CpBl0ixhkqN27Y7t3rDDNTAkbYrRdkF0TCF3hNTPDK8YuneEHhFFTBpoFea8PxwmwK3nPH0s1fMvMCkQ6k2eu/Uus6G9OqKZ/A5Gw3nBGwVWG2dIWQu3UAwrr/ZyoqzKdlFBQxazYjUpNvSGao6gEkSQNnFnyN0mZx0u/U5QVa6qTL2dfMYmiVs9HlxBbV9HfzE63ll69TOGiIGp0FNSa3B7skOhETPAU9ULJF9oqiLu+SgoVf2QdLddcKVKlrxP+vBVuo0zNZnEIARsOZ5TuBaSXlemLTonLpv8Um8S6obzZPFw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hKrV550bGz302l;
+	Thu, 13 Aug 2026 00:29:33 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786544973;
+	cv=none; b=k69B0ef38/FIgkebvBXn19yrMO9fqEr/Xjuuelz5Iixf7ebKfWpDCH2ZsKPZBnCxhrA0dNQ5PuI+nWaPIIRH+LBoB6gMNfKRUl5NkeTyx0jV9n9RRFCi+Hvp0sIPnm8HcVSU52rGBJgyuwLux0w7jdLGTw7i8qC67CEBVItU2+CK7tj7YypNji7iEyHXG5lio3k5xYDfoAv3g8WjFunjInJxuYya6nrDg+CDWdarGEprPuL/dtP8y6P3ZdXoZcC7o3H1IWR5g+KOQOvawYY07cH/C2i2dddHkSWqgsGaG2XSowLsV/W4LDf2MICcN1rBd4mSdcO2uBhCtlxz+ZwtyA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786544784; c=relaxed/relaxed;
-	bh=n0+XZgok1eHql18L7XHMKns591enUwwfrPR1jXjyqIs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YX5tBQ6A+r6dPtCToP6lFZreq1fvDT6i68w3iqIV9xZS1jAgO0mbIsU78HKG5uPhhwJXMBEF+53ndDj9uNW1g2Zx6CocQsomLdNj8fJP2/fBEmz8Awx3qcR9jAUIrjqCFOQif8a+8mhmDf6IKjbIb4DkRJSNDUoSitN/p2U9cDhSMvW3/uOaaEzlhEM7SJ2F8RIie7toU7wdxQBot1UcotXVevoOB5quUNDsmU8zBfK8qpm1ylaSwvX2jmGB2804wp87Gncr9gJEZ5Os4hEDg5v3I8oekkkjRtlDO+BGs8a7EwScrB5In0nYsfPlS7mQatCbEtG+njVTN9xKzESBow==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lP2idE8G; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1786544973; c=relaxed/relaxed;
+	bh=cQlSbAIttH+rNkAEoVDMXcXh5dsCND2QuLXOvV9cLG0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=OPjdMLu5lYEv2xJiZwEFV4k8AhDBGYvdv7sTlKgvjL7Wk4EVS/tqp0s0txrXQYTNSrgknGhPxruIVC5FwK7z9JSlFfpetMaAsxPE3bMG8eviOa/br/+V6/JKTYAtf54PGVV/+DXr63/IaAv/valAuRWX56XgZKLTNnljx4KnlMmfvpWV/rzIiLh+BzEHt0caDB3BKkFf8mN2nVF1G7hfLNR3Dhjp6rMqJ6Tew0jitOrw1N5bdace9vVKjhcS2jrFDSgvjO66bbV8jFV5gW0ezhRo8bc39ag8l6SU6CS8G0edUHAHYdac/5+mPH+LivAyZUVuGyGeZHSpHJKvFy2x/g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NMvH5ei3; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NMvH5ei3; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lP2idE8G;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NMvH5ei3;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NMvH5ei3;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=gscrivan@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hKrQR6jNvz3bqW
-	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Aug 2026 00:26:23 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 424C641791;
-	Wed, 12 Aug 2026 14:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165021F000E9;
-	Wed, 12 Aug 2026 14:26:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786544782;
-	bh=n0+XZgok1eHql18L7XHMKns591enUwwfrPR1jXjyqIs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=lP2idE8G4Hw9D9Tma0zrsBhKrGeKkaRQyzPS2IrmnXsS5l2AeqzWnw2LtDafEn/Ci
-	 LpogMrhm0LLU4sDudrL407ywKSM3QvdRzmlsO7/DXPlOtMA7NWq1iDcUUU6hjTzqof
-	 vzYiUldN3c0idffj/EaYpC6zmSKCyfUh2jwfD+cYlycpVjaFUvIWRt95PtY9szVBWr
-	 seJdC7ag/hVXZMb3IZ7Ce/0Te37m+waFSihzCK7xGKVIqWz0K5bpyVVBil6vI7rfxE
-	 iJtqEFu0Qf50Uy5nEPOJoDEhYgKniWQSgu2lbUlnz66iVZHdTej9a769bT9hfomxcc
-	 bx52NelttEZlA==
-From: Christian Brauner <brauner@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Christian Brauner <brauner@kernel.org>,
-	Gao Xiang <xiang@kernel.org>,
-	Paulo Alcantara <pc@manguebit.org>,
-	netfs@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	bpf@vger.kernel.org,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hKrV4233jz2ytv
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Aug 2026 00:29:30 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786544962;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=cQlSbAIttH+rNkAEoVDMXcXh5dsCND2QuLXOvV9cLG0=;
+	b=NMvH5ei3XHC2VhV4loAFBSQVpgbdhr9sVnHOqQ8J9YSHpxI9sxP2bZtx+eTbgxzDV7L0kE
+	zFzT37pZ+rm6XzbI1hL420byZ0M0qi8oLyFJ3kT5gTid/PadqQDWcrKkNZt8h4R4Zv2zIK
+	ReGDvhFhn/gI7qrZbDRdAnF6XUAVJqg=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1786544962;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=cQlSbAIttH+rNkAEoVDMXcXh5dsCND2QuLXOvV9cLG0=;
+	b=NMvH5ei3XHC2VhV4loAFBSQVpgbdhr9sVnHOqQ8J9YSHpxI9sxP2bZtx+eTbgxzDV7L0kE
+	zFzT37pZ+rm6XzbI1hL420byZ0M0qi8oLyFJ3kT5gTid/PadqQDWcrKkNZt8h4R4Zv2zIK
+	ReGDvhFhn/gI7qrZbDRdAnF6XUAVJqg=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-232-37Ig9cT_MuWTn-sfLDU5cw-1; Wed,
+ 12 Aug 2026 10:29:20 -0400
+X-MC-Unique: 37Ig9cT_MuWTn-sfLDU5cw-1
+X-Mimecast-MFC-AGG-ID: 37Ig9cT_MuWTn-sfLDU5cw_1786544959
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 92AA71800984;
+	Wed, 12 Aug 2026 14:29:18 +0000 (UTC)
+Received: from oxygen.station (headnet05.pony-001.prod.iad2.dc.redhat.com [10.2.32.117])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id CD1011800577;
+	Wed, 12 Aug 2026 14:29:15 +0000 (UTC)
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: xiang@kernel.org,
 	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cachefiles,netfs: sunset ondemand mode
-Date: Wed, 12 Aug 2026 16:26:12 +0200
-Message-ID: <20260812-gegeben-messung-weltgegenden-8491254df0e0@brauner>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <1046393.1786544127@warthog.procyon.org.uk>
-References: <1046393.1786544127@warthog.procyon.org.uk>
+	amir73il@gmail.com,
+	gscrivan@redhat.com,
+	brauner@kernel.org,
+	viro@zeniv.linux.org.uk,
+	jack@suse.cz
+Subject: [PATCH v6 0/2] erofs: share the superblock for file-backed mounts
+Date: Wed, 12 Aug 2026 16:28:02 +0200
+Message-ID: <20260812142907.1010046-1-gscrivan@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,38 +86,31 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1289; i=brauner@kernel.org; h=from:subject:message-id; bh=kf82btbWVEF7ldoT0M+F8gWvP8RldYftJie0/C8/1RY=; b=kA0DAAoWkcYbwGV43KIByyZiAGp8goigQJZBZ0vpz73ayYqFRuXcPPtdGeUSdfbXGadNG8aZO oh1BAAWCgAdFiEEQIc0Vx6nDHizMmkokcYbwGV43KIFAmp8gogACgkQkcYbwGV43KLCVwEA2KA7 +HpySt6MAFnPPRpzqO5RdG8hsjdBt+VmjmloJqEA/1sQ4QMUc//v2o0fb7V44BGKPBq/w3tCBN9 0RkPdYEoC
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+X-Mimecast-MFC-PROC-ID: JlgQ-_i9G3XLe8kw_cNZet_Y7Zz194kWIX_flzO5a14_1786544959
+X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Wed, 12 Aug 2026 15:15:27 +0100, David Howells wrote:
-> It was an effort to enhance fscache as a kernel cache for lazy
-> pulling (at least according to previous Incremental FS discussion [1])
-> and EROFS over fscache was the in-tree user of this mode.
-> 
-> fscache has since evolved to be netfslib-oriented, serving network
-> filesystem inodes via the netfs library, but EROFS never acts as a
-> network filesystem and we need to cache golden filesystem images rather
-> than individual EROFS inodes.
-> 
-> [...]
+v5: https://lore.kernel.org/linux-fsdevel/20260811071241.389589-1-gscrivan@redhat.com/
+v4: https://lore.kernel.org/linux-fsdevel/20260804060455.2928514-1-gscrivan@redhat.com/
+v3: https://lore.kernel.org/linux-fsdevel/20260801075446.2508805-1-gscrivan@redhat.com/
+v2: https://lore.kernel.org/linux-fsdevel/20260731160901.2276832-1-gscrivan@redhat.com/
+v1: https://lore.kernel.org/linux-fsdevel/20260730124120.1501126-1-gscrivan@redhat.com/
+Needs: https://lore.kernel.org/linux-fsdevel/20260804055949.2927896-1-gscrivan@redhat.com/
 
-Applied to the vfs-7.3.netfs branch of the vfs/vfs.git tree.
-Patches in the vfs-7.3.netfs branch should appear in linux-next soon.
+Giuseppe Scrivano (2):
+  fs: rename vfs_get_super() to get_tree_super() and export it
+  erofs: reuse superblock for file-backed mounts
 
-Please report any outstanding bugs that were missed during review in a
-new review to the original patch series allowing us to drop it.
+ Documentation/filesystems/erofs.rst |  7 ++++
+ fs/erofs/internal.h                 |  1 +
+ fs/erofs/super.c                    | 56 +++++++++++++++++++++++++++--
+ fs/super.c                          | 19 +++++++---
+ include/linux/fs_context.h          |  4 +++
+ 5 files changed, 80 insertions(+), 7 deletions(-)
 
-It's encouraged to provide Acked-bys and Reviewed-bys even though the
-patch has now been applied. If possible patch trailers will be updated.
+-- 
+2.55.0
 
-Note that commit hashes shown below are subject to change due to rebase,
-trailer updates or similar. If in doubt, please check the listed branch.
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs-7.3.netfs
-
-[1/1] cachefiles,netfs: sunset ondemand mode
-      https://git.kernel.org/vfs/vfs/c/949eb95d5bcc
 
