@@ -1,63 +1,59 @@
-Return-Path: <linux-erofs+bounces-4218-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4219-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86F77C5CFDB
-	for <linux-erofs@archiver.kernel.org>; Thu, 13 Aug 2026 11:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73A75C5CFCF
+	for <linux-erofs@archiver.kernel.org>; Thu, 13 Aug 2026 12:08:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hLNxL1ys7z2ySS;
-	Thu, 13 Aug 2026 21:51:34 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786621894;
-	cv=none; b=h4HQAcSruK53mKgexn8IqQThjhplPsnqSiaRki+eS9zKLU4LSdi03hTnroQ6fjwBm9QxagVRII5PjWDsopx3DH7whBB70JVcHoqTGki5pSN1UxPzYs4AzoINhG6ENRlAbv2g6U7qqaOuXq5AY5ewzOWsQXx6Zw+xTnzx7xSYxAVgDPVcleKI3JC+BVnWI/0Sy88JTG6ZlU5V0ffWSvFUBrSNSSiq33KR9DHskzy7A2LzOcJyTP4NwmvJqiEnG9VST1twbuCb3ki0EIDWwj99MWPSCPcM7A/UKHBK0M4RpKP8As65aHhS2X2MAi5q4hyw2cJARIgZC5/ut0MuvxMHqQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hLPKJ3pfwz2y32;
+	Thu, 13 Aug 2026 22:08:52 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786622932;
+	cv=none; b=L55YWET6HBkzEDmDNMqLDZP4D4WIwNYFGzta6CTFU/atOH95uOHIrNAYzFgtW9nnLZzQDb8yN5yH8/7421KaViu/qH90W/hI51Pz4t5Ac+9Y+NUrH9hxfooW6ih+658KlVuEiBJWDU2Huwbn2g6rZ4QJmCpMWDwq8pqZhxgnh/pKAk73ekr/wYd4UxURhRl6ma3X7GjYg8r5PtyTqcYtkYkYHSbAbgCb6v3l7Br7gF5crQ5wB83JNfdCDL8Iifi2jVTUUuTFtTvhupW+8P6CaBVYkFZHMMyY2GTZZfQg5tbDw/UBS6MIRm4Y8MTUv4N0OYZ0HqfqzFtve2OQlRh3SA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786621894; c=relaxed/relaxed;
-	bh=JvESJkga9jdlK0rgNoYtj3HeOE+zzwc0hSXdxTbTp0o=;
+	t=1786622932; c=relaxed/relaxed;
+	bh=+kVXEwQS1lEs5zqzijQqGBYvRfh8PASUlFrUm0/ypgM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W7fvjgG7Id5UkZSDYB9rw23hmUUVRnoUHoEwMhQ6ca2jJe23s36rCMI1dFNf0Lz+KceHTcRH2MWYjCt7cGcHyyhxIi5f4ugD9ZeZds7FP5Xn613VPdPMK5SuOWYHn6MMqQuAJbqDAbT38mkBywHZaj958Rave5cwvqULR7fXXEBkrLkwJ4OIk0Kk7boHxQwQTbhBs/km7MCdju3MwdALHbWZkZ3XNjHJwF4c8BnHHsKDiNReqONyto+KU0fn09NgKN6E6+TZh7g2PYu2twl6UjAjeXm0mp19odYKbyxvaJPms+vz37qTIS72QqNeGMuSLM+tc7/OIc22iF9CErNYcg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AMVToVk4; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=e4lgEYErMmVUY3YVyGtvFkTBEYQL2wBIpo6VFJd0/1GwZfHfDtegppxiyfIsjS4ziGXb3CSiZzM6VmCq+4isOQUtiGLD0+VVBrtb96utqz+bdnAzJpFsZwVepvPqGPgAEvlE7f8R2YBYNZCA+tu+TZrBIZUM6M9uRpLYGTMxaaE2mHjU70k8+Y+2ac7tSrVwVSDwgayR1YC9cYa1/yzzFLo9T+XsH/pF3r7m2p0rh+nNOGIakuiDyPhziBP3bkpo/etLh8rIXBjWsbq+urFrrZpu8pjGUMGm8Yzn4pSW3+p4L8cdTa+vqrjuoP58TZJBd/Y2U1v0RSm45YE+R/BOJA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jW44CAN6; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AMVToVk4;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jW44CAN6;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hLNxJ1MsSz2y32
-	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Aug 2026 21:51:32 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hLPKH1mfLz2xWV
+	for <linux-erofs@lists.ozlabs.org>; Thu, 13 Aug 2026 22:08:51 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 5B63940135;
-	Thu, 13 Aug 2026 11:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DB81F000E9;
-	Thu, 13 Aug 2026 11:51:25 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 0E586600AD;
+	Thu, 13 Aug 2026 12:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FEE91F00A3A;
+	Thu, 13 Aug 2026 12:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786621889;
-	bh=JvESJkga9jdlK0rgNoYtj3HeOE+zzwc0hSXdxTbTp0o=;
+	s=k20260515; t=1786622928;
+	bh=+kVXEwQS1lEs5zqzijQqGBYvRfh8PASUlFrUm0/ypgM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AMVToVk4MFkR7P4cmxVK1KGPrT2kUbr3NX9zQalw94nz2PqbcTBReXKNgk2gPLsls
-	 yVRUWAgPSrtw9Ny4VIrXWNYwwikUi1PSeuxw6ClzbfPM9EjafJDrXsvyCuYz2kkjFI
-	 fryOK4XINON/elk09G74hV1TT4vCHNJ0sQ7haD4fGAYOj/G1KvzNe+guhG1UdrZiNI
-	 Pz5arx2wk6jwUCNynDjul98OPA3aUofKMzaTUHV0q8+YbZ25o9xQ/T6KEJbkFVRewz
-	 lECyQv/dVyADzouIgs/HyQ1rceLrMkwvof/n4lksAEx4ceeaL3crbYfHN/xp/n2+XB
-	 N0QtPpredee0Q==
-Date: Thu, 13 Aug 2026 19:51:21 +0800
+	b=jW44CAN6zq6mcWAYApOBQmr5cslq4HV/JbQo7JrcStfdpVds3ah++A7lJWeH3RxM6
+	 QHfG2k852DsyYLj8XgvgKTbF+/uuIMbY+LmZqTQ9j50Q8qfIr6mtUIIZycyjAw2oKL
+	 1aWNSpuOxsHFcNdZ2WccZjWq4ZpZNFYWGYkX9+SxR3cBfsgZa4+6WdSr6jVjZ6puy8
+	 IadxciEnOoomh8V1WyJm3+ojRBuMQ7rZMUbrNM3AHMOLniER85t3rm5BguA/OFe+UF
+	 kfCAgXoQgpvm5MIPLKBhg20dMsOk3T2v5pROyUvKxS0ZePUXwRyq0+WiiB5TutJXpV
+	 2vbJKLD17mcfA==
+Date: Thu, 13 Aug 2026 20:08:43 +0800
 From: Gao Xiang <xiang@kernel.org>
-To: Giuseppe Scrivano <gscrivan@redhat.com>
-Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org,
-	linux-fsdevel@vger.kernel.org, amir73il@gmail.com,
-	brauner@kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz
-Subject: Re: [PATCH v6 2/2] erofs: reuse superblock for file-backed mounts
-Message-ID: <an2vuT1Va8JjdLug@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Giuseppe Scrivano <gscrivan@redhat.com>,
-	linux-erofs@lists.ozlabs.org, xiang@kernel.org,
-	linux-fsdevel@vger.kernel.org, amir73il@gmail.com,
-	brauner@kernel.org, viro@zeniv.linux.org.uk, jack@suse.cz
-References: <20260812142907.1010046-1-gscrivan@redhat.com>
- <20260812142907.1010046-3-gscrivan@redhat.com>
+To: seula2.lee@lge.com
+Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: Re: [PATCH] erofs-utils: lib: fix erofs_is_packed_inode() on the
+ read path
+Message-ID: <an2zy_VyU3rP47vx@XiangdeMacBook-Pro.local>
+Mail-Followup-To: seula2.lee@lge.com, linux-erofs@lists.ozlabs.org,
+	Gao Xiang <hsiangkao@linux.alibaba.com>
+References: <20260813093849.3607625-1-seula2.lee@lge.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,74 +67,77 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260812142907.1010046-3-gscrivan@redhat.com>
+In-Reply-To: <20260813093849.3607625-1-seula2.lee@lge.com>
 
-On Wed, Aug 12, 2026 at 04:28:04PM +0200, Giuseppe Scrivano wrote:
-> When the same file-backed image is mounted multiple times (via path or
-> fd) with the superblock_share mount option, reuse the existing
-> superblock instead of creating a new one.  This allows multiple mounts
-> of the same image to share in-kernel data structures more efficiently.
-> 
-> The backing file is identified by its inode and fsoffset.  If mount
-> options conflict or extra devices are used, a separate superblock
-> is created transparently as a fallback.  Remount is not allowed on
-> shared superblocks.
-> 
-> Tested by mounting a 177M Fedora EROFS image 20 times with full
-> traversal:
-> 
->   #!/bin/sh
->   IMG=${1:-/root/fedora.erofs}
->   OPTS=${2:+-o $2}
->   N=20
->   DIR=$(mktemp -d)
->   trap "umount $DIR/m* 2>/dev/null; rm -rf $DIR" EXIT
-> 
->   sync; echo 3 > /proc/sys/vm/drop_caches
->   INODES_BEFORE=$(grep erofs_inode /proc/slabinfo | awk '{print $2}')
->   MEM_BEFORE=$(grep ^Slab: /proc/meminfo | awk '{print $2}')
-> 
->   for i in $(seq 1 $N); do
->       mkdir $DIR/m$i
->       mount -t erofs $OPTS "$IMG" $DIR/m$i
->       find $DIR/m$i > /dev/null
->   done
-> 
->   echo "Superblocks: $(grep $DIR /proc/self/mountinfo | \
->       awk '{print $3}' | sort -u | wc -l)"
->   echo "erofs_inode delta: +$(( $(grep erofs_inode /proc/slabinfo | \
->       awk '{print $2}') - INODES_BEFORE ))"
->   echo "Slab delta: +$(( $(grep ^Slab: /proc/meminfo | \
->       awk '{print $2}') - MEM_BEFORE )) kB"
-> 
-> without superblock_share:
-> 
->   # time ./test.sh /root/fedora.erofs
->   Superblocks: 20
->   erofs_inode delta: +45864
->   Slab delta: +37448 kB
->   real	0m2.311s
->   user	0m0.222s
->   sys	0m1.998s
-> 
-> with superblock_share:
-> 
->   # time ./test.sh /root/fedora.erofs superblock_share
->   Superblocks: 1
->   erofs_inode delta: +2044
->   Slab delta: +284 kB
->   real	0m0.679s
->   user	0m0.157s
->   sys	0m0.469s
-> 
-> The time difference shows that sharing the superblock also benefits
-> the page cache and inode cache, as subsequent mounts of the same image
-> avoid re-reading the backing file.  This is particularly useful for
-> container hosts running multiple containers from the same base image.
-> 
-> Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Hi Seula,
 
-Reviewed-by: Gao Xiang <xiang@kernel.org>
+On Thu, Aug 13, 2026 at 06:38:49PM +0900, seula2.lee@lge.com wrote:
+> From: Seula Lee <seula2.lee@lge.com>
+> 
+> erofs_is_packed_inode() compares i_srcpath against the global
+> EROFS_PACKED_INODE identifier.  i_srcpath is only assigned by
+> mkfs.erofs and has no on-disk counterpart, so it is never set for
+> inodes filled in by erofs_read_inode_from_disk(), and the helper always
+> returns false on the read path.
+> 
+> fsck.erofs therefore treats the packed inode as an ordinary regular
+> file at all four of its call sites, for any image with fragments and a
+> non-zero packed_nid:
+> 
+> - erofsfsck_extract_inode(): the guard never fires, so
+> erofs_extract_file() writes the packed data to fsckcfg.extract_path
+> itself, which is still the top-level directory because main()
+> checks the packed inode before the root inode. Extracting the root
+> then fails in erofs_extract_dir():
+> 
+> $ mkfs.erofs -zlz4hc -Efragments img.erofs dir
+> $ fsck.erofs --extract=out img.erofs
+> <E> erofs: erofs_extract_dir() Line[697] path is not a directory: out
+> <E> erofs: main() Line[1256] Failed to extract filesystem
+> $ file out
+> out: ASCII text # 603720 bytes, the packed inode itself
+> 
+> - erofsfsck_set_attributes(): the packed inode's mode, timestamps and
+> xattrs are applied to the extraction root directory.
+> 
+> - erofs_verify_inode_data(): the packed inode's own compressed data is
+> decoded and hashed as if it were file data.
+> 
+> - the -p accounting: fragment bytes are counted both as file data and
+> as packed inode data, so the reported ratio is too low.
+> 
+> Restore the nid-based test, which is how the packed inode is already
+> identified elsewhere on the read path: z_erofs_read_one_data() compares
+> inode->nid against sbi->packed_nid directly, and the
+> erofs_sb_has_fragments(sbi) && sbi->packed_nid > 0 idiom used here is
+> the same one in fuse/main.c, dump/main.c and fsck.erofs' own
+> erofs_packedfile_init() call.
+> 
+> The i_srcpath comparison has to stay first rather than be replaced:
+> while mkfs.erofs builds the packed inode its nid is still
+> EROFS_NID_UNALLOCATED and sbi->packed_nid is 0, so a nid-only test
+> would return false there and break fragment dedupe and
+> pclusterblks_packed handling in lib/compress.c.
+> 
+> This restores the v1.8.x behaviour at every call site, where the helper
+> was nid-based; in particular the packed inode is again excluded from the
+> decompression check that --extract performs, as it was before v1.9.
+> 
+> dump.erofs is affected the same way and prints "Path : (packed file)"
+> again as intended.
+> 
+> erofs_is_metabox_inode() shares the same idiom, but it has no read-path
+> caller (all callers are in lib/compress.c and lib/inode.c), so it is
+> left alone.
+> 
+> Fixes: 7928074b7643 ("erofs-utils: introduce metadata compression [metabox]")
+> Signed-off-by: Seula Lee <seula2.lee@lge.com>
+
+Thanks for the patch, that is indeed a bug and the fix looks fine,
+but the commit message is too long to understand the impacts (it seems
+in a LLM-generated-style.)
+
+I will rephrase a short commit message instead.
 
 Thanks,
 Gao Xiang
