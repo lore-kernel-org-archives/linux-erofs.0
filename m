@@ -1,70 +1,70 @@
-Return-Path: <linux-erofs+bounces-4227-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4228-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C96B1C5B572
-	for <linux-erofs@archiver.kernel.org>; Fri, 14 Aug 2026 21:46:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A814BC5CFC1
+	for <linux-erofs@archiver.kernel.org>; Sat, 15 Aug 2026 11:42:20 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hMG5Y71Hnz2yS0;
-	Sat, 15 Aug 2026 07:46:41 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.19
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786744001;
-	cv=none; b=oNwRgyOnwhPbrfnjm+S7HvtHI51qW/svokZXaeFdoSYEFfg8Uhqgk+vqz4N41XFT7knaWz0pUX/28GsOsc5HkDkUB/SX6y/edYQmL6z9OFBXOe/69WAMBiYrcsYw4LHFe/agYDmAOWz7JT/2MrIDyUOpjs4kJXjAacKqCLzjS9uchm8Iv6t+gzgDgTq990oRUzHT4dJkCG+Cmiz6zs76Ps1CquaGUuA0GYv3SuSAdFy8I/adOtl3/ZN2+DWgHsEF3+h8WhVy2U8tHNIGSCjxUID/JXG4k/63HFHzOa03MCm/C/scZD3/x/tpmku0bTX3V4lcwwmgB7umwUnXchfiXw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hMcdk13VPz2xnS;
+	Sat, 15 Aug 2026 21:42:18 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=209.85.217.41
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786794138;
+	cv=none; b=bvLln4S0Bw9wu16O9uAHwu7Q326QliskOxSDQUDIj+OoJeOf/FxvH+huaASA5TGdb3RNWyrryPNtni7s7aCUE0CMM79YCDVvXvhaQS7RbwSJfUlTJLszZyhWR7T5h9MCzg8EDVy14amGniYqRQRoPytSi63zjiqp/blsM7BHYH7cTX2d32zeXihCcrWlUD0vHpRDuhrp42MKeMw+lbLcYt4ysN9GhYkW22rChpl0kmh9di1sbuPmKfrOWqOfmhT/9L/7EsNZLmPs6BL9ttFfhdIfnkATx/ZJWbohLVr1KYl7kCy3JSJxoLdyhfCaG7jPduNV3iGSUJWU+AAEITjsIA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786744001; c=relaxed/relaxed;
-	bh=FON6QmcKkOjFWkXUIuckRjlFLis+f6cXOtSLQW5kTJs=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=fw0CbWEcfIUqzBWLl8AudeWX/8DVmO/NJrRKvzXiUsTiHGDqxlKmmqMJmVJSy0LZeaCp2NUhhNEO7y7yEAlH+VCfhSJFCZe3ZIRfk0KK9jTlgmQmQd5ezYhpmUTiMKebTPTgQEHVXzAtrnbq8y4ySZXn9o5QtH3OVvB+Lcdrh9bb47NxV7zvp9F0qeMHzTjtiuV8OV88eRGAjf+ftGChjgsfVlQqCbz+WeNrHb9EUoaOMDdbwLDOIcuxmnuo3db8L5dV8PuK5hTQBjn1oGU2NwcjQL9bJ23PBXNucxsu4idBD7Ao40fQJADo1xvxtGmAWgZTGTRzgKT4JvL7a2sMoQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=j2DJJ9+v; dkim-atps=neutral; spf=temperror (client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=j2DJJ9+v;
-	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=temperror (SPF Temporary Error: DNS Timeout) smtp.mailfrom=intel.com (client-ip=192.198.163.19; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	t=1786794138; c=relaxed/relaxed;
+	bh=0rUTv5K3p3pcfp6FAure4QlzpyDmPoMH+895UYcj4JI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jaNHy0l1OAjfTRcCF8aXvLrGVz5Ck5pHOZ07YEpnPP5eJXXcd5kE2olZStBvVvz7SRYRBI0iWNDmBREAwsx9rR9IrATv/Nc8b8ZfUb2JTk3dfvDcDtHCkm8yE6Md51NuvutLkf/J6yfBir/bp/ERSu2vlBtUF0f6pf5+wCG5UX4eT6QAuxZl509uVTe3RZAWPqwrzs0OTlJzw5SXwv/NgsHSdiPqNWzmJCJKZycORiJTxabB/DaDVDCqPTD5Jd4gAfB7YcUQcv0GaW6iHelf++x8xTGWiVohLMhhKQjqJv/1DYpScJKEdgyhGhwk9OYT+YLoebCBUE0fSwqJP7TwCA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass (client-ip=209.85.217.41; helo=mail-vs1-f41.google.com; envelope-from=geert.uytterhoeven@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=209.85.217.41; helo=mail-vs1-f41.google.com; envelope-from=geert.uytterhoeven@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hMG5V19Prz2yH5
-	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Aug 2026 07:46:16 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1786743998; x=1818279998;
-  h=date:from:to:cc:subject:message-id;
-  bh=D0LvV79oE4pgrEWLL1SpcQU/tWhdFXq4FydVScxUZsE=;
-  b=j2DJJ9+vx0plzEeR1ALL8ffKn/d0ccaZr4qGHvgQnIis8Y6o7zzcdMb6
-   YtBoo2nVyBRP9arqcYkQO8VYegfC36PF7Y5RdTlsJuD8Y3VJGuUrQoRcw
-   k4H5QkmxrTcymTEm7buB048iPVeFT5vJu8gWdTaXxRsZsv9EKem8MKvuH
-   oaZinD+y2ZGBu7q4Jdk+04OZl9vKsUdwXtPwTkG3j8dBg6z4QGNqPjjrm
-   3u25RcwzrX90hi6WGbJGABZylfKkTqJKBjiIGgWveWIDnUmj+wU5VOPUx
-   dKCOlTjcQKn9CGHyT0JP3oGz6ag5zas2NbEfTiSvMP5eT5AMnh0MBlHrR
-   Q==;
-X-CSE-ConnectionGUID: QsklCAASRha+EYi9kj8STg==
-X-CSE-MsgGUID: 5LrRXkf0RZm3pxpY+qwi3w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11875"; a="86287672"
-X-IronPort-AV: E=Sophos;i="6.25,224,1779174000"; 
-   d="scan'208";a="86287672"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2026 14:46:12 -0700
-X-CSE-ConnectionGUID: kWTHmroKSnimup5u6x6NoA==
-X-CSE-MsgGUID: IkrNJWh8RZmtNJ6u9nnsFg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,224,1779174000"; 
-   d="scan'208";a="260091267"
-Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
-  by fmviesa006.fm.intel.com with ESMTP; 14 Aug 2026 14:46:11 -0700
-Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wuzj6-00000000aIP-41EO;
-	Fri, 14 Aug 2026 21:46:08 +0000
-Date: Sat, 15 Aug 2026 05:45:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org
-Subject: [xiang-erofs:fixes] BUILD SUCCESS
- 430a5b1b10cf2897253eff940395639a40cdae0c
-Message-ID: <202608150543.4ebdz7VN-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hMcdh1PhKz2xnQ
+	for <linux-erofs@lists.ozlabs.org>; Sat, 15 Aug 2026 21:42:15 +1000 (AEST)
+Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-7466771f1caso545505137.0
+        for <linux-erofs@lists.ozlabs.org>; Sat, 15 Aug 2026 04:42:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786794133; x=1787398933;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0rUTv5K3p3pcfp6FAure4QlzpyDmPoMH+895UYcj4JI=;
+        b=h/6Mg39ze7YPsHKjtgiOLkV3brHOZPdHGHJ4V50uaKqh1Lmsscc8PJs9ouV//HURNU
+         E/HJJ1Im5BGFDdluuRcwqPuP5rU3xBMtccV0uMYWnuc3jA2s0MUxK/nFu0j12xjNGJpC
+         tcnJWNrDE/azDoS89m1/YgqUqv/9uj/iyUYxWZWaKV3SsiBLAObk6+sdce1eyGf1gt91
+         3BKf3IFCJ5J92kmdfZQGDloKsk4/FSdjkcemteCwvGrpyGp8jjX5nWzG0do8yfNEN2+R
+         VFMFb58V8Vr0QkA9tfbpIxEDOS11iRsHOGGknbtM5O2nf5QqtkAsUQxRw+mWd6xFANLm
+         zQ1Q==
+X-Forwarded-Encrypted: i=1; AHgh+RqI0OtgEQCrVusXATAqlD/5HCCjhE0AJjSWr6FiF7BY0cMtZgeCtZqlo5d19RcIbLA3SK07gf+F15J8lQ==@lists.ozlabs.org
+X-Gm-Message-State: AOJu0Yy152UG9Jyf/tXO7ORi9sJ+tLpISz6RZPrrpanYlvpkAA4v1iwM
+	OLzCxfk1WXSc4Q3ob7W64Fra4Eidqj155JQum/ryQsgeK2M4pzPNocseumAzjMknPq8=
+X-Gm-Gg: AR+sD10T8S5qKePkJfDh7zq8c8RTwHshqtSGPLziWRP8m8MU7w5x12UZNIvU4va8Tyk
+	UMIllo3mGVeJSZvs2jRCZgmMp0zLrQvUdNXoRwavbbPRaSL/iq03cnpDCkQIlM/wJRDprANgR5e
+	hJQwRm3M2Uywl+eslyjfKBGosbXhD/jhtDuQYTXTcuU1ZY4nuQUbE5f5XPRG3mJcG0/GAILUPZH
+	chib142dHhqMdRkZFrewLa6HYiXfSHAHNJ+AKozwD5WoHyIFtPsKdEloqIrr1MrWbMeczSfNslB
+	iz7a9UlWZVa0tcWmx1GLrsK0m84OjZWultFAIzOvIPbvkyjhwVZ2FG9BVt/TZObBozUABwt2Lmu
+	ijmHqJYWradcdZ2DnSYhGz4mEcqnEJ8xB8IDspsd5tcLfQF+OMMr4A+uaSXafnQ76chsQeogf/N
+	Oq1GMCqnQalfy5Hu91eLHD6UGVyjlYLqnz337ECrCjxS5mihOXKtd/O/OZGHvuMUuwEjepAybRG
+	EHuy/+zKrvEZFc1SodRgteIkQ==
+X-Received: by 2002:a05:6102:6b0a:b0:744:cb59:d6e0 with SMTP id ada2fe7eead31-76f2767f322mr1967059137.0.1786794132632;
+        Sat, 15 Aug 2026 04:42:12 -0700 (PDT)
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com. [209.85.222.42])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-76efa511f43sm2365263137.9.2026.08.15.04.42.10
+        for <linux-erofs@lists.ozlabs.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 15 Aug 2026 04:42:10 -0700 (PDT)
+Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-963f63fe025so404595241.0
+        for <linux-erofs@lists.ozlabs.org>; Sat, 15 Aug 2026 04:42:10 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RoUdlLjYTYMvLIBfSRMwyg5D6C4iEYNkA3phB/S07BNWqZ7Ob8J7SzbcXjyVpYQNGDvjtMU/CHML3HZmw==@lists.ozlabs.org
+X-Received: by 2002:a05:6102:850e:10b0:770:63a1:b26f with SMTP id
+ ada2fe7eead31-77063a1b71dmr649108137.10.1786794130006; Sat, 15 Aug 2026
+ 04:42:10 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -75,92 +75,147 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20260728065447.91511-1-sj@kernel.org> <CAMuHMdWq1eutRM4u1Q3r50f8W4oSejo_XAgyjEKuwi4Lw6K7jQ@mail.gmail.com>
+ <anBYnPELPotUiNjv@monoceros> <CAMuHMdXUyAX0TV0Sq9_YxvipzkVOBX=4s_r5mVQcZ_7nL=-AQw@mail.gmail.com>
+ <87853c96-cc8f-49e6-81b1-02bfe409e372@roeck-us.net> <CAJJ9bXyC=piPamaGJN=VMA72Ws+WqgJbYZgTj_w6NFzyLa_mMg@mail.gmail.com>
+ <anuyFHLUGDjZWY4K@XiangdeMacBook-Pro.local> <CAMuHMdWQLwgShMK7G-6soiZxtRPYWLizBLRdouwxFUcFXUJM-Q@mail.gmail.com>
+ <anxQ-DohuQvuKwAH@XiangdeMacBook-Pro.local> <5825b5c2-06b3-4358-91b0-d7bf437528a3@roeck-us.net>
+ <an9d0zxE5J8txxf6@XiangdeMacBook-Pro.local> <1638f2a8-d9cd-423d-83f6-2b436e3c9de0@roeck-us.net>
+In-Reply-To: <1638f2a8-d9cd-423d-83f6-2b436e3c9de0@roeck-us.net>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Sat, 15 Aug 2026 13:41:57 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXpJY3gqx98z92=P8NxV2_-_N+5OVqNvMLDMKq9bhuY+Q@mail.gmail.com>
+X-Gm-Features: AcwNN1WYoN-n_CAfH-GW_Zs3A4lf_FFUASxx_a7f-R_6u7A4lR5RgAtY2rsqH94
+Message-ID: <CAMuHMdXpJY3gqx98z92=P8NxV2_-_N+5OVqNvMLDMKq9bhuY+Q@mail.gmail.com>
+Subject: Re: [PATCH v3] erofs: cap LZMA stream pool size
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Gao Xiang <xiang@kernel.org>, Michael Bommarito <michael.bommarito@gmail.com>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>, 
+	SJ Park <sj@kernel.org>, Gao Xiang <hsiangkao@linux.alibaba.com>, Yue Hu <zbestahu@gmail.com>, 
+	Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale <dhavale@google.com>, 
+	Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>, 
+	David Hildenbrand <david@redhat.com>, linux-kbuild <linux-kbuild@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git fixes
-branch HEAD: 430a5b1b10cf2897253eff940395639a40cdae0c  erofs: fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS on some UP platforms
+Hi G=C3=BCnter,
 
-elapsed time: 792m
+On Fri, 14 Aug 2026 at 20:44, Guenter Roeck <linux@roeck-us.net> wrote:
+> On 8/14/26 11:26, Gao Xiang wrote:
+> > On Wed, Aug 12, 2026 at 07:25:50AM -0700, Guenter Roeck wrote:
+> >>>> Thank you, that seems to work (despite still seeing the warning on m=
+68k,
+> >>>> as NR_CPUS does not exist).
+> >>>>
+> >>>>         $ make ARCH=3Dm68k allmodconfig
+> >>>>        fs/erofs/Kconfig:137:warning: range is invalid
+> >>>>
+> >>>>    Warning...
+> >>>
+> >>> Yes, other arches shouldn't have the warning because I think other
+> >>> arches (including microblaze) defines NR_CPUS in Kconfig, except m68k=
+.
+> >>
+> >> That is not entirely true. openrisc only has it if SMP=3Dy. But it sti=
+ll
+> >> does not generate the warning for some reason.
+> >
+> > I looked into the documentation a bit
+> > (https://docs.kernel.org/kbuild/kconfig-language.html), especially the
+> > following parts:
+> >
+> >   - type definition: =E2=80=9Cbool=E2=80=9D/=E2=80=9Dtristate=E2=80=9D/=
+=E2=80=9Dstring=E2=80=9D/=E2=80=9Dhex=E2=80=9D/=E2=80=9Dint=E2=80=9D ...
+> >   - input prompt: =E2=80=9Cprompt=E2=80=9D <prompt> [=E2=80=9Cif=E2=80=
+=9D <expr>] ...
+> >       and "If a prompt is not present, the config option is
+> >            a non-visible symbol, ..."
+> >
+> >   - dependencies: =E2=80=9Cdepends on=E2=80=9D <expr> [=E2=80=9Cif=E2=
+=80=9D <expr>] ...
+> >   - Menu dependencies ..
+> >
+> > and I think that is true, taking openrisc for example:
+> >
+> > config NR_CPUS
+> >          int "Maximum number of CPUs (2-32)"
+> >          range 2 32
+> >          depends on SMP
+> >          default "2"
+> >
+> > which can be transformed into
+> >
+> > config NR_CPUS
+> >          int
+> >       prompt "Maximum number of CPUs (2-32)"
+> >       range 2 32
+> >       depends on SMP
+> >          default "2"
+> >
+> > which can be then transformed into
+> >
+> > config NR_CPUS
+> >          int
+> >       prompt "Maximum number of CPUs (2-32)" if SMP
+> >       range 2 32 if SMP
+> >          default "2" if SMP
+> >
+> > so if `SMP=3Dn`, it's equivalent to
+> >
+> > config NR_CPUS
+> >          int
+> >
+> > so NR_CPUS symbol is still there I think (and its value is 0.)
+> >
+> $ grep NR_CPUS .config
+> CONFIG_FORCE_NR_CPUS=3Dy
+> $ grep EROFS .config
+> CONFIG_EROFS_FS=3Dy
+> # CONFIG_EROFS_FS_DEBUG is not set
+> CONFIG_EROFS_FS_XATTR=3Dy
+> CONFIG_EROFS_FS_POSIX_ACL=3Dy
+> CONFIG_EROFS_FS_SECURITY=3Dy
+> CONFIG_EROFS_FS_BACKED_BY_FILE=3Dy
+> CONFIG_EROFS_FS_ZIP=3Dy
+> CONFIG_EROFS_FS_ZIP_LZMA=3Dy
+> CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=3D0
+> # CONFIG_EROFS_FS_ZIP_DEFLATE is not set
+> # CONFIG_EROFS_FS_ZIP_ZSTD is not set
+> # CONFIG_EROFS_FS_ZIP_ACCEL is not set
+> # CONFIG_EROFS_FS_PCPU_KTHREAD is not set
+> # CONFIG_EROFS_FS_PAGE_CACHE_SHARE is not set
+>
+> The symbol may be there internally, but it does not show up in .config.
 
-configs tested: 71
-configs skipped: 0
+    config EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS
+    ...
+    range 1 NR_CPUS
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Apparently the default value picked by "automatic" configs like
+allmodconfig and defconfig is the last item from the range.
+If NR_CPUS exists internally (e.g. openrisc and arm), you end up with
+the "undefined value", aka zero:
 
-tested configs:
-alpha                            allnoconfig    gcc-16.1.0
-alpha                           allyesconfig    gcc-16.1.0
-alpha                              defconfig    gcc-16.1.0
-arc                             allmodconfig    gcc-16.1.0
-arc                             allyesconfig    gcc-16.1.0
-arc                           randconfig-001    gcc-8.5.0
-arc                  randconfig-001-20260815    gcc-11.5.0
-arc                  randconfig-002-20260815    gcc-8.5.0
-arm                  randconfig-001-20260815    clang-21
-arm                  randconfig-002-20260815    gcc-8.5.0
-arm                  randconfig-003-20260815    clang-17
-arm                  randconfig-004-20260815    gcc-8.5.0
-arm                       shmobile_defconfig    gcc-16.1.0
-arm64                randconfig-001-20260815    clang-24
-arm64                randconfig-004-20260815    clang-24
-csky                            allmodconfig    gcc-16.1.0
-csky                 randconfig-001-20260815    gcc-13.4.0
-csky                 randconfig-002-20260815    gcc-15.2.0
-hexagon              randconfig-001-20260815    clang-24
-hexagon              randconfig-002-20260815    clang-22
-i386                            allmodconfig    gcc-14
-i386       buildonly-randconfig-001-20260814    clang-22
-i386       buildonly-randconfig-002-20260814    gcc-13
-i386       buildonly-randconfig-003-20260814    clang-22
-i386       buildonly-randconfig-004-20260814    clang-22
-i386       buildonly-randconfig-005-20260814    gcc-13
-i386       buildonly-randconfig-006-20260814    gcc-14
-loongarch                          defconfig    clang-24
-loongarch            randconfig-001-20260815    clang-18
-loongarch            randconfig-002-20260815    clang-18
-nios2                           allmodconfig    gcc-11.5.0
-nios2                            allnoconfig    gcc-11.5.0
-nios2                randconfig-001-20260815    gcc-8.5.0
-nios2                randconfig-002-20260815    gcc-8.5.0
-parisc                          allmodconfig    gcc-16.1.0
-parisc                          allyesconfig    gcc-16.1.0
-parisc                             defconfig    gcc-16.1.0
-riscv                randconfig-001-20260814    gcc-14.3.0
-riscv                randconfig-002-20260814    clang-24
-s390                 randconfig-001-20260814    gcc-11.5.0
-s390                 randconfig-002-20260814    gcc-13.4.0
-sh                                 defconfig    gcc-16.1.0
-sh                   randconfig-001-20260814    gcc-16.1.0
-sh                   randconfig-002-20260814    gcc-16.1.0
-sparc                randconfig-001-20260814    gcc-16.1.0
-sparc                randconfig-002-20260814    gcc-15.2.0
-sparc64              randconfig-001-20260814    gcc-8.5.0
-sparc64              randconfig-002-20260814    clang-24
-um                   randconfig-001-20260814    gcc-14
-um                   randconfig-002-20260814    clang-22
-x86_64               randconfig-001-20260814    gcc-14
-x86_64               randconfig-002-20260814    clang-22
-x86_64               randconfig-003-20260814    clang-22
-x86_64               randconfig-004-20260814    clang-22
-x86_64               randconfig-005-20260814    gcc-14
-x86_64               randconfig-006-20260814    gcc-14
-x86_64               randconfig-011-20260814    clang-22
-x86_64               randconfig-012-20260814    gcc-13
-x86_64               randconfig-013-20260814    clang-22
-x86_64               randconfig-014-20260814    gcc-14
-x86_64               randconfig-015-20260814    gcc-14
-x86_64               randconfig-016-20260814    clang-22
-x86_64                        randconfig-071    gcc-14
-x86_64               randconfig-071-20260814    gcc-14
-x86_64               randconfig-072-20260814    clang-22
-x86_64               randconfig-073-20260814    clang-22
-x86_64               randconfig-074-20260814    gcc-13
-x86_64               randconfig-075-20260814    gcc-14
-x86_64               randconfig-076-20260814    clang-22
-xtensa               randconfig-001-20260814    gcc-9.5.0
-xtensa               randconfig-002-20260814    gcc-15.2.0
+    CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=3D0
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+As NR_CPUS did not exist on m68k at all, you ended up with the NR_CPUS
+literal:
+
+    CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=3DNR_CPUS
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
 
