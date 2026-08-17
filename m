@@ -1,74 +1,90 @@
-Return-Path: <linux-erofs+bounces-4248-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4249-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ED07AC5DF70
-	for <linux-erofs@archiver.kernel.org>; Mon, 17 Aug 2026 10:06:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06776C5B572
+	for <linux-erofs@archiver.kernel.org>; Mon, 17 Aug 2026 17:07:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hNpQ61rfsz2y1Y;
-	Mon, 17 Aug 2026 20:06:22 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786961182;
-	cv=none; b=B/x0sIAJeQcIAE+e1tFD/TQv7/026d1UmuxBlauz48yIzH4uqjB59tG+suhLn+4HKskgyLRtId1yVOOxpCETaLIZ/6i386K/zz/u/9NzIHhKRppv/tQRZVcx8RFoq+1GaC9Wr4UYCgnVQ933+ourzJWSjZSueutAn8oGXeImAbapa2uzWAOXRFPZSYEKOrK88lGdRlvMfZ8WVBLQZlkisTZd4IxWquDN7ozQyWB3aY13LDCpGlW75+C/Q/B5VJ1eMgJeCn32TRDhL84q7n3m4Iv0BgcTo4XD8gfJafJiLaDL4WBNpJi0o9orRJV9KU/1+1OoNctJRt81vT/Bn0YAnw==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1786961182; c=relaxed/relaxed;
-	bh=fdSfuECU47r/KTvkehFAte5AcljYqgsIk7gtUuq/RL8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cLE6nwMy/CxplYRw2HKwDf2u4n9jBwfkPOFcQ1hzQAhgx2/uCBgCNL8ik2cpJwd9saE9LdylTaTtBSQdQIHYr2RC2/yQZkvDIBYknCCHv2LdQ+h8E/ZjuKihUlweGFqCwYFcGkpeTm8ca5cNjkbqW7NkcWypoffGU7GALY1hpSTHNnuy/3E5sNjj+gLjjhwbGEyZBmS1RoKeYyTv/9oGRgrkqxxdDGp0cSCRh2LWyKF8NgMX7vEnYAWHUYfYMeGAewvyCna/E3z/KneW/4JgHTIKm33CwLBczBBRPU4L0uAvY3dHCVQasI+ZxAXnyHbTctq5jPQh4YfGNYRQCtEq3Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fU7lWDww; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hNzlq6mr7z2y8G;
+	Tue, 18 Aug 2026 03:07:19 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1032" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1786986439;
+	cv=pass; b=VyhVlzhj9prsINhe+v1vhrvKsJ9MLJO6k35cJLm0Jf2bB6cahjyNj1MmUgbk1t0j4I8069RSZFISbnf4ucgv35qRUIuzdfWQVinDrEYjYJEfvjTsr5n+b1mXNgkkJlQvxkzrITuiK18fAZ1ZtAZi1wtXHg0zf8R6n8QgsmZ5oYStAzpnNd3NcqMBshNnE25o/dSfWPkQopr4hVJGKN5u0tWYeG/qL3K8eKvm9sjCz/wyCxJK7i7HYn9s022RpBReUrYc/kblfsLYVzc+0yc04b2nXJ5wAr8Ab8IsyvKX3beIyGhLQsrN9qTayJWUcvpwIdEwo+8bt6PRR27dY+LWgw==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1786986439; c=relaxed/relaxed;
+	bh=JCTohkxVKDZy1z5sbhAMxIz17RkLuhNUaF/Z6s1PMZc=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=dazaDnjySfp2EOFCiyw1Q/WwMJtHDDZT/Um26ua9hsAJg8FR+ZX5fjHFUxZdNE4kNXWLotfr7OjpzcveBpJtPppBnY4qCqxWjtRHevpDbjuVLk84YJX++4+KJfCT2+Fnj6bUwQhrnjJIb6txhgVe4TuJ/X8eTDudTO96ZVHhZePJgecu89086yuMHmrlxZ7uJOQxRq4aQYtWIrbKQZPKFq6bqlGRFv6MhRrvECwZ8ZhO3DJs6F8igQa+inkRP/i1RGVgEhXtg9wfx3d8kQuRuZvFBBtWDU7RRFjwKPr5ljAZ4VVipJmYCBJ9ldMhGQCQ8X/kENKcY1zOIY3pmaNoKQ==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=YqKMtCAR; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=isaiahdw@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fU7lWDww;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=YqKMtCAR;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=isaiahdw@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hNpQ52Fslz2xy6
-	for <linux-erofs@lists.ozlabs.org>; Mon, 17 Aug 2026 20:06:21 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id A654B601E9;
-	Mon, 17 Aug 2026 10:06:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C46691F000E9;
-	Mon, 17 Aug 2026 10:06:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786961177;
-	bh=fdSfuECU47r/KTvkehFAte5AcljYqgsIk7gtUuq/RL8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fU7lWDwwrDAPAJgwJmxSLi3vmDtrwonVS/q7sKRG7Mmt+0z1IEMkfVtsSUsL++6zn
-	 V0sxg15HRMrIuWLVkVDnx+jf1MSJbv2orZ0KJ9yLOY/MsbmK5yrFHoT8xUaUtTujZk
-	 QZ05qiprsw4eSbSuUtDqbB1oKbOoLiATK559KOOYk6HjoZM/H1UFJVNemK43sOplIV
-	 r2hwJjG0685IIMbXGui2q8rsds1X5Ols4n3Xa2SB+YGMEJomZYnbGabnKgLGzDabkj
-	 BeTNMW2umSCa175vQzBtAC8qtTvl2UCcLFDjN4OnuBwf6ewApJkNrCIOuziyUeLhrJ
-	 mnRkROIR/BACA==
-Date: Mon, 17 Aug 2026 18:06:09 +0800
-From: Gao Xiang <xiang@kernel.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Gao Xiang <xiang@kernel.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>,
-	SJ Park <sj@kernel.org>, Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH] erofs: fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS on some
- UP platforms
-Message-ID: <aoLdEZaU3ELM1EN9@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Gao Xiang <xiang@kernel.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>,
-	SJ Park <sj@kernel.org>, Guenter Roeck <groeck7@gmail.com>
-References: <CAMuHMdUO8_BY514PhSXeEPABCoeaJcEk1TimzxvtwPz6zFA5nw@mail.gmail.com>
- <20260812131144.30802-1-xiang@kernel.org>
- <CAMuHMdWQO2Lkv4O8=nv6WVtsL1FEk-04RAv=VSZGkro7n0th2g@mail.gmail.com>
- <aoK84br1-61FLLXB@XiangdeMacBook-Pro.local>
- <CAMuHMdWeHTsAMtgwVT9hfvmZj_Z8G8JG7pV2rVEnEOSiqsCDOg@mail.gmail.com>
- <aoLB0mk6rE4htbZm@XiangdeMacBook-Pro.local>
- <CAMuHMdWmcj5SQ-AbyhWL3jiPJKdmNq64m-BOAe3T7HPjJqaDBw@mail.gmail.com>
- <aoLOuVyQyzflCqWD@XiangdeMacBook-Pro.local>
- <CAMuHMdVJQoRxD4F5gZzAgvzZOad+gy-ROtNVmeNFiZ22=uoApg@mail.gmail.com>
- <aoLYrMCx96xw04K0@XiangdeMacBook-Pro.local>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hNzlp0Wqrz2xl5
+	for <linux-erofs@lists.ozlabs.org>; Tue, 18 Aug 2026 03:07:16 +1000 (AEST)
+Received: by mail-pj1-x1032.google.com with SMTP id 98e67ed59e1d1-3811f512167so5170365a91.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 17 Aug 2026 10:07:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786986434; cv=none;
+        d=google.com; s=arc-20260327;
+        b=NOAOD5C2ehhD3MAUh5EwdNHewCJw0jJh+gUHI2xuCeSc08Yrg+ih6ybPrYGdev5z1H
+         uSM1OcmP/Hzx5EWTVpQzoWanvJkzPPHztUReGzJXU0OJJmTfQhBNdOkRmBUJkD6jLevV
+         Uhwfi6/DB3sJWuTwwm73ZZ2IyeY8R3uuJx/tnMmqo/0f+XnmbgagtwENWEit/tI7LSg/
+         oCKXVrU7gMj5XC1LprIc0h24HywGmktIyLjRdmQJkxzsdVIIO8zZarTJnfjR1iZwvtTI
+         qmvp8PCGYmcxRy6a7YLNW505cCDApquh1WvZGOjeL8r2mqUzYBjCYiaAg2EryA5BxT9v
+         j0qg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=JCTohkxVKDZy1z5sbhAMxIz17RkLuhNUaF/Z6s1PMZc=;
+        fh=JcF7iGUjJsVSaM7oSS1RWcr27vz0aVsrVNsuXyQexrw=;
+        b=RQ7kFSNvTplAWpT8DSs06QGoyZ+2oLB3miorrrNZbcOh3jykuxck41Gow4D1FZ0VMG
+         jksytHhK4XhYIUoWz7/PJvGEc/RPwFHojZvlZ9PZ/X1BB4wvaV1v2l+eQ2A+/TGBZnXs
+         VuQqNMllk0SoctsmceM8Oso2J1VcBkuhIGL80HGZFCv3HskxG8afAMS7yO8h5OWhjoI4
+         0GsU9AfyTlMcI3oVMcaWImkSa1ScYdXOnEYO/qdMkSfmNjElnuHhzRf3JeJJRauvc2sM
+         0bgpgOc1Y/Qxx25xd2qMj39A584kdgQi/PTXnf906AYb4ty5Fs8ABDBi3Wb1YXN1yVD7
+         Sjbw==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786986434; x=1787591234; darn=lists.ozlabs.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=JCTohkxVKDZy1z5sbhAMxIz17RkLuhNUaF/Z6s1PMZc=;
+        b=YqKMtCARKtN51tX6I223NvO5om7fZNG94kEmdohGCR/jj4bbzM5+G3UdrUV+5WA0gq
+         hcxc7QArQlVZEMn0ExsA4ZNHhyhE3htLKM2uQk6GxYMStp/U+iKZ6R1zDxOUEB15J2GN
+         ecngTC1GrZ3LiifUJNuO6Wfm5a3dXyeCZMwD3DBDNGd/Z/Ul2G/nOvBU6r19es4fyfsj
+         nHsuJ6LhRhkG3RMjMOwEJYO3gmUPGfECsAoVai2LMBXWgzIRCp/Sk5jyNhlfx+ZNXT9g
+         uroIpG48SRxykKUv+ywzLtazbFxIrfgbkLtg1RbVSLc3/Df89SM7E+sqUYbnhf5h9N9d
+         oYPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786986434; x=1787591234;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=JCTohkxVKDZy1z5sbhAMxIz17RkLuhNUaF/Z6s1PMZc=;
+        b=SWGhxhRCmwd7l8bQRGj6QIiiRcaFSTuKy8ITrE2KBqDrHOb4meUrKznEJ1C4/BAt0m
+         zlJ9hTNLA16EfYecRJmJFwDcFr/VY+M/cir6WKjpyHybb7iZHF2IrBzYX68T/CKkaxiD
+         sTo7rygU+FDD1P+IkTlDDmpzje7lwNLWYx0Rsba6QLJ5PBqg+PKn2/5u3tDcforxT0hz
+         fPNE2zI1avfC80p7D2xyeW8H90rKWI+kVhk387Wv44mYlgTaMRIAB3VMkzYQpV7IEqeZ
+         RkHRR8TsEVTUcVvlPZjw5lnzcRPJWZY6kMnQ181oq9JFVnq0yA9uK87kdmWVIzzxgIao
+         M3kw==
+X-Gm-Message-State: AOJu0YwMeFOIZbjQ+uoY4IMxIO/Uu4FSfEJI85P+Qf1KreB57FZCoWIZ
+	uqlai+8iPo5wqUdiWGKLb5yXuKT+E9Tzq+rVM0JQbB+YtzHMZr3WJThy/+Q7apyaXN8sg0Kf5W4
+	uyNpBtln+O9DjlAW+gB2K5Sy47JrZQEyF4y1f2b93
+X-Gm-Gg: AR+sD134U+bX3cuXLeQ2PmzYMo8XxeZgy8nY5Se2n0px+kPiwfG4purY5HPLBbESoUS
+	ltjjLU3YcSODMz5Ch+abQDgBLa59rOOWYQzzEKjoM7ay+l2lQ4LzYgwUTI4FmWtrUVQywba7SbJ
+	sqXS76r6IBW6C6RwvbbKGzI4AvKskcs5DkwkTAkQmol9kuFIvmRANoTw0gN/ih5wJr7r6YZagmx
+	0Oz3fvfEiTRPsbx4YsI0zEsuhOUxnEOqkVUmdB1mL4UTCBg/BO6pCFsitMb3Y2ZuMgzKFuJGDC1
+	qi+BFfgrbQRCb7+nUODCnZ8W8kjtYaFORdRGKm38a0tL7/MOLaIeEJMOZ1MzgpCRb+M/FZyAbEf
+	k
+X-Received: by 2002:a17:90b:4984:b0:38e:8300:af51 with SMTP id
+ 98e67ed59e1d1-3955a762459mr1842239a91.8.1786986433407; Mon, 17 Aug 2026
+ 10:07:13 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -80,94 +96,55 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <aoLYrMCx96xw04K0@XiangdeMacBook-Pro.local>
+From: Isaiah Derose-Wilson <isaiahdw@gmail.com>
+Date: Mon, 17 Aug 2026 10:07:01 -0700
+X-Gm-Features: AcwNN1XjnnsqpLEvfFsWJOxe9iWOQIH53vl9zG0OhDBdXIu3S0GCQ26h9g82FuU
+Message-ID: <CAMTkE+Te5f7v9MV4B6sBnHdC5XLcJtPQiS29PhFhVhqHtr+uJQ@mail.gmail.com>
+Subject: [PATCH] erofs-utils: mkfs: fix uninitialized z_erofs_mt_ctrl.mutex
+To: linux-erofs@lists.ozlabs.org
+Cc: xiang@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Aug 17, 2026 at 05:47:24PM +0800, Gao Xiang wrote:
-> On Mon, Aug 17, 2026 at 11:21:33AM +0200, Geert Uytterhoeven wrote:
-> > Hi Gao,
-> > 
-> > On Mon, 17 Aug 2026 at 11:05, Gao Xiang <xiang@kernel.org> wrote:
-> > > On Mon, Aug 17, 2026 at 10:43:34AM +0200, Geert Uytterhoeven wrote:
-> > > > > > > In principle, that would be better, but may I ask if there is some
-> > > > > > > severe consequences out of one extra line of
-> > > > > > > CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=1?
-> > > > > > >
-> > > > > > > Since it has been fixed for many times, I hope if it could be improved
-> > > > > > > later if no severe impacts, sigh..
-> > > > > >
-> > > > > > It causes more churn (defconfig updates), and makes the defconfig
-> > > > > > files larger than needed.
-> > > > >
-> > > > > Could you submit a formal patch directly (since you found it and
-> > > > > suggested a version)?
-> > > > >
-> > > > > so I could submit it along with the pull request if you're fine with it.
-> > > >
-> > > > Will do, I want to do a bit more testing first...
-> > >
-> > > Ok, anyway, I will try to submit a PR hours later.
-> > > if there is a patch, the worst case is that it's included in
-> > > the follow-up pull request.
-> > >
-> > > > In addition, usability can be improved by hiding the prompt on UP
-> > > > systems:
-> > > >
-> > > > -       int "EROFS LZMA default maximum decompression streams"
-> > > > +       int "EROFS LZMA default maximum decompression streams" if SMP
-> > > >
-> > >
-> > > I hope CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS is a user-visible
-> > > configuration (and the Kconfig text helps too) no matter the platform
-> > > is UP or not (but it can be omitted in .config) even there is the only
-> > > one choice in menuconfig for example on UP platforms.
-> > 
-> > Why do you prefer it to be a user-visible option on UP?
-> > In general, we try not to bother the user with questions about
-> > configuration options that do not matter for him, or that offer only
-> > a single valid answer.
-> > 
-> > IMHO even "if SMP && EXPERT" would make sense...
-> 
-> I think users should not be bothered with !SMP in the beginning.
-> 
-> CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS impacts the default
-> LZMA maximum memory usage, I hope it shows the same for both SMP or
-> !SMP (even it cannot be configured on !SMP, since it clearly shows
-> to users the number and indicates how the default LZMA stream
-> derives in general.)
-> 
-> I think it's unlike something that is totally disabled in !SMP (or
-> does't have such functionality in SMP), I think that is more sense
-                                    ^ !SMP
+z_erofs_mt_ctrl.mutex guards the multi-threaded compression idle
+work-item list but is never initialized: z_erofs_mt_global_init()
+initializes g_ictx.mutex and g_ictx.cond, not this one.
 
-> to hide it in the configuration but here the DEFAULT_MAX_STREAM is still
-> meaningful and is 1.
+A zero-filled pthread_mutex_t happens to be a valid initialized mutex
+on glibc, so Linux builds are unaffected by accident.  On macOS a
+zeroed mutex is invalid: pthread_mutex_lock() fails with EINVAL and,
+since the return value is not checked, the idle-list critical sections
+in z_erofs_mt_compress() and erofs_mt_write_compressed_file() run with
+no mutual exclusion at all.  The torn list can hand the same work item
+to two owners, which corrupts the workqueue and crashes mkfs.erofs
+non-deterministically (NULL work dequeued in worker_thread(), SIGABRT,
+or corrupted output).  --workers=1 does not help since the race is
+between the producer and the reaper thread.
 
-In other words, if NR_CPUS is defined unconditionally (regardless of
-SMP or not like the current status), from the user perspective, I
-think SMP inclusion here has no real gain, and it should be just
-`range 1 NR_CPUS` simply as a unique per-fs configuration.
+Initialize the mutex statically.
 
-Thanks,
-Gao Xiang
+Fixes: 830b27bc23342 ("erofs-utils: mkfs: introduce inner-file
+multi-threaded compression")
+Closes: https://github.com/erofs/erofs-utils/issues/53
+Signed-off-by: Isaiah DeRose-Wilson <isaiahdw@gmail.com>
+---
+ lib/compress.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> 
-> Thanks,
-> Gao Xiang
-> 
-> > 
-> > Gr{oetje,eeting}s,
-> > 
-> >                         Geert
-> > 
-> > -- 
-> > Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> > 
-> > In personal conversations with technical people, I call myself a hacker. But
-> > when I'm talking to journalists I just say "programmer" or something like that.
-> >                                 -- Linus Torvalds
-> > 
-> 
+diff --git a/lib/compress.c b/lib/compress.c
+index 48a18b9..9262afa 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -110,7 +110,9 @@ static struct {
+  struct erofs_workqueue wq;
+  struct erofs_compress_work *idle;
+  pthread_mutex_t mutex;
+-} z_erofs_mt_ctrl;
++} z_erofs_mt_ctrl = {
++ .mutex = PTHREAD_MUTEX_INITIALIZER,
++};
+
+ struct z_erofs_compress_fslot {
+  struct list_head pending;
+-- 
+2.55.0
 
