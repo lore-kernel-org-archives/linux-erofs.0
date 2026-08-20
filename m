@@ -1,63 +1,60 @@
-Return-Path: <linux-erofs+bounces-4266-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4267-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24ED0C5DF87
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 13:29:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4D40C5DF81
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 13:34:01 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hQknG2319z2xT6;
-	Thu, 20 Aug 2026 23:29:38 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787232578;
-	cv=none; b=J1cSiL6L9/hVcvVnjXLvZZUzIoAA8OoybFEnp+D6cGzpanwCCY2Ey0QjY1vJqFSNSDMZjI3/VUyAsxoSzLnXP2G4SmaOFHe2VykjUfXRj0Tw8Jklx6a8XJtnwc3lK78vwmm3V09Nhgpia6GAuoH+EFbx/VNU+Z1YYIjvtFX8/m8euYAOHx1iLaMaaJYglqkoanj2RiCpuXW7sdnGvMOp6xg9kRL8HzpWDMHe/4/qO/iWUMrjFJI7XVwEEozbxxu9Fy2CuadZOxkVFhuYDe/6XeGy9yoUn0Jy7/KkVJSvSjdvft88LLhXNWv2M+ZK3i5zHzUJ1VWCgiewa2YrkuVDwg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hQktJ1q5gz2xT6;
+	Thu, 20 Aug 2026 23:34:00 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787232840;
+	cv=none; b=Z37NXPJMPr9d1aFr/KPzMbZt0/Bu527kgO+bmpgiH/bn15Hzj2ZQMrc9ysRwuhOtcIpsj042kh8RNOTMDMNr5c989H8e2QzCV1QK7QoOSlHNCEJ+XDAiAgUIkXodHmaeD47PxIgbhvRbGHxjwDHEAuPPevakraRM1RNyWX1fSVyDVJ5HSbsLN4cBSEdmYCN8qUGbjkR5dRqOijoOmwOf5bctcKzpBuJb8QblI1w2M7x+YNYQiz/e9Uf68g/GhVRpoZ4N5aB/Bz2yEdAl9JapL4f53Cyo/2WZa5exL2HsYguc7cZcoDyFDLzc+hyhSwg6REqCdvHGKo+0jAu/HYc+Cg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787232578; c=relaxed/relaxed;
-	bh=9+xIvAivAkJoFwbhPgrhK0pKgw8dpD6Dl6gXNIdc8VM=;
+	t=1787232840; c=relaxed/relaxed;
+	bh=LbGyTW7vRWPON5I5dgHRtEXadLVcIPrLH2urM6dqQ+Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZiBXv/ewoQc66glYb3irT742I7sDkfOHxeYMOcQZJTFTFo+P9gbtynryfbnYGfhP433c75FaWoZM2D+Y4iIGQFJAK5sCxojXOLrLxltnM2ss0NEYGLB9N+wZdu1ehYRh/cPI7I3Scx5GNaqSIGdjyAopY3V5Hl6Gi9RIWlnjIs2P9oXqwGXJk0vQhaQGRNCQDAn6dvCJcaI5A7h+r2eBwrUZAk1P+Vv0ujl0igJqGI6wp5HNa4+wiZ+FUV85T0wJrm6eC6i718fH1XIjki6RCRv4/C6PnjlCTzVY9isTmCb3ylsg0Bdr/t6d73TQ6Wr/+oRmVbuolEhXlcRYjjqzdg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oP2TIhGk; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=bJor0CaJ6/V/XMIz0zUhfKD3EhiuPAX4jCSkCYgduW0kGuGvtjcvphNIYOz8kxfDZfbHsNnMPvCcFXrHOwriYvmhoBOo5eruxTzgoEeAm2i27hR6KpLHX+PA7wWJHMHFcITbQR6torm8SrndEu5XWRwaAXfkI4HthGtvNyen0k+7F7IMrwxXrWMc4YNM4kQLw3c/xe21GgwzCfnRk2lZPkw+Og6tC0QjCUf3Gq3KP7ZY96WBcpOmyGPu88E9XTnLbPhktWaNNIYmk+p7ENho2bu0Xtw+RHgfogkQAV22Lk1Atdh2LqOqozhbp5hpdrarE+YzPAHZ7hAD5mZufqwrow==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k2zHofpj; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oP2TIhGk;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k2zHofpj;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQknD3Dcjz2xRw
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 23:29:36 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQktH4Mjtz2xRw
+	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 23:33:59 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id EB275409E2;
-	Thu, 20 Aug 2026 13:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B12311F000E9;
-	Thu, 20 Aug 2026 13:29:30 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 71A244233C;
+	Thu, 20 Aug 2026 13:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EDD21F00A3A;
+	Thu, 20 Aug 2026 13:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787232572;
-	bh=9+xIvAivAkJoFwbhPgrhK0pKgw8dpD6Dl6gXNIdc8VM=;
+	s=k20260515; t=1787232837;
+	bh=LbGyTW7vRWPON5I5dgHRtEXadLVcIPrLH2urM6dqQ+Y=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=oP2TIhGkYtlMKI0tJv5XkySJXP2D8XaR3Q89wvDUMrWZbL64F1bmqv2nlfFwVCaH7
-	 RyHOZWhFcByUFSNHeVtQLIm5noQvlA0upTqJ9Y+rqOudAj+CuR/ER3FPFMttadnnVH
-	 h5GI4OJLfcMwJDENvXJN7P4uRQ9E1nOwR2MAhP93SBpr7b8AwFxJa0+jPSuTTXa792
-	 kVxbzfRpPteepw1h5/iqV6CUsiH+Q+eWUVS8WcZAhcpGy93Eh2wj13HVtz+Zwqt4Wv
-	 9obE11m7vkN4krbMaJv3J/p1CMbsUm+/yp0FanFoKyc22tSWPXjFIdatLc8kL47JD1
-	 jtx41w2wymj/A==
-Date: Thu, 20 Aug 2026 21:29:23 +0800
+	b=k2zHofpjD2dl+NpLakhmQTgFlJjH0Ca5WMR8Ozbcr4D55PS3/R558M+oS0OCYekDV
+	 Y/czbLy5UnKT0NlWfwwV5CBpMtFutbenRetnCV7DgL0CvX/kj7JH4Tsw8BrQqfIOGQ
+	 xqN/DLDcQRvO7VvUxMEbK3paBXCVkVOzOqd1BMIgXE/Svj8lnKr/XQpkVeaDVP/enB
+	 KX5gB6zYIlCbFI8zzkTiqenrTZVdgLb7I1soKZ4aitgCqUOQXZ2XTATqwlaWy2KU/L
+	 Ji8EGAYKcBYTlaW/UmhGYOIeybO30nONDxFhb+l8PH6j4EvKazeD52cTIRnhic8pKz
+	 58PFj/4kqwnNw==
+Date: Thu, 20 Aug 2026 21:33:49 +0800
 From: Gao Xiang <xiang@kernel.org>
-To: Zhan Xusheng <zhanxusheng1024@gmail.com>
-Cc: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Jingbo Xu <jefflexu@linux.alibaba.com>, zhanxusheng@xiaomi.com,
-	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] erofs: use the shared page cache for splice in
- inode_share mode
-Message-ID: <aocBM-43e9Ea_vDK@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Zhan Xusheng <zhanxusheng1024@gmail.com>,
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Jingbo Xu <jefflexu@linux.alibaba.com>, zhanxusheng@xiaomi.com,
-	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
-References: <20260820064441.1083470-1-zhanxusheng@xiaomi.com>
+To: Jingbo Xu <jefflexu@linux.alibaba.com>
+Cc: xiang@kernel.org, chao@kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: support SEEK_HOLE/SEEK_DATA in inode_share mode
+Message-ID: <aocCPbxFolZd_VIk@XiangdeMacBook-Pro.local>
+Mail-Followup-To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
+	chao@kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org
+References: <20260818113713.116849-1-jefflexu@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,44 +68,58 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260820064441.1083470-1-zhanxusheng@xiaomi.com>
+In-Reply-To: <20260818113713.116849-1-jefflexu@linux.alibaba.com>
 
-Hi Xusheng,
+Hi Jingbo,
 
-On Thu, Aug 20, 2026 at 02:44:41PM +0800, Zhan Xusheng wrote:
-> From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+On Tue, Aug 18, 2026 at 07:37:13PM +0800, Jingbo Xu wrote:
+> When inode_share is enabled, erofs_ishare_fops.llseek falls back to
+> generic_file_llseek, which treats the whole file as data and always
+> returns i_size for SEEK_HOLE, hiding real holes in sparse files.
 > 
-> From: Zhan Xusheng <zhanxusheng@xiaomi.com>
+> Switch it to erofs_file_llseek instead.  For user files f_mapping->host
+> is always the real erofs inode, so SEEK_HOLE/SEEK_DATA resolve the
+> per-file on-disk layout via iomap_seek_hole()/iomap_seek_data().
 > 
-
-the subject can be improved as "erofs: support splice() in inode_share mode"
-
-> erofs_ishare_fops routes everything that touches the page cache to the
-> backing file in ->private_data: read_iter clones the iocb onto it, mmap
-> does vma_set_file(), fadvise calls vfs_fadvise() on it.  splice_read was
-> left as filemap_splice_read(), which works on the user file's own mapping.
+> Reported-by: Yuanhe Shu <xiangzao@linux.alibaba.com>
+> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+> ---
+>  fs/erofs/data.c     | 2 +-
+>  fs/erofs/internal.h | 2 ++
+>  fs/erofs/ishare.c   | 2 +-
+>  3 files changed, 4 insertions(+), 2 deletions(-)
 > 
-> filemap_splice_read() does init_sync_kiocb(&iocb, in), and
-> filemap_get_pages() then takes iocb->ki_filp->f_mapping, so splice() and
-> sendfile() populate the per-file page cache from disk instead of using the
-> shared one.  The data is correct, since erofs_fill_inode() sets that
-> mapping's a_ops either way, but the same content ends up cached twice,
-> which is what inode_share is there to avoid.
-> 
-> Pass the backing file, as read_iter already does.
-> 
-> Fixes: 5ef3208e3be5 ("erofs: introduce the page cache share feature")
-> Link: https://lore.kernel.org/all/b7dc7192-d586-45a2-bc4a-b41dc681c9bb@linux.alibaba.com/
-> Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
+> index d2f01245ee79..09d668deb86d 100644
+> --- a/fs/erofs/data.c
+> +++ b/fs/erofs/data.c
+> @@ -509,7 +509,7 @@ static int erofs_file_mmap_prepare(struct vm_area_desc *desc)
+>  #define erofs_file_mmap_prepare	generic_file_readonly_mmap_prepare
+>  #endif
+>  
+> -static loff_t erofs_file_llseek(struct file *file, loff_t offset, int whence)
+> +loff_t erofs_file_llseek(struct file *file, loff_t offset, int whence)
+>  {
+>  	struct inode *inode = file->f_mapping->host;
+>  	const struct iomap_ops *ops = &erofs_iomap_ops;
+> diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
+> index 57bd21859c65..3263c11d714c 100644
+> --- a/fs/erofs/internal.h
+> +++ b/fs/erofs/internal.h
+> @@ -528,6 +528,8 @@ static inline struct inode *erofs_real_inode(struct inode *inode, bool *need_ipu
+>  }
+>  #endif
+>  
+> +loff_t erofs_file_llseek(struct file *file, loff_t offset, int whence);
+> +
 
-I observed the sashiko's report too:
-https://sashiko.dev/#/patchset/20260818113713.116849-1-jefflexu%40linux.alibaba.com
+Could you move this line below erofs_fiemap()? I hope all declarations
+in data.c are closer.
 
-Regardless of the implementation details, I don't think it is a fix
-since this feature should be considered as a best-effort approach.
+Otherwise it looks good to me,
+Reviewed-by: Gao Xiang <xiang@kernel.org>
 
-If it's an enhancement, please also write an erofs-utils test and
-drop the fixes tag.
+Also could you help write a test for this functionality too?
 
 Thanks,
 Gao Xiang
