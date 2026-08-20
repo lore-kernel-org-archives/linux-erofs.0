@@ -1,74 +1,63 @@
-Return-Path: <linux-erofs+bounces-4265-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4266-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 59BF1C5DF81
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 13:10:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24ED0C5DF87
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 13:29:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hQkMM2Nn5z2xT6;
-	Thu, 20 Aug 2026 23:10:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787231439;
-	cv=none; b=mOC/IHTpQHFkhs4P4MSwQqwEldPp8L8Qt6jKN1RJvxfbJGXJU6p2CR2nh37b3wH8xd0KNIIXf5LyVTOuResS7r706NjEnNNpCgSJisEZA1uShcGmhbRjRel5fns9Z0CUsBAESbpuzwjCFoDbdTD2vKUzYtTgAh8DSR0wTeXu/qW0ei35AJPokTxXq67AHIyXbrGQ8zGzh8PJLC4+F8sbTllF67oHuCL3XLt6nCKBKSNRsH99Z6nIntufxRyiHMokpgWI9RsKTj1F6GJV5X/O5+mGErXE7Aiu4D+BSw0EedqScCtN8W/CgFY/cysTwEAAYUOoScF74qbKYl2Mwou6Qg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hQknG2319z2xT6;
+	Thu, 20 Aug 2026 23:29:38 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787232578;
+	cv=none; b=J1cSiL6L9/hVcvVnjXLvZZUzIoAA8OoybFEnp+D6cGzpanwCCY2Ey0QjY1vJqFSNSDMZjI3/VUyAsxoSzLnXP2G4SmaOFHe2VykjUfXRj0Tw8Jklx6a8XJtnwc3lK78vwmm3V09Nhgpia6GAuoH+EFbx/VNU+Z1YYIjvtFX8/m8euYAOHx1iLaMaaJYglqkoanj2RiCpuXW7sdnGvMOp6xg9kRL8HzpWDMHe/4/qO/iWUMrjFJI7XVwEEozbxxu9Fy2CuadZOxkVFhuYDe/6XeGy9yoUn0Jy7/KkVJSvSjdvft88LLhXNWv2M+ZK3i5zHzUJ1VWCgiewa2YrkuVDwg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787231439; c=relaxed/relaxed;
-	bh=3fRmigEw7qmFQY4eu/xZ0xLHtznc2W4nB8FZd9DSCys=;
+	t=1787232578; c=relaxed/relaxed;
+	bh=9+xIvAivAkJoFwbhPgrhK0pKgw8dpD6Dl6gXNIdc8VM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bmiGTUUHgaxfJuL2i7H+KTMJc2WoM5hBKACxj4T53HWgXlY5XdRQXrWCQZOyPk6cBgw9SvxzkqqFkWgndH9nmvig//juZHHRHcj7afwwPNBSlh7CFpax1ANKiYwHUeJ0lmvcxgfaa7KxL4ojdAnoC6VeTSCJ3prV9SNhMWyUfUrs0/PiP0t1zDs5FKSdYfEQA2rAuGK53swvfcjJ8irUs9sVwjckD0RX3Un5O09pS9lPSYO3PvJfhEaAA+mrgcNDyImyGz8K7BxY7lqSlRVNKcX4Lw6IXsBAUjgaotJQ7tHrRZXjw/NgbqbbCHt+LJkH5TUF+ifou/5w+AMe1K5yGA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oShboYWx; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZiBXv/ewoQc66glYb3irT742I7sDkfOHxeYMOcQZJTFTFo+P9gbtynryfbnYGfhP433c75FaWoZM2D+Y4iIGQFJAK5sCxojXOLrLxltnM2ss0NEYGLB9N+wZdu1ehYRh/cPI7I3Scx5GNaqSIGdjyAopY3V5Hl6Gi9RIWlnjIs2P9oXqwGXJk0vQhaQGRNCQDAn6dvCJcaI5A7h+r2eBwrUZAk1P+Vv0ujl0igJqGI6wp5HNa4+wiZ+FUV85T0wJrm6eC6i718fH1XIjki6RCRv4/C6PnjlCTzVY9isTmCb3ylsg0Bdr/t6d73TQ6Wr/+oRmVbuolEhXlcRYjjqzdg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oP2TIhGk; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oShboYWx;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oP2TIhGk;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQkMK3XQYz2xRw
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 23:10:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQknD3Dcjz2xRw
+	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 23:29:36 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id D4EA660A63;
-	Thu, 20 Aug 2026 13:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C3EC1F00A3A;
-	Thu, 20 Aug 2026 13:10:30 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id EB275409E2;
+	Thu, 20 Aug 2026 13:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B12311F000E9;
+	Thu, 20 Aug 2026 13:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787231434;
-	bh=3fRmigEw7qmFQY4eu/xZ0xLHtznc2W4nB8FZd9DSCys=;
+	s=k20260515; t=1787232572;
+	bh=9+xIvAivAkJoFwbhPgrhK0pKgw8dpD6Dl6gXNIdc8VM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=oShboYWxprDqsqk3dvye3hwz6sMF8/sOWXUoYuRIKZFI0D4bjFMIys93mnlmnleRq
-	 tcETnFQVfXaEnFwy0Kgzgx3/BMXnWRthzmPJCkQCNAgrD2YQXfdXYxf9oGbSTN8Aeh
-	 R5SYmeQnxlxsl3kW27j7t6LpATsosHotRsUdsKacyNYvf8VBcndbmYND9OCSflelNZ
-	 7y+e3WFYfWezFlIXDeaLhA1hxCfoTIhlqQPPrzBQdcfi6ik69aUp0KzQ2wQRF7ayRc
-	 lPNyCKlZCrCeFRl2oNdbxA9i5hUVPmJdqqXHg37nbpDhW83rRz8fRl7MW0tAP+d7gZ
-	 nWXhrjQK/me3w==
-Date: Thu, 20 Aug 2026 21:10:25 +0800
+	b=oP2TIhGkYtlMKI0tJv5XkySJXP2D8XaR3Q89wvDUMrWZbL64F1bmqv2nlfFwVCaH7
+	 RyHOZWhFcByUFSNHeVtQLIm5noQvlA0upTqJ9Y+rqOudAj+CuR/ER3FPFMttadnnVH
+	 h5GI4OJLfcMwJDENvXJN7P4uRQ9E1nOwR2MAhP93SBpr7b8AwFxJa0+jPSuTTXa792
+	 kVxbzfRpPteepw1h5/iqV6CUsiH+Q+eWUVS8WcZAhcpGy93Eh2wj13HVtz+Zwqt4Wv
+	 9obE11m7vkN4krbMaJv3J/p1CMbsUm+/yp0FanFoKyc22tSWPXjFIdatLc8kL47JD1
+	 jtx41w2wymj/A==
+Date: Thu, 20 Aug 2026 21:29:23 +0800
 From: Gao Xiang <xiang@kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>,
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Michael Bommarito <michael.bommarito@gmail.com>,
+To: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Cc: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Jingbo Xu <jefflexu@linux.alibaba.com>, zhanxusheng@xiaomi.com,
 	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] erofs: Fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS default
- logic
-Message-ID: <aob8wTTSCuq5054v@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Guenter Roeck <linux@roeck-us.net>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
+Subject: Re: [PATCH] erofs: use the shared page cache for splice in
+ inode_share mode
+Message-ID: <aocBM-43e9Ea_vDK@XiangdeMacBook-Pro.local>
+Mail-Followup-To: Zhan Xusheng <zhanxusheng1024@gmail.com>,
 	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Michael Bommarito <michael.bommarito@gmail.com>,
+	Jingbo Xu <jefflexu@linux.alibaba.com>, zhanxusheng@xiaomi.com,
 	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
-References: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
- <3d845134-9b75-40bd-b221-2bd35f98d425@roeck-us.net>
+References: <20260820064441.1083470-1-zhanxusheng@xiaomi.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -82,40 +71,44 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <3d845134-9b75-40bd-b221-2bd35f98d425@roeck-us.net>
+In-Reply-To: <20260820064441.1083470-1-zhanxusheng@xiaomi.com>
 
-On Thu, Aug 20, 2026 at 05:51:08AM -0700, Guenter Roeck wrote:
-> On Thu, Aug 20, 2026 at 12:00:23PM +0200, Geert Uytterhoeven wrote:
-> > When NR_CPUS is less than 16, or when SMP is disabled, the default value
-> > of 16 is invalid.
-> > 
-> > While actual configuration picks up a sensible and valid default
-> > (NR_CPUS or 1), "make savedefconfig" will still write a line like
-> > 
-> >     CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=1
-> > 
-> > to the defconfig file, even if that matches the sensible default.
-> > 
-> > Avoid needlessly enlarging the defconfig files, and reduce churn for
-> > updating them, by specifying valid defaults depending on SMP and
-> > NR_CPUS.
-> > 
-> > While at it, make the prompt depend on SMP, as there is no point in
-> > asking the user about the maximum number of decompression streams if
-> > there is only one valid answer.
-> > 
+Hi Xusheng,
+
+On Thu, Aug 20, 2026 at 02:44:41PM +0800, Zhan Xusheng wrote:
+> From: Zhan Xusheng <zhanxusheng1024@gmail.com>
 > 
-> Absolutely agree.
+> From: Zhan Xusheng <zhanxusheng@xiaomi.com>
+> 
 
-As I replied to Geert, unless there is a mandatory requirement
-documented that "there is no point to make a Kconfig visible if there
-is only one valid number".
+the subject can be improved as "erofs: support splice() in inode_share mode"
 
-I tend to avoid making EROFS Kconfig visibility depend on arbitrary
-architecture Kconfig options such as SMP or !SMP; SMP here is due to
-some arches make NR_CPUS = 0 if !SMP, but it doesn't need to bother
-users why a EROFS kconfig visibility has some relationship with an arch
-kconfig.
+> erofs_ishare_fops routes everything that touches the page cache to the
+> backing file in ->private_data: read_iter clones the iocb onto it, mmap
+> does vma_set_file(), fadvise calls vfs_fadvise() on it.  splice_read was
+> left as filemap_splice_read(), which works on the user file's own mapping.
+> 
+> filemap_splice_read() does init_sync_kiocb(&iocb, in), and
+> filemap_get_pages() then takes iocb->ki_filp->f_mapping, so splice() and
+> sendfile() populate the per-file page cache from disk instead of using the
+> shared one.  The data is correct, since erofs_fill_inode() sets that
+> mapping's a_ops either way, but the same content ends up cached twice,
+> which is what inode_share is there to avoid.
+> 
+> Pass the backing file, as read_iter already does.
+> 
+> Fixes: 5ef3208e3be5 ("erofs: introduce the page cache share feature")
+> Link: https://lore.kernel.org/all/b7dc7192-d586-45a2-bc4a-b41dc681c9bb@linux.alibaba.com/
+> Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+
+I observed the sashiko's report too:
+https://sashiko.dev/#/patchset/20260818113713.116849-1-jefflexu%40linux.alibaba.com
+
+Regardless of the implementation details, I don't think it is a fix
+since this feature should be considered as a best-effort approach.
+
+If it's an enhancement, please also write an erofs-utils test and
+drop the fixes tag.
 
 Thanks,
 Gao Xiang
