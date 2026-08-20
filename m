@@ -1,57 +1,90 @@
-Return-Path: <linux-erofs+bounces-4254-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4255-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE6C5C5B572
-	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 03:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E19CAC5DF85
+	for <linux-erofs@archiver.kernel.org>; Thu, 20 Aug 2026 03:11:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hQSrt4lv1z2yhY;
-	Thu, 20 Aug 2026 13:01:50 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=140.205.208.135
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787194910;
-	cv=none; b=LEf+hVnB8d/xSTfbfC6TqPxuP/2UHYgbtvznkULdGdy3wdMkWQiFQLar0w4s3rFpyChb+jrWH5lvZWTSpUKaRlXGL+E+WJtsdCi8LAXeZXiA7Q9O/eWyjV+Ibt/5Hbbh9iw5iHPUp+NmtKxIQ2BQ8XFp1rqIKAsaB+GUPiJaDLve57wV//bkZOx9laMpu9071e6SYK8SjXCDwdpKUaW0I7UO7zRb/vaByhaiJqnKRQAUqHs2eNPTGsnJQfuiLJChkYqoQpR1UOL6tyu4w/u1gz5NA7iKaH8Z5S/zYLT23sdr/+Dc10x7uOtS0Pn2ziWKEz9152CN4EBpXl0H6ch8pA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hQT3h6vQdz2yhY;
+	Thu, 20 Aug 2026 13:11:12 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1031"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787195472;
+	cv=none; b=l/n5NxbxhitKfM6pBmcRfrzVc7guVud26BK0ItZjtz+NpvBOB9CT+QTxiFgSBwxjQWGDnCuFw9KZxT3TMqzqomsew6PB/Peo+bHxKX3boCLP3iWJgBdDHYLhZUTXPja0jEzdX3lCqGlp1QZasjPumFFOEluKr2Mh82hnNdpkFZP4pX2/YXkxl5Wr92/CrzixllynlMR/Bo8GcaT2Hwd3hVji46BT5cJkXxTsjStH45bYdOlh+ZEshADY+GUL4WWNYtIjthBv84KpoYpLxfXoCiaVjod10WOuAFVjzqkUqwrOh8snyJZGifHNKDnkLppYz/iMbrD0A1mpn3d/TMfcnA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787194910; c=relaxed/relaxed;
-	bh=YhYOIQE60tKpHXUj6jSI+9AbyBBqFgSDdEFkzewVuz0=;
-	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type; b=AIQK5psjXwwyyq7rXU6HkwtntJP6/8e0opp8YHx/xuYo4Fhmzhtxv37OfUUMt1fbfTb471DaSNulFoTGiB4noYjTggao7+GlNHvPl8pGM+WeGJjXVS4n94/YgeNJpVAs6G97qtsnO6t8EfobSDXaGJkQu7DXYsEEwf3xcPQkzVqNPXN2SJXOQRmpMfDOEHTg1tUrRq5am9DJOalvN4+wWH8sSkjjR7ccqioKR97GIBxAeOAZwO3b3BiUBFVXfag07ay0aHO3G933g2Ny/PIt4SSxoBEcbKDvxzSknURRYeTTfrkG3MXkgKDoeug6s1+lE47qzCjZpOC/ixJSxAgJ8w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=mcpcnserver.com; dkim=pass (1024-bit key; unprotected) header.d=mcpcnserver.com header.i=@mcpcnserver.com header.a=rsa-sha256 header.s=aliyun-cn-hangzhou57fb2d3494 header.b=RVOiri89; dkim=pass (1024-bit key; unprotected) header.d=dm-fbl.aliyuncs.com header.i=@dm-fbl.aliyuncs.com header.a=rsa-sha256 header.s=feedback header.b=n9A/DoAa; dkim-atps=neutral; spf=pass (client-ip=140.205.208.135; helo=out208-135.dm.aliyun.com; envelope-from=market@mcpcnserver.com; receiver=lists.ozlabs.org) smtp.mailfrom=mcpcnserver.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=mcpcnserver.com
+	t=1787195472; c=relaxed/relaxed;
+	bh=LsQFRjNiJYCD/Hb5maV9dtGODC4Q60m2oS5/S3Jp00Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Bih//SWptnKoZn8FAW2Tlo2y84dsZSJxl+1kY1hjj1la0xPe+NsAUvCVPUuIwK8rFcgsAsnpCM1LJ48it293yR+TCSA0OP0EH8uPS9j6H3tIepaEoMvoGg+akK+zNPhIhuxyacVQNJOv9E+4oaghlH4K7RcFP2cECHpy8+UJAFgq+YpHJmdyxuV06Ml6TuLjYBne/uY2Kw63/d3SPQexbC0czOfGJRkpxRg1UxXm1lXPZZtKhcz8YKpE12WBJ8Qk7iBqm8sxKzg20GjCdLKPXeWgiMcC6zEH+wHH4Yf1rXv/wc+DEV9l8k2KWlT63WVBd28DlX0khdxVhD40yBwDQA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ZMs83Cnq; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1031; helo=mail-pj1-x1031.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=mcpcnserver.com header.i=@mcpcnserver.com header.a=rsa-sha256 header.s=aliyun-cn-hangzhou57fb2d3494 header.b=RVOiri89;
-	dkim=pass (1024-bit key; unprotected) header.d=dm-fbl.aliyuncs.com header.i=@dm-fbl.aliyuncs.com header.a=rsa-sha256 header.s=feedback header.b=n9A/DoAa;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ZMs83Cnq;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=mcpcnserver.com (client-ip=140.205.208.135; helo=out208-135.dm.aliyun.com; envelope-from=market@mcpcnserver.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 344 seconds by postgrey-1.37 at boromir; Thu, 20 Aug 2026 13:01:45 AEST
-Received: from out208-135.dm.aliyun.com (out208-135.dm.aliyun.com [140.205.208.135])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1031; helo=mail-pj1-x1031.google.com; envelope-from=zhanxusheng1024@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQSrn57tYz2ySm
-	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 13:01:44 +1000 (AEST)
-X-AliDM-RcptTo: bGludXgtZXJvZnNAbGlzdHMub3psYWJzLm9yZw==
-Feedback-ID: default:market@mcpcnserver.com:alibabak_ApiBatch:448107
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=mcpcnserver.com; s=aliyun-cn-hangzhou57fb2d3494;
-	t=1787194899; h=Date:From:To:Message-ID:Subject:MIME-Version:List-Unsubscribe:Content-Type;
-	bh=YhYOIQE60tKpHXUj6jSI+9AbyBBqFgSDdEFkzewVuz0=;
-	b=RVOiri89bWYICMf70TOoJiwddV0wsR1aZwXclwPb+iTwIU+vZnDo+wz32amtKmhaZwY9QEfmYxIVoJ1Jn/yU6vIJ4E66aQkhEPmxLMkVVXYhck+5c/yfaIq+lys2XFCHoHo+npTnbMCfUHy6ehB/Lrw3tttqHwWzGHoh22b5uVM=
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=dm-fbl.aliyuncs.com; s=feedback;
-	t=1787194899; h=Date:From:To:Message-ID:Subject:MIME-Version:List-Unsubscribe:Content-Type;
-	bh=YhYOIQE60tKpHXUj6jSI+9AbyBBqFgSDdEFkzewVuz0=;
-	b=n9A/DoAa5CVWszE6pPFqKDaly4beAG02ork0CBZIJqKv0DnQb2u6T1lWK10ha4jzt1pQHmOk4KaDn374zU3bEZ9lyubSv/aW9vH3/FNevUJgFlZrbNTydzz9XAPcjbeUxieKg0oPb9UXLHKr04Jey4dCuvtrH+p2HCxlJYOmDbo=
-Received: from chitu-hsf(mailfrom:market@mcpcnserver.com fp:ma_600000347518596459 cluster:AY35D)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 20 Aug 2026 10:55:53 +0800
-Date: Thu, 20 Aug 2026 10:55:53 +0800
-From: "NiubiStar Support Team" <market@mcpcnserver.com>
-To:  <linux-erofs@lists.ozlabs.org>
-Reply-To:  <feitechen@gmail.com>
-Message-ID: <f45f6d4d-4e77-42f4-b0d5-1be9d1699202@alibaba.com>
-Subject: =?UTF-8?B?RGV2ZWxvcGVyIG1hcmtldGluZyBwbGFuIGZvciBvcGVuLXNvdXJjZSBwcm9qZWN0cw==?=
-X-Priority: 3
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hQT3g57Svz2ySm
+	for <linux-erofs@lists.ozlabs.org>; Thu, 20 Aug 2026 13:11:10 +1000 (AEST)
+Received: by mail-pj1-x1031.google.com with SMTP id 98e67ed59e1d1-38dc69c74b8so2148348a91.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 19 Aug 2026 20:11:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787195468; x=1787800268; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LsQFRjNiJYCD/Hb5maV9dtGODC4Q60m2oS5/S3Jp00Q=;
+        b=ZMs83CnqCmTohwf2oqHTunI8Mxv+DcowAdsjCcYITAcJZhRJPjxwDj7NIq0EbrMLHn
+         w84pTOMzWT3v0kKucB9HrPmsvRRBVy6D3Tuk9hSCTz/5c4ANUOHaFbZKbTIeKGzLYopj
+         K73Va+VtLIwx7xfFgpa/mMjI4KbeKba5KFOpgjGyaPFXmhDEpTUfZET3QS6h5UspZLgo
+         Gu38PdRRVGFLU6kKqnR3ThyOBS3yWRgGCT01RXXsL85lL2BGyCqFPXyTvxEO4FrOgZaX
+         zx7M0V630jg2vfN3EcxTV9F6IedQDzlcg2ENIP2vKzzVRQeXGuipvdrHnDADqqSQQVi/
+         y4FQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787195468; x=1787800268;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LsQFRjNiJYCD/Hb5maV9dtGODC4Q60m2oS5/S3Jp00Q=;
+        b=jtL8M9cbuLsxpzMJBzEdvTCSVECugNTf6EISxUqeVy3kJ9cvdXNiqAbusiOv6bP001
+         GF0LiJ1KKvZWfN5obWypRq4G9bVn/VHpOEFdvTaeLKvdLuNUZr82o78E6sdv6ycv4NnM
+         umVE/BY8WUvHhrGR6ansI3RYTbiF4QRmlirbp055RVJlz78k2AqrAGQ9zOasFg+iSAec
+         IB5WtpYQbzla0B4dB9NqVjM4Himx5xNA13eOJCBQ59uZ3TltkoesmXSP8Vu3ZHIjrJ2v
+         h8lUTrpuE4NLURP1rz+c47UeZCZv8ov8GvC6BP28FbU5dR1grtGmszeEx4+fvpxTyGJI
+         5Dnw==
+X-Forwarded-Encrypted: i=1; AHgh+RqokREMRok8nnZKHoLojNg3A9iw4kGbFGY9feK9l7UbW+BLnomiSyhqMtI7C3lxFZMX20F4k43iI1vVjg==@lists.ozlabs.org
+X-Gm-Message-State: AFuF++ms52/9eI2AiocdMDiAAJr4zhZ5jjhQS9usLRP3QeVda0U6QAl6
+	doNRGxKyqPvPp2Nr14eXXc113IT95A5Ux6leYF/8On5riJMCDogFNzvX
+X-Gm-Gg: AR+sD13El/rJnroj4Lm5RXLUY8qGc6iEfKYH/txAq1xHeXsZLOXh61eThB22hCDwGmf
+	Nigv0RWKtpT2VNU/kGCzFs91kTcLmZPEfRt7KVZ7KrIIr6+RneAbA0Mhf/zUl3VAR5PmskivMKZ
+	zdXjRZGE2xNxpJ9epI0Y7hr8QWD5AgV2xqmtTYpJxcN4KzCneV+v37PDUs+d9blbvW+86ACs9W5
+	o9BLJEFFkW0l/ITHYu+rM4NPJY668oQItyFx8mSdRxtNxSp3q6Czhk+gkblyUq59KDmlyK//cjp
+	MGFDcPqPVqxyJJgp9Wj/6OqB62Fi8v5aIkGFihTYltrEQi3tm1j4ak9Ya9Bn101PY/BWqI/B5aO
+	yHz0J7UJBfjyUAI6LOnepEVYNjG4/DOpB4hZfXKGunvoU6MEHvsmFt+gBbbQrRZ7zAU3GVULgxc
+	byeNiRQsdNvz7AK3Q890SNaPqn0i7sM4m2p59Y99lDtcRf49SpwLJP90tVVqvzqFi9rPRGAfi/
+X-Received: by 2002:a17:90b:4a4b:b0:37c:607b:2cd9 with SMTP id 98e67ed59e1d1-3958054b82bmr15871490a91.0.1787195467778;
+        Wed, 19 Aug 2026 20:11:07 -0700 (PDT)
+Received: from osman.mioffice.cn ([43.224.245.178])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957fb17f48sm5562328a91.2.2026.08.19.20.11.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 20:11:07 -0700 (PDT)
+From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
+To: Jingbo Xu <jefflexu@linux.alibaba.com>,
+	xiang@kernel.org,
+	chao@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Cc: Zhan Xusheng <zhanxusheng@xiaomi.com>,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: support SEEK_HOLE/SEEK_DATA in inode_share mode
+Date: Thu, 20 Aug 2026 11:10:59 +0800
+Message-ID: <20260820031100.1038753-1-zhanxusheng@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260818113713.116849-1-jefflexu@linux.alibaba.com>
+References: <20260818113713.116849-1-jefflexu@linux.alibaba.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,113 +96,28 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-EnvId: 600000347518596460
-X-AliDM-Settings: eyJPdXRib3VuZElwIjp7IklwTGlzdCI6W10sIklwUG9vbElkIjoiIn0sIlVuc3Vic2NyaWJlIjp7IkZpbHRlckxldmVsIjoiZGVmYXVsdCIsIkxpbmtUeXBlIjoiZGVmYXVsdCJ9LCJWZXJzaW9uIjoiMS4wIn0=
-List-Unsubscribe: <https://www.niubistar.com/unsubscribe?email=linux-erofs%40lists.ozlabs.org&token=outreach>
-Content-Type: multipart/alternative;
-  boundary="----=ALIBOUNDARY_2345_7f770bc76700_6a866e13_a100"
+Content-Transfer-Encoding: 8bit
 
-------=ALIBOUNDARY_2345_7f770bc76700_6a866e13_a100
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Tue, 18 Aug 2026 19:37:13 +0800, Jingbo Xu wrote:
+> - .llseek   = generic_file_llseek,
+> + .llseek   = erofs_file_llseek,
 
-Hi,=0A=0AI am reaching out from NiubiStar, a developer marketing service for o=
-pen-source, AI, DevTools, SaaS, and infrastructure projects.=0A=0AMany strong =
-technical projects do not need a long agency pitch. They need a clear launch m=
-essage, the right developer-facing channels, and a simple delivery record that=
- shows what was actually published or sent.=0A=0AWhat we can help with:=0A=0AL=
-aunch positioning and campaign brief=0AEnglish project article or placement pl=
-anning=0ARelevant developer, startup, SaaS, or technical community distributio=
-n=0ADeveloper outreach execution with opt-out handling=0ADelivery report with =
-public URLs, campaign notes, and observable replies where available=0A=0AWe do=
- not need your GitHub account, password, token, repository permission, or priv=
-ate customer data. A public project link and a target timeline are enough to s=
-cope whether the campaign is useful.=0A=0AIf you are preparing a release, laun=
-ch post, directory push, or developer-facing update, you can review NiubiStar =
-here:=0A=0Ahttps://www.niubistar.com/=0A=0AIf this is relevant, reply with you=
-r project link and launch window. We can suggest a practical plan before any p=
-ayment or commitment.=0A=0AIf this is not relevant, reply "stop" and we will r=
-emove this address from future outreach.=0A=0ABest regards,=0ANiubiStar Suppor=
-t Team=0A=0AUnsubscribe: https://www.niubistar.com/unsubscribe?email=3Dlinux-e=
-rofs%40lists.ozlabs.org&token=3Doutreach
-------=ALIBOUNDARY_2345_7f770bc76700_6a866e13_a100
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+No objection to the change.  While in that table, .splice_read is the entry
+left that touches the page cache without going through ->private_data:
 
-<!doctype html><html><body style=3D"margin:0;padding:0;background:#eef2f7;font=
--family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;co=
-lor:#111827;"><div style=3D"display:none;max-height:0;overflow:hidden;color:#e=
-ef2f7;">Developer marketing, launch planning, content placement, outreach exec=
-ution, and proof reporting.</div><table role=3D"presentation" width=3D"100%" c=
-ellspacing=3D"0" cellpadding=3D"0" style=3D"background:#eef2f7;"><tr><td align=
-=3D"center" style=3D"padding:34px 16px;"><table role=3D"presentation" width=3D=
-"100%" cellspacing=3D"0" cellpadding=3D"0" style=3D"max-width:700px;background=
-:#ffffff;border:1px solid #d8dee9;border-radius:18px;overflow:hidden;box-shado=
-w:0 22px 58px rgba(15,23,42,0.12);"><tr><td style=3D"height:7px;background:lin=
-ear-gradient(90deg,#0f172a 0%,#2563eb 46%,#14b8a6 100%);"></td></tr><tr><td st=
-yle=3D"padding:26px 30px 10px;"><table role=3D"presentation" width=3D"100%" ce=
-llspacing=3D"0" cellpadding=3D"0"><tr><td style=3D"vertical-align:middle;"><a =
-href=3D"https://www.niubistar.com/" target=3D"_blank" rel=3D"noopener noreferr=
-er" style=3D"font-size:22px;font-weight:850;color:#0f172a;text-decoration:none=
-;letter-spacing:0;">NiubiStar</a><div style=3D"margin-top:5px;color:#64748b;fo=
-nt-size:13px;">Developer marketing for open-source and technical products</div=
-></td><td align=3D"right" style=3D"vertical-align:middle;"><a href=3D"https://=
-www.niubistar.com/unsubscribe?email=3Dlinux-erofs%40lists.ozlabs.org&amp;token=
-=3Doutreach" target=3D"_blank" rel=3D"noopener noreferrer" style=3D"display:in=
-line-block;padding:8px 12px;border:1px solid #cbd5e1;border-radius:999px;color=
-:#475569;font-size:13px;text-decoration:none;">Unsubscribe</a></td></tr></tabl=
-e></td></tr><tr><td style=3D"padding:10px 30px 28px;"><h1 style=3D"margin:0 0 =
-10px;color:#0f172a;font-size:25px;line-height:1.26;letter-spacing:0;">Develope=
-r marketing plan for open-source projects</h1><p style=3D"margin:0 0 22px;colo=
-r:#475569;font-size:14px;line-height:1.7;">A practical promotion service: posi=
-tioning, content placement, developer outreach, and delivery records.</p><div =
-style=3D"padding:18px 18px 4px;background:#f8fafc;border:1px solid #e2e8f0;bor=
-der-radius:14px;"><p style=3D"margin:0 0 16px;color:#111827;font-size:15px;lin=
-e-height:1.78;">Hi,</p>=0A<p style=3D"margin:0 0 16px;color:#111827;font-size:=
-15px;line-height:1.78;">I am reaching out from NiubiStar, a developer marketin=
-g service for open-source, AI, DevTools, SaaS, and infrastructure projects.</p=
->=0A<p style=3D"margin:0 0 16px;color:#111827;font-size:15px;line-height:1.78;=
-">Many strong technical projects do not need a long agency pitch. They need a =
-clear launch message, the right developer-facing channels, and a simple delive=
-ry record that shows what was actually published or sent.</p>=0A<p style=3D"ma=
-rgin:0 0 16px;color:#111827;font-size:15px;line-height:1.78;">What we can help=
- with:</p>=0A<p style=3D"margin:0 0 16px;color:#111827;font-size:15px;line-hei=
-ght:1.78;">Launch positioning and campaign brief<br>English project article or=
- placement planning<br>Relevant developer, startup, SaaS, or technical communi=
-ty distribution<br>Developer outreach execution with opt-out handling<br>Deliv=
-ery report with public URLs, campaign notes, and observable replies where avai=
-lable</p>=0A<p style=3D"margin:0 0 16px;color:#111827;font-size:15px;line-heig=
-ht:1.78;">We do not need your GitHub account, password, token, repository perm=
-ission, or private customer data. A public project link and a target timeline =
-are enough to scope whether the campaign is useful.</p>=0A<p style=3D"margin:0=
- 0 16px;color:#111827;font-size:15px;line-height:1.78;">If you are preparing a=
- release, launch post, directory push, or developer-facing update, you can rev=
-iew NiubiStar here:</p>=0A<p style=3D"margin:0 0 16px;color:#111827;font-size:=
-15px;line-height:1.78;">https://www.niubistar.com/</p>=0A<p style=3D"margin:0 =
-0 16px;color:#111827;font-size:15px;line-height:1.78;">If this is relevant, re=
-ply with your project link and launch window. We can suggest a practical plan =
-before any payment or commitment.</p>=0A<p style=3D"margin:0 0 16px;color:#111=
-827;font-size:15px;line-height:1.78;">If this is not relevant, reply &quot;sto=
-p&quot; and we will remove this address from future outreach.</p>=0A<p style=3D=
-"margin:0 0 16px;color:#111827;font-size:15px;line-height:1.78;">Best regards,=
-<br>NiubiStar Support Team</p></div><div style=3D"margin:24px 0 8px;"><a href=3D=
-"https://www.niubistar.com/" target=3D"_blank" rel=3D"noopener noreferrer" sty=
-le=3D"display:inline-block;background:#0f172a;color:#ffffff;padding:13px 18px;=
-border-radius:10px;font-size:15px;font-weight:800;text-decoration:none;">Revie=
-w NiubiStar</a></div><div style=3D"margin-top:24px;padding-top:18px;border-top=
-:1px solid #e2e8f0;"><p style=3D"margin:0 0 10px;color:#64748b;font-size:13px;=
-line-height:1.7;">NiubiStar respects email preferences. Reply "stop" or use th=
-e unsubscribe link to be removed from future outreach.</p><a href=3D"https://w=
-ww.niubistar.com/unsubscribe?email=3Dlinux-erofs%40lists.ozlabs.org&amp;token=3D=
-outreach" target=3D"_blank" rel=3D"noopener noreferrer" style=3D"color:#64748b=
-;font-size:13px;text-decoration:underline;">Unsubscribe</a></div></td></tr></t=
-able></td></tr></table><div style=3D"margin-top:28px;padding-top:16px;border-t=
-op:1px solid #e5e7eb;"><p style=3D"margin:0 0 8px;color:#667085;font-size:14px=
-;">You are receiving this email because you subscribed to updates from market.=
-</p><p style=3D"margin:0;color:#667085;font-size:14px;">If you no longer want =
-to receive these emails, <a href=3D"https://www.niubistar.com/unsubscribe?emai=
-l=3Dlinux-erofs%40lists.ozlabs.org&token=3Doutreach" style=3D"color:#2563eb;te=
-xt-decoration:underline;">unsubscribe here</a>.</p></div></body></html>
-------=ALIBOUNDARY_2345_7f770bc76700_6a866e13_a100--
+  .read_iter   kiocb_clone() onto private_data, then filemap_read()
+  .mmap        vma_set_file(vma, realfile)
+  .fadvise     vfs_fadvise(file->private_data, ...)
+  .splice_read filemap_splice_read
 
+filemap_splice_read() does init_sync_kiocb(&iocb, in), and
+filemap_get_pages() then takes iocb->ki_filp->f_mapping (mm/filemap.c:2686),
+so it works on the user file's mapping, which after your patch is confirmed
+to be the real inode's.  erofs_fill_inode() sets that mapping's a_ops
+unconditionally, so the data splice() and sendfile() return is correct, but
+they populate the per-file page cache from disk rather than the shared one
+read() and mmap() use, caching the same content twice.
+
+Thanks,
+Zhan Xusheng
 
