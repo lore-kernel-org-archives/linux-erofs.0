@@ -1,45 +1,62 @@
-Return-Path: <linux-erofs+bounces-4281-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4282-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 798BAC5DF88
-	for <linux-erofs@archiver.kernel.org>; Fri, 21 Aug 2026 06:33:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5D3E0C5DF88
+	for <linux-erofs@archiver.kernel.org>; Fri, 21 Aug 2026 06:36:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hR9W62hn5z2xnW;
-	Fri, 21 Aug 2026 16:33:54 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.132
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787294034;
-	cv=none; b=Hu18hbrnXfuLt1G1SgydamdUqTbKdItdbeN9nY90rAXZDp47QvR9sL8JpE56hr4+wAUFntmvofDh/9XmMH9/cOqn0ovg6XU9+SfixaDXg3KCuM3xGP8e3CaIuGXhlwIQvIjZrsr/KwlftXcuK3LjnbkhmLY4lYJo9sYcysjO9a9dyC/PLdPff6nu6oYcjsUpAlIuZQR4EXlT+qNrgD1GV4g5S/+59Zz97gFmPHQvHRrTCK9lMVFpnl7fPmxkBE/tQlXhQQe9fLNbbqeTkABsBwVwtP+JuwgBtlc/pLR/z9hf+R2DGPA+nTui68jUkkeYfxcjSALLE8lgb8SySYrzGA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hR9ZG4dqDz2xtt;
+	Fri, 21 Aug 2026 16:36:38 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787294198;
+	cv=none; b=KskM9FNdgIaMj2v+8Nzc9QISnIxZ25BOCje9bR+qKnck0ZtaEeUAfmrKDU9ohDzEyxP5vMDUdc5epwcqXlxBpCsMkSjywinMuMPkkzpakuXADsOWK0c1sj5iWG15JS5uLzTrKnto3x0pIanvfXfsjSEbZ+HWeDi1dnuI5ptdrmL7TpRfkz4KUm8z5U2EN+9BnjCUigMqiJ/jf8yO/zBDuX14uzWHhv2cEQuHz0R1ApLtDeQC3O558zKPydFG6uPmsTG6tQegJU02108sMMSkYq4NPs2ibZMScBsuZS3TgbmEiFRh71Xj0UjOgyRf9kPcJcmAm9Qkd0sC6pQWVtZrLA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787294034; c=relaxed/relaxed;
-	bh=A2dL1eEVT2+14dzzJ8BeskCqbSp+ITcLrJsYW8Szvuo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=W8P5OKJumuRrk69972YJPRf3xrd4kgdrl4yRKDc4nPJY686kQIPStVPL13W6NicD494bXE2k3rw8dF1ldocntkXcZ3Prn2BQsC3asOPhKMwGoaFOfp7gg3Cj0d4py2Cj8Sb+t6BHKKYX6JyahnEPO+JfvB/5ExiZcojlG6jL3Z0ljIiPxcbwml31oCwvDANXZvToudxl/+XtTChy6/bnNkv9E9GVBLgGE8EmclXK7jmxBSZOoiDUx4F9qe7C4EHyETekSsphNy3CL9cjQCx7xyF0WBOwwroncqHmxVRWog8yDGA9tpdPvETuHxkn8Th8lFfBCrXZ85K6RhnWpaTGTw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fUjiqSUU; dkim-atps=neutral; spf=pass (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1787294198; c=relaxed/relaxed;
+	bh=g9eZR8v1ht/04XRkyDvZToU/ut5CxaHGMVmc9MyHSdU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=H3fmO5X6gMYZfMxdMffgv4xn/0rAcQUhEK6A7lnNviZSfFmScw4aeW02Ox3lt6iAN7Upur4iSwiPqK1eixsNj1QCzOdTx5jB9TmL5kfLFjpaWl6q75WH3s3muK5MxOPfJdiliH8l4bdCkyFjCj7clWFlOgYux3u/SWhhiQVYgEyUG2O8D4CkRxXoxyCYXBPfktD7Dt/+xu0S95iqVGcqPDKRZLdkqigFF0fNSGLdo1rsR8ibRvv6NrxtDOwTd799gFEBsl36aZqL3cnKt1saX/09d3y26hMWIVkNWdCsN68ce/IQvQVbNkkhcr7sT+M35IN++YkKpt+OdrQa5L+aKg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SQLl8igl; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=fUjiqSUU;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SQLl8igl;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.132; helo=out30-132.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hR9W30jhCz2xWt
-	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Aug 2026 16:33:47 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1787294022; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=A2dL1eEVT2+14dzzJ8BeskCqbSp+ITcLrJsYW8Szvuo=;
-	b=fUjiqSUURl3B3YmzWVqW6J/gSG9hd3pgJZB+qQD7WW9Lr7Bsid6GfHwrRGgmwMWIMcF2qBjU3QfQ9FNl2Fsl+odkliHREkg1bE+ugion4f3mS9aYSjuNw9lc4bplicjcvi4JC04H5BwwYiS57LUMUCFEtPPRChf3f8Y8b4QW26E=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0X9LOWQM_1787294017;
-Received: from 30.221.150.0(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0X9LOWQM_1787294017 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 21 Aug 2026 14:33:37 +0800
-Message-ID: <866a9563-70e3-444f-909c-bb8b85688657@linux.alibaba.com>
-Date: Fri, 21 Aug 2026 14:33:36 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hR9ZF6Sq1z2xWt
+	for <linux-erofs@lists.ozlabs.org>; Fri, 21 Aug 2026 16:36:37 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 6B20D43D26;
+	Fri, 21 Aug 2026 06:36:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082B21F00A3A;
+	Fri, 21 Aug 2026 06:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787294194;
+	bh=g9eZR8v1ht/04XRkyDvZToU/ut5CxaHGMVmc9MyHSdU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=SQLl8iglAQ5uOHKiXapSX2A8BTF6nEaFgbpRi/AmulIHTtssD2eEOJRl7sX+JQJFr
+	 KKaTRyTYzD1V+OeCVcDQ1FG3FS/rsEG0rYm7UsbsJZ79ZQ1aGn6TFNB7BrBVpps2/E
+	 60SVdFsFUQ5pplMGmaArFsInrdY9aAuLNkBSHY9c25HrmuvqdIZK85e/UCukOtQQqY
+	 LU+AilJksLvaQAfUW+cH8WJQ2T1zroJCgxxROinYVOUGj+NON1k/nwk+P/Q/8nnAmI
+	 UiYTDEYHCcNrL1BfwZ09dIe9OR5UYvRg7lUOZa3Rh04cs7cWuimG1XNghuOn6wbef+
+	 uxKbukj/jeAGg==
+Date: Fri, 21 Aug 2026 14:36:17 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Cc: Gao Xiang <xiang@kernel.org>, Jingbo Xu <jefflexu@linux.alibaba.com>,
+	zhanxusheng@xiaomi.com, linux-erofs@lists.ozlabs.org
+Subject: Re: [PATCH] erofs-utils: tests: add a splice() test for inode_share
+ mode
+Message-ID: <aofx4XAjsCKqo9k_@XiangdeMacBook-Pro.local>
+Mail-Followup-To: Zhan Xusheng <zhanxusheng1024@gmail.com>,
+	Gao Xiang <xiang@kernel.org>,
+	Jingbo Xu <jefflexu@linux.alibaba.com>, zhanxusheng@xiaomi.com,
+	linux-erofs@lists.ozlabs.org
+References: <20260821015722.1936404-1-zhanxusheng@xiaomi.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -51,97 +68,32 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] erofs: support splice() in inode_share mode
-To: Zhan Xusheng <zhanxusheng1024@gmail.com>, Gao Xiang <xiang@kernel.org>,
- Chao Yu <chao@kernel.org>
-Cc: zhanxusheng@xiaomi.com, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
-References: <20260821015641.1936276-1-zhanxusheng@xiaomi.com>
-Content-Language: en-US
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-In-Reply-To: <20260821015641.1936276-1-zhanxusheng@xiaomi.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260821015722.1936404-1-zhanxusheng@xiaomi.com>
 
+Hi Xusheng,
 
-
-On 8/21/26 9:56 AM, Zhan Xusheng wrote:
+On Fri, Aug 21, 2026 at 09:57:22AM +0800, Zhan Xusheng wrote:
 > From: Zhan Xusheng <zhanxusheng1024@gmail.com>
 > 
 > From: Zhan Xusheng <zhanxusheng@xiaomi.com>
 > 
-> erofs_ishare_fops routes everything that touches the page cache to the
-> backing file in ->private_data: read_iter clones the iocb onto it, mmap
-> does vma_set_file(), fadvise calls vfs_fadvise() on it.  splice_read was
-> left as filemap_splice_read(), which works on the user file's own mapping:
-> it does init_sync_kiocb(&iocb, in), and filemap_get_pages() then takes
-> iocb->ki_filp->f_mapping.
+> splice() and sendfile() went through filemap_splice_read() on the user
+> file, so they populated the per-inode page cache instead of the shared one
+> that read() and mmap() use.  The content was correct either way, which is
+> why nothing caught it: only which mapping the pages land in changes.
 > 
-> So splice() and sendfile() fill the per-inode page cache rather than the
-> shared one.  The content is the same either way, since erofs_fill_inode()
-> sets a_ops on that mapping too, which is why this went unnoticed.  Two
-> identical 8 MiB files under inode_share, reading one of them with splice(2)
-> alone, in pages:
-> 
->   before   own 2048   shared 0
->   after    own 0      shared 2048
-> 
-> "own" is cachestat(fd), which reports the file's own mapping; "shared" is
-> mmap()+mincore(), which erofs_ishare_mmap() redirects to the backing file.
-> 
-> Read through the backing file, as read_iter already does.
-> 
-> Link: https://lore.kernel.org/all/b7dc7192-d586-45a2-bc4a-b41dc681c9bb@linux.alibaba.com/
-> Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+> Observe that instead.  cachestat() works on the file's own mapping, while
+> fincore's mmap()+mincore() fallback goes through erofs_ishare_mmap(), which
 
-LGTM.
+Actually we shouldn't rely on the fact that cachestat() works on the
+file's own mapping since it's another misfeature, similar to:
 
-Reviewed-by: Jingbo Xu \<jefflexu@linux.alibaba.com\>
+https://lore.kernel.org/linux-unionfs/20260623111533.2285005-1-ptikhomirov@virtuozzo.com/
 
-> ---
-> v1->v2:
-> - Retitled and dropped the Fixes tag: the sharing is best effort, so
->   this is an enhancement rather than a fix.
-> - Added the measured before/after.
-> - Left file_accessed() alone, since it is a no-op under SB_NOATIME.
-> - An erofs-utils test is sent separately against experimental-tests.
-> 
-> v1: https://lore.kernel.org/all/20260820064441.1083470-1-zhanxusheng@xiaomi.com
-> 
->  fs/erofs/ishare.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/erofs/ishare.c b/fs/erofs/ishare.c
-> index fa7d4112dec5..01dc53e9e3ad 100644
-> --- a/fs/erofs/ishare.c
-> +++ b/fs/erofs/ishare.c
-> @@ -148,6 +148,13 @@ static int erofs_ishare_mmap(struct file *file, struct vm_area_struct *vma)
->  	return generic_file_readonly_mmap(file, vma);
->  }
->  
-> +static ssize_t erofs_ishare_splice_read(struct file *in, loff_t *ppos,
-> +					struct pipe_inode_info *pipe,
-> +					size_t len, unsigned int flags)
-> +{
-> +	return filemap_splice_read(in->private_data, ppos, pipe, len, flags);
-> +}
-> +
->  static int erofs_ishare_fadvise(struct file *file, loff_t offset,
->  				loff_t len, int advice)
->  {
-> @@ -161,7 +168,7 @@ const struct file_operations erofs_ishare_fops = {
->  	.mmap		= erofs_ishare_mmap,
->  	.release	= erofs_ishare_file_release,
->  	.get_unmapped_area = thp_get_unmapped_area,
-> -	.splice_read	= filemap_splice_read,
-> +	.splice_read	= erofs_ishare_splice_read,
->  	.fadvise	= erofs_ishare_fadvise,
->  };
->  
+we should find another way to replace the cachestat() usage here.
 
--- 
 Thanks,
-Jingbo
-
+Gao Xiang
 
