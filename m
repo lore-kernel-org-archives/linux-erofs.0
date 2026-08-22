@@ -1,86 +1,90 @@
-Return-Path: <linux-erofs+bounces-4287-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4288-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1608C5DF97
-	for <linux-erofs@archiver.kernel.org>; Sat, 22 Aug 2026 08:59:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD603C5DF97
+	for <linux-erofs@archiver.kernel.org>; Sat, 22 Aug 2026 14:01:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hRrhP6HH6z2xWt;
-	Sat, 22 Aug 2026 18:59:17 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::62a"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787389157;
-	cv=none; b=jDREAmHfdKoA1zSEbJDsYmaL9zXaaZUg3z9bdmBuKQ0O0fs12DSg1wreXP0N+qKUzGgo18H/ltjko4dN1Te8vedWo3oFT7aThsmVXpAXvK8J2H5s8ZRRqDKLjc+i4DFbQQ3fDVeAjFuzFQFKdg5dKQysHB+BOHt5yX87YwdEMbOh9QVyUeFziqCkxUnBRKfaOTpT3o91dk3qd+B5i9KVtfJ3+NtzJcos5x5xFWhS1R4hOLWLRuhIlpiv+kWtUKB9s9suQWDzXOLc6/b2sd3KgrZU3n4bpO4J3Xdxcv8bDlLMRsPc51QJQejZdoRTWskUrd6cQWajhw5mvhmNZuxHTg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hRzNq0LXBz2xcG;
+	Sun, 23 Aug 2026 00:01:15 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::32f"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787407275;
+	cv=none; b=AKQ2bRo1pI7dMmAXOutLCxUpkvMmbH6lMBacoNJHUuyw1Jiv1Y5RMLwuVpls7oKmUS3Os6hHKAzAWyPVUhEK9hI/Q10iDlqmW7ltwXGn1qV5YXt00x+ETNSWU0iyQHyuIivzxyo1XcUB6bUaxAIeeuvZRsQwajgAShXCu8+FjhAbLe6y4MJXmwntw+kLUbUy90JLFPZdVVCAjVIkYXhZbahHBTV6mUOiimPegFXgzBciT0TAjjXN2JO5M8NRd9NZDtGF6v1BRYj26mekTNw49kqkCEwwvJnGclGPiImzLvcauqbuOIHiJrlvSaCPgjAZvgjY3uPpj4jkNm1FtR8wqA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787389157; c=relaxed/relaxed;
-	bh=XWFw7oVAD56uhvJj/kmMbZYxkDNC94ZtuxOoToJYGmY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OYOlRlW0AQd8982uBEhtileXpJET7p7+pTp+cu1On4Z3hpnq+1oLdAjwV/URkK34G/DOenLNVBvAPQTGaf46qJbQ8Ebr4w6tR67UOeF0adhBvDT5dHiM6yVzOQiGKv4yO5WR5NtY3CvzRTpj56kpqouXRPM16Hqpujz2AHQJJQlnxwtuGv1TVFAt1FgtgmX46tNFQ1RwoUHsDkPsxqRacHdEpwMvWv5GHYsfqLzpy2cf163GRhOzKR3kwJuM4jNr60FkDlwa7zimmTrN+Di+0vaIGvA8QYYeE4YSmZ+J1RewgPElEAkHQgrDqIvedMVffG2ZWKOWPQk7zYWe8dCBMQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=plsx8jRs; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::62a; helo=mail-ej1-x62a.google.com; envelope-from=mike.malyshev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	t=1787407275; c=relaxed/relaxed;
+	bh=RAu2d0iA448dCKNC/0dAOo9eNJ/v3Puws2Lutq5hDZo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Op0+OQYRbt7UVoA1F81ucWdvexgNdiaOmYxt9gD/SOxC7y+W4v/L3j5E4qD9pyLay6iDLVVUYltKsm+zFaxkf1ot/mMeJFJfKxNS46PqPhMh75JXkUCDJcYEGEXPJKXzsudzLQALGAP5NDiz/8Em6AlQ4FUSxY0zEHsRzs8Klj8F8dHyPADYgpFV5IPqs0pDm332cyBCOH5umWZgVSWNMTYZCOzXG/jRtGjpYCRLR6LqmLlRhTxITqXK44kXKT/kIJ1aRZT/QJrOWJgQvxBt6PG/LxvYVuh87vcvbBLFzvuQRRGieUyELvkafvLzMbRfIXnE5XZ77EiToRP3zYDSrA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=k+9o4pM7; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::32f; helo=mail-ot1-x32f.google.com; envelope-from=nikhilgurudasani314@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=plsx8jRs;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=k+9o4pM7;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::62a; helo=mail-ej1-x62a.google.com; envelope-from=mike.malyshev@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::32f; helo=mail-ot1-x32f.google.com; envelope-from=nikhilgurudasani314@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hRrhN1zrhz2xKh
-	for <linux-erofs@lists.ozlabs.org>; Sat, 22 Aug 2026 18:59:15 +1000 (AEST)
-Received: by mail-ej1-x62a.google.com with SMTP id a640c23a62f3a-c20e70a0962so271839166b.2
-        for <linux-erofs@lists.ozlabs.org>; Sat, 22 Aug 2026 01:59:14 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hRzNn19zhz2xQ7
+	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Aug 2026 00:01:12 +1000 (AEST)
+Received: by mail-ot1-x32f.google.com with SMTP id 46e09a7af769-7f3ff92cf4aso2046675a34.1
+        for <linux-erofs@lists.ozlabs.org>; Sat, 22 Aug 2026 07:01:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787389151; x=1787993951; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=XWFw7oVAD56uhvJj/kmMbZYxkDNC94ZtuxOoToJYGmY=;
-        b=plsx8jRs/fl/Kmp3fitNysDZA+OQo1KUh+O90fKKA9/cbRO6oTSqSQgUhsxOlIn4HL
-         sEqjIscWVSQJid93rb4dHvWbdH2c/LstzHclYy4PyYXTTCuKW8bSKFzWZSmGOsrMvLzw
-         zffGftvoc7Cm/kNBK7UrcX08VDG8Mpaeznshx82kSsoQJKLgAjSum37FXwks5KxctOht
-         H9mKt4ylq4ZTHDKoalhefR+u1nGcrRrrLoBy/umkrArm9YEu+Of5NmSmwvSqreutzw16
-         J2MoCFx2Hk+6Al1JpDdESMV+5P2Ob6Sq1YJ2zKX45lzVd6y9g7+6HHEtiFRx9biwEF9T
-         RzDA==
+        d=gmail.com; s=20251104; t=1787407268; x=1788012068; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=RAu2d0iA448dCKNC/0dAOo9eNJ/v3Puws2Lutq5hDZo=;
+        b=k+9o4pM7PRCujbpgkmquE2NxW4/zp9V3muLQYDnTg7d+KH43m1bWp59pB6ouA5+IZA
+         UDIlU4UITsl8t28W4XbLb/Fw6+FwBsx/P6mTWCVyyOnODuSRfYBRPqLvQviES3R4aWsV
+         vhPW+1H/H1HqxC0GT9E95dDIAa/EG5rhSE+FxWJoIPJH/tuT0M+YWOlvyucWc3Kfarwh
+         q1zooRm558OeHhsaOANIefifVPhzIDzzKwVfcicBlglezKqiSY/1iu/M9UpFO2jA7Vms
+         oQTpwKISdl5zFaG0cBYdCTctrIKZPrE320GdOdHImACKxefq5iddl5oNtNInGPCNmtxF
+         ufTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787389151; x=1787993951;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=XWFw7oVAD56uhvJj/kmMbZYxkDNC94ZtuxOoToJYGmY=;
-        b=OsT6eqsMv8KqJ4C6Zcuq1eiqsiSi+SVkT6uUPmDRVjKArsKvPecGirvFrUM/kKrYjm
-         4/l9gjuQlQ/ESApg3H98aTf11pIs+ZjPLrwo2Fon+ZFbOrtFctCqAQ/HWEgyF7PQ1V/E
-         BsogvOULEu7yD5ByEIW0K972ZU16olKGu9ER2naoREY4Tu4gJXQF3nhlLLc/E2e4f75y
-         tQnP4HyJA8gtxHuyxMOs8hnU+e7t7VhffLNvlwjdIASFI5UB50AuFbxz0J3XTseSD65l
-         2XSPnVpywiJA7t93sGWrkJoTkNmC2Lhz4uiepm4laCpGxNVoCY0KySlhwHbiO9X0kIVO
-         EBFQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqiJqbYeADtc4PbRpqnUxg0bMMyvljBZ3FnX6KyxCRDQQ8qinwvX80PBbn1cE+VZP3iU9X97UwtZBG29w==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++kH0er/a+2oe+4G6V4NJgu9qK2KxKA6uNbtjqp6jfmzEFo+dCvU
-	KOUftQKA7RKVEvB9a+Waifp8ZpcwDTMrgqVyumht7y0HrRU7dsD8Q25iXQZxTg==
-X-Gm-Gg: AR+sD10A/6OjZf2lH6CLozk7uu1jhnrbg9pfcDHGbdF00+EKu7AM1jo63zEADbjvy8l
-	rnFa7g349t8SL38/010JTfOJaruk0gLloGwgu95q4kxfX6pj9zRWZAD+7gmiImkpdhwwStu+g2Z
-	f2JmcEKlF3yaW1+Fddc/92aqGxSIxR+yVBOwc2/YqdRWPwAO5G5SI9at13tcaxGUA6avjlnjFhG
-	zKF6b4/JRvPq6/gibRA5WhZHynOhLnzd/BK1VFl1/WnHK/pqrDSMRz8lFzNtgchRTrLMUELLj6z
-	ahkybNX80o2kAQAmmklwpj7g85yjdhNjHZXNV4tH3qljKnQzpfVVTL+SGUBNsJyWPaBs/fPBif2
-	coIz6c5KSgkB5eM+5djmzWnWDlRwk9KQOSVjoz9rlBG/RPsH0VDpEwLcztNfJKWFKXYvYZLMoN5
-	3FeSXZptG28VX+DdrJbj5yswqoBySZZvm/xe43GkLUTHbBIbSz4l9CxtdZxVCMY/4M6w==
-X-Received: by 2002:a17:906:9f8e:b0:c19:5572:d234 with SMTP id a640c23a62f3a-c246a4ac801mr1521541266b.1.1787389151203;
-        Sat, 22 Aug 2026 01:59:11 -0700 (PDT)
-Received: from build-server.. ([62.96.37.222])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c249606a8fasm268297966b.8.2026.08.22.01.59.10
+        d=1e100.net; s=20251104; t=1787407268; x=1788012068;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=RAu2d0iA448dCKNC/0dAOo9eNJ/v3Puws2Lutq5hDZo=;
+        b=R3FjarRWMCvoBc4FLKiFaiZXcaQw/21sErjxkFXYwvU6WBy/Ey9BwCCIPhB7EOpdMH
+         yrcL9hIz8UuREV5tF/ONdoAn2ND95K610Yj7Nx4RycjJhbPGunUca0p9jbR5AMcTbNe+
+         jHWW0fsm817Ijk0T5AK/whQc/H/wV4wQ8LqlMbPVeLs6CV/Jis6Cqc95OcJzBXeNItQt
+         qIglGLStmVr0LPnqr9+pIRwZ7v6/ctwwt5mSAc3lcRYi0ybvX2jeygkaL4T2C+QVDBCf
+         Wp3vTCvDoxDjL9NWH4p4r9nyv5aNlnlHHWPm7shDN6Ed9s8C3HOMXLPIaJb4ncweuSQN
+         Xp1Q==
+X-Forwarded-Encrypted: i=1; AHgh+Ro9WlzOE+nHtUS/nZ+ScsB6urxBEmATkvomQVYvC0IMm2E7o40LjqXAEfpl7R+nAsS7L/hPtKadOhIyvg==@lists.ozlabs.org
+X-Gm-Message-State: AFuF++kl3JpaCTA3RIc5QPcUA9qdoUnjFmz/kALXv87bSHCALwaT2EvV
+	YpBjIl4jtJPU7deWEqjNoBHdjGDt6qqV6buo7QgMUe4r1PLQlk6ZUGQ2
+X-Gm-Gg: AR+sD10tq1DHZyrg2ktCJQ6hGdCxlyvo/plA9yP+7ipkyziUDX5eI4bZC9FHRHP7SED
+	rsPNFme/V0x9utBijQD27sRNksd1ER0K4o2UcUn4p8dH3wNwKzqHXvndBtoz6tveSajPJLq+6HT
+	AGbvfLW9NaqRtcPNmZ4iMpbA1ZXqjfRhQFyOFn9gGXuyFAcxZKYMnx25M0QVd+d76y78OYJ/tiR
+	Q5zuxxjrc1JDzcTa226tUjJDa9/+zkyJrX7h1P+LUn6wVf53RG125sAwvOKtbE40CDuBoPVrvBJ
+	+8FIlQLZK6S7Ueh3qck1QRrW6ssK2n0GwW9GofEf1PAKgIkpEsbmMRG8FW/ls+H19q9dFDFn/DH
+	IarKjcp+BZn1oeHXLY6nsMesrtd59CyIkN/u9t6C98jWXutmDoQA4wO6gvVwGlNzq2fEtWAGa6T
+	pwdzWANM52NEKUateX4AMizPyOPjAyOigePTl1u6X98SwCxPEnnN7ZM97ltgw6F/lys6qV4Wezw
+	fcgp+e+/o5VwhaA
+X-Received: by 2002:a05:6820:1686:b0:6b1:6462:7e4a with SMTP id 006d021491bc7-6b164629665mr9378701eaf.13.1787407267786;
+        Sat, 22 Aug 2026 07:01:07 -0700 (PDT)
+Received: from White.tail445f11.ts.net ([45.127.44.104])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1418619d6ecsm7614856c88.14.2026.08.22.07.01.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 22 Aug 2026 01:59:10 -0700 (PDT)
-From: mike.malyshev@gmail.com
-To: Gao Xiang <xiang@kernel.org>
-Cc: Mikhail Malyshev <mike.malyshev@gmail.com>,
-	linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH] erofs-utils: lib: follow symlinks on intermediate tar path components
-Date: Sat, 22 Aug 2026 08:59:09 +0000
-Message-ID: <20260822085909.2781141-1-mike.malyshev@gmail.com>
+        Sat, 22 Aug 2026 07:01:07 -0700 (PDT)
+From: Nikhil Gurudasani <nikhilgurudasani314@gmail.com>
+To: xiang@kernel.org,
+	chao@kernel.org
+Cc: zbestahu@gmail.com,
+	jefflexu@linux.alibaba.com,
+	dhavale@google.com,
+	hongbohbli@tencent.com,
+	guochunhai@vivo.com,
+	linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] erofs: skip sufficiently large global buffers when resizing
+Date: Sat, 22 Aug 2026 19:30:17 +0530
+Message-ID: <20260822140017.8119-1-nikhilgurudasani314@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <am8_iD0g9yTj2B1m@XiangdeMacBook-Pro.local>
-References: <20260725150920.1900298-1-mike.malyshev@gmail.com> <am8_iD0g9yTj2B1m@XiangdeMacBook-Pro.local>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,53 +98,43 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Mikhail Malyshev <mike.malyshev@gmail.com>
+z_erofs_gbuf_nrpages is advanced only after every global buffer has been
+grown. If a resize fails after some buffers were enlarged, a retry
+revisits those enlarged buffers.
 
-On Sun, Aug 02, 2026 at 09:00:56PM +0800, Gao Xiang wrote:
-> Thanks for the patch and sorry for late reply.
+Retrying the same size then returns -ENOMEM because alloc_pages_bulk()
+has no pages to add and the unchanged return value is treated as a
+failure. Retrying an intermediate size allocates a temporary pointer
+array smaller than gbuf->nrpages and copies more existing pointers than
+the array can hold.
 
-No worries at all -- and sorry for _my_ slow reply, I was on vacation
-and only just got back to this.
+Skip buffers that already satisfy the request. Once all remaining
+buffers have caught up, advancing z_erofs_gbuf_nrpages again describes
+the guaranteed minimum size across the pool.
 
-> Yes, I assume containerd will resolve the directories like this, but as
-> a quick reference, could you give some pointer how `tar` utility works
-> and `posix` documents this behavior?
+Fixes: d6db47e571dc ("erofs: do not use pagepool in z_erofs_gbuf_growsize()")
+Cc: stable@vger.kernel.org # 6.10+
+Signed-off-by: Nikhil Gurudasani <nikhilgurudasani314@gmail.com>
+---
+ fs/erofs/zutil.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Good question, I dug into it a bit.
+diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
+index a0ce9226b..6b9bfa2ef 100644
+--- a/fs/erofs/zutil.c
++++ b/fs/erofs/zutil.c
+@@ -79,6 +79,8 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
+ 
+ 	for (i = 0; i < z_erofs_gbuf_count; ++i) {
+ 		gbuf = &z_erofs_gbufpool[i];
++		if (gbuf->nrpages >= nrpages)
++			continue;
+ 		tmp_pages = kzalloc_objs(*tmp_pages, nrpages);
+ 		if (!tmp_pages)
+ 			goto out;
 
-On the tar side, I tried the exact case (a "lib64 -> usr/lib64" symlink
-followed by a "lib64/foo" entry). GNU tar (1.35) and busybox tar (1.37)
-both follow the symlink and write the file to usr/lib64/foo, leaving
-lib64 as a symlink -- the same result as this patch. bsdtar/libarchive
-is the odd one out: it refuses with "Cannot extract through symlink,"
-but that is its ARCHIVE_EXTRACT_SECURE_SYMLINKS anti-symlink-attack
-default, not a different idea of what the path means.
+base-commit: 075b74841bd0065a3bda3440873c747938e69b68
+-- 
+2.43.0
 
-POSIX-wise it is really just pathname resolution (IEEE Std 1003.1-2017
-Base Definitions, 4.13): a symlink in a non-final path component is
-followed. GNU/busybox tar create the entry with a plain open(2), so the
-kernel resolves lib64/foo to usr/lib64/foo for them; the patch just does
-that same resolution by hand, since the tar tree builder has no kernel
-to do it.
-
-What really pushed me to fix it, though, is matching the runtime that
-actually consumes these images. containerd's walking differ does exactly
-this -- it resolves each entry's parent with fs.RootPath ("evaluating and
-bounding any symlink to the root directory") and writes to the resolved
-target. So today mkfs.erofs --tar and containerd disagree: containerd
-converts these layers fine, while mkfs.erofs bails out with -ENOTDIR and
-produces the ~2 TiB image, which makes RHEL/UBI/Fedora usr-merge base
-layers unconvertible. And since the builder works on an in-memory tree
-(with absolute links re-rooted), following them cannot escape the image.
-
-> I plan to release erofs-utils 1.9.3 without this patch soon, and it can
-> be addressed in erofs-utils 1.9.4 version.
-
-1.9.4 is totally fine by me. Would you like me to fold these references
-(the tar behavior, the POSIX section, and the containerd fs.RootPath
-pointer) into the commit message? I am happy to send a v2 with them if
-that is easier for you to pick up.
-
-Thanks!
-Mikhail
 
