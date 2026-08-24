@@ -1,97 +1,90 @@
-Return-Path: <linux-erofs+bounces-4336-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4337-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B84AC5DF9C
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 19:48:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56154C5DF9C
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 21:10:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hTLzz0qYbz2y2c;
-	Tue, 25 Aug 2026 05:47:59 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787600879;
-	cv=none; b=P0pD+1tGjiMOFi1ApJqOdbXb8z0F6MR+RsAOMRe0sUSFZ/jy/pumin7JIOxbr8RlCidxlkIs2PlJNoIbpKh6ctkQz2IjsSl1b2PRMQC3L5JFQNCIBrV4fmiqvSUtS/Wxz1+7gbKt/bU6xapGB86q47UA2ujNSOGIEYJJIXWDEnYb3Syzs1ENr2xvnr6SzwD3j7LH81Bi5WFmnnIbSwMVV3+ihyx42WsPhPwG1guNKtf5gnDxwUcsl/F9clCT5fnH6mhWuV07e/Cjz0U5d/rHtwYAaG8TRgPaNwPI+e0Eb8TKjWxf6k3PhAJjMn9M6i6zc85/JjQFe0QHs5SnTzFQ5w==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787600879; c=relaxed/relaxed;
-	bh=8qU5H5HsiL1oxbfqE/+7Bg2lwE3XezcgSQ9LHhL9wLs=;
-	h=From:In-Reply-To:References:To:Cc:Subject:MIME-Version:Date:
-	 Message-ID:Content-Type; b=cJTac4SZCD4Hs77npIHdqbG4Xe4cNOKP7i5VsdorZIxRTnq0ZK9q52xdKmGHCK5PW3FBaGbMV4e1fmo2Syk8LeVCPA9R/K5EBAqW8cTFBquxeEnvr12A+ZPGNYzg9A8/wc3A20zd/aNzKQQ05mUIja0WNxkN588eqwxezc21toxlUOErkl1LdNBXyHuNPeMf5BBJF6/La6oyI6msQ3WG/pG7wWMS94PVgTstYGMNkxKqCy/7E7SHgZr1pGfvwhK0D/xBVNcxv4er0fbPT5ZDxN9MShiaqkU4xWyCxq1SwjVsw7dGxdq1RL6iv8f0S15F/xhN+UlbNLMSdBdEO0+BGw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/30wJza; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/30wJza; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hTNq332MTz2y2c;
+	Tue, 25 Aug 2026 07:10:23 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::735" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787605823;
+	cv=pass; b=FI8QwNmyQqPYJJ1sAZiYR0TVaM+JMnYYqFi6kaTHpk50/3SCyAJ4r879dyv8HETHV63tfI/DY0SPnpL6lD3ZVKISx307e3krSfsRwPEBoF2Y8soAnva2gMIlb9kVFnZUIyidlCSrN97U9ehN+6q6HWP0Tzs83XACNYV/QZ+KQmasYiq/09Z/Q9/F1SqoIV9mnD+6hqfiwmoPFykOJbZon6RpRw9m/V6IZq1TiriJ+rWWiGeO9k3pEMNzrdSG+SqTlbr8X195eLBtIj6iDPmuVvxd006QN43U+J9l2XNZtX03tyqRU0DLaHZRPZVHQioUo87E0UDlnv/IFWrRflXBAA==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1787605823; c=relaxed/relaxed;
+	bh=QBhxnZ+HTnh0pfPdCIhrG9H61+4BdpcmSoOUGM6I0k0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bbkSo5bEq8DCeVI08Minln1oU1fmCqShq1jAr+eVzLF9PTytn5E6nUFlJci4lsZ9TkHcU37+fCgS1vVn9Cd+GsTTqnKsrCzclyOHqYp4w732j9Utphqp6ZsJS/Gwall182jytqA0CrzR5d58ZP0QyAqo9isKnrunmh1v9g9dB9s63cDouTfJvy49cWN+ALJ2JzAfQHBCRjKixi79VSgmFR1sDZrpu7t6d6J2nwsTC0ibH8N15xo3kXNYg2xIYDz9gF/YDhwCgxaAdWy/QBKqQg6x6tjZw5vM4qgwwnYbSJMq1nDqyVuyz/ERt9Bm0r7poF7UuYIRCUxV5FYX9kt42Q==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=openai.com; dkim=pass (1024-bit key; unprotected) header.d=openai.com header.i=@openai.com header.a=rsa-sha256 header.s=google header.b=AVv3WIzo; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::735; helo=mail-qk1-x735.google.com; envelope-from=cayoub@openai.com; receiver=lists.ozlabs.org) smtp.mailfrom=openai.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=openai.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/30wJza;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/30wJza;
+	dkim=pass (1024-bit key; unprotected) header.d=openai.com header.i=@openai.com header.a=rsa-sha256 header.s=google header.b=AVv3WIzo;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=openai.com (client-ip=2607:f8b0:4864:20::735; helo=mail-qk1-x735.google.com; envelope-from=cayoub@openai.com; receiver=lists.ozlabs.org)
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTLzx3SNWz2xr2
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 05:47:54 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787600871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8qU5H5HsiL1oxbfqE/+7Bg2lwE3XezcgSQ9LHhL9wLs=;
-	b=J/30wJzaei/aNv5opuVaMnqi988aTl7eq9ShdszZmcmW8ziandGBDLYn4xRRQKbeNJymFF
-	cZCxYCckQTACQWCywKnBXArLxeqRPH0Pmx7mUuFOkcpuLvF2yu03CC0yrm548s82Ggza+e
-	yWwDnF/FFSDrChU4LU8NsfA2XVm8ORc=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787600871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8qU5H5HsiL1oxbfqE/+7Bg2lwE3XezcgSQ9LHhL9wLs=;
-	b=J/30wJzaei/aNv5opuVaMnqi988aTl7eq9ShdszZmcmW8ziandGBDLYn4xRRQKbeNJymFF
-	cZCxYCckQTACQWCywKnBXArLxeqRPH0Pmx7mUuFOkcpuLvF2yu03CC0yrm548s82Ggza+e
-	yWwDnF/FFSDrChU4LU8NsfA2XVm8ORc=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-635-9XFVDZNVN-aHPcQHKQgWyA-1; Mon,
- 24 Aug 2026 15:47:45 -0400
-X-MC-Unique: 9XFVDZNVN-aHPcQHKQgWyA-1
-X-Mimecast-MFC-AGG-ID: 9XFVDZNVN-aHPcQHKQgWyA_1787600862
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5D45F184B396;
-	Mon, 24 Aug 2026 19:47:40 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.44.32.15])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C8E871944B2A;
-	Mon, 24 Aug 2026 19:47:31 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-	Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-	Kingdom.
-	Registered in England and Wales under Company Registration No. 3798903
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <CA+1jF5qPZUhCevwbu7zQDEVWss6gMdoDMhqKqH3k7v=WStRtEA@mail.gmail.com>
-References: <CA+1jF5qPZUhCevwbu7zQDEVWss6gMdoDMhqKqH3k7v=WStRtEA@mail.gmail.com> <20260824144130.759997-1-dhowells@redhat.com> <20260824144130.759997-31-dhowells@redhat.com>
-To: =?us-ascii?Q?=3D=3FUTF-8=3FQ=3FAur=3DC3=3DA9lien=5FCouderc=3F=3D?= <aurelien.couderc2002@gmail.com>
-Cc: dhowells@redhat.com, Paulo Alcantara <pc@manguebit.org>,
-    Christian Brauner <christian@brauner.io>,
-    Matthew Wilcox <willy@infradead.org>,
-    Christoph Hellwig <hch@infradead.org>, Jens Axboe <axboe@kernel.dk>,
-    Leon Romanovsky <leon@kernel.org>,
-    Namjae Jeon <linkinjeon@kernel.org>,
-    ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-    Marc Dionne <marc.dionne@auristor.com>,
-    Stefan Metzmacher <metze@samba.org>,
-    Eric Van Hensbergen <ericvh@kernel.org>,
-    Dominique Martinet <asmadeus@codewreck.org>,
-    Ilya Dryomov <idryomov@gmail.com>, netfs@lists.linux.dev,
-    linux-afs@lists.infradead.org, linux-cifs@vger.kernel.org,
-    Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-    ceph-devel@vger.kernel.org, v9fs@lists.linux.dev,
-    linux-erofs@lists.ozlabs.org, linux-fsdevel@vger.kernel.org,
-    linux-kernel@vger.kernel.org
-Subject: Re: READ_PLUS in NetFS? Re: [PATCH v10 30/35] netfs: Simplify read abandonment
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTNq15z6Sz2xZh
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 07:10:20 +1000 (AEST)
+Received: by mail-qk1-x735.google.com with SMTP id af79cd13be357-936c02e58dfso224636785a.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 24 Aug 2026 14:10:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787605818; cv=none;
+        d=google.com; s=arc-20260327;
+        b=OYdvLaWRHjjDI53HKBEbR040R6jcPANYj5HuGRu6wm0UGFs8zCbWiIVpVYrJmjEOb4
+         JSXW9ui+HsmcvplIgWfF48o4JQyqh/ToiDQy5AX70a7nyzUcV0ubUFkpkLd99dHxl2S7
+         m+jeTkwEDVOwZHDtKuh2sFIhDUzvRGqFxhRqXtmVdwpoy/fjKvcw1gNcPY61HWtUwEaP
+         UXWnx6T6uoiFiBgS2JFmPmrDUTz1b8/n6HaWUpLKWlVSe32eQ1PnoUA/d7DixiyGVyVr
+         8CN4oY1UkKa6Y5TbCV+4Oi47pXbT5lsb3GGNKMyQ7q0p94Ho584Z6albDrVCNt9SRu+V
+         TJ3A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=QBhxnZ+HTnh0pfPdCIhrG9H61+4BdpcmSoOUGM6I0k0=;
+        fh=ynEUiyZNWeCos8XWuGiLwTXUyx9jGmklxoHKYE8Jf4k=;
+        b=Oxp35OwXULCNn2xvWXoeOKQA/7tfImPf4G/oP0uH4UkxwtpmVONBr7iDmnGfl/wmoi
+         UNr+1VNxQLpXEz+fviAbHAUcG0w5rcgIEvYdrxME/u13xgctNJ222v0Hkw8gAySn0d4a
+         t1sfTXLAqrCPY3Yv4QaT0GFWV5zK/0Ogl2vVd/1BQDxRIYwI/76xElg6M2KUTjxldXvi
+         97yts4VpFCB0PxoxWLilXAsDfgegVDFiQWWKjUhq6dy1gGZvC3qcBgStGnfGT4KHP9dT
+         w9PH6o3UYt3ADJPIj6WQ+NjGANjdzyW87/uP6IrKGL4hY5zhG6etsUvHEAu0UdAgMBps
+         q+KQ==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=openai.com; s=google; t=1787605818; x=1788210618; darn=lists.ozlabs.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QBhxnZ+HTnh0pfPdCIhrG9H61+4BdpcmSoOUGM6I0k0=;
+        b=AVv3WIzol6gmzxE7itoBDPZs9se5vNwB/IvZkMfI11QN/imW0d76qB5+sf1FSGn8t/
+         A9m+Bz2/Rq7pKiP64hDmsjrrYiVZl1hAfIovk/hqKgy/OlBUri4JPdUK3TxGsgg5gt4S
+         pESKSoAWG6J3XNes8vg7lJnOLjoLp+LK+1dZg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787605818; x=1788210618;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=QBhxnZ+HTnh0pfPdCIhrG9H61+4BdpcmSoOUGM6I0k0=;
+        b=e0bj4fyygOFO+y4STIVox6y23DeOPqEhXA7n8UJdblxDkhWlBmWdabjOb5F1Wjvwgr
+         v/NWz68OpAM1rHgpoRQUrh5aRzeapmShyMmHuI64TuF0hzXxiM6I8xQqI81SOqO3R9CW
+         aCvf+Y7bK4hsA7XzExrMIXe0yHW2d076yaoECvyxZFLOsDowJCIyxtK4rPNKy3GVhwGa
+         osw2z5+RLvxzfLxoCM/CFax79O+XdsOn78763AdTlZIPfzTKrbNw2OTGlEp19dLyoQum
+         f5Rw8+fz2WGi7XiSz6r+pb3XPohx8myzNBz/94Z2nQF8VFpou01esXfJdzmLrhsgHaDz
+         OpkA==
+X-Gm-Message-State: AFuF++mEoL4GLCo0+iwOCnPBUlfzRg5eqfZaCltIjwcu5N2z4wlyJCIX
+	w3qizxSiB0+weHJDV432+aMit54cs/WdbV0hbY4me3cG7XjgFaEelvO0n7t7TM2C/tWy9wqeisp
+	y8I39R4VoPSzrdiU0sGZ+xp/FGErP2dcqIwUznFPwGVT/l1wl8oeVBwI=
+X-Gm-Gg: AR+sD13HeKZaMjzVyDS6vlhIqBgTtdRmZ+r9iDnvVTVUEGVgHLB9dqvcygw32Bbys/Z
+	Z5P8zs69ANxfYr94cwiUQi9FN8RBwK7meKqxXFgJ124czGDzBwbyiOABflRJWBAx47UAH3e6fAp
+	vmBYyAaAP5E/7q1vU6UHi27PrvN2/vXecCyMUaZHmVoKwXN8WVWSBNoCex3ef6eWp2wtL5daRdk
+	hBUqX+MRazxnsYK5oXiFea+Nv/wCrRHOfrscRwoFC8nf+UjzzHs2XSGhTkr6/aQ5yrqGZmYYmV7
+	307nN6F/6fyUk5O/GRMaMHEZOnOoap+OnK5HHCmborUpbnO0ExBkeWBU1Yom0voPSQXp1m6ogXS
+	+y0AKS1fQRxhWXGJ6syLBOahod3CD7AjtSjzVNSv/mxuW/Ylx
+X-Received: by 2002:a05:620a:678:b0:92e:6637:d98 with SMTP id
+ af79cd13be357-9376f9a1284mr195743785a.18.1787605818135; Mon, 24 Aug 2026
+ 14:10:18 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -103,34 +96,21 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Mon, 24 Aug 2026 20:47:30 +0100
-Message-ID: <771538.1787600850@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: R9MJMmj6ZD0IyntSB3uQAPLvS0Ler5x0TpIPuknHrJU_1787600862
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+References: <20260810-rebuild-wide-directory-index-v2-1-3a977092b7ea@openai.com>
+In-Reply-To: <20260810-rebuild-wide-directory-index-v2-1-3a977092b7ea@openai.com>
+From: Chris Ayoub <cayoub@openai.com>
+Date: Mon, 24 Aug 2026 14:10:06 -0700
+X-Gm-Features: AcwNN1XcgBCH02yE-YHKb7s0N1emZkAZyKAqc2oAtrUXX2MC13dw3ZIPGB5UDoY
+Message-ID: <CADh04Ha-okHEq+GbD0hizFVPcxE=aqFbgvJpz550yFBV6wsF7Q@mail.gmail.com>
+Subject: Re: [PATCH v2] rebuild: prevent quadratic snapshot merges on wide directories
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Aur=C3=A9lien Couderc <aurelien.couderc2002@gmail.com> wrote:
+Hi Gao,
 
-> What about READ_PLUS, i.e. sparse file reads? If you do this kind of
-> work of handling partial abandonment, can such a work also benefit
-> READ_PLUS?
+Gentle ping on this v2. Please let me know if any further changes are needed.
 
-READ_PLUS is NFS, right?
-
-I'm not sure it would particularly help or hinder.
-
-The VFS/VM only asks to read contiguous regions and netfslib breaks that up
-into subrequests, but currently netfslib doesn't know anything about sparse
-reads.  What I'm looking at with Ceph, for example, is that Ceph knows wher=
-e
-the gaps are and will clear them before terminating the subrequest.
-
-Partial abandonment is for when some sort of fatal error occurs and we cann=
-ot
-finish the request.
-
-David
-
+Thanks,
+Chris
 
