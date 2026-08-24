@@ -1,56 +1,51 @@
-Return-Path: <linux-erofs+bounces-4291-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4292-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2DA96C5DF97
-	for <linux-erofs@archiver.kernel.org>; Sun, 23 Aug 2026 14:24:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 484EBC5DF8C
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 00:43:32 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hSbrf25V9z2xrL;
-	Mon, 24 Aug 2026 00:24:02 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hSsbQ1wG3z2y2P;
+	Mon, 24 Aug 2026 10:43:30 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787495042;
-	cv=none; b=ErHZLZg+EDjyHmN1QpHskirdxNr4UjNyZ1wml473ZPMO50e+bTBt2MceeteNxvMdnYRRTZkZ/+Zf47w/xnWVIbKXBAA7JcnizRayb5qA7G/TquuhlpjxvJWvH9YQOI77whi/PHqV3JLZoXeRuPnF85+bp5USLFDY2uxVqCEirMJAUsjyrnF24RGdEtpFKjX7qFyFfeF1TruVKfmYswYU+eYXdA1UxowQgGTD3X7FhcqrnpnDhrb1whPNqLmHn+xki3YeY9byiYsro/NM8OvCUokpj81kjy+tuKDXBF94tpBcAKBRTgcAva0Aa8hSxTVR+PxQbWnXrH6jQJtQM+lbHg==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787532210;
+	cv=none; b=JYEeznHrRdSyNq5sdqzkPK6oM3QAPBG9BLx0V8XIfYWHx0X6RSIFf/ySIcFws9vbbJVPJv2uguFiXauHIf3Z9btsvY94IYP0278wk2igKgxo4gvAkCnvVpJrXaxSsabqNsm9YgS+DnVF+fuSqvNg3E+Ruary/rXuWj9ZcYvM3F4kBjUWZVH9DSPInSwR0mFpWmvbeXiFfGBeRDB/k3E1N3fZR6vbmmoMGdsP62NN/P8cZv4NUx8gbGCmyIOoMn+HOWOWBrx70OtiHt8RtGRbrAupUvSZIwmHfgDqB49RulWNDfvSJKLm6eClNIrkbev9C2L6bTd3fIjKTln6zFme3w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787495042; c=relaxed/relaxed;
-	bh=DYRwqfm1gCvsAIADhSTBb7bhsQccw0Dp6UWHLBZIMBo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PxjukXRjs/mfLlnjVrhW+0emhBrpo8nM92FVHlDBBebBJzxT0Wm8yeWJ2TqVuYGkgHvDmJz+4z3xJpnkcbHmtukXD0XHIqSJPjDOz77h+vOCgShS1mq52KhAeycOPQcZ4U6hRd/SDSvMR19C5FQhrTIiYxAYcZixXoMvtj3/fR2CAyy02d7NH+Gn9lHs6/pgd/GC2MdP+2QLHh7Wl51ysfTYRoIFLo7q9JBmKH7Fm5mebO+PlJeXU6ETEMkIIyp/GSKWm5aDYP9uU6ZnySJIi+QiSis6DLP1QOrXGjfcWn5hBbScH9+ueKjE+zdjCJJJBl4kWVIQKmIJBfwZBZW5mA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KFowHqWe; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1787532210; c=relaxed/relaxed;
+	bh=WdONH0C7Iil2+qdYRXoCAktbuDW0GcQ1KSpOSYK+ysY=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=Zw/wjcrpYSDbTeQL1Fu5TIb8j07zPEeXjt1wgDDiLUF42I4l3jXtMMKFwMM+5zu5AfpcugqGgEJjvShKc2QK8P79M2ffE7jXfLOMbax8QjmJhdTjN56nOQIxA/ZEb0LMg4iGGxRzYm32HK7ldAJIgngmDnwXNplRxuz6WyTA8r6CBXHErt6Is85prpf3BHT9oxKz0o7pt8fJc78Qjc4ccj1JwTTov9l3kC8gexD+1AhTspKVuk5skhaSAMCLLtP90i1GsKAwSiZl/Yn+uhXF42knQOIHxAfQyeQUR2TAh8iNRQxY6BVQq8r1rkL6leymYjGOwDz4YkCCrSOWGXfjQA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQ1likrG; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KFowHqWe;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQ1likrG;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
 Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hSbrd14JKz2xnQ
-	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Aug 2026 00:24:01 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hSsbP3XQRz2xns
+	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Aug 2026 10:43:29 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id A923E41984
-	for <linux-erofs@lists.ozlabs.org>; Sun, 23 Aug 2026 14:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC2D1F000E9;
-	Sun, 23 Aug 2026 14:23:56 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id B446143709;
+	Mon, 24 Aug 2026 00:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 328BC1F000E9;
+	Mon, 24 Aug 2026 00:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787495037;
-	bh=DYRwqfm1gCvsAIADhSTBb7bhsQccw0Dp6UWHLBZIMBo=;
-	h=From:To:Cc:Subject:Date;
-	b=KFowHqWeVK5IrSzEtV86Wiu9AdjJApd2cqnOj4Oef42i58j9SqYLn5HYMxZHvNhP6
-	 zEpxNoLyl64MlwYC+1xfXH+48M62jKm++HzJRkRufCfxopg4h4VFl23R2gEHLTcLBL
-	 X0PMDkGQdrIbZG4dtruutdFV6vkCwDhImuSEZenEh4tDdwV7PxAoIubeigwKXVHAhE
-	 7J5jYlpPG3XtT26oIxgO3F2PldoxWM5QkJHV8wpqxWOZL4LDv/2LDHQHwVTzlts2CC
-	 f37Hq+yf93tb1/5x5bw9st7pkJShqKgyiLfPcHdNg7R3Kj8LWK9SZvPnNT9atKUJt2
-	 XqVLwRVVjl6Fw==
-From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Gao Xiang <xiang@kernel.org>
-Subject: [PATCH] erofs: simplify z_erofs_gbuf_growsize()
-Date: Sun, 23 Aug 2026 22:23:05 +0800
-Message-ID: <20260823142306.42533-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.47.3
+	s=k20260515; t=1787532205;
+	bh=WdONH0C7Iil2+qdYRXoCAktbuDW0GcQ1KSpOSYK+ysY=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To;
+	b=IQ1likrGxzUrrHngXVaXm68hrNC8wtpKo6NWG9tVuplQamnuBBr5YDmMCNOp0Sy1c
+	 rE4t1FPWBd3bMyEazhd3qWR1RlXz+ujRN6nIE+kXUauj6MiQAiOK0aUH6E5Dtb0rEV
+	 4WLIQFr+tvwv1iBntbjuolZgTpvQ9njVmvOjYvv51YSASRtgAIWNI6bzqovpN3159f
+	 CfHqlcb0luKt8N5LldCFOyXbrgD49HfiDxqcA42txpLabx/sBYEJ+V3nPEmZ9/v/2+
+	 0nlnoqLSZMj1r4u3Ckia/himA0yB2NtOzWjAIUcX9uBcvpT6SUj2uGI8blCWoUwG2X
+	 pLnrMMmL5ciwQ==
+Message-ID: <df2be99b-8dc1-49c8-b2b3-fb18a97d66e0@kernel.org>
+Date: Mon, 24 Aug 2026 08:43:21 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,77 +57,47 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: Fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS default
+ logic
+To: Geert Uytterhoeven <geert+renesas@glider.be>, Gao Xiang
+ <xiang@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
+ <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
+ Chunhai Guo <guochunhai@vivo.com>,
+ Michael Bommarito <michael.bommarito@gmail.com>
+References: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
+Content-Language: en-US
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
- - Use guard(mutex)() to manage gbuf_resize_mutex;
+On 8/20/26 18:00, Geert Uytterhoeven wrote:
+> When NR_CPUS is less than 16, or when SMP is disabled, the default value
+> of 16 is invalid.
+> 
+> While actual configuration picks up a sensible and valid default
+> (NR_CPUS or 1), "make savedefconfig" will still write a line like
+> 
+>      CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=1
+> 
+> to the defconfig file, even if that matches the sensible default.
+> 
+> Avoid needlessly enlarging the defconfig files, and reduce churn for
+> updating them, by specifying valid defaults depending on SMP and
+> NR_CPUS.
+> 
+> While at it, make the prompt depend on SMP, as there is no point in
+> asking the user about the maximum number of decompression streams if
+> there is only one valid answer.
+> 
+> Fixes: c9b47e6b23114e93 ("erofs: cap LZMA stream pool size")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
- - Nullify tmp_pages after successful allocation, so that the error
-   path becomes clearer.
+Reviewed-by: Chao Yu <chao@kernel.org>
 
-Signed-off-by: Gao Xiang <xiang@kernel.org>
----
- fs/erofs/zutil.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
-
-diff --git a/fs/erofs/zutil.c b/fs/erofs/zutil.c
-index 6b9bfa2ef3b6..960cfe86eeb6 100644
---- a/fs/erofs/zutil.c
-+++ b/fs/erofs/zutil.c
-@@ -70,12 +70,10 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
- 	void *ptr, *old_ptr;
- 	int last, i, j;
- 
--	mutex_lock(&gbuf_resize_mutex);
-+	guard(mutex)(&gbuf_resize_mutex);
- 	/* avoid shrinking gbufs, since no idea how many fses rely on */
--	if (nrpages <= z_erofs_gbuf_nrpages) {
--		mutex_unlock(&gbuf_resize_mutex);
-+	if (nrpages <= z_erofs_gbuf_nrpages)
- 		return 0;
--	}
- 
- 	for (i = 0; i < z_erofs_gbuf_count; ++i) {
- 		gbuf = &z_erofs_gbufpool[i];
-@@ -89,8 +87,7 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
- 			tmp_pages[j] = gbuf->pages[j];
- 		do {
- 			last = j;
--			j = alloc_pages_bulk(GFP_KERNEL, nrpages,
--					     tmp_pages);
-+			j = alloc_pages_bulk(GFP_KERNEL, nrpages, tmp_pages);
- 			if (last == j)
- 				goto out;
- 		} while (j != nrpages);
-@@ -101,24 +98,23 @@ int z_erofs_gbuf_growsize(unsigned int nrpages)
- 
- 		spin_lock(&gbuf->lock);
- 		kfree(gbuf->pages);
--		gbuf->pages = tmp_pages;
- 		old_ptr = gbuf->ptr;
-+		gbuf->pages = tmp_pages;
- 		gbuf->ptr = ptr;
- 		gbuf->nrpages = nrpages;
- 		spin_unlock(&gbuf->lock);
--		if (old_ptr)
--			vunmap(old_ptr);
-+		vunmap(old_ptr);
-+		tmp_pages = NULL;
- 	}
- 	z_erofs_gbuf_nrpages = nrpages;
- out:
--	if (i < z_erofs_gbuf_count && tmp_pages) {
-+	if (unlikely(tmp_pages)) {
- 		for (j = 0; j < nrpages; ++j)
- 			if (tmp_pages[j] && (j >= gbuf->nrpages ||
- 					     tmp_pages[j] != gbuf->pages[j]))
- 				__free_page(tmp_pages[j]);
- 		kfree(tmp_pages);
- 	}
--	mutex_unlock(&gbuf_resize_mutex);
- 	return i < z_erofs_gbuf_count ? -ENOMEM : 0;
- }
- 
--- 
-2.47.3
-
+Thanks,
 
