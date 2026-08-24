@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-4322-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4324-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 009E9C5DF9B
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 14:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46A7CC5DF81
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 14:45:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hTDGr4KMVz2yCs;
-	Tue, 25 Aug 2026 00:45:24 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hTDH04Qgkz2yCv;
+	Tue, 25 Aug 2026 00:45:32 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787582724;
-	cv=none; b=Mw/MFpaZoQ3W2rSC2VJzoJNs83QFYOD2B23+6KwgjomuyCE3mLiZnL56vWitnyhnyChTp0PMatMzMuwHovI4f6tH2vs/LOmUR35ovcJQgO9If+T6RPDCc12k551LrTltdb62AoBhYSPixGrfO+dV0xSOjp1uqhh+MP4SOZ0iqQV+BIAd9a2k5JmXmT4XpL708T1hui6gTuWbgYfcs/w9hfgp5xJNkhvV8MEgBtIWf3JfNIO0xpxFPBgvupcMRdtfkQ+TS6RzEJyt/eSvlUDt2tlyLD9vdCGftDiWiQhmF/uV6aY0gv/seZXrKM5OVN90dhgF7n/9HcK75WePpwEmIQ==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787582732;
+	cv=none; b=Uhqa15RESnJTr8nItke7CxpDrlV66oz+2MjMBqGZapfNQPxah29KgDzOJU7iV0NUvumpSObZzMC2V5lvRx9FOwh/rWxgF4S8yBbztnNxGMi63+jugeCeRd5i5LOvT8f+xRkH7dbA7uLNAbQOOCllJE+Eyf/WPXI94SnUEgwg08GQBkNrD2Icrl98LDURZJ9I6zlH/Bwkk33hkfevQX3hQhyy7tzKWkd8x0zOVpR9VL6rN5Z9EBDjatRQpxxxUWQXGPgOmiLLd+Rz576lrLGrMQbVwlir9Ytl0YmDhDQ1mj6YYc+WfmD8sqwLYNnVGbq3hV8eXo/QWJPnlP/hsR5yHw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787582724; c=relaxed/relaxed;
-	bh=uz94seJkld4/VYmPIzePLWpyWumrSoaTR2JUNJSPhWI=;
+	t=1787582732; c=relaxed/relaxed;
+	bh=55F89iKzGp4okT73Es5bUJSwx7jU3VZ6IoRoXIUEMpE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=NriwIULRgHik4MS2kVbkeiHUzsHZziXH3OH8JkI//gvAVJ0lFBm9D5KdR3Z3S75sre8RJgX4ZPYXpjWiooCdohFevl8//C9jiZKs7aMk1qCGzA1uroaFnSkt0aOjz3ifo6ivn4WRioFZ6ye2ZkYWZ/OV1UH/3RAEmu+6dSGQ/RdMAOEUTiAoEfLS+Li68/cxvkNOuROruar/B/0Y5v2pZDW75i2+GrotbgbklrAs26/o+8D2mcmNQXa/UknH5AAPT41cDju/5HAq0ytApj9YGQil3VMVTUa6ivRZMy6xDhzCZx2utFMfMJ3kWU9ZClhzgFfTuwLf5EStbkAL9NBtYA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XZFLJkk6; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XZFLJkk6; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=CvtmuBK703yjNyt4kiOilnXzn7TWrkmuI4ZbDyAbMae6E8Ul/RlLIRWRSXbD4dABWl7260S/mBjQ7PlCAc29vGu6jcI3jMMPtJz7mSzqdFtPb3pvLLnDKzWaZE9P3yKUnqLLfFafHhs/V0XI1j6J1SrGk+cPvNg4zJJ5kV0/TbjOUdbMg24f46f6qKw+VhqndSJyKGjm458C3cMxzVXOHaCDFjosEmN3vs+V0baAUXVQ2745uMYE4g2T+eekfq4YgBspXL7Omrsf/GAwKwrOqozzssRUvcoeJa2HMcO0RHf1F+NIrNuNzzYVkjTVXUKcBCOTk3PrjvF1eam0nglDJw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BGE28opE; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BGE28opE; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XZFLJkk6;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XZFLJkk6;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BGE28opE;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BGE28opE;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTDGq3q0Yz2xnQ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 00:45:23 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTDGz481Nz2xnQ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 00:45:31 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787582720;
+	s=mimecast20190719; t=1787582728;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uz94seJkld4/VYmPIzePLWpyWumrSoaTR2JUNJSPhWI=;
-	b=XZFLJkk6M9dLix+ODtsGPDo/lXA8LehxZN8eYgVepqa+qhBLK9JqwwvDaN4j3KqW0qdufH
-	4OoaHxSpQufZnxwRZKGHMABebUfvNdFfDIdXJojvqF2mI20lQuwv2sRCwlF5rWgrghlyHN
-	Jp6hkU5+s01svUJGY5eYW1os1/Tvdcs=
+	bh=55F89iKzGp4okT73Es5bUJSwx7jU3VZ6IoRoXIUEMpE=;
+	b=BGE28opE+qdPa2wOwuD4+lvVdf6tSg0KgJjELcvkqolTaTbwX7UufA1/ypnwo2PKZDQSd8
+	nIIZsTiJFNo4cWiPX3wzwk6ky25wtNrhYqCp+LOQaYAcpM1E7f3fkeWYYIY5psaCTksNvw
+	BN7Nf3bQLsVRD/RX1xSrWYerqWy8LRA=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787582720;
+	s=mimecast20190719; t=1787582728;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=uz94seJkld4/VYmPIzePLWpyWumrSoaTR2JUNJSPhWI=;
-	b=XZFLJkk6M9dLix+ODtsGPDo/lXA8LehxZN8eYgVepqa+qhBLK9JqwwvDaN4j3KqW0qdufH
-	4OoaHxSpQufZnxwRZKGHMABebUfvNdFfDIdXJojvqF2mI20lQuwv2sRCwlF5rWgrghlyHN
-	Jp6hkU5+s01svUJGY5eYW1os1/Tvdcs=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+	bh=55F89iKzGp4okT73Es5bUJSwx7jU3VZ6IoRoXIUEMpE=;
+	b=BGE28opE+qdPa2wOwuD4+lvVdf6tSg0KgJjELcvkqolTaTbwX7UufA1/ypnwo2PKZDQSd8
+	nIIZsTiJFNo4cWiPX3wzwk6ky25wtNrhYqCp+LOQaYAcpM1E7f3fkeWYYIY5psaCTksNvw
+	BN7Nf3bQLsVRD/RX1xSrWYerqWy8LRA=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-103-mDOs-YwvM82jIQKWZb6chA-1; Mon,
- 24 Aug 2026 10:45:16 -0400
-X-MC-Unique: mDOs-YwvM82jIQKWZb6chA-1
-X-Mimecast-MFC-AGG-ID: mDOs-YwvM82jIQKWZb6chA_1787582713
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-685-ojRkqQFOOIO7PUaJW2pavA-1; Mon,
+ 24 Aug 2026 10:45:23 -0400
+X-MC-Unique: ojRkqQFOOIO7PUaJW2pavA-1
+X-Mimecast-MFC-AGG-ID: ojRkqQFOOIO7PUaJW2pavA_1787582720
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D3E731944B30;
-	Mon, 24 Aug 2026 14:45:12 +0000 (UTC)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AF33A19541B1;
+	Mon, 24 Aug 2026 14:45:20 +0000 (UTC)
 Received: from warthog.com (unknown [10.44.32.15])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2B9EF30002ED;
-	Mon, 24 Aug 2026 14:45:05 +0000 (UTC)
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 94C0618005AD;
+	Mon, 24 Aug 2026 14:45:14 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Paulo Alcantara <pc@manguebit.org>
 Cc: David Howells <dhowells@redhat.com>,
@@ -89,12 +89,10 @@ Cc: David Howells <dhowells@redhat.com>,
 	v9fs@lists.linux.dev,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Shyam Prasad N <sprasad@microsoft.com>,
-	Tom Talpey <tom@talpey.com>
-Subject: [PATCH v10 25/35] smbdirect: Remove support for ITER_FOLIOQ from smbdirect_map_sges_from_iter()
-Date: Mon, 24 Aug 2026 15:41:18 +0100
-Message-ID: <20260824144130.759997-26-dhowells@redhat.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v10 26/35] netfs: Remove netfs_alloc/free_folioq_buffer()
+Date: Mon, 24 Aug 2026 15:41:19 +0100
+Message-ID: <20260824144130.759997-27-dhowells@redhat.com>
 In-Reply-To: <20260824144130.759997-1-dhowells@redhat.com>
 References: <20260824144130.759997-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -108,126 +106,179 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
-X-Mimecast-MFC-PROC-ID: ylLD5V1szRJaBYLHrGvNNVTpvKDYWQQVIXBrWC8Pf9c_1787582713
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+X-Mimecast-MFC-PROC-ID: V-kN2e0Av7HD6wm9LbCD1Ny2pC-MRgEeJXd1KkdiR9w_1787582720
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-netfslib now only presents an bvecq queue and an associated ITER_BVECQ
-iterator to the filesystem, so it isn't going to see the ITER_FOLIOQ
-iterator.  So remove that code.
-
-Netfslib also won't supply ITER_BVEC/KVEC iterators, though smbdirect
-might; further in future, it won't supply iterators at all, but rather a
-bvecq slice (that can be used to construct an iterator).
+Remove netfs_alloc/free_folioq_buffer() as bvecq_alloc_*() and bvecq_put()
+should now be used instead.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Stefan Metzmacher <metze@samba.org>
 cc: Paulo Alcantara <pc@manguebit.org>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: Christoph Hellwig <hch@infradead.org>
 cc: Namjae Jeon <linkinjeon@kernel.org>
-cc: Stefan Metzmacher <metze@samba.org>
-cc: Shyam Prasad N <sprasad@microsoft.com>
-cc: Tom Talpey <tom@talpey.com>
 cc: linux-cifs@vger.kernel.org
 cc: netfs@lists.linux.dev
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/smb/smbdirect/connection.c | 68 -----------------------------------
- 1 file changed, 68 deletions(-)
+ fs/afs/dir_edit.c       |  1 -
+ fs/netfs/misc.c         | 98 -----------------------------------------
+ fs/smb/client/smb2ops.c |  1 -
+ include/linux/netfs.h   |  6 ---
+ 4 files changed, 106 deletions(-)
 
-diff --git a/fs/smb/smbdirect/connection.c b/fs/smb/smbdirect/connection.c
-index f5e7e75dd809..f217cf127cf9 100644
---- a/fs/smb/smbdirect/connection.c
-+++ b/fs/smb/smbdirect/connection.c
-@@ -6,7 +6,6 @@
- 
- #include "internal.h"
- #include <linux/bvecq.h>
+diff --git a/fs/afs/dir_edit.c b/fs/afs/dir_edit.c
+index 01c6265e8865..31fdef23c6b6 100644
+--- a/fs/afs/dir_edit.c
++++ b/fs/afs/dir_edit.c
+@@ -10,7 +10,6 @@
+ #include <linux/namei.h>
+ #include <linux/pagemap.h>
+ #include <linux/iversion.h>
 -#include <linux/folio_queue.h>
+ #include "internal.h"
+ #include "xdr_fs.h"
  
- struct smbdirect_map_sges {
- 	struct ib_sge *sge;
-@@ -2131,70 +2130,6 @@ static ssize_t smbdirect_map_sges_from_kvec(struct iov_iter *iter,
- 	return ret;
- }
+diff --git a/fs/netfs/misc.c b/fs/netfs/misc.c
+index a2a2aeb1bb0d..4fa09560fb4b 100644
+--- a/fs/netfs/misc.c
++++ b/fs/netfs/misc.c
+@@ -8,104 +8,6 @@
+ #include <linux/swap.h>
+ #include "internal.h"
  
--/*
-- * Extract folio fragments from a FOLIOQ-class iterator and add them to an
-- * ib_sge list.  The folios are not pinned.
+-#if 0
+-/**
+- * netfs_alloc_folioq_buffer - Allocate buffer space into a folio queue
+- * @mapping: Address space to set on the folio (or NULL).
+- * @_buffer: Pointer to the folio queue to add to (may point to a NULL; updated).
+- * @_cur_size: Current size of the buffer (updated).
+- * @size: Target size of the buffer.
+- * @gfp: The allocation constraints.
 - */
--static ssize_t smbdirect_map_sges_from_folioq(struct iov_iter *iter,
--					      struct smbdirect_map_sges *state,
--					      ssize_t maxsize)
+-int netfs_alloc_folioq_buffer(struct address_space *mapping,
+-			      struct folio_queue **_buffer,
+-			      size_t *_cur_size, ssize_t size, gfp_t gfp)
 -{
--	const struct folio_queue *folioq = iter->folioq;
--	unsigned int slot = iter->folioq_slot;
--	ssize_t ret = 0;
--	size_t offset = iter->iov_offset;
+-	struct folio_queue *tail = *_buffer, *p;
 -
--	if (WARN_ON_ONCE(!folioq))
--		return -EIO;
+-	size = round_up(size, PAGE_SIZE);
+-	if (*_cur_size >= size)
+-		return 0;
 -
--	if (slot >= folioq_nr_slots(folioq)) {
--		folioq = folioq->next;
--		if (WARN_ON_ONCE(!folioq))
--			return -EIO;
--		slot = 0;
--	}
+-	if (tail)
+-		while (tail->next)
+-			tail = tail->next;
 -
 -	do {
--		struct folio *folio = folioq_folio(folioq, slot);
--		size_t fsize = folioq_folio_size(folioq, slot);
+-		struct folio *folio;
+-		int order = 0, slot;
 -
--		if (offset < fsize) {
--			size_t part = umin(maxsize, fsize - offset);
--			bool ok;
--
--			ok = smbdirect_map_sges_single_page(state,
--							    folio_page(folio, 0),
--							    offset,
--							    part);
--			if (!ok)
--				return -EIO;
--
--			offset += part;
--			ret += part;
--			maxsize -= part;
--		}
--
--		if (offset >= fsize) {
--			offset = 0;
--			slot++;
--			if (slot >= folioq_nr_slots(folioq)) {
--				if (!folioq->next) {
--					WARN_ON_ONCE(ret < iter->count);
--					break;
--				}
--				folioq = folioq->next;
--				slot = 0;
+-		if (!tail || folioq_full(tail)) {
+-			p = netfs_folioq_alloc(0, GFP_NOFS, netfs_trace_folioq_alloc_buffer);
+-			if (!p)
+-				return -ENOMEM;
+-			if (tail) {
+-				tail->next = p;
+-				p->prev = tail;
+-			} else {
+-				*_buffer = p;
 -			}
+-			tail = p;
 -		}
--	} while (state->num_sge < state->max_sge && maxsize > 0);
 -
--	iter->folioq = folioq;
--	iter->folioq_slot = slot;
--	iter->iov_offset = offset;
--	iter->count -= ret;
--	return ret;
+-		if (size - *_cur_size > PAGE_SIZE)
+-			order = umin(ilog2(size - *_cur_size) - PAGE_SHIFT,
+-				     MAX_PAGECACHE_ORDER);
+-
+-		folio = folio_alloc(gfp, order);
+-		if (!folio && order > 0)
+-			folio = folio_alloc(gfp, 0);
+-		if (!folio)
+-			return -ENOMEM;
+-
+-		folio->mapping = mapping;
+-		folio->index = *_cur_size / PAGE_SIZE;
+-		trace_netfs_folio(folio, netfs_folio_trace_alloc_buffer);
+-		slot = folioq_append_mark(tail, folio);
+-		*_cur_size += folioq_folio_size(tail, slot);
+-	} while (*_cur_size < size);
+-
+-	return 0;
 -}
+-EXPORT_SYMBOL(netfs_alloc_folioq_buffer);
 -
- /*
-  * Extract page fragments from up to the given amount of the source iterator
-  * and build up an ib_sge list that refers to all of those bits.  The ib_sge list
-@@ -2225,9 +2160,6 @@ static ssize_t smbdirect_map_sges_from_iter(struct iov_iter *iter, size_t len,
- 	case ITER_KVEC:
- 		ret = smbdirect_map_sges_from_kvec(iter, state, len);
- 		break;
--	case ITER_FOLIOQ:
--		ret = smbdirect_map_sges_from_folioq(iter, state, len);
--		break;
- 	default:
- 		WARN_ONCE(1, "iov_iter_type[%u]\n", iov_iter_type(iter));
- 		return -EIO;
+-/**
+- * netfs_free_folioq_buffer - Free a folio queue.
+- * @fq: The start of the folio queue to free
+- *
+- * Free up a chain of folio_queues and, if marked, the marked folios they point
+- * to.
+- */
+-void netfs_free_folioq_buffer(struct folio_queue *fq)
+-{
+-	struct folio_queue *next;
+-	struct folio_batch fbatch;
+-
+-	folio_batch_init(&fbatch);
+-
+-	for (; fq; fq = next) {
+-		for (int slot = 0; slot < folioq_count(fq); slot++) {
+-			struct folio *folio = folioq_folio(fq, slot);
+-
+-			if (!folio ||
+-			    !folioq_is_marked(fq, slot))
+-				continue;
+-
+-			trace_netfs_folio(folio, netfs_folio_trace_put);
+-			if (folio_batch_add(&fbatch, folio))
+-				folio_batch_release(&fbatch);
+-		}
+-
+-		netfs_stat_d(&netfs_n_folioq);
+-		next = fq->next;
+-		kfree(fq);
+-	}
+-
+-	folio_batch_release(&fbatch);
+-}
+-EXPORT_SYMBOL(netfs_free_folioq_buffer);
+-#endif
+-
+ /**
+  * netfs_dirty_folio - Mark folio dirty and pin a cache object for writeback
+  * @mapping: The mapping the folio belongs to.
+diff --git a/fs/smb/client/smb2ops.c b/fs/smb/client/smb2ops.c
+index 885f0cc861ed..97823bcf198c 100644
+--- a/fs/smb/client/smb2ops.c
++++ b/fs/smb/client/smb2ops.c
+@@ -13,7 +13,6 @@
+ #include <linux/sort.h>
+ #include <crypto/aead.h>
+ #include <linux/fiemap.h>
+-#include <linux/folio_queue.h>
+ #include <uapi/linux/magic.h>
+ #include "cifsfs.h"
+ #include "cifsglob.h"
+diff --git a/include/linux/netfs.h b/include/linux/netfs.h
+index a58d2b6914ea..926c3c6f311b 100644
+--- a/include/linux/netfs.h
++++ b/include/linux/netfs.h
+@@ -474,12 +474,6 @@ void netfs_end_io_write(struct inode *inode);
+ int netfs_start_io_direct(struct inode *inode);
+ void netfs_end_io_direct(struct inode *inode);
+ 
+-/* Buffer wrangling helpers API. */
+-int netfs_alloc_folioq_buffer(struct address_space *mapping,
+-			      struct folio_queue **_buffer,
+-			      size_t *_cur_size, ssize_t size, gfp_t gfp);
+-void netfs_free_folioq_buffer(struct folio_queue *fq);
+-
+ /* Writeback exclusion API. */
+ bool netfs_wb_begin(struct netfs_inode *ictx, bool nowait);
+ void netfs_wb_end(struct netfs_inode *ictx);
 
 
