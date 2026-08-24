@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-4292-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4293-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 484EBC5DF8C
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 00:43:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FA4CC5DF97
+	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 00:44:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hSsbQ1wG3z2y2P;
-	Mon, 24 Aug 2026 10:43:30 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787532210;
-	cv=none; b=JYEeznHrRdSyNq5sdqzkPK6oM3QAPBG9BLx0V8XIfYWHx0X6RSIFf/ySIcFws9vbbJVPJv2uguFiXauHIf3Z9btsvY94IYP0278wk2igKgxo4gvAkCnvVpJrXaxSsabqNsm9YgS+DnVF+fuSqvNg3E+Ruary/rXuWj9ZcYvM3F4kBjUWZVH9DSPInSwR0mFpWmvbeXiFfGBeRDB/k3E1N3fZR6vbmmoMGdsP62NN/P8cZv4NUx8gbGCmyIOoMn+HOWOWBrx70OtiHt8RtGRbrAupUvSZIwmHfgDqB49RulWNDfvSJKLm6eClNIrkbev9C2L6bTd3fIjKTln6zFme3w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hSscD3dStz2y2P;
+	Mon, 24 Aug 2026 10:44:12 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787532252;
+	cv=none; b=eA4FNU3Yeg3I5BnqUYXwlsZc52ACiODqAxa0jSFfYNXwxnRwhss+6deOAxqwrD/pLE48DcN/ROfjB5Q7EvGp10x3h9wN49wbpHASBSdvukS72Ae625MmwmiF1YCFMfpcrJe0sT/RDWQheor1YjXTfs8BDL5xKUme96+/z3Qci0/eIwq4TTUvec7Q0/FRJnheBKNNdLHX8VM8ffmVP62DsFBkgZ1IAhloBB2vkrljX6rZrrK2vSqOMx/Ki45lfHKwgyynnlh9rCBewDfx4UCmtrfigA+8N+ydAu7JY2StgHdJFqX7VaN2n+mBQv19BbfgscQRbvkjuV1U6EDtP8z0tg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787532210; c=relaxed/relaxed;
-	bh=WdONH0C7Iil2+qdYRXoCAktbuDW0GcQ1KSpOSYK+ysY=;
+	t=1787532252; c=relaxed/relaxed;
+	bh=mZ5K5rwI7nwTYOQqjFerlZVC7gSCH4r6hGJsHsj3hBw=;
 	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=Zw/wjcrpYSDbTeQL1Fu5TIb8j07zPEeXjt1wgDDiLUF42I4l3jXtMMKFwMM+5zu5AfpcugqGgEJjvShKc2QK8P79M2ffE7jXfLOMbax8QjmJhdTjN56nOQIxA/ZEb0LMg4iGGxRzYm32HK7ldAJIgngmDnwXNplRxuz6WyTA8r6CBXHErt6Is85prpf3BHT9oxKz0o7pt8fJc78Qjc4ccj1JwTTov9l3kC8gexD+1AhTspKVuk5skhaSAMCLLtP90i1GsKAwSiZl/Yn+uhXF42knQOIHxAfQyeQUR2TAh8iNRQxY6BVQq8r1rkL6leymYjGOwDz4YkCCrSOWGXfjQA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQ1likrG; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:Content-Type; b=ZUxuv2nPQrmh3PjmX3p18neEnegtVmBSwS4UVSwSkx3sySbjTsBE8x28ToGyNzLJfMLKSS4cl22P+p2TH99ZhCCpWV0FnOxONw9sBnTjg46DP36alje53iOQ9IThOqhtN6pR8SVkOMUxbOB2yrGTvN/7UHAACQ9g/on59cPQ3UY2ODMWIR7HUQ8voAuO5k6ca8aukEVx7dvxePU59kDtYGd1ToiJxxFmERdROOw6gXNBHW1+yJxb3IwMoURXCc0GOgTiHx8TEM2UhHgDA+sGYQKi6Ht+x6jc4GAcWDVR6lYP8mnDj+a/JPNbgY61he45Cjq/m/PuLpy9lt2j/DYbgA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QGDcNZB+; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IQ1likrG;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QGDcNZB+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hSsbP3XQRz2xns
-	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Aug 2026 10:43:29 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hSscC6DWvz2xns
+	for <linux-erofs@lists.ozlabs.org>; Mon, 24 Aug 2026 10:44:11 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id B446143709;
-	Mon, 24 Aug 2026 00:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 328BC1F000E9;
-	Mon, 24 Aug 2026 00:43:23 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 0D38F600AD;
+	Mon, 24 Aug 2026 00:44:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1C11F000E9;
+	Mon, 24 Aug 2026 00:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787532205;
-	bh=WdONH0C7Iil2+qdYRXoCAktbuDW0GcQ1KSpOSYK+ysY=;
+	s=k20260515; t=1787532248;
+	bh=mZ5K5rwI7nwTYOQqjFerlZVC7gSCH4r6hGJsHsj3hBw=;
 	h=Date:Cc:Subject:To:References:From:In-Reply-To;
-	b=IQ1likrGxzUrrHngXVaXm68hrNC8wtpKo6NWG9tVuplQamnuBBr5YDmMCNOp0Sy1c
-	 rE4t1FPWBd3bMyEazhd3qWR1RlXz+ujRN6nIE+kXUauj6MiQAiOK0aUH6E5Dtb0rEV
-	 4WLIQFr+tvwv1iBntbjuolZgTpvQ9njVmvOjYvv51YSASRtgAIWNI6bzqovpN3159f
-	 CfHqlcb0luKt8N5LldCFOyXbrgD49HfiDxqcA42txpLabx/sBYEJ+V3nPEmZ9/v/2+
-	 0nlnoqLSZMj1r4u3Ckia/himA0yB2NtOzWjAIUcX9uBcvpT6SUj2uGI8blCWoUwG2X
-	 pLnrMMmL5ciwQ==
-Message-ID: <df2be99b-8dc1-49c8-b2b3-fb18a97d66e0@kernel.org>
-Date: Mon, 24 Aug 2026 08:43:21 +0800
+	b=QGDcNZB+WGe73sFwhClatS6Jyub/qRyUGxGEoiWM27GVPT2mTlKva1/brNI8shfrm
+	 VFIocLuDLDkt+UL6Dyk1kW64qaYVDq52dxjR19wtXYv67Zg4ChEZUL2Rz9Z2GIIkYn
+	 aeiiJOWSz6nWWRWZN3Fs0VFCpDu9thG74AnOVSpBdhSplAHGmpEE/0y7XppcpaXnxF
+	 pU2QSJ7WGiKCN+10cTkDpcP3Ep0e6tzQHVbBtkDlDm7y1UUeZ/+uW6fCfKxtpRTrrZ
+	 gRgfOis2Pu5w3jNA2+zdPk6Z0FlLZReu5zArKDJEPjltrxuKAViUL6cdg6/J8yKpxZ
+	 BcL89YBpXkLeg==
+Message-ID: <b74b343f-d9f2-48c4-b3cb-8deb6805d6d8@kernel.org>
+Date: Mon, 24 Aug 2026 08:44:05 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -58,44 +58,28 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] erofs: Fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS default
- logic
-To: Geert Uytterhoeven <geert+renesas@glider.be>, Gao Xiang
- <xiang@kernel.org>, Yue Hu <zbestahu@gmail.com>,
- Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
- <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
- Chunhai Guo <guochunhai@vivo.com>,
- Michael Bommarito <michael.bommarito@gmail.com>
-References: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
+Cc: chao@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] erofs: support SEEK_HOLE/SEEK_DATA in inode_share mode
+To: Jingbo Xu <jefflexu@linux.alibaba.com>, xiang@kernel.org,
+ linux-erofs@lists.ozlabs.org
+References: <20260820134006.66208-1-jefflexu@linux.alibaba.com>
 Content-Language: en-US
 From: Chao Yu <chao@kernel.org>
-In-Reply-To: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
+In-Reply-To: <20260820134006.66208-1-jefflexu@linux.alibaba.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 8/20/26 18:00, Geert Uytterhoeven wrote:
-> When NR_CPUS is less than 16, or when SMP is disabled, the default value
-> of 16 is invalid.
+On 8/20/26 21:40, Jingbo Xu wrote:
+> When inode_share is enabled, erofs_ishare_fops.llseek falls back to
+> generic_file_llseek, which treats the whole file as data and always
+> returns i_size for SEEK_HOLE, hiding real holes in sparse files.
 > 
-> While actual configuration picks up a sensible and valid default
-> (NR_CPUS or 1), "make savedefconfig" will still write a line like
+> Switch it to erofs_file_llseek instead.  For user files f_mapping->host
+> is always the real erofs inode, so SEEK_HOLE/SEEK_DATA resolve the
+> per-file on-disk layout via iomap_seek_hole()/iomap_seek_data().
 > 
->      CONFIG_EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS=1
-> 
-> to the defconfig file, even if that matches the sensible default.
-> 
-> Avoid needlessly enlarging the defconfig files, and reduce churn for
-> updating them, by specifying valid defaults depending on SMP and
-> NR_CPUS.
-> 
-> While at it, make the prompt depend on SMP, as there is no point in
-> asking the user about the maximum number of decompression streams if
-> there is only one valid answer.
-> 
-> Fixes: c9b47e6b23114e93 ("erofs: cap LZMA stream pool size")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Reviewed-by: Gao Xiang <xiang@kernel.org>
+> Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 
 Reviewed-by: Chao Yu <chao@kernel.org>
 
