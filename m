@@ -1,70 +1,61 @@
-Return-Path: <linux-erofs+bounces-4338-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4339-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34E8DC5DF9C
-	for <linux-erofs@archiver.kernel.org>; Mon, 24 Aug 2026 22:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A0CBC61DBE
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Aug 2026 12:32:57 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hTQVY2zc6z2xKh;
-	Tue, 25 Aug 2026 08:26:13 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.21
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787610373;
-	cv=none; b=iCv/bxeBYSUMtcgK5kOK2DeE9r9iigBmvSEyRNLK1oIFABctEdzpgtdq2YbEgkUROv7yn/aywtqLAuDYpgEa7O7TAwmPpoTZcPjcIdK6d1M/0u8ysNS6orPg7zzmE+Iy0l0OOoqibAx8V9PTE+kSaMaORpv8LBh+VGHlS2k+9zK2nJ1N5udZ0bgJJYLfo3daTOI19BSCsi1NaTv9RucglDIwyfiLX62vNHQSATFkyqRlFb9fwBLq/TofHvxSo3NyMzL69yPWA7Yw9OHUE7f3ybC92ITvzaG43njCVhbPktzY2jNaht33YlwzuQJzKiXGEbHfW0NnurwDtA5ByspcMA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hTnHX0KF5z2xKh;
+	Tue, 25 Aug 2026 22:32:56 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787661175;
+	cv=none; b=E+8a3xlOf5r3SqMXBv7EYEOCNsaTeOtiBVV6uHUoHWol4PET4Alb0C9USvT5Qwl8Vvkq+qZok/1seBCFo5dAz/jJ/3+zfukTDDkSvb+4hmf+p4UzH3qWxRtSzpWdwAXOxufxwOl7280czGpOiPVeIEuR0I/e5EbWmPkjLdgdP8h3WrWkIkUZi5KvW9YC4LhT1dCdoFgMOvtj8BFyY9o0f65aoFqiqdZWpXCsDVxi85TOwnjLp4CqyZEVjiXUsBK/oSf2ETI1x/FEzcOlnCm4pxGKb72rORyBFia7WgF0eOcS4daDBCosL4Mu8Jh3WPZev7JStxvzdFpx0FIT3jBD3g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787610373; c=relaxed/relaxed;
-	bh=yeZeb6foz1MNn/HyKrfLgN187SkcfQEHocVs4k7s0R4=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=CJKp0WspyIFIpK4DlZWMrcJTlY6V7RjME59XvMM4TGinczg49wQWFSK8DCyA5jdc35gA72SAIvUK0RdAxkuT9FyG3hEquphbUEFTCLb7HJGecC1FPm2Rp4YkZVruMYwvWnXDxp4hUzEwj0ta7fKP0D7mNEv7jRJ9QxC2SkqtPiExStsDiPKfK0JkOeHLciwVOaaJo8f0mD+iRuy/SKyW2F4qyIwjMg3m/NY6nUTFHtV3gBfxDMoVCStB/+fT8D0Cv33ybYWm+afp7h8v1J0n5wAQ+S6LK1VCDJ1IqcicUMZ5JfDFzBEeFU1Kjq6UATIUSbzMpTKeGeTejvDNbyiQVQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TNkC13Ai; dkim-atps=neutral; spf=pass (client-ip=198.175.65.21; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	t=1787661175; c=relaxed/relaxed;
+	bh=SpXwlqfpTMSqPr0d90JklGo6OIEhYzopHmqlFENWmWs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vs5VNJB6ODPcXvLnWIxn+jr/p6fi5g8biFzDP+tuvswDojEwFMKh8xgKoWap21iKsiLGMyF/dxcrofZgyX7dqqWJlM48Q+OSBjNDXK3S8q9h98gMT3gVF+F6aVjcEl7o4S05slI7uYvvhLhPuD0B3PGoI0OLkwcio+y5WSH86jPJg9ZcU1AnbXSrM1/cgrBnK2oijIDcGCh0916nnHKJEKMd6GIsQbBZFxXMu3uDMk0VWO2307c8qEMIgm19AaLyUVh9ATqjcfTKKxckkNocjA5Zk/qFhy45k9AKj8iiBQFS+CE2uordeQiTgfigImxzs20exsjNBVODSmF0D2f6kQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQitDpqj; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TNkC13Ai;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQitDpqj;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.21; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTQVS0hMkz2xJJ
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 08:26:05 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787610368; x=1819146368;
-  h=date:from:to:cc:subject:message-id;
-  bh=YMm8XjxY8pDWgnGpCIjKRUCmhj1et9w2iNeuO4cBCHU=;
-  b=TNkC13Ai2QRctM9MOa+EN5G6EyUcWk6gXiiDIdSWMM9ceKIDRGvkMOp4
-   SbgrHDzYYka+5rdYJzc9BC++juUqjcWNiPJGP1ggZuG5r0Oaa1Zk4rbi4
-   UvJOcV86keeyxRe8IMapqyNDvTauius6FqwsDWlFhX1bSMiwBGuWJ8/WH
-   XmXNoIrvExXBbPRiWB8MMxNGqFdnqSY5q+43xbzjKqmn3qQFB2mem0Qgq
-   xAHEVpnLdodPmWSKUcAnCyt/sW5R+BBoy0dL5fuP+mcsiOoUFEI7orLXk
-   0ZTpDDT96LBM7vD17OrLYulK4y+WIHY6dVuIkqY9E9aZ06U7ARXnvSK2u
-   A==;
-X-CSE-ConnectionGUID: 0bZ3Pp27Qi6GYatfzLOZsg==
-X-CSE-MsgGUID: ae4Z/TR4R9qv3WbLnOQVQw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11885"; a="87933588"
-X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="87933588"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2026 15:25:55 -0700
-X-CSE-ConnectionGUID: CCFaqc/1QpaJs/UCPhUYTw==
-X-CSE-MsgGUID: eFBqxqjZTAe9KFOD/2VpyA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="267174811"
-Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
-  by orviesa007.jf.intel.com with ESMTP; 24 Aug 2026 15:25:54 -0700
-Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wyd6x-000000004Kq-117C;
-	Mon, 24 Aug 2026 22:25:48 +0000
-Date: Tue, 25 Aug 2026 06:23:59 +0800
-From: kernel test robot <lkp@intel.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTnHW1gVFz2x9g
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 22:32:55 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id D934E41AD3;
+	Tue, 25 Aug 2026 12:32:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ED01F000E9;
+	Tue, 25 Aug 2026 12:32:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787661172;
+	bh=SpXwlqfpTMSqPr0d90JklGo6OIEhYzopHmqlFENWmWs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=UQitDpqjc9v1jX9R0zuwAqvDhnoeB4zVdMoM2mfkvZ3tl8spDoHHcIvHNpPkdifWg
+	 8DQYd+tgNFbYtLodunNYY68F3u8GnLUf/TVDG/t5J/m1GQ4xI+MXNqlDWTPYu/06GS
+	 gfBnm9LfjhROvo72q19a3Zqk+zRTwpMCxNcJTDiZPpmsFwZjx9p3FPstVIyBClP8Jl
+	 e+gsftCO5KQfsxJoolMFhyYjjvFdbzc2s1UbhmF7+r+gMl+Z3tLMWRY8fHbLlT13cg
+	 AxhTgpx2XQoRpA/klvQtCYZbvDHawGDVXo5MemJ2xhlj+X9slrbHQfXaWXeyIztK9Y
+	 0LpdF4ka0vtJQ==
+Date: Tue, 25 Aug 2026 14:32:48 +0200
+From: Christian Brauner <brauner@kernel.org>
 To: Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- a7d28aa0e9b2c983b915d091f9596f0e3b253355
-Message-ID: <202608250648.wSNWmASV-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org, 
+	linux-fsdevel@vger.kernel.org, amir73il@gmail.com, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v5 1/2] fs: rename vfs_get_super() to get_tree_super()
+ and export it
+Message-ID: <20260825-gorilla-zuhilfenahme-unfug-4b81185496a3@brauner>
+References: <20260811071241.389589-1-gscrivan@redhat.com>
+ <20260811071241.389589-2-gscrivan@redhat.com>
+ <antDVPzz0tbn2kTU@XiangdeMacBook-Pro.local>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -75,49 +66,35 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <antDVPzz0tbn2kTU@XiangdeMacBook-Pro.local>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: a7d28aa0e9b2c983b915d091f9596f0e3b253355  erofs: simplify z_erofs_gbuf_growsize()
+On Tue, Aug 11, 2026 at 11:44:20PM +0800, Gao Xiang wrote:
+> (+ cc vfs maintainers)
+> 
+> Hi,
+> 
+> On Tue, Aug 11, 2026 at 09:10:50AM +0200, Giuseppe Scrivano wrote:
+> > vfs_get_super() already implements the common get_tree pattern of
+> > looking up an existing superblock via a test callback and initialising
+> > a new one with fill_super otherwise, but it is private to fs/super.c
+> > and only reachable through the get_tree_nodev()/get_tree_single()/
+> > get_tree_keyed() wrappers, none of which let a filesystem supply its
+> > own test callback.
+> > 
+> > Rename it to get_tree_super() and export it so filesystems that need a
+> > custom superblock matching policy can reuse it directly instead of
+> > open-coding sget_fc() + fill_super().  No functional change.
+> > 
+> > This is a preparatory fix for the next patch.
+> > 
+> > Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+> 
+> With the new vfs_get_super() helper, it seems much cleaner compared
+> to the previous versions.
 
-elapsed time: 789m
-
-configs tested: 28
-configs skipped: 1
-
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-tested configs:
-alpha                  allnoconfig    gcc-16.1.0
-alpha                 allyesconfig    gcc-16.1.0
-alpha                    defconfig    gcc-16.1.0
-arc                   allmodconfig    gcc-16.1.0
-arc                   allyesconfig    gcc-16.1.0
-arm64      randconfig-001-20260825    gcc-13.4.0
-arm64      randconfig-002-20260825    clang-24
-arm64      randconfig-003-20260825    clang-24
-arm64      randconfig-004-20260825    gcc-8.5.0
-csky                  allmodconfig    gcc-16.1.0
-csky       randconfig-001-20260825    gcc-11.5.0
-csky       randconfig-002-20260825    gcc-9.5.0
-i386                  allmodconfig    gcc-14
-loongarch                defconfig    clang-24
-m68k            m5208evb_defconfig    gcc-16.1.0
-nios2                 allmodconfig    gcc-11.5.0
-nios2                  allnoconfig    gcc-11.5.0
-parisc                allmodconfig    gcc-16.1.0
-parisc                allyesconfig    gcc-16.1.0
-parisc                   defconfig    gcc-16.1.0
-riscv                 alldefconfig    gcc-16.1.0
-sh                       defconfig    gcc-16.1.0
-x86_64     randconfig-011-20260825    gcc-14
-x86_64     randconfig-012-20260825    gcc-14
-x86_64     randconfig-013-20260825    clang-22
-x86_64     randconfig-014-20260825    gcc-12
-x86_64     randconfig-015-20260825    gcc-14
-x86_64     randconfig-016-20260825    gcc-14
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+I'll add this patch to the vfs-7.3.super tree post -rc1 and then you can
+pull it in. Thanks!
 
