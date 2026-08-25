@@ -1,61 +1,60 @@
-Return-Path: <linux-erofs+bounces-4339-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4340-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A0CBC61DBE
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Aug 2026 12:32:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58353C61DB9
+	for <linux-erofs@archiver.kernel.org>; Tue, 25 Aug 2026 12:56:48 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hTnHX0KF5z2xKh;
-	Tue, 25 Aug 2026 22:32:56 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787661175;
-	cv=none; b=E+8a3xlOf5r3SqMXBv7EYEOCNsaTeOtiBVV6uHUoHWol4PET4Alb0C9USvT5Qwl8Vvkq+qZok/1seBCFo5dAz/jJ/3+zfukTDDkSvb+4hmf+p4UzH3qWxRtSzpWdwAXOxufxwOl7280czGpOiPVeIEuR0I/e5EbWmPkjLdgdP8h3WrWkIkUZi5KvW9YC4LhT1dCdoFgMOvtj8BFyY9o0f65aoFqiqdZWpXCsDVxi85TOwnjLp4CqyZEVjiXUsBK/oSf2ETI1x/FEzcOlnCm4pxGKb72rORyBFia7WgF0eOcS4daDBCosL4Mu8Jh3WPZev7JStxvzdFpx0FIT3jBD3g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hTnq21mtmz2xKh;
+	Tue, 25 Aug 2026 22:56:46 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787662606;
+	cv=none; b=fIAkr7LYgC2WTwI2h+E2hc2A7gepkxeovZPyA/kCoxD+e876NdCdPZteunJRS+JDnrPB0kmKQ4MylZWb8mb1SdbAQoMOO3uUYSz1ICAd6wK1xxBExD92PYA0tXMjJbfK+UONWACdNgPWpCJ+V7a5WwVw9fo3em0JMYKUIlZ2CwYIKO3vtjEU8WQf4gwiF0qVGapOGAbqt2hlY/dUfHPzlSlIAuDkoTIOL79IV00piFlod2JWf4fU60fcg7wbWwuJsLW3xMjFO24GGhVcS0c10UHXbZBZCY6yfkg5g1258HXEItT/VQlL4moxzHi/mh6dEgizzrCMoZXQvLn/XTOVhg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787661175; c=relaxed/relaxed;
-	bh=SpXwlqfpTMSqPr0d90JklGo6OIEhYzopHmqlFENWmWs=;
+	t=1787662606; c=relaxed/relaxed;
+	bh=z/ovVZcfipLTI7orQj6c9Fnp4FS3AHdc5YjHdm7Y4sg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Vs5VNJB6ODPcXvLnWIxn+jr/p6fi5g8biFzDP+tuvswDojEwFMKh8xgKoWap21iKsiLGMyF/dxcrofZgyX7dqqWJlM48Q+OSBjNDXK3S8q9h98gMT3gVF+F6aVjcEl7o4S05slI7uYvvhLhPuD0B3PGoI0OLkwcio+y5WSH86jPJg9ZcU1AnbXSrM1/cgrBnK2oijIDcGCh0916nnHKJEKMd6GIsQbBZFxXMu3uDMk0VWO2307c8qEMIgm19AaLyUVh9ATqjcfTKKxckkNocjA5Zk/qFhy45k9AKj8iiBQFS+CE2uordeQiTgfigImxzs20exsjNBVODSmF0D2f6kQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQitDpqj; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=gw7BOfw7Ctny2iTeBnQwZZJbYVgr3n9GE7d0AtiDFD68S+iNB3ZSsc5Ig0VpFkBG0dgfuGELnF347aBuwlU8apZGIPHWNSbcJ+QxqkCYDV7ZK3ITs8zmicjkTQ7TtC6WjTCqNZ/8xzEJgu2Qv+JCRYgUcHD8Eq7sNcJ4Smekzj+JeqF9JU+x0LEp9vGXJw3Lr+8c5HB10YwrCz2hX6YecMAc5RCUlBSatDNcVGDUuOJQqo8+09vqMm3UMwhbakfV7Mk46eoNAaSRWLETp1hwRm2DsfFw7ta4JLkKzFniyuYcSc69zmJfr9i5BzvOo1GzHPVQZybpT+jgRKS4hq8T0g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F0qm2Wca; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UQitDpqj;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=F0qm2Wca;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTnHW1gVFz2x9g
-	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 22:32:55 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTnq12LTwz2x9g
+	for <linux-erofs@lists.ozlabs.org>; Tue, 25 Aug 2026 22:56:45 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id D934E41AD3;
-	Tue, 25 Aug 2026 12:32:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01ED01F000E9;
-	Tue, 25 Aug 2026 12:32:50 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id AE1BB6011F;
+	Tue, 25 Aug 2026 12:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A7A1F000E9;
+	Tue, 25 Aug 2026 12:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787661172;
-	bh=SpXwlqfpTMSqPr0d90JklGo6OIEhYzopHmqlFENWmWs=;
+	s=k20260515; t=1787662602;
+	bh=z/ovVZcfipLTI7orQj6c9Fnp4FS3AHdc5YjHdm7Y4sg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UQitDpqjc9v1jX9R0zuwAqvDhnoeB4zVdMoM2mfkvZ3tl8spDoHHcIvHNpPkdifWg
-	 8DQYd+tgNFbYtLodunNYY68F3u8GnLUf/TVDG/t5J/m1GQ4xI+MXNqlDWTPYu/06GS
-	 gfBnm9LfjhROvo72q19a3Zqk+zRTwpMCxNcJTDiZPpmsFwZjx9p3FPstVIyBClP8Jl
-	 e+gsftCO5KQfsxJoolMFhyYjjvFdbzc2s1UbhmF7+r+gMl+Z3tLMWRY8fHbLlT13cg
-	 AxhTgpx2XQoRpA/klvQtCYZbvDHawGDVXo5MemJ2xhlj+X9slrbHQfXaWXeyIztK9Y
-	 0LpdF4ka0vtJQ==
-Date: Tue, 25 Aug 2026 14:32:48 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Gao Xiang <xiang@kernel.org>
-Cc: Giuseppe Scrivano <gscrivan@redhat.com>, linux-erofs@lists.ozlabs.org, 
-	linux-fsdevel@vger.kernel.org, amir73il@gmail.com, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH v5 1/2] fs: rename vfs_get_super() to get_tree_super()
- and export it
-Message-ID: <20260825-gorilla-zuhilfenahme-unfug-4b81185496a3@brauner>
-References: <20260811071241.389589-1-gscrivan@redhat.com>
- <20260811071241.389589-2-gscrivan@redhat.com>
- <antDVPzz0tbn2kTU@XiangdeMacBook-Pro.local>
+	b=F0qm2WcaJCvtSCWXUoM8lXAy9poMyMPGxxdYgnna08NG3W32u2IKXn/z1AIg9a68b
+	 97FiLwiXr9Ipi4Z/9vGeqJTbp3k7g+8ZReRnK7fdily9avVJt0yYE2fwc6C1Ep8G3X
+	 AND2Hi9wVHYp1FJPlCYYds/CaIrWBwWC9imAfQBDPGzN4n2eIs1oPqIgM3lofBTE7M
+	 KrBmLJsuFCAu0wKnVvadYLrRsCYy4MNmtrZyfNLUbagoKZCINmnL3XoSogqnl6kOwV
+	 bbM7Mx/RJkB0Rz7Fu0eT9ID3/4jr51IqVRZfwbvIZOQZClz+kMoHMAbPGIUhe/KIcI
+	 ZAT25u0umxxyw==
+Date: Tue, 25 Aug 2026 20:56:34 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Chris Ayoub <cayoub@openai.com>
+Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
+Subject: Re: [PATCH v2] rebuild: prevent quadratic snapshot merges on wide
+ directories
+Message-ID: <ao2RAhl25I-H-rTN@192.168.5.19>
+Mail-Followup-To: Chris Ayoub <cayoub@openai.com>,
+	linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
+References: <20260810-rebuild-wide-directory-index-v2-1-3a977092b7ea@openai.com>
+ <CADh04Ha-okHEq+GbD0hizFVPcxE=aqFbgvJpz550yFBV6wsF7Q@mail.gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -69,32 +68,25 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <antDVPzz0tbn2kTU@XiangdeMacBook-Pro.local>
+In-Reply-To: <CADh04Ha-okHEq+GbD0hizFVPcxE=aqFbgvJpz550yFBV6wsF7Q@mail.gmail.com>
 
-On Tue, Aug 11, 2026 at 11:44:20PM +0800, Gao Xiang wrote:
-> (+ cc vfs maintainers)
-> 
-> Hi,
-> 
-> On Tue, Aug 11, 2026 at 09:10:50AM +0200, Giuseppe Scrivano wrote:
-> > vfs_get_super() already implements the common get_tree pattern of
-> > looking up an existing superblock via a test callback and initialising
-> > a new one with fill_super otherwise, but it is private to fs/super.c
-> > and only reachable through the get_tree_nodev()/get_tree_single()/
-> > get_tree_keyed() wrappers, none of which let a filesystem supply its
-> > own test callback.
-> > 
-> > Rename it to get_tree_super() and export it so filesystems that need a
-> > custom superblock matching policy can reuse it directly instead of
-> > open-coding sget_fc() + fill_super().  No functional change.
-> > 
-> > This is a preparatory fix for the next patch.
-> > 
-> > Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
-> 
-> With the new vfs_get_super() helper, it seems much cleaner compared
-> to the previous versions.
+Hi Chris,
 
-I'll add this patch to the vfs-7.3.super tree post -rc1 and then you can
-pull it in. Thanks!
+On Mon, Aug 24, 2026 at 02:10:06PM -0700, Chris Ayoub wrote:
+> Hi Gao,
+> 
+> Gentle ping on this v2. Please let me know if any further changes are needed.
+
+Thanks for the patch!
+
+Yes, I don't forget this one, but I am working on another erofs-utils
+change too.  I will adapt this patch manually later.
+
+Thanks,
+Gao Xiang
+
+> 
+> Thanks,
+> Chris
+> 
 
