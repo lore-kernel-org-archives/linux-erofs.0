@@ -1,55 +1,55 @@
-Return-Path: <linux-erofs+bounces-4348-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4349-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E392C61DC2
-	for <linux-erofs@archiver.kernel.org>; Wed, 26 Aug 2026 13:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4964C61DBD
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Aug 2026 13:44:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hVQqQ4c16z2yb9;
-	Wed, 26 Aug 2026 23:44:18 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787751858;
-	cv=none; b=aNshSLml0kq10WHhy2fwo7Vu/O4fBBkP2UTOWKgT++/SbTWugK915VaDDUc1zvMO3erjTpLofOdIIbe66RW6R9/k2kAwvoWG6GccTLxlNYfujU+gqHzVJ1PFZ4zL0SpurGRvqiv5WNExQVlsQP1ocXh1vfWZW0Dke6AJ+96yAkGwAA9e8t8GZPN8jtaue9I08WAdUkwRZxafXe7ddS7w2WIRAzRotQrWE7GKwW8UBPXtySuKU7k/bQ0+aMfnR8L7QhOKMMHM91/ixTzMM4kvDe6Wl/xZQzIAOGcI/J7nQ97gB+DYS9p0ewvmY3zlMn/QY3FiwHkL422I0V05nylvrA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hVQqX01nmz2yf9;
+	Wed, 26 Aug 2026 23:44:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787751863;
+	cv=none; b=EVVMr8/kvIkkrV1bimg5kP33hOr2eUA7AVHtD9ewATf5ni8BxbTwtUnsQGdnNZJJIiyf5T5x2yKZpHGc9jWMdxhTrpj+rhYwAuOe4eM8V0sv/NFia50lK6bk6Ks2tlY6MLjc2w+y/LNIUIPuTVyWkxmpcsRlNAzXMGwXBJ7BICnBqNwYiec7RGyBl7X2asd4W1qw48sklb+fge1W8NJCbaiW2U3yWdsAa86dPqhsADm/It4zrD1QQjFJMkDTASfUML2cvzdIaZGh5frNSx+Gvx0gq8+yXmvu08XZSmCkmcv07LdcCLuEcCG99svRRZEr06doYKpWmBWaIOi40nQQYw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787751858; c=relaxed/relaxed;
-	bh=6NOwEveV9pV7iE3fJYE1wOvj9NTnZUbKLN3K8E+oA9Q=;
+	t=1787751863; c=relaxed/relaxed;
+	bh=Pliysv9dBXAY7tDvZz8pEbilfac3im2EnvX56aaqVKs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YzrMtFAB+OB58B2sYBtBY8yKmoA7Hp70DDlWUWE5R3CQ3OynvfnIndXuSziGEyORi+qNkW0GpMJP2XukNIYbG7YGI6CtecKm2KJtT4JYG0EYgr7i1XT/3lwLbW8dUI60QM/o9Rct3W5w8Nv9D2/mPmmoOo01v53ekD4u19E6chGnRMHvUGfxcisoZvH04QOZpqAq9MjaDqVRIDLlqbRLo3KiHn3MuWYzuHtolUMZol4IAEHdfAw/mie332mLNm+m1wM18OdZVcQgofYdhtGIuSUYW/Pid538+34mOGH5Sj+WkryzPiunQIx96qIT+vWxRhhcfoDfr4BSiFAyqd0A7Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oV5sCTCd; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 MIME-Version; b=kVqcNnCe2zt3/HFZczyZ5Pj7IgR62cjc2zfLts5dYPJHkZBnK92DJ1m46P1Rl9AepHe9DUCv2R8/uyrqTDh6hKRk8Pc8KRcrzTFPuSC5+7gNqsEptmTI0Fe1bZ49TKYGf00A9TPyYKWs6PqVIWh6BqMbSjbwKIwHAZFW2ljysTMemrQhjh59RA1Xbx4SFZ9kcd3ybDPIxR1hSfSug+PFUVAol0c3+87DfNTc4PZhg5RIopMGkh4z6bDCuKsY1rW6KSwD5GzBv2IHfXye5bhdv+g4JKXDLu9odYzO9D/4Z6zgG441i4dAOkeo9GrU6JiMqAS4wcvt5IrNciV/GkLx5g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HoTSbrei; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oV5sCTCd;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HoTSbrei;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hVQqP63QKz2xLG
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 23:44:17 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hVQqV2Kmnz2y8F
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 23:44:22 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 00C3E6011F
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 13:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECDB11F000E9;
-	Wed, 26 Aug 2026 13:44:14 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 156E043CB9
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 13:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D491F000E9;
+	Wed, 26 Aug 2026 13:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787751855;
-	bh=6NOwEveV9pV7iE3fJYE1wOvj9NTnZUbKLN3K8E+oA9Q=;
+	s=k20260515; t=1787751860;
+	bh=Pliysv9dBXAY7tDvZz8pEbilfac3im2EnvX56aaqVKs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=oV5sCTCdCU15se9VU3Q9w52OVE5WMitj+Wa2OPtPcNJOUvX0ljhCVe8FbW6emGkta
-	 Ft74JPMxGdK24sfqvg5k5na9AO5qfVaNE9NMtwXqdt5p370VCuLuYl9l4NP9IrcyNL
-	 bXdGvXwoqzej5YWujzrgx8mb8eZAUWCFjco6E4iotCkdnhyvufE5iutYZniqNnb71e
-	 5HHcraD4AZK17ck4VYfPMB+fQZQXcamTy9NCotyoeyqwEDXRTdqm9eo0A1kzAXPZvy
-	 N5b7ppkDW0lLujSzYUgLj1jv7mLVTB3IQQ8vxKX+HNztF7gxSlCrMrK+sSWWor4JK4
-	 8ZFE7ZbFOKv/Q==
+	b=HoTSbreinZsG6rLFsJg/0FkMdHMfVxsPcrNVgsokKXcGCKHm+7TgTdyMVL3gFKdsP
+	 Jvl3zW1A1ZkwrgWhFdYTFG/tqnTr9gnt9cGmxuuJpLgX9kxQmRZXSQ63ha/bfYMSy9
+	 PjxOzKhFoEmYuiOUBt3sg74C5O5X5XclhEADF5mS5L7gfRyshN8RFd1Gk25U0vXsZj
+	 5hGQQJklAO9FfsD78CMpTZT7r2sKxYgBlcs77W7omTt+czAuLoqodshqPRH8nDApMK
+	 08Ml7As4ZMe2tEPv+rHCueg9tVEkC2fq9oTA9nszfA9ez44fY1npZy0NzTWA8B9DVi
+	 rgPuiQ33NCLmw==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <xiang@kernel.org>
-Subject: [PATCH 2/4] erofs-utils: lib: use `struct erofs_device_info` for the primary device
-Date: Wed, 26 Aug 2026 21:43:18 +0800
-Message-ID: <20260826134321.11835-2-xiang@kernel.org>
+Subject: [PATCH 4/4] erofs-utils: get rid of hashmap
+Date: Wed, 26 Aug 2026 21:43:20 +0800
+Message-ID: <20260826134321.11835-4-xiang@kernel.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260826134321.11835-1-xiang@kernel.org>
 References: <20260826134321.11835-1-xiang@kernel.org>
@@ -66,241 +66,614 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Source kernel commit: 7b00af2c5414dc01e0718deef7ead81102867636
+This is the last piece of GPL-only 3rd-party code in
+liberofs.
+
+We may introduce a new dynamic hashmap implementation without GPL-only
+restriction later.
 
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- include/erofs/internal.h |  4 +---
- lib/importer.c           |  3 +--
- lib/io.c                 |  8 ++++----
- lib/rebuild.c            |  6 +++---
- lib/super.c              | 18 +++++++++---------
- lib/vmdk.c               |  4 ++--
- mkfs/main.c              | 12 ++++++------
- 7 files changed, 26 insertions(+), 29 deletions(-)
+ include/erofs/flex-array.h | 156 ---------------------
+ include/erofs/hashmap.h    | 115 ---------------
+ lib/Makefile.am            |   4 +-
+ lib/hashmap.c              | 280 -------------------------------------
+ 4 files changed, 1 insertion(+), 554 deletions(-)
+ delete mode 100644 include/erofs/flex-array.h
+ delete mode 100644 include/erofs/hashmap.h
+ delete mode 100644 lib/hashmap.c
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 514cfbd..30dae41 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -93,11 +93,9 @@ struct erofs_metamgr;
+diff --git a/include/erofs/flex-array.h b/include/erofs/flex-array.h
+deleted file mode 100644
+index 9b1642f..0000000
+--- a/include/erofs/flex-array.h
++++ /dev/null
+@@ -1,156 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __EROFS_FLEX_ARRAY_H
+-#define __EROFS_FLEX_ARRAY_H
+-
+-#ifdef __cplusplus
+-extern "C"
+-{
+-#endif
+-
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <limits.h>
+-#include <stdint.h>
+-
+-#include "defs.h"
+-#include "print.h"
+-
+-/*
+- * flex-array.h
+- *
+- * Some notes to make sense of the code.
+- *
+- * Flex-arrays:
+- *   - Flex-arrays became standard in C99 and are defined by "array[]" (at the
+- *     end of a struct)
+- *   - Pre-C99 flex-arrays can be accomplished by "array[1]"
+- *   - There is a GNU extension where they are defined using "array[0]"
+- *     Allegedly there is/was a bug in gcc whereby foo[1] generated incorrect
+- *     code, so it's safest to use [0] (https://lkml.org/lkml/2015/2/18/407).
+- *
+- * For C89 and C90, __STDC__ is 1
+- * For later standards, __STDC_VERSION__ is defined according to the standard.
+- * For example: 199901L or 201112L
+- *
+- * Whilst we're on the subject, in version 5 of gcc, the default std was
+- * changed from gnu89 to gnu11. In jgmenu, CFLAGS therefore contains -std=gnu89
+- * You can check your default gcc std by doing:
+- * gcc -dM -E - </dev/null | grep '__STDC_VERSION__\|__STDC__'
+- *
+- * The code below is copied from git's git-compat-util.h in support of
+- * hashmap.c
+- */
+-
+-#ifndef FLEX_ARRAY
+-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
+-	(!defined(__SUNPRO_C) || (__SUNPRO_C > 0x580))
+-# define FLEX_ARRAY /* empty */
+-#elif defined(__GNUC__)
+-# if (__GNUC__ >= 3)
+-#  define FLEX_ARRAY /* empty */
+-# else
+-#  define FLEX_ARRAY 0 /* older GNU extension */
+-# endif
+-#endif
+-
+-/* Otherwise, default to safer but a bit wasteful traditional style */
+-#ifndef FLEX_ARRAY
+-# define FLEX_ARRAY 1
+-#endif
+-#endif
+-
+-#define bitsizeof(x) (CHAR_BIT * sizeof(x))
+-
+-#define maximum_signed_value_of_type(a) \
+-	(INTMAX_MAX >> (bitsizeof(intmax_t) - bitsizeof(a)))
+-
+-#define maximum_unsigned_value_of_type(a) \
+-	(UINTMAX_MAX >> (bitsizeof(uintmax_t) - bitsizeof(a)))
+-
+-/*
+- * Signed integer overflow is undefined in C, so here's a helper macro
+- * to detect if the sum of two integers will overflow.
+- * Requires: a >= 0, typeof(a) equals typeof(b)
+- */
+-#define signed_add_overflows(a, b) \
+-	((b) > maximum_signed_value_of_type(a) - (a))
+-
+-#define unsigned_add_overflows(a, b) \
+-	((b) > maximum_unsigned_value_of_type(a) - (a))
+-
+-static inline size_t st_add(size_t a, size_t b)
+-{
+-	if (unsigned_add_overflows(a, b)) {
+-		erofs_err("size_t overflow: %llu + %llu", a | 0ULL, b | 0ULL);
+-		BUG_ON(1);
+-		return -1;
+-	}
+-	return a + b;
+-}
+-
+-#define st_add3(a, b, c) st_add(st_add((a), (b)), (c))
+-#define st_add4(a, b, c, d) st_add(st_add3((a), (b), (c)), (d))
+-
+-/*
+- * These functions help you allocate structs with flex arrays, and copy
+- * the data directly into the array. For example, if you had:
+- *
+- *   struct foo {
+- *     int bar;
+- *     char name[FLEX_ARRAY];
+- *   };
+- *
+- * you can do:
+- *
+- *   struct foo *f;
+- *   FLEX_ALLOC_MEM(f, name, src, len);
+- *
+- * to allocate a "foo" with the contents of "src" in the "name" field.
+- * The resulting struct is automatically zero'd, and the flex-array field
+- * is NUL-terminated (whether the incoming src buffer was or not).
+- *
+- * The FLEXPTR_* variants operate on structs that don't use flex-arrays,
+- * but do want to store a pointer to some extra data in the same allocated
+- * block. For example, if you have:
+- *
+- *   struct foo {
+- *     char *name;
+- *     int bar;
+- *   };
+- *
+- * you can do:
+- *
+- *   struct foo *f;
+- *   FLEXPTR_ALLOC_STR(f, name, src);
+- *
+- * and "name" will point to a block of memory after the struct, which will be
+- * freed along with the struct (but the pointer can be repointed anywhere).
+- *
+- * The *_STR variants accept a string parameter rather than a ptr/len
+- * combination.
+- *
+- * Note that these macros will evaluate the first parameter multiple
+- * times, and it must be assignable as an lvalue.
+- */
+-#define FLEX_ALLOC_MEM(x, flexname, buf, len) do { \
+-	size_t flex_array_len_ = (len); \
+-	(x) = calloc(1, st_add3(sizeof(*(x)), flex_array_len_, 1)); \
+-	BUG_ON(!(x)); \
+-	memcpy((void *)(x)->flexname, (buf), flex_array_len_); \
+-} while (0)
+-#define FLEXPTR_ALLOC_MEM(x, ptrname, buf, len) do { \
+-	size_t flex_array_len_ = (len); \
+-	(x) = xcalloc(1, st_add3(sizeof(*(x)), flex_array_len_, 1)); \
+-	memcpy((x) + 1, (buf), flex_array_len_); \
+-	(x)->ptrname = (void *)((x) + 1); \
+-} while (0)
+-#define FLEX_ALLOC_STR(x, flexname, str) \
+-	FLEX_ALLOC_MEM((x), flexname, (str), strlen(str))
+-#define FLEXPTR_ALLOC_STR(x, ptrname, str) \
+-	FLEXPTR_ALLOC_MEM((x), ptrname, (str), strlen(str))
+-
+-#ifdef __cplusplus
+-}
+-#endif
+-
+-#endif
+diff --git a/include/erofs/hashmap.h b/include/erofs/hashmap.h
+deleted file mode 100644
+index 484948e..0000000
+--- a/include/erofs/hashmap.h
++++ /dev/null
+@@ -1,115 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef __EROFS_HASHMAP_H
+-#define __EROFS_HASHMAP_H
+-
+-#ifdef __cplusplus
+-extern "C"
+-{
+-#endif
+-
+-/* Copied from https://github.com/git/git.git */
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <string.h>
+-
+-#include "flex-array.h"
+-
+-/*
+- * Generic implementation of hash-based key-value mappings.
+- * See Documentation/technical/api-hashmap.txt.
+- */
+-
+-/* FNV-1 functions */
+-unsigned int strhash(const char *str);
+-unsigned int strihash(const char *str);
+-unsigned int memhash(const void *buf, size_t len);
+-unsigned int memihash(const void *buf, size_t len);
+-
+-static inline unsigned int sha1hash(const unsigned char *sha1)
+-{
+-	/*
+-	 * Equivalent to 'return *(unsigned int *)sha1;', but safe on
+-	 * platforms that don't support unaligned reads.
+-	 */
+-	unsigned int hash;
+-
+-	memcpy(&hash, sha1, sizeof(hash));
+-	return hash;
+-}
+-
+-/* data structures */
+-struct hashmap_entry {
+-	struct hashmap_entry *next;
+-	unsigned int hash;
+-};
+-
+-typedef int (*hashmap_cmp_fn)(const void *entry, const void *entry_or_key,
+-		const void *keydata);
+-
+-struct hashmap {
+-	struct hashmap_entry **table;
+-	hashmap_cmp_fn cmpfn;
+-	unsigned int size, tablesize, grow_at, shrink_at;
+-};
+-
+-struct hashmap_iter {
+-	struct hashmap *map;
+-	struct hashmap_entry *next;
+-	unsigned int tablepos;
+-};
+-
+-/* hashmap functions */
+-void hashmap_init(struct hashmap *map, hashmap_cmp_fn equals_function,
+-		  size_t initial_size);
+-int hashmap_free(struct hashmap *map);
+-
+-/* hashmap_entry functions */
+-static inline void hashmap_entry_init(void *entry, unsigned int hash)
+-{
+-	struct hashmap_entry *e = entry;
+-
+-	e->hash = hash;
+-	e->next = NULL;
+-}
+-
+-void *hashmap_get(const struct hashmap *map, const void *key, const void *keydata);
+-void *hashmap_get_next(const struct hashmap *map, const void *entry);
+-void hashmap_add(struct hashmap *map, void *entry);
+-void *hashmap_remove(struct hashmap *map, const void *key);
+-
+-static inline void *hashmap_get_from_hash(const struct hashmap *map,
+-					  unsigned int hash,
+-					  const void *keydata)
+-{
+-	struct hashmap_entry key;
+-
+-	hashmap_entry_init(&key, hash);
+-	return hashmap_get(map, &key, keydata);
+-}
+-
+-/* hashmap_iter functions */
+-void hashmap_iter_init(struct hashmap *map, struct hashmap_iter *iter);
+-void *hashmap_iter_next(struct hashmap_iter *iter);
+-static inline void *hashmap_iter_first(struct hashmap *map,
+-				       struct hashmap_iter *iter)
+-{
+-	hashmap_iter_init(map, iter);
+-	return hashmap_iter_next(iter);
+-}
+-
+-static inline void hashmap_disable_shrink(struct hashmap * map)
+-{
+-	map->shrink_at = 0;
+-}
+-/* string interning */
+-const void *memintern(const void *data, size_t len);
+-static inline const char *strintern(const char *string)
+-{
+-	return memintern(string, strlen(string));
+-}
+-
+-#ifdef __cplusplus
+-}
+-#endif
+-
+-#endif
+diff --git a/lib/Makefile.am b/lib/Makefile.am
+index 5ef2122..25d08f2 100644
+--- a/lib/Makefile.am
++++ b/lib/Makefile.am
+@@ -10,8 +10,6 @@ noinst_HEADERS = $(top_srcdir)/include/erofs_fs.h \
+       $(top_srcdir)/include/erofs/diskbuf.h \
+       $(top_srcdir)/include/erofs/err.h \
+       $(top_srcdir)/include/erofs/exclude.h \
+-      $(top_srcdir)/include/erofs/flex-array.h \
+-      $(top_srcdir)/include/erofs/hashmap.h \
+       $(top_srcdir)/include/erofs/inode.h \
+       $(top_srcdir)/include/erofs/internal.h \
+       $(top_srcdir)/include/erofs/io.h \
+@@ -43,7 +41,7 @@ endif
  
- struct erofs_sb_info {
- 	struct erofs_sb_lz4_info lz4;
--	struct erofs_device_info *devs;
--	char *devname;
-+	struct erofs_device_info *devs, dif0;
- 
- 	u64 total_blocks;
--	u64 primarydevice_blocks;
- 
- 	s32 meta_blkaddr;
- 	u32 xattr_blkaddr;
-diff --git a/lib/importer.c b/lib/importer.c
-index c404b0f..2a635d2 100644
---- a/lib/importer.c
-+++ b/lib/importer.c
-@@ -126,8 +126,7 @@ int erofs_importer_flush_all(struct erofs_importer *im)
- 
- 	fsalignblks = im->params->fsalignblks ?
- 		roundup_pow_of_two(im->params->fsalignblks) : 1;
--	sbi->primarydevice_blocks = roundup(erofs_mapbh(sbi->bmgr, NULL),
--					    fsalignblks);
-+	sbi->dif0.blocks = roundup(erofs_mapbh(sbi->bmgr, NULL), fsalignblks);
- 	err = erofs_write_device_table(sbi);
- 	if (err)
- 		return err;
-diff --git a/lib/io.c b/lib/io.c
-index 3ba45cc..5c5449f 100644
---- a/lib/io.c
-+++ b/lib/io.c
-@@ -368,8 +368,8 @@ repeat:
- 	}
- 
- out:
--	sbi->devname = strdup(dev);
--	if (!sbi->devname) {
-+	sbi->dif0.src_path = strdup(dev);
-+	if (!sbi->dif0.src_path) {
- 		close(fd);
- 		return -ENOMEM;
- 	}
-@@ -381,8 +381,8 @@ out:
- void erofs_dev_close(struct erofs_sb_info *sbi)
- {
- 	erofs_io_close(&sbi->bdev);
--	free(sbi->devname);
--	sbi->devname = NULL;
-+	free(sbi->dif0.src_path);
-+	sbi->dif0.src_path = NULL;
- 	sbi->bdev.fd = -1;
- }
- 
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index a5308dc..6b03a52 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -233,7 +233,7 @@ static int erofs_rebuild_write_full_data(struct erofs_inode *inode)
- 				return -EFSCORRUPTED;
- 			return 0;
- 		}
--		inode->rebuild_blobpath = strdup(src_sbi->devname);
-+		inode->rebuild_blobpath = strdup(src_sbi->dif0.src_path);
- 		if (!inode->rebuild_blobpath)
- 			return -ENOMEM;
- 		inode->rebuild_src_dataoff =
-@@ -244,7 +244,7 @@ static int erofs_rebuild_write_full_data(struct erofs_inode *inode)
- 		unsigned int inline_size = inode->i_size % erofs_blksiz(src_sbi);
- 
- 		if (nblocks > 0 && inode->u.i_blkaddr != EROFS_NULL_ADDR) {
--			inode->rebuild_blobpath = strdup(src_sbi->devname);
-+			inode->rebuild_blobpath = strdup(src_sbi->dif0.src_path);
- 			if (!inode->rebuild_blobpath)
- 				return -ENOMEM;
- 			inode->rebuild_src_dataoff =
-@@ -500,7 +500,7 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
- 	struct erofs_inode inode = {};
- 	struct erofs_rebuild_dir_context ctx;
- 	char uuid_str[37];
--	char *fsid = sbi->devname;
-+	char *fsid = sbi->dif0.src_path;
- 	int ret;
- 
- 	if (!fsid) {
-diff --git a/lib/super.c b/lib/super.c
-index d138f84..ead4170 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -33,7 +33,7 @@ static int erofs_init_devices(struct erofs_sb_info *sbi,
- 	erofs_off_t pos;
- 	bool _48bit = erofs_sb_has_48bit(sbi);
- 
--	sbi->total_blocks = sbi->primarydevice_blocks;
-+	sbi->total_blocks = sbi->dif0.blocks;
- 
- 	if (!erofs_sb_has_device_table(sbi))
- 		ondisk_extradevs = 0;
-@@ -118,14 +118,14 @@ int erofs_read_superblock(struct erofs_sb_info *sbi)
- 		erofs_err("invalid sb_extslots %u", dsb->sb_extslots);
- 		return -EINVAL;
- 	}
--	sbi->primarydevice_blocks = le32_to_cpu(dsb->blocks_lo);
-+	sbi->dif0.blocks = le32_to_cpu(dsb->blocks_lo);
- 	sbi->meta_blkaddr = le32_to_cpu(dsb->meta_blkaddr);
- 	sbi->xattr_blkaddr = le32_to_cpu(dsb->xattr_blkaddr);
- 	sbi->xattr_prefix_start = le32_to_cpu(dsb->xattr_prefix_start);
- 	sbi->xattr_prefix_count = dsb->xattr_prefix_count;
- 	if (erofs_sb_has_48bit(sbi) && dsb->rootnid_8b) {
- 		sbi->root_nid = le64_to_cpu(dsb->rootnid_8b);
--		sbi->primarydevice_blocks = sbi->primarydevice_blocks |
-+		sbi->dif0.blocks = sbi->dif0.blocks |
- 				((u64)le16_to_cpu(dsb->rb.blocks_hi) << 32);
- 	} else {
- 		sbi->root_nid = le16_to_cpu(dsb->rb.rootnid_2b);
-@@ -230,10 +230,10 @@ int erofs_writesb(struct erofs_sb_info *sbi)
- 	char *buf;
- 	int ret;
- 
--	sb.blocks_lo	= cpu_to_le32(sbi->primarydevice_blocks);
--	if (sbi->primarydevice_blocks > UINT32_MAX ||
-+	sb.blocks_lo	= cpu_to_le32(sbi->dif0.blocks);
-+	if (sbi->dif0.blocks > UINT32_MAX ||
- 	    sbi->root_nid > UINT16_MAX) {
--		sb.rb.blocks_hi = cpu_to_le16(sbi->primarydevice_blocks >> 32);
-+		sb.rb.blocks_hi = cpu_to_le16(sbi->dif0.blocks >> 32);
- 		sb.rootnid_8b = cpu_to_le64(sbi->root_nid);
- 	}
- 	memcpy(sb.uuid, sbi->uuid, sizeof(sb.uuid));
-@@ -404,7 +404,7 @@ int erofs_mkfs_init_devices(struct erofs_sb_info *sbi, unsigned int devices)
- 
- int erofs_write_device_table(struct erofs_sb_info *sbi)
- {
--	erofs_blk_t nblocks = sbi->primarydevice_blocks;
-+	erofs_blk_t nblocks = sbi->dif0.blocks;
- 	struct erofs_buffer_head *bh = sbi->bh_devt;
- 	erofs_off_t pos;
- 	unsigned int i, ret;
-@@ -484,7 +484,7 @@ int erofs_mkfs_load_fs(struct erofs_sb_info *sbi, unsigned int dsunit)
- 	erofs_warn("EXPERIMENTAL incremental build in use. Use at your own risk!");
- 	err = erofs_read_superblock(sbi);
- 	if (err) {
--		erofs_err("failed to read superblock of %s: %s", sbi->devname,
-+		erofs_err("failed to read superblock of %s: %s", sbi->dif0.src_path,
- 			  erofs_strerror(err));
- 		return err;
- 	}
-@@ -493,7 +493,7 @@ int erofs_mkfs_load_fs(struct erofs_sb_info *sbi, unsigned int dsunit)
- 	if (!err && S_ISREG(u.st.st_mode))
- 		u.startblk = DIV_ROUND_UP(u.st.st_size, erofs_blksiz(sbi));
- 	else
--		u.startblk = sbi->primarydevice_blocks;
-+		u.startblk = sbi->dif0.blocks;
- 
- 	bmgr = erofs_buffer_init(sbi, u.startblk, NULL);
- 	if (!bmgr)
-diff --git a/lib/vmdk.c b/lib/vmdk.c
-index 316a8ff..28381c8 100644
---- a/lib/vmdk.c
-+++ b/lib/vmdk.c
-@@ -51,8 +51,8 @@ int erofs_dump_vmdk_desc(FILE *f, struct erofs_sb_info *sbi)
- 	int ret, i;
- 
- 	fprintf(f, desc_template_1, cid, parent_cid, subformat);
--	sectors = sbi->primarydevice_blocks << (sbi->blkszbits - 9);
--	ret = erofs_vmdk_desc_add_extent(f, sectors, (char *)sbi->devname, 0);
-+	sectors = sbi->dif0.blocks << (sbi->blkszbits - 9);
-+	ret = erofs_vmdk_desc_add_extent(f, sectors, (char *)sbi->dif0.blocks, 0);
- 	if (ret)
- 		return ret;
- 	total_sectors = sectors;
-diff --git a/mkfs/main.c b/mkfs/main.c
-index 929ce7c..5bf7b8f 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1685,12 +1685,12 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
- 		ret = erofs_rebuild_load_tree(root, src, datamode);
- 		src->xamgr = NULL;
- 		if (ret) {
--			erofs_err("failed to load %s", src->devname);
-+			erofs_err("failed to load %s", src->dif0.src_path);
- 			return ret;
- 		}
- 		if (src->extra_devices > 1) {
- 			erofs_err("%s: unsupported number %u of extra devices",
--				  src->devname, src->extra_devices);
-+				  src->dif0.src_path, src->extra_devices);
- 			return -EOPNOTSUPP;
- 		}
- 		extra_devices += src->extra_devices;
-@@ -1723,8 +1723,8 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
- 			nblocks = src->devs[0].blocks;
- 			tag = src->devs[0].tag;
- 		} else {
--			nblocks = src->primarydevice_blocks;
--			devs[idx].src_path = strdup(src->devname);
-+			nblocks = src->dif0.blocks;
-+			devs[idx].src_path = strdup(src->dif0.src_path);
- 		}
- 		devs[idx].blocks = nblocks;
- 		if (tag && *tag)
-@@ -1849,7 +1849,7 @@ int main(int argc, char **argv)
- 			goto exit;
- 		err = erofs_read_superblock(src);
- 		if (err) {
--			erofs_err("failed to read superblock of %s", src->devname);
-+			erofs_err("failed to read superblock of %s", src->dif0.src_path);
- 			goto exit;
- 		}
- 		mkfs_blkszbits = src->blkszbits;
-@@ -2051,7 +2051,7 @@ int main(int argc, char **argv)
- 	if (err)
- 		goto exit;
- 
--	err = erofs_dev_resize(&g_sbi, g_sbi.primarydevice_blocks);
-+	err = erofs_dev_resize(&g_sbi, g_sbi.dif0.blocks);
- 
- 	if (!err && erofs_sb_has_sb_chksum(&g_sbi)) {
- 		err = erofs_enable_sb_chksum(&g_sbi, &crc);
+ liberofs_la_SOURCES = config.c io.c cache.c super.c inode.c xattr.c exclude.c \
+ 		      namei.c data.c compress.c compressor.c zmap.c decompress.c \
+-		      compress_hints.c hashmap.c sha256.c blobchunk.c dir.c \
++		      compress_hints.c sha256.c blobchunk.c dir.c \
+ 		      fragments.c dedupe.c uuid_unparse.c uuid.c tar.c \
+ 		      block_list.c rebuild.c diskbuf.c bitops.c dedupe_ext.c \
+ 		      vmdk.c metabox.c global.c importer.c base64.c
+diff --git a/lib/hashmap.c b/lib/hashmap.c
+deleted file mode 100644
+index 45916ae..0000000
+--- a/lib/hashmap.c
++++ /dev/null
+@@ -1,280 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * Copied from https://github.com/git/git.git
+- * Generic implementation of hash-based key value mappings.
+- */
+-#include "erofs/hashmap.h"
+-
+-#define FNV32_BASE ((unsigned int)0x811c9dc5)
+-#define FNV32_PRIME ((unsigned int)0x01000193)
+-
+-unsigned int strhash(const char *str)
+-{
+-	unsigned int c, hash = FNV32_BASE;
+-
+-	while ((c = (unsigned char)*str++))
+-		hash = (hash * FNV32_PRIME) ^ c;
+-	return hash;
+-}
+-
+-unsigned int strihash(const char *str)
+-{
+-	unsigned int c, hash = FNV32_BASE;
+-
+-	while ((c = (unsigned char)*str++)) {
+-		if (c >= 'a' && c <= 'z')
+-			c -= 'a' - 'A';
+-		hash = (hash * FNV32_PRIME) ^ c;
+-	}
+-	return hash;
+-}
+-
+-unsigned int memhash(const void *buf, size_t len)
+-{
+-	unsigned int hash = FNV32_BASE;
+-	unsigned char *ucbuf = (unsigned char *)buf;
+-
+-	while (len--) {
+-		unsigned int c = *ucbuf++;
+-
+-		hash = (hash * FNV32_PRIME) ^ c;
+-	}
+-	return hash;
+-}
+-
+-unsigned int memihash(const void *buf, size_t len)
+-{
+-	unsigned int hash = FNV32_BASE;
+-	unsigned char *ucbuf = (unsigned char *)buf;
+-
+-	while (len--) {
+-		unsigned int c = *ucbuf++;
+-
+-		if (c >= 'a' && c <= 'z')
+-			c -= 'a' - 'A';
+-		hash = (hash * FNV32_PRIME) ^ c;
+-	}
+-	return hash;
+-}
+-
+-#define HASHMAP_INITIAL_SIZE 64
+-/* grow / shrink by 2^2 */
+-#define HASHMAP_RESIZE_BITS 2
+-/* load factor in percent */
+-#define HASHMAP_LOAD_FACTOR 80
+-
+-static void alloc_table(struct hashmap *map, unsigned int size)
+-{
+-	map->tablesize = size;
+-	map->table = calloc(size, sizeof(struct hashmap_entry *));
+-	BUG_ON(!map->table);
+-
+-	/* calculate resize thresholds for new size */
+-	map->grow_at = (unsigned int)((uint64_t)size * HASHMAP_LOAD_FACTOR / 100);
+-	if (size <= HASHMAP_INITIAL_SIZE)
+-		map->shrink_at = 0;
+-	else
+-		/*
+-		 * The shrink-threshold must be slightly smaller than
+-		 * (grow-threshold / resize-factor) to prevent erratic resizing,
+-		 * thus we divide by (resize-factor + 1).
+-		 */
+-		map->shrink_at = map->grow_at / ((1 << HASHMAP_RESIZE_BITS) + 1);
+-}
+-
+-static inline int entry_equals(const struct hashmap *map,
+-			       const struct hashmap_entry *e1,
+-			       const struct hashmap_entry *e2,
+-			       const void *keydata)
+-{
+-	return (e1 == e2) || (e1->hash == e2->hash && !map->cmpfn(e1, e2, keydata));
+-}
+-
+-static inline unsigned int bucket(const struct hashmap *map,
+-				  const struct hashmap_entry *key)
+-{
+-	return key->hash & (map->tablesize - 1);
+-}
+-
+-static void rehash(struct hashmap *map, unsigned int newsize)
+-{
+-	unsigned int i, oldsize = map->tablesize;
+-	struct hashmap_entry **oldtable = map->table;
+-
+-	alloc_table(map, newsize);
+-	for (i = 0; i < oldsize; i++) {
+-		struct hashmap_entry *e = oldtable[i];
+-
+-		while (e) {
+-			struct hashmap_entry *next = e->next;
+-			unsigned int b = bucket(map, e);
+-
+-			e->next = map->table[b];
+-			map->table[b] = e;
+-			e = next;
+-		}
+-	}
+-	free(oldtable);
+-}
+-
+-static inline struct hashmap_entry **find_entry_ptr(const struct hashmap *map,
+-						    const struct hashmap_entry *key,
+-						    const void *keydata)
+-{
+-	struct hashmap_entry **e = &map->table[bucket(map, key)];
+-
+-	while (*e && !entry_equals(map, *e, key, keydata))
+-		e = &(*e)->next;
+-	return e;
+-}
+-
+-static int always_equal(const void *unused1, const void *unused2, const void *unused3)
+-{
+-	return 0;
+-}
+-
+-void hashmap_init(struct hashmap *map, hashmap_cmp_fn equals_function,
+-		  size_t initial_size)
+-{
+-	unsigned int size = HASHMAP_INITIAL_SIZE;
+-
+-	map->size = 0;
+-	map->cmpfn = equals_function ? equals_function : always_equal;
+-
+-	/* calculate initial table size and allocate the table */
+-	initial_size = (unsigned int)((uint64_t)initial_size * 100
+-			/ HASHMAP_LOAD_FACTOR);
+-	while (initial_size > size)
+-		size <<= HASHMAP_RESIZE_BITS;
+-	alloc_table(map, size);
+-}
+-
+-int hashmap_free(struct hashmap *map)
+-{
+-	if (map && map->table) {
+-		struct hashmap_iter iter;
+-		struct hashmap_entry *e;
+-
+-		hashmap_iter_init(map, &iter);
+-		e = hashmap_iter_next(&iter);
+-		if (e)
+-			return -EBUSY;
+-
+-		free(map->table);
+-		memset(map, 0, sizeof(*map));
+-	}
+-	return 0;
+-}
+-
+-void *hashmap_get(const struct hashmap *map, const void *key, const void *keydata)
+-{
+-	return *find_entry_ptr(map, key, keydata);
+-}
+-
+-void *hashmap_get_next(const struct hashmap *map, const void *entry)
+-{
+-	struct hashmap_entry *e = ((struct hashmap_entry *)entry)->next;
+-
+-	for (; e; e = e->next)
+-		if (entry_equals(map, entry, e, NULL))
+-			return e;
+-	return NULL;
+-}
+-
+-void hashmap_add(struct hashmap *map, void *entry)
+-{
+-	unsigned int b = bucket(map, entry);
+-
+-	/* add entry */
+-	((struct hashmap_entry *)entry)->next = map->table[b];
+-	map->table[b] = entry;
+-
+-	/* fix size and rehash if appropriate */
+-	map->size++;
+-	if (map->size > map->grow_at)
+-		rehash(map, map->tablesize << HASHMAP_RESIZE_BITS);
+-}
+-
+-void *hashmap_remove(struct hashmap *map, const void *entry)
+-{
+-	struct hashmap_entry *old;
+-	struct hashmap_entry **e = &map->table[bucket(map, entry)];
+-
+-	while (*e && *e != entry)
+-		e = &(*e)->next;
+-
+-	if (!*e)
+-		return NULL;
+-
+-	/* remove existing entry */
+-	old = *e;
+-	*e = old->next;
+-	old->next = NULL;
+-
+-	/* fix size and rehash if appropriate */
+-	map->size--;
+-	if (map->size < map->shrink_at)
+-		rehash(map, map->tablesize >> HASHMAP_RESIZE_BITS);
+-	return old;
+-}
+-
+-void hashmap_iter_init(struct hashmap *map, struct hashmap_iter *iter)
+-{
+-	iter->map = map;
+-	iter->tablepos = 0;
+-	iter->next = NULL;
+-}
+-
+-void *hashmap_iter_next(struct hashmap_iter *iter)
+-{
+-	struct hashmap_entry *current = iter->next;
+-
+-	for (;;) {
+-		if (current) {
+-			iter->next = current->next;
+-			return current;
+-		}
+-
+-		if (iter->tablepos >= iter->map->tablesize)
+-			return NULL;
+-
+-		current = iter->map->table[iter->tablepos++];
+-	}
+-}
+-
+-struct pool_entry {
+-	struct hashmap_entry ent;
+-	size_t len;
+-	unsigned char data[FLEX_ARRAY];
+-};
+-
+-static int pool_entry_cmp(const struct pool_entry *e1,
+-			  const struct pool_entry *e2,
+-			  const unsigned char *keydata)
+-{
+-	return e1->data != keydata &&
+-	       (e1->len != e2->len || memcmp(e1->data, keydata, e1->len));
+-}
+-
+-const void *memintern(const void *data, size_t len)
+-{
+-	static struct hashmap map;
+-	struct pool_entry key, *e;
+-
+-	/* initialize string pool hashmap */
+-	if (!map.tablesize)
+-		hashmap_init(&map, (hashmap_cmp_fn)pool_entry_cmp, 0);
+-
+-	/* lookup interned string in pool */
+-	hashmap_entry_init(&key, memhash(data, len));
+-	key.len = len;
+-	e = hashmap_get(&map, &key, data);
+-	if (!e) {
+-		/* not found: create it */
+-		FLEX_ALLOC_MEM(e, data, data, len);
+-		hashmap_entry_init(e, key.ent.hash);
+-		e->len = len;
+-		hashmap_add(&map, e);
+-	}
+-	return e->data;
+-}
 -- 
 2.47.3
 
