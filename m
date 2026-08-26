@@ -1,66 +1,59 @@
-Return-Path: <linux-erofs+bounces-4343-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4344-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC2A5C61DBD
-	for <linux-erofs@archiver.kernel.org>; Tue, 25 Aug 2026 19:51:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE017C5DF97
+	for <linux-erofs@archiver.kernel.org>; Wed, 26 Aug 2026 04:44:22 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hTz1R3h3Sz2xVq;
-	Wed, 26 Aug 2026 05:51:23 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787687483;
-	cv=none; b=g8B1CDZigVYFSwRJLvmxJbz7zAbTzZJU10eJnsMqRklYABXt2Yu+1UnGuDRFYfm/LKXoqGsDpgCYneDdzu73L8NlrzItqHN4H+6WPkmYGiCROPE3iCK3qLPwbijDJ1xPa2scvMUxCx89DK5GrPaxGB50u8eWj2w+jErvE4YdMbQW4cHpQFsUNdUu89ycWiQWtCHw9n28AfpNaYqC2QcT8j6q1xh/jI8TgYHWCkBTAMtUYeZ1B485qwNiEj9dn3gX5m/SfkYwthC8ZSq2WnxVBidoMDXrMzLXHphu1bO0q6lm2pO/EwKKVjb/3YKB46qgxcnPQ+GAB0UYE5uezh29HQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hVBrN2qLTz2y2R;
+	Wed, 26 Aug 2026 14:44:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:7c80:54:3::133"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787719460;
+	cv=none; b=Gtcq3AbJMZngNIHgqA0kpIaZegOCBTFi9zd4VkmF9SsHiLRegjSa/LSJZm67Ds2tbpShyNCeR3Dwb6g6bkQ9Os4IOB9jn6q7RXCtUxoNcL+LXQp+Oe9KCNaJugQqMETndcyP6POP7Zd/VQvvQCWAjZltfJudZOo5DsWQbAxNf2QNbQE/S/P2NZeesP1iWEvEmen8h2MYx4OcDnHsw7O8GIls+PKGkI++WyJcKQTrELtYt3mgFLxyFpEOUl7CtMr0ZXOubn3KtUlUh7ymi9DpiEM2Rhxztq1tpdUVtWPdSegXRT1u0g9JNwaLdYhrEsGIA8SgU8PByH91snSbdHrTlg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787687483; c=relaxed/relaxed;
-	bh=cPXh9hOUGxjmkOqhvb1OeFlRhFjt4w6i0DUulVzL62U=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=MbATc5Ow8hTGc7QB//qMoRWwwxMu+Jh2CU/K1JmQcD0dSE0k+bNFSNKZ/WUJAq/2ZIcOreo7JbXFgHUxElJZf/VFOuO9Yin0fDjv9XfHhXoFjaNuLnI3Tc7Y1lId1j2+RYCarqJSWeAqr2TqDz5e4Ug3Q/R5FqsT3daWjPRMvZT1llW9FjdnP9RSylC65Kvbf4OorY7Lnu3H3FhzkQy51+MV5sG5+30T52wKYvOXJxgr8yqF7fVAGEBx1dsyfODKycgC5u5kS7a9dZteL0E+vSwAq+Pol6qjwaNMGdjYhTqaheqziRubUNL1nbsZEsyB2BxaQ/kD6dYmEpT/T5wZbg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jvqKNoTO; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1787719460; c=relaxed/relaxed;
+	bh=VwNk+20oX5Nq5ler9R2U89bGOjpSa70RVJPDevUc9r8=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=epgWmRyi7gK9nABBGcHmdEVurTlphEuOUTNXVhKrcMnmXD9246hKLxY8RoIL4yESYocNAYwi8CPBwIwLDX+h/87lkZvoOa+9pqcWn+YX5obAGho0dOjXRDXaQoaQoHfPeRIJXc377qSk3PJYHroFnEbIjlRoYqiDEB0+1HXvDlvq1KRfaHghaX2NSkKU8euxyTpwRthpJAY4XeBfaovry46rbCl6dgf2GFcmUYKX8BpVkFiiqqTRRdg3F42oWMYaojLiVh6ODR1K/c169nyphzWJEiPZFfSa40huaq8jMDJD93VPH+aKEErnLBifLv71S9lfnJ+/bB5PvX8LsjOyVw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org; dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=lSBwEenE; dkim-atps=neutral; spf=none (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+069b6cbc82efeb758f32+8403+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=bombadil.srs.infradead.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jvqKNoTO;
+	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=lSBwEenE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=pr-tracker-bot@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=none (no SPF record) smtp.mailfrom=bombadil.srs.infradead.org (client-ip=2607:7c80:54:3::133; helo=bombadil.infradead.org; envelope-from=batv+069b6cbc82efeb758f32+8403+infradead.org+hch@bombadil.srs.infradead.org; receiver=lists.ozlabs.org)
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hTz1Q1MVYz2xKh
-	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 05:51:22 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 563D6601E9;
-	Tue, 25 Aug 2026 19:51:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E32111F01563;
-	Tue, 25 Aug 2026 19:51:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787687477;
-	bh=cPXh9hOUGxjmkOqhvb1OeFlRhFjt4w6i0DUulVzL62U=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=jvqKNoTOYeB2lfWrF7u3k5jn8tErsNZFaQctbGtNZQA5wjhrUROv4ZGJcQyIBqFfb
-	 a6ckxjGhcX7qYpt9gcRU2QYT113fTKdsFF/vjs/96HYYvm4ud0ecOMU3CoFwhnSVwX
-	 kXvQmhGiRQl3kiF+qymLjffQtGsRRoOc+DUgDOfL53KQOTqVObEDJntzmTnWA+K9OF
-	 enizVPFoVysz2dDj+yxZxrWsy8LTg5eI7wXND6k21gTmt3h4uSxmmO7H3hAbfvHDSP
-	 p5rTuGbWOvifpTKwKXAn9Y7Kdwh9t3Wk+iIaGO0wtMl9b5HlF4U6zIKaoayDeEWOfC
-	 sCi5ky986osvA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ED51D39253CE;
-	Tue, 25 Aug 2026 19:50:25 +0000 (UTC)
-Subject: Re: [GIT PULL] erofs more updates for 7.3-rc1
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ao3ALZVbrWYuY6nw@192.168.5.19>
-References: <ao3ALZVbrWYuY6nw@192.168.5.19>
-X-PR-Tracked-List-Id: <linux-erofs.lists.ozlabs.org>
-X-PR-Tracked-Message-Id: <ao3ALZVbrWYuY6nw@192.168.5.19>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.3-rc1-2
-X-PR-Tracked-Commit-Id: a7d28aa0e9b2c983b915d091f9596f0e3b253355
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 73ae59e975966d24e32926247ddb45a537ebe184
-Message-Id: <178768742469.4034242.10689508799041723150.pr-tracker-bot@kernel.org>
-Date: Tue, 25 Aug 2026 19:50:24 +0000
-To: Gao Xiang <xiang@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Jingbo Xu <jefflexu@linux.alibaba.com>, Zhan Xusheng <zhanxusheng@xiaomi.com>, Nikhil Gurudasani <nikhilgurudasani314@gmail.com>, Chao Yu <chao@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hVBrG30yJz2xWV
+	for <linux-erofs@lists.ozlabs.org>; Wed, 26 Aug 2026 14:44:09 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=VwNk+20oX5Nq5ler9R2U89bGOjpSa70RVJPDevUc9r8=; b=lSBwEenE0P0nCLIF87dRSbJ7QS
+	t3FOpFltQvZ8uuWoQGFV61ogv9vco+4yFk26YviwVB77d7lQoff0LWoriw+0f8FnKERTUJQrFaNfP
+	UzMkRwPXsa+0uVFRtxVsfkLiuj+1tz0B7mZRgSksXckP8+VtyqTZgI19nJw1k58RpFXT8v46tlMRq
+	uCaTf8JronxnTeEld9T/RT28ozmhvWaWa8lINvAmMUMnLSPsDZJNSZoGpo0xQGxvsTMDN3u2BJSnS
+	wFWM2v/ICbwxUvhMK3EoV33DcOXPTNzoZ7QPK3CU+Fapn6qJlfz5ybl+zXyXFi9SVaPQcnO+5LWiB
+	W9YptFkw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wz5Ua-00000001tWL-06Ej;
+	Wed, 26 Aug 2026 04:44:04 +0000
+Date: Tue, 25 Aug 2026 21:44:03 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Gao Xiang <xiang@kernel.org>,
+	linux-erofs@lists.ozlabs.org, LKML <linux-kernel@vger.kernel.org>,
+	Chao Yu <chao@kernel.org>
+Subject: Re: [PATCH v2] erofs: use dedicated meta inodes for file-backed
+ mounts
+Message-ID: <ao5vE3v-n570dvXL@infradead.org>
+References: <20260811080852.29418-1-xiang@kernel.org>
+ <20260811090717.29787-1-xiang@kernel.org>
+ <aoVFY0jyMGpcu1NX@infradead.org>
+ <aocD3jkUnsPlrllM@XiangdeMacBook-Pro.local>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,17 +64,46 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aocD3jkUnsPlrllM@XiangdeMacBook-Pro.local>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 
-The pull request you sent on Wed, 26 Aug 2026 00:17:49 +0800:
+On Thu, Aug 20, 2026 at 09:40:46PM +0800, Gao Xiang wrote:
+> Hi Christoph,
+> 
+> On Tue, Aug 18, 2026 at 10:55:47PM -0700, Christoph Hellwig wrote:
+> > On Tue, Aug 11, 2026 at 05:07:17PM +0800, Gao Xiang wrote:
+> > > access on file-backed mounts (although I still don't think it is
+> > > necessary due to the EROFS immutable model). As the result, metadata
+> > > cache won't use the page cache of backing inodes anymore.
+> > > 
+> > > The "managed cache" was originally used to cache physical compressed
+> > > data according to the current cache strategy and I/O patterns; since
+> > > file-backed mounts also need to access physical data for metadata
+> > > access, it's natural to reuse the managed cache for this too, providing
+> > > a unique inode for all physical data access.
+> > 
+> > This look sane.  Any reason to not use the meta inode unconditionally
+> > to simplify the code?
+> 
+> I guess you meant avoid using bd_inode page cache?
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git tags/erofs-for-7.3-rc1-2
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/73ae59e975966d24e32926247ddb45a537ebe184
+Yes.
 
-Thank you!
+> I'm not sure if it simplifies a lot, also like fadvise(WILLNEED) to blkdev
+> can perform to bd_inode too so I think it can still have some benefits.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+This is actually an artefact of why using the bdev page cache is a bad
+idea, because it opens your metadata cache up to external modification
+and side channel attacks.
+
+> I think bd_inode page cache can be used for filesystems so maybe leave it
+> as-is for now, or maybe a follow-up work if it's really needed.
+
+That's how it has historically been done.  We generally try to avoid
+it for newer designs.
+
 
