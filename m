@@ -1,61 +1,61 @@
-Return-Path: <linux-erofs+bounces-4354-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4355-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39462C5DF9D
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Aug 2026 07:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4623BC61DC2
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Aug 2026 12:11:06 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hVv6t2vsTz2xwN;
-	Thu, 27 Aug 2026 17:59:18 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787817558;
-	cv=none; b=HA1ehsHPekZGPhyGd2pTLIPoE6KU/QURo3mak6bt6L74+Miu3tefZHMmfxpr/cHOD0aI35gwCGGtfZ+JR6LZe27nhD8KhHMcPIrY7xnTuaJpFFLwyzFntSzl7FftGdB4bZpp3ORwt/MhTLOsfonsOzSX9EgS25F87COL1hHlVkMjORzdtT3FvkM/rllzMaVZI5eCxchlX20ijMlaUmq9FfhQGizUVYh87/pz9IqL/nYfQkjosIV1r/UPQtk5M4mb39onRf4pm2F2EqNXU/soodI/5yhvHovywCfV1M1Z1DvpmOY79WEWRWM18ox/kieMInDK617ZwL3lqZiCETq5JQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hW0jN2v9Tz2xwN;
+	Thu, 27 Aug 2026 22:11:04 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787832664;
+	cv=none; b=N1vXL8bkaEUZI+yVl9wgdEZOoDRTmFJxWU1TzLWv6RQ3WAdHEHHCl6yJGp9AIohQ4ZY1PzvD5eLagy3HhBoxsJHgCtlavsgEyHinUmHbzBeUqOQ1H0VkgZfEDjpHIb2bY0EVoXzJ/fG1blOpSDqax8OxyQ2X3mCx+RI7q/bCn/HfHgWxJDssWXAWofwhKHTxByatWepmJq4gc0peQRu0xDw/tf/rx/BjBgJs3eRUmuh+3qIcaYDK+owZ77L0bzhxzRyke5n/aP2SXlI004fV5I7opGGjsp7f1GZ4gO4CKMIEMdaLdPedQ5H6VUOfcT1NWi9kU9z2V7gMJ5IfqQ8YIw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787817558; c=relaxed/relaxed;
-	bh=Sx5ZUMfFItKhxSQ6qWwToiNGAV5mIXhHJKx8DmZ/gIU=;
+	t=1787832664; c=relaxed/relaxed;
+	bh=g7emBe9EshWdz4d7qczIQdj1HNRKn1jW37LfWnCoVRM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VEj89ZmpCIyxehX7my/puEyLXOwANnVfhcLO88dJEIffn6FHeNHrv7KGRGMBr1Ifjl4SCmJWw4lHC6tC+HiV567l5px4Gz3wH4xO6VQ9PQnGP0qJA8lT3Y2iqErI3lORq0wS5wBOg0GE08psumY+oQpu8QL3BN5ZsaFEC+4mVOAIGwSDPCix21sVfRYtFwz2GHKQbULYSYfocp+wM+aNlNIWFzwY1Emr34pUhCQLdf6SMHsnXIHhSW8AkezVzuEwAvHhyQq9Yi3janJY3093KtCE0RZye74/6TpSQKk5KlAfRy4LSVJ/JpIbI8co/++zLEeZ2AQwk6pj2KKKKnQK6g==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V2Zf6lRQ; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=a44eMt08Tz/vOUhuBg3zuqRu6viRfyF/tkXKQYmJS8wuwJm3CjEvAKuPx0hPVX6qe9qn0FsVEYerQFQS/Mov4GXhJyZpVgUvHwym/ZPMVyndtG/pVzNJVxBBRHuhkq8iImRq3wvDfZR+PCbpGzgk+P0xC3KjUCizv37QZkOsQ7RuR3LUYXmq8uefFTV2Mzf8pnvz8EALp9WqddhTbOtfg6WGvDjOEmqOgru0Hcg9wcdisgpusymILcqujlqV1fa2HH0KB7wwV1JwU7dyJ9c6dWbr+XmTFiZx5xNmlA5yH2N/p3EQ6LvZsJK3pn51JncXyteOyM3VJ/xClGUSc1dqKw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TUdLTDda; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V2Zf6lRQ;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TUdLTDda;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hVv6r3pL9z2xdb
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Aug 2026 17:59:16 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hW0jL5639z2xGr
+	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Aug 2026 22:11:02 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 770094041A;
-	Thu, 27 Aug 2026 07:59:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F011F000E9;
-	Thu, 27 Aug 2026 07:59:12 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 499F6600D4;
+	Thu, 27 Aug 2026 12:10:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EAC61F000E9;
+	Thu, 27 Aug 2026 12:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787817553;
-	bh=Sx5ZUMfFItKhxSQ6qWwToiNGAV5mIXhHJKx8DmZ/gIU=;
+	s=k20260515; t=1787832659;
+	bh=g7emBe9EshWdz4d7qczIQdj1HNRKn1jW37LfWnCoVRM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=V2Zf6lRQSurCfJAgQpI/+mYiB2DFIxrNsOU0sVqKuuRlbU97JxotNWx1YKqHfEt2l
-	 g27lEMlvw7OOV9F1xykTmlaWiLyrqlxhUjkmn+q9empo4YSyTYK10ZTvVv22e+UvBI
-	 /sC7zQ3j4rk2khiujsWlrISyq31yb93gw5/lqxuyQVOv5PNQqtDk0b/Se43G+0dh0U
-	 KeE1p8WmFAAIQw4n0Oe0Qx/qsCe78UCNKWfskm/Xb9WUY8egncQXSIaGz8P604/ZsC
-	 Eh+gH+ug2ftPpDnkC8h95oEavbY0gFxT6pkOLtROSnzvzFA8Z2kbNvQGYyN9i2xjwN
-	 zlWRE9WScvq+A==
-Date: Thu, 27 Aug 2026 15:59:08 +0800
+	b=TUdLTDdaLGAoQntCs/4R4YwV10F6G+G2kb3ekwuDNw8AlI/EvbDTuzTc8WK7E8mqL
+	 ZRGLCrewWJ2jYlCLJaVj6YFZX8Bv4jiv8naazFjgEYfxq2snLS9pFaiu0lHM/CfwOk
+	 ZEj2UvyOwWYOIngyA7v7H0W+JulZ2QnQBRyIpqMQV9IzmqPcFsNZXXF4CZYYSf3OQ+
+	 jriXbyDxnYZVMUe8KXK0FgXa2nSzXRoIpg5ioyXT28z0SXAYl4qiIIfbQzBwAqtc+q
+	 maMXMVCP+H2AGS4UgefOzmopvTlHC/ItdDjrci706HzfMtrkFolkRFy8aMtxO4fopd
+	 zyEfqRgHWTk2Q==
+Date: Thu, 27 Aug 2026 20:10:53 +0800
 From: Gao Xiang <xiang@kernel.org>
-To: Yifan Zhao <stopire@gmail.com>
-Cc: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH 2/4] erofs-utils: lib: use `struct erofs_device_info` for
- the primary device
-Message-ID: <ao_uTDm54Pb16rIP@192.168.5.19>
-Mail-Followup-To: Yifan Zhao <stopire@gmail.com>,
-	Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
-References: <20260826134321.11835-1-xiang@kernel.org>
- <20260826134321.11835-2-xiang@kernel.org>
- <77994974-775a-4b5c-a872-4973ed40364e@gmail.com>
+To: Martin Pitt <martin@amutable.com>
+Cc: linux-erofs@lists.ozlabs.org
+Subject: Re: [PATCH 3/3] erofs-utils: tests: check that the xattr layout is
+ order-independent
+Message-ID: <apApTbxttZN996wk@192.168.5.19>
+Mail-Followup-To: Martin Pitt <martin@amutable.com>,
+	linux-erofs@lists.ozlabs.org
+References: <20260804033214.211267-1-martin@amutable.com>
+ <20260804033214.211267-4-martin@amutable.com>
+ <ao88F-F9wTDhKjvI@piware.de>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -69,42 +69,43 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <77994974-775a-4b5c-a872-4973ed40364e@gmail.com>
+In-Reply-To: <ao88F-F9wTDhKjvI@piware.de>
 
-Hi Yifan,
+Hi Martin,
 
-On Thu, Aug 27, 2026 at 09:30:38AM +0800, Yifan Zhao wrote:
+On Wed, Aug 26, 2026 at 09:18:47PM +0200, Martin Pitt wrote:
+> Hello again,
 > 
-> On 26/8/26 21:43, Gao Xiang wrote:
-> > Source kernel commit: 7b00af2c5414dc01e0718deef7ead81102867636
-> > 
-> > Signed-off-by: Gao Xiang <xiang@kernel.org>
-> > ---
-
-...
-
-> > diff --git a/lib/vmdk.c b/lib/vmdk.c
-> > index 316a8ff..28381c8 100644
-> > --- a/lib/vmdk.c
-> > +++ b/lib/vmdk.c
-> > @@ -51,8 +51,8 @@ int erofs_dump_vmdk_desc(FILE *f, struct erofs_sb_info *sbi)
-> >   	int ret, i;
-> >   	fprintf(f, desc_template_1, cid, parent_cid, subformat);
-> > -	sectors = sbi->primarydevice_blocks << (sbi->blkszbits - 9);
-> > -	ret = erofs_vmdk_desc_add_extent(f, sectors, (char *)sbi->devname, 0);
-> > +	sectors = sbi->dif0.blocks << (sbi->blkszbits - 9);
-> > +	ret = erofs_vmdk_desc_add_extent(f, sectors, (char *)sbi->dif0.blocks, 0);
+> Martin Pitt [2026-08-04  5:32 +0200]:
+> > b260119b8edb ("erofs-utils: mkfs: emit an inode's xattrs in a canonical
+> > order") made the layout independent of the order listxattr(2) reports an
+> > inode's attributes in. Cover it: stage the same tree twice with the same
+> > attributes set in opposite order, and compare the two images. The names
+> > differ in length and share prefixes, so a subtly wrong comparison cannot
+> > order them correctly by accident.
 > 
-> mistake? should use `src_path` instead of `blocks`
+> I see my first [1] and second [2] preparatory patch made it into the tree
+> [3][4], but not this third one (and the main test).
+> 
+> Do you want me to explain or change anything, or did it simply fell through the
+> cracks?
 
-It's already got fixed.
+I didn't miss this one, there are also other pending tests in my queue,
+I need to resolve them all but maybe a bit delay.
+
+It's already merged with very minor changes.
 
 Thanks,
 Gao Xiang
 
 > 
+> Thank you!
 > 
-> Thanks,
+> Martin
 > 
-> Yifan Zhao
+> [1] https://lore.kernel.org/linux-erofs/20260804033214.211267-2-martin@amutable.com/
+> [2] https://lore.kernel.org/linux-erofs/20260804033214.211267-3-martin@amutable.com/
+> [3] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-tests&id=4b02ea1792c14cb9f250bd55aced5614e699397a
+> [4] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-tests&id=887ce207bc8b068de9771b736333a8da6d939670
+> 
 
