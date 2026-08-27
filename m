@@ -1,61 +1,59 @@
-Return-Path: <linux-erofs+bounces-4355-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4356-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4623BC61DC2
-	for <linux-erofs@archiver.kernel.org>; Thu, 27 Aug 2026 12:11:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B7C35C61DCD
+	for <linux-erofs@archiver.kernel.org>; Thu, 27 Aug 2026 16:52:55 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hW0jN2v9Tz2xwN;
-	Thu, 27 Aug 2026 22:11:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787832664;
-	cv=none; b=N1vXL8bkaEUZI+yVl9wgdEZOoDRTmFJxWU1TzLWv6RQ3WAdHEHHCl6yJGp9AIohQ4ZY1PzvD5eLagy3HhBoxsJHgCtlavsgEyHinUmHbzBeUqOQ1H0VkgZfEDjpHIb2bY0EVoXzJ/fG1blOpSDqax8OxyQ2X3mCx+RI7q/bCn/HfHgWxJDssWXAWofwhKHTxByatWepmJq4gc0peQRu0xDw/tf/rx/BjBgJs3eRUmuh+3qIcaYDK+owZ77L0bzhxzRyke5n/aP2SXlI004fV5I7opGGjsp7f1GZ4gO4CKMIEMdaLdPedQ5H6VUOfcT1NWi9kU9z2V7gMJ5IfqQ8YIw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hW6yY5c7Xz2y2L;
+	Fri, 28 Aug 2026 02:52:53 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787849573;
+	cv=none; b=BqEZhhVoYy2afY5NsHW77juYl/aQRtZReYFn5Ki5xpWMagqLN/Lv4LiB1WByLiLgwBys9JWrYoJrrFXmuTUEhBPhw86yQ2iAOnDLzYJqumubJXYb6VJJfFCAdlfHcWY8e9mc0QBdcVNn7jVjTKyzuP7Ft5GkltiHeKXoujm/r9oPe4XU+0oYZF81Wbn9W1RK5mz+IbdHfsUFLYhKCP7KXn9xk6i7NrEyol/6z3WKUl+y8AJxChsGJye/W/fOXAInoej3H9mXyar7OTZUvh/R28XvBI65QjB4LfbOhQ5vvxQ0b7p9o80rbG9XHVQUEEuzw9/dtjoi1QsIR6HOU0P7pA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787832664; c=relaxed/relaxed;
-	bh=g7emBe9EshWdz4d7qczIQdj1HNRKn1jW37LfWnCoVRM=;
+	t=1787849573; c=relaxed/relaxed;
+	bh=La7+n/BTOVLpEFBV8eTM49N7cZ13U+f0qngddms9da0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a44eMt08Tz/vOUhuBg3zuqRu6viRfyF/tkXKQYmJS8wuwJm3CjEvAKuPx0hPVX6qe9qn0FsVEYerQFQS/Mov4GXhJyZpVgUvHwym/ZPMVyndtG/pVzNJVxBBRHuhkq8iImRq3wvDfZR+PCbpGzgk+P0xC3KjUCizv37QZkOsQ7RuR3LUYXmq8uefFTV2Mzf8pnvz8EALp9WqddhTbOtfg6WGvDjOEmqOgru0Hcg9wcdisgpusymILcqujlqV1fa2HH0KB7wwV1JwU7dyJ9c6dWbr+XmTFiZx5xNmlA5yH2N/p3EQ6LvZsJK3pn51JncXyteOyM3VJ/xClGUSc1dqKw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TUdLTDda; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=gH8BLaxGJJvvEGK1wd2mYEtXTLkGyqczXqTCdaKaKEq+4xx18sRyeTYf9ki/eLZeGXtPJiVMvAW9zUUFa7/Uv7AJNQbSq61O5cAq66xkZBWnScYZC0M08B00ytcxJL/3sXDObsBAj/MsfLKvVUo1Vyq+OOkcLisdPzWiJwljjdY50Ij6wuS74yLhrbZPEC3whnxou+SxU+MNN8/ap4dm3e1+/AzUSAZORXvTU5j3SUe2DbDRsfAy16A/AFpIDNsFZwAawikeaQqobeO0T1SLnf2H6NJNTjC+SApK7NxMgMNIxLgzzYpenTviZVXnsYjZmCS52xzCuCgdF7AMSxoGMA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VbVM9CNp; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TUdLTDda;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VbVM9CNp;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hW0jL5639z2xGr
-	for <linux-erofs@lists.ozlabs.org>; Thu, 27 Aug 2026 22:11:02 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hW6yX1jq5z2xtt
+	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Aug 2026 02:52:52 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 499F6600D4;
-	Thu, 27 Aug 2026 12:10:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EAC61F000E9;
-	Thu, 27 Aug 2026 12:10:57 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 26A8A600D4;
+	Thu, 27 Aug 2026 16:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC3381F000E9;
+	Thu, 27 Aug 2026 16:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787832659;
-	bh=g7emBe9EshWdz4d7qczIQdj1HNRKn1jW37LfWnCoVRM=;
+	s=k20260515; t=1787849568;
+	bh=La7+n/BTOVLpEFBV8eTM49N7cZ13U+f0qngddms9da0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TUdLTDdaLGAoQntCs/4R4YwV10F6G+G2kb3ekwuDNw8AlI/EvbDTuzTc8WK7E8mqL
-	 ZRGLCrewWJ2jYlCLJaVj6YFZX8Bv4jiv8naazFjgEYfxq2snLS9pFaiu0lHM/CfwOk
-	 ZEj2UvyOwWYOIngyA7v7H0W+JulZ2QnQBRyIpqMQV9IzmqPcFsNZXXF4CZYYSf3OQ+
-	 jriXbyDxnYZVMUe8KXK0FgXa2nSzXRoIpg5ioyXT28z0SXAYl4qiIIfbQzBwAqtc+q
-	 maMXMVCP+H2AGS4UgefOzmopvTlHC/ItdDjrci706HzfMtrkFolkRFy8aMtxO4fopd
-	 zyEfqRgHWTk2Q==
-Date: Thu, 27 Aug 2026 20:10:53 +0800
+	b=VbVM9CNpTwRJiYnopU9nWvH85KXU34YOjxrgKJFWH61d35F5Omn302tNDqvZ/+32k
+	 +udv1O4T11fWssGOcpW7Vh1vLLplY3Byne2E6T7YUt58oHIrHcTgUk28rSBEIESlpE
+	 Gapq3nkulOJlaFkNRA14fpxMLXTqEm0n/PuPIXsIuCRcfjr9xNw3IYYt5NdjBKUgCQ
+	 CbRrPsiOznfBdwdcNiGq67nPLo2V6oQPoYaexSyHx1iR0oB0K8Sgt1LF3AoU57q20/
+	 gHr2yJX7CdnNI2QRVvn0rrZOOZZlsnYpWnOC24/egqrTQ4LZdWwAp3UCmouAuS3EYD
+	 XK9MSRQL3E+mw==
+Date: Fri, 28 Aug 2026 00:52:42 +0800
 From: Gao Xiang <xiang@kernel.org>
-To: Martin Pitt <martin@amutable.com>
-Cc: linux-erofs@lists.ozlabs.org
-Subject: Re: [PATCH 3/3] erofs-utils: tests: check that the xattr layout is
- order-independent
-Message-ID: <apApTbxttZN996wk@192.168.5.19>
-Mail-Followup-To: Martin Pitt <martin@amutable.com>,
-	linux-erofs@lists.ozlabs.org
-References: <20260804033214.211267-1-martin@amutable.com>
- <20260804033214.211267-4-martin@amutable.com>
- <ao88F-F9wTDhKjvI@piware.de>
+To: mike.malyshev@gmail.com
+Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
+Subject: Re: [PATCH] erofs-utils: lib: follow symlinks on intermediate tar
+ path components
+Message-ID: <apBrWmPu9hMDcZHS@192.168.5.19>
+Mail-Followup-To: mike.malyshev@gmail.com, linux-erofs@lists.ozlabs.org,
+	Gao Xiang <xiang@kernel.org>
+References: <20260725150920.1900298-1-mike.malyshev@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -69,43 +67,120 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <ao88F-F9wTDhKjvI@piware.de>
+In-Reply-To: <20260725150920.1900298-1-mike.malyshev@gmail.com>
 
-Hi Martin,
+Hi Mikhail,
 
-On Wed, Aug 26, 2026 at 09:18:47PM +0200, Martin Pitt wrote:
-> Hello again,
+On Sat, Jul 25, 2026 at 03:09:20PM +0000, mike.malyshev@gmail.com wrote:
+> From: Mikhail Malyshev <mike.malyshev@gmail.com>
 > 
-> Martin Pitt [2026-08-04  5:32 +0200]:
-> > b260119b8edb ("erofs-utils: mkfs: emit an inode's xattrs in a canonical
-> > order") made the layout independent of the order listxattr(2) reports an
-> > inode's attributes in. Cover it: stage the same tree twice with the same
-> > attributes set in opposite order, and compare the two images. The names
-> > differ in length and share prefixes, so a subtly wrong comparison cannot
-> > order them correctly by accident.
+> mkfs.erofs --tar fails to convert layers that store files underneath a
+> symlinked directory, a very common "usr-merge" layout in RHEL/UBI/Fedora
+> based OCI images.  For example a base layer contains
 > 
-> I see my first [1] and second [2] preparatory patch made it into the tree
-> [3][4], but not this third one (and the main test).
+>     lib64 -> usr/lib64        (symlink)
+>     usr/lib64/                (directory)
+>     lib64/libc.so.6           (regular file, path goes THROUGH the symlink)
+
+Also my another question is that how these tars are generated, I guess
+it should be recorded as `usr/lib64/libc.so.6`, why does it need to
+record a path with a symlink component, that is confusing to me
+honestly.
+
 > 
-> Do you want me to explain or change anything, or did it simply fell through the
-> cracks?
+> erofs_rebuild_get_dentry() walks the path component by component and, when
+> it hits the "lib64" component, finds an existing dentry that is a symlink
+> rather than a directory.  Since there are still components left to resolve
+> it bails out with -ENOTDIR.  In practice this surfaces as a bogus ~2 TiB
+> image and "Could not format the device", making the whole layer
+> unconvertible even though nothing is wrong with the tar.
+> 
+> A real filesystem (and containerd's walking differ, which applies the same
+> layers via fs.RootPath) resolves such a path by following the symlink to
 
-I didn't miss this one, there are also other pending tests in my queue,
-I need to resolve them all but maybe a bit delay.
+It would be better to summarize the various tar behaviors here too as
+you mentioned in the previous reply.
 
-It's already merged with very minor changes.
+> its target directory.  Do the same during tar rebuild: when an intermediate
+> path component resolves to a symlink, follow it to the target directory
+> (relative targets from the containing directory, absolute targets from the
+> tree root), chasing chained symlinks up to a bounded depth to avoid loops.
+> 
+> Signed-off-by: Mikhail Malyshev <mike.malyshev@gmail.com>
+> ---
+>  lib/rebuild.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 70 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/rebuild.c b/lib/rebuild.c
+> index 108a464..febc95c 100644
+> --- a/lib/rebuild.c
+> +++ b/lib/rebuild.c
+> @@ -82,8 +82,60 @@ struct erofs_dentry *erofs_d_lookup(struct erofs_inode *dir, const char *name)
+>  	return NULL;
+>  }
+>  
+> -struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+> -		char *path, bool aufs, bool *whout, bool *opq, bool to_head)
+> +/* Bound symlink chains during path resolution, like the kernel's MAXSYMLINKS. */
+> +#define EROFS_REBUILD_SYMLINK_DEPTH	40
+> +
+> +static struct erofs_dentry *__erofs_rebuild_get_dentry(struct erofs_inode *root,
+> +		struct erofs_inode *pwd, char *path, bool aufs,
+> +		bool *whout, bool *opq, bool to_head, unsigned int depth);
+> +
+> +/*
+> + * Resolve the target of an intermediate symlink path component to its
+> + * directory inode, following chained symlinks up to a bounded depth.  This
+> + * lets tar layers that store files under a symlinked directory be converted
+> + * the same way a real filesystem extracts them, e.g. usr-merge layouts where
+> + * "/lib64 -> usr/lib64" coexists with entries such as "lib64/libc.so.6".
+> + */
+
+I guess the comment is unneeded since the code is already
+straight-forward.
+
+> +static struct erofs_inode *erofs_rebuild_follow_link(struct erofs_inode *root,
+> +		struct erofs_inode *pwd, struct erofs_inode *link,
+> +		unsigned int depth)
+> +{
+> +	struct erofs_dentry *d;
+> +	struct erofs_inode *base;
+> +	bool dumb_wh, dumb_opq;
+> +	char *target;
+> +
+> +	if (depth >= EROFS_REBUILD_SYMLINK_DEPTH)
+> +		return ERR_PTR(-ELOOP);
+> +	if (!link->i_link)
+> +		return ERR_PTR(-ENOENT);
+> +
+> +	target = strdup(link->i_link);
+
+I guess we could just use an on-disk variable instead?
+
+> +	if (!target)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	/* absolute targets are resolved from the tree root */
+> +	base = target[0] == '/' ? root : pwd;
+> +	d = __erofs_rebuild_get_dentry(root, base, target, false,
+> +				       &dumb_wh, &dumb_opq, false, depth + 1);
+> +	free(target);
+> +	if (IS_ERR(d))
+> +		return ERR_CAST(d);
+> +	/* target referred to the root or the base directory itself ("/", ".") */
+> +	if (!d)
+> +		return base;
+> +	if (d->type == EROFS_FT_DIR)
+> +		return d->inode;
+> +	/* the target is itself a symlink: keep following the chain */
+> +	if (d->type == EROFS_FT_SYMLINK)
+> +		return erofs_rebuild_follow_link(root, d->inode->i_parent,
+> +						 d->inode, depth + 1);
+
+It seems that it could be converted into a tail recursion.
+
+Otherwise it looks good to me.
 
 Thanks,
 Gao Xiang
-
-> 
-> Thank you!
-> 
-> Martin
-> 
-> [1] https://lore.kernel.org/linux-erofs/20260804033214.211267-2-martin@amutable.com/
-> [2] https://lore.kernel.org/linux-erofs/20260804033214.211267-3-martin@amutable.com/
-> [3] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-tests&id=4b02ea1792c14cb9f250bd55aced5614e699397a
-> [4] https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git/commit/?h=experimental-tests&id=887ce207bc8b068de9771b736333a8da6d939670
-> 
 
