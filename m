@@ -1,146 +1,63 @@
-Return-Path: <linux-erofs+bounces-4361-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4362-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 096D1C61DB9
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Aug 2026 12:01:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4937EC61DB9
+	for <linux-erofs@archiver.kernel.org>; Fri, 28 Aug 2026 13:29:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hWcS50NmRz2xT6;
-	Fri, 28 Aug 2026 22:01:41 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=fail smtp.remote-ip=3.74.81.189
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787918500;
-	cv=fail; b=MM1H6KGhwJW3eCMqpwJhYSs7nBVD39wdjYm9wuiGUU6nlz8Rqlw+NbvJiieVPkZy8gl8HuIi7RazkoAIbnPu64qkabUjAJAo3M7QT7y8Kow/9HHXwD70zN0wBcRoRsviGQrKi+0rc7ohmp/t7FbQdEZIwcTBlJA6S+uX4xqYiuqkQAYqK1xFKoH24ETJkpS2+iC5WDS9uD5wWnUO4Q1INmLFc86Zgbth28KSROvakJ9S4Ow5dyy2BFJxP5sJUG4n2qAd26VupL6YH6UqESPS1e8cy49fFzmoprNUYhR73/WSPF8JDd4oPVGNvKn5xjqGcqlWRWuMjpYsmJ0QDlDteA==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787918500; c=relaxed/relaxed;
-	bh=BC5Kc4LoQfDPdwqcr43hF+GmachmT1PhP+lW6WP3cQ8=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=iI2gWluH1/f1SRALUM4jof1y88mEgXTnjAAccAUdrd+1FJWEWFY3wia7PT8xVMhCezmTG3lQklmudAmz+/JDe3TuuNEYhapPFkN9fAQBnZn0kd8+W5UhEh/nEXKeGovAAhClZhN1fpimBjP7BlrHAttA/he7nSxDPuoYj+OQDbluyR6msEF/5Co+JUUcDv3vJri943fafKA0qLrHhqZXps+FzJMJMNNP5F5+kMJV1uvb6PEoduD+MtFcEY+f1mpqtESzaV8OnJ7JxMzlNEwqb5gMwzHfOGd/Qc0/XP51FfBPbc7jrSOhvNy4Bz8Hl2GgjMFHVaDAY+UxA0olKZK7Dg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de; dkim=pass (2048-bit key; unprotected) header.d=amazon.de header.i=@amazon.de header.a=rsa-sha256 header.s=amazoncorp2 header.b=g0uZfWdq; dkim-atps=neutral; spf=pass (client-ip=3.74.81.189; helo=fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com; envelope-from=prvs=693e21d1a=waltju@amazon.de; receiver=lists.ozlabs.org) smtp.mailfrom=amazon.de
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hWfPJ2dzXz2y8F;
+	Fri, 28 Aug 2026 23:29:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787923764;
+	cv=none; b=bFyiTCgfuFocBdhUaWUUWXUoX95K6W+Uq3DH0MnSWkj2NqOSMd6FMIKSiUY6ORuN5eKpCEsnsFur5ZfTeqxKSRbRY5DEfQeSC29LQsUnjzz66cv4OlJVWZd3NYbqqRUdnbUsmqIi9qoXfJSklxQuvq1EpTH21WOB0x88NFn2erA6thg+HyuKL7Eaous+/02yg4y5XfNlFnIW7np7tgb+N4s7+gUajJfiFC8rRcR/c07MFCyyYJIGMSA8Q3nsc2PmkO7rKIHldap7djS2aMzZj8A4SN5pGD1HWqpDyL8UMYs8Ra6bQ8sSZKTmUe5Gb38riQDHURaxQYZzdl3Qw71Qzw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1787923764; c=relaxed/relaxed;
+	bh=MJo92qxuTxW6xloiekXIgDf7/8rPYktAVkSmnZb23rU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FgLHUXfkQWkfoB6+mTcMOSTJcZ0LQm4ZNe0601QZ+Qf760OMOmq+z8D+GI6jDCX+5h3G34chhBEt+31aqD6X7PzNWFoH60v/vTp8CrTH1KOqBpdRiv9yCiqTQazaDAih0cvaKFON3IKmOg6j23uMhmQKkMczusClJ64ZDAXlWyABZqfBgaJb1biw2QXpvzR0x/MMCfnUV3+2rcBdLZOtEPHTUJHUNDydt48zoQjLot1IksjEi07352gQZLlBVQ63r2veUrxpYvflc+EGVfTNCyt0abY0z07Qvs7t1TET5JtFyAudDe57TW82yKplKlgNaUpSggXvJVtFXlGNh5aKGQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JVuDSrLF; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=amazon.de header.i=@amazon.de header.a=rsa-sha256 header.s=amazoncorp2 header.b=g0uZfWdq;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JVuDSrLF;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amazon.de (client-ip=3.74.81.189; helo=fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com; envelope-from=prvs=693e21d1a=waltju@amazon.de; receiver=lists.ozlabs.org)
-Received: from fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com [3.74.81.189])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hWcS0184fz2xGr
-	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Aug 2026 22:01:34 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazoncorp2;
-  t=1787918496; x=1819454496;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=BC5Kc4LoQfDPdwqcr43hF+GmachmT1PhP+lW6WP3cQ8=;
-  b=g0uZfWdqNwanI2AVOl2tTd3eHIIHkRPwAa3MsuJSPzICWjtk1re3A5jy
-   4DMz3R/QW8BI8Lvv3OIM5ewq+CYCCZqVPvolUBY7IfLZJhhaV4nPEd97t
-   zGdPUTqgwJrQZ5Vtcn5mfhkGZBwke8AI7MSlvUogHYbBz9TB7r5ZRtS2F
-   +tocDjzD/lMGJF+N+5YKlI+FlAfAqGBVMwbPPFESyIMcPwyGAj+jXmwOb
-   bWQCSXnEJkdemPVCSI6bLw4nbQrhdJpX6eMNUajDWVXD2kubsZKhc3Rvr
-   k8jACaT/EMAyn8XZmVlQAXZ6TLkLzxs4jkFbf1XGutvaZtYTLiZkAsiF0
-   A==;
-X-CSE-ConnectionGUID: 1vlyVqViRw6kA6TiUGThOA==
-X-CSE-MsgGUID: RR4GtedAQzSCa8JXybvgqQ==
-X-Amazon-filename: image001.png, image002.png, image003.png, image004.png
-X-IronPort-AV: E=Sophos;i="6.25,248,1779148800"; 
-   d="png'150?scan'150,208,217,150";a="18605071"
-Received: from ip-10-6-3-216.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.3.216])
-  by internal-fra-out-004.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Aug 2026 12:01:26 +0000
-Received: from EX19MTAEUB001.ant.amazon.com [54.240.197.234:23865]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.36.224:2525] with esmtp (Farcaster)
- id abc2ce97-88fe-48ca-aa20-0b94421bf34f; Fri, 28 Aug 2026 12:01:26 +0000 (UTC)
-X-Farcaster-Flow-ID: abc2ce97-88fe-48ca-aa20-0b94421bf34f
-Received: from EX19EXOEUB001.ant.amazon.com (10.252.51.80) by
- EX19MTAEUB001.ant.amazon.com (10.252.51.28) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Fri, 28 Aug 2026 12:01:25 +0000
-Received: from EX19EXOEUA002.ant.amazon.com (10.252.50.139) by
- EX19EXOEUB001.ant.amazon.com (10.252.51.80) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45;
- Fri, 28 Aug 2026 12:01:25 +0000
-Received: from BEUP281CU002.outbound.protection.outlook.com (10.252.50.44) by
- EX19EXOEUA002.ant.amazon.com (10.252.50.139) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.45
- via Frontend Transport; Fri, 28 Aug 2026 12:01:25 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=zSafaoanH0ryvEB5JzwWpGMUgYIhlQWEbuGom/DP3ksfTpp52/gAuXEuV27TdWi+l3SvFEzQsf8TttI6tI5TJ9/tCCYgkgPmWIhhXGOgd7sN1e2YYTLBn6l1I7uEFwcf4bKI490kt6ngDpZTWZhL6IL6Z8NLqmGF4GGal+6Pk87aaWns/x3YrKJ1nlmaPHn5tIkELckdNMrEJRVEqzwHiHoHx929SQCSllWODC5JR2zeurDalDExowZo+8UBw1wBJ3G9YlaS026c760AlJujzXwzqQ6wK6P5Z9pl780J0auA0MSa87qIPrmjqEmK8xkOq3gT2Dl6R9DPyhe6xzcQzw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=laWlZmoExIliTbuv8pUSGtyVWlWIB5DOfB4XjyxCRTU=;
- b=PTkqzgmTZd9qkfVhpfynbWdQe0VSucUHCEBiZsWWwUcPDOjZEJ7fq+1n5iZ0VQ99L4kB0psF25W+pcydnyFXUseRkH8LRNlY0iEypUrqSVqlMQ04XfdhEvDwFPv+tm/8Me9qFn3b9bMULGq84yNiOjAN/YrRxWN4ZqatntqWaDjrWBq00BdexNWxZxsZd4Lsxil7WeVkPAXRah8B9VkXi9kwQaQVT7EJJifb1YDyeP8Wwp8cAuPYgEbfxjvS2Y6L76NlZP8tSNS4yg9GwCZgPzF5SGJvxje4gHJZNfwKOHcJR4EcUFP7G3NCgw7kVSOaZqajo0EtQ2dv/Xt+4VV1vQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amazon.de; dmarc=pass action=none header.from=amazon.de;
- dkim=pass header.d=amazon.de; arc=none
-Received: from BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM (2603:10a6:b10:53::8) by
- FR5P281MB5355.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:19a::6) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.360.10; Fri, 28 Aug 2026 12:01:22 +0000
-Received: from BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM
- ([fe80::a74c:626:53d3:acc2]) by BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM
- ([fe80::a74c:626:53d3:acc2%7]) with mapi id 15.21.0360.008; Fri, 28 Aug 2026
- 12:01:22 +0000
-From: "Walther, Jens-Uwe" <waltju@amazon.de>
-To: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>
-CC: "xiang@kernel.org" <xiang@kernel.org>, "chao@kernel.org"
-	<chao@kernel.org>, "Walther, Jens-Uwe" <waltju@amazon.de>
-Subject: EROFS: decompressed page cache returns valid file content from the
- wrong offset under sustained reclaim
-Thread-Topic: EROFS: decompressed page cache returns valid file content from
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hWfPD6kW8z2y2T
+	for <linux-erofs@lists.ozlabs.org>; Fri, 28 Aug 2026 23:29:20 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id BE196418A3;
+	Fri, 28 Aug 2026 13:29:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BF71F000E9;
+	Fri, 28 Aug 2026 13:29:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787923755;
+	bh=MJo92qxuTxW6xloiekXIgDf7/8rPYktAVkSmnZb23rU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=JVuDSrLFuj6k7RItIE+V2oDbDmVydF/LNgxkfY3mNs1nlUu1tKuAKHugZfZVktqsf
+	 CcF0efwSFF3OpzEORaQb1Rj5ThIggKTO5s/BqM4uS+yVk51M6XzX6MgPTr5UrdsWhJ
+	 P5f9dx4kb3qEalFAF+X/dCZ3AAiQqu1tlLDrIfD14Hg+ZsgJ6M9PUNEm1HvxicbmPm
+	 T3AMJPkYoQQzV0oV7WJHZ9/XHQyMM/fXzADI3GO3AKtpKNWyDYxU16GLt2HfSXi98h
+	 ZSpFyRYhZ/xm7Bx3g5346FxeJFQkq3bfcMgsUZ7wPOVo5OAiV6xdRuPCHXm7iy/g/d
+	 TcXlZ5XHOAAnA==
+Date: Fri, 28 Aug 2026 21:29:09 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: "Walther, Jens-Uwe" <waltju@amazon.de>
+Cc: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
+	"xiang@kernel.org" <xiang@kernel.org>,
+	"chao@kernel.org" <chao@kernel.org>
+Subject: Re: EROFS: decompressed page cache returns valid file content from
  the wrong offset under sustained reclaim
-Thread-Index: AQHdNuPaHOybkThVlUqT37Kxmh81gA==
-Date: Fri, 28 Aug 2026 12:01:22 +0000
-Message-ID: <BEZP281MB2102E57CD31862B8D958B33DD2AC2@BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM>
-Accept-Language: en-US
-Content-Language: en-GB
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-x-ms-reactions: allow
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amazon.de;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BEZP281MB2102:EE_|FR5P281MB5355:EE_
-x-ms-office365-filtering-correlation-id: 5c58623f-6888-4132-9f54-08df04fc142a
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|366016|1800799024|10070799003|6049299003|23010399003|376014|38070700021|4053099003|6133799003|10067099003|56012099006|11063799006|5023799004|8096899003|18002099003|3023799007;
-x-microsoft-antispam-message-info: sQmzj/gThKPkVkY9bDCbtW9zJV5DcTUH7N6rTg29l829dw/1nSPryE9b5PdWFJGhfr1Qbel71u0jHCTvHu2w39mQq/eTdGgLTrWNkWeT8NXKL6FHzlVDKFdgD8dTTDlvcWNC130yy7p16vWaZbeRRvpRXfx6aWBSJrcu6BMlCvXKuO4gkdtULj1pt3g4q1nAzxMTIAiQE9NSASPa/p1EuSvj4qWxj+Tx1Z6fzgMQ5DR5dFjO+3VHrd27D4S6ep6b/AjTdDm7PCJ/cVp92b+GYTYotV4hvX2ChASkU0qrgFO++4Fcqwm2bsvRI+i7Nxv4ZkgsS0UTnGAv1+pl7QU/RAyIQOgZIkKmjF/7ZcZ6bKuJUf4xeHbrWjCM9VJZpOF1aA4vqr2v+PgwDhqvpbS9YuH0vO5xoF+9XLRiWtr8HH3ppy4oxWvQQXbFhLT6iMVpBEezUVtUdZlu1qw30MSwviHbeHL9Kx+qGkBA2n9f22o0bv9k5UwtHMcZrT/CY+JsG/GgmvppLJ6S1cKweb+vTYfM7yCpKg8KpbOpmUJBiFmr2Lv8qmQj/8eWUnT1yv935ZEEnlkBRgWZlSfviTGcUMVkTx8xlErR2yIuh0w2BT6YDzdO+COh5yKdWVuxW6fenNQt4/UzPcPYD4vbDxlT9gQKplc6HEG52sC1y8Dr+6Y=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(10070799003)(6049299003)(23010399003)(376014)(38070700021)(4053099003)(6133799003)(10067099003)(56012099006)(11063799006)(5023799004)(8096899003)(18002099003)(3023799007);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 2
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?35CTcaE8GvoZVf5FtzMAzT1SZl7Cbi32d/Mv3D7aNHtdpj1MiHas7bfrg+7R?=
- =?us-ascii?Q?Zt434NeZIr8pVV77m/Q8bARAZr+hnfnf6XNjz8EO/mylXSLrm6J5OMTo9GaL?=
- =?us-ascii?Q?LQhLIFtYyQfkUtOHdMw6pa1rio/STKYQvkHmRUPgDOEh+li15kteDYCXERHx?=
- =?us-ascii?Q?DZo9uD0M4gr2YxfhKBFX8Aby/GOpn9TfLjeo3fUTOg82r5s7ScbQZQNxJ45Y?=
- =?us-ascii?Q?SSDPK7Dpue5TDLMUZ26V+EqeDfjcz6WC9kphiY/gbrMk8tGHBqa5HV1Go42W?=
- =?us-ascii?Q?GCjL4xBElZbRXFSiVv0BU0kWu3rRjDMRS+LvaSObpBNlQO45RmDDPW27bw1l?=
- =?us-ascii?Q?cyPoLmUDOyojHsiWUcyjXCD1XeEOoIS+1F9NznFcm1kCL6qd3immnh1Sgz5h?=
- =?us-ascii?Q?gvP9AGKlK9rE+6EwqUtIT2WpDt7j8gIvEsRT2JRO8WCykMzqWCtEkSrCwxlV?=
- =?us-ascii?Q?d6Vnn6Aco4QQSzuTduhSZL6KjEg+PUrk97Vwplha2ffrmPJKWJjsKF5s+PFK?=
- =?us-ascii?Q?J2LTECIAPIQF3TdT3R6AirfWmxngUA1JAKiNDvHZWkQc5sJq7vnWbCVlRgEu?=
- =?us-ascii?Q?wAW+i7ry/Ihe2O4FEHBs7kicmV1hhlQA6o31zNePCQB+QhHJ7g1NhqrP8SKP?=
- =?us-ascii?Q?/mlVZYiSFKz+N+zV/ymtUaZ9z/IfAJf594OZZimvJNUT35YK8RdWgoEVwZTw?=
- =?us-ascii?Q?jPPU087gsrhVop4inEqdgXbTAvJZrEwI046wFL5NQhINVzbJ7lcHixvysTYM?=
- =?us-ascii?Q?sZ1GitRnD8bC610Dmwr2ZDDMZsn0SMtuxaRZE5l/WEoFnmts9Sw8yHkvx0WZ?=
- =?us-ascii?Q?LBAYlgFF/3QFtWcs6A2G0eOho4KJcHQnbODcVY+1sUdj3n+mEwAcXGyOG0yQ?=
- =?us-ascii?Q?wCElnfRJXuR9bypXtJXNdzWJbtU73PGCx1jcUHQ7o7iyo0kHGH1ZLGuA6MBQ?=
- =?us-ascii?Q?KO2iXfVskS8wh2dxSKngIJ6nMWHddZk9t1l4FYxR3fUV1qn+4GB0e2IY1wo8?=
- =?us-ascii?Q?kXPlIVBoBCzkuPttKVSs8DB4NxjL0jstkhWqHVntfAZj7BCSOvp38OyR3Tds?=
- =?us-ascii?Q?z2hMcQUutgA7ScPMme0uibzudMJL2tv64CV3jDLrrzjW2MlwxtwaHPxFUmeV?=
- =?us-ascii?Q?cJtHEvKa3uNk11XcubWr0DeeIL1JLJG52/Krmt/VTOOtXHfAle3YMtIrXFLr?=
- =?us-ascii?Q?3srzURkCFPB3EyIbmVJgEif3Y49B03I6T1xn4iwKSmALczzavidKfh/TRjVS?=
- =?us-ascii?Q?Ks0yfU8ajOrFjHuv1xSNTXzJwa+rDu5LzP8+Xr1383QSTapq4wPN/ObgfaTv?=
- =?us-ascii?Q?M8L2q1RKmOFFA6riHok1jeXx2WrDPwXVu4WJA3TVyqU6XbegCGmgpoHDCZeD?=
- =?us-ascii?Q?l2ZHPNv6cOobwZnrk0Z/BN3PxSj5WVnJv0MYnkWYkvB7PVjomyDZKXuF8yVS?=
- =?us-ascii?Q?2ZACK3A/q2Dr4ZEgU3kGfslj4p0sIFsXTZQe4sEAUPbzJRpH1PnsyNCbVpx/?=
- =?us-ascii?Q?W13IOa/ihWrzlWt5+vJhMSTNhA8UWIIwx6bxiMLruMTVXmouaugZuXJpb0kj?=
- =?us-ascii?Q?KIizQJwZerrSUSZePUyqnTfOhNqSsJGS7D1TC8SQlnK41VsLA4CtAjLltJVc?=
- =?us-ascii?Q?MPm605DFXZFI0paEhxM8/p5IOtEEQJqG+0F5uSwuS/h04KhOfI6pAjpbMIIl?=
- =?us-ascii?Q?XHdSjNUFg6qndzL24WmVq8UQiJVA2iVHHpqnjp4g2Vq4S/L1kz8os6BRKOEh?=
- =?us-ascii?Q?VDXDc859OCyuOpY/XfB/6lVGFWOefJan5IlzS4LF4gWXkGx3397ht0kj4/HN?=
-x-ms-exchange-antispam-messagedata-1: jumx0m6vl0/MPA==
-Content-Type: multipart/related;
-	boundary="_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_";
-	type="multipart/alternative"
+Message-ID: <apGNJSV_pSlZek1o@192.168.5.19>
+Mail-Followup-To: "Walther, Jens-Uwe" <waltju@amazon.de>,
+	"linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
+	"xiang@kernel.org" <xiang@kernel.org>,
+	"chao@kernel.org" <chao@kernel.org>
+References: <BEZP281MB2102E57CD31862B8D958B33DD2AC2@BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -152,796 +69,169 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked: grbAtnAHI2TTNCHnFbN3XmiEfYQcQuRudsxsnvGgIjnKC6TsE2NCNjK/BxgdMIyNjdCIQrrHVPfAZVi+zNVRPWNEVPrdGiQnKh/o0L93/I22e23SX1q5ZSnsugW8p7pQX1BvwbhQCBwNI2CZqtnpbDlmjFTXOyEHZYEbdtfmnieC42vljkOU9GGT6ILHwvGDGh3uULk5DM6LSAGDhP+Z5hJZPFxrzN5fgNu+STFcpq81IwFyCO5yoI7rP+dfV/m6n7DZheX3JqabVLufWY/QX3m/XYYoGRyvgSQt4dNLOpVYvy2kTxjwsQLhao/0jcDd2FNIVg6XNZqevSZtBJ3YPg==
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5c58623f-6888-4132-9f54-08df04fc142a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Aug 2026 12:01:22.6282
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5280104a-472d-4538-9ccf-1e1d0efe8b1b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: lMCDi6zVrowheCIbOlfcIN6/ppgmsiBEdpBBfqfBTgpLdCqeSZo1n/u0yxWIAU2IrFOgkAoAWZ+YzqiQNTjMyA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR5P281MB5355
-X-OriginatorOrg: amazon.de
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <BEZP281MB2102E57CD31862B8D958B33DD2AC2@BEZP281MB2102.DEUP281.PROD.OUTLOOK.COM>
 
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: multipart/alternative;
-	boundary="_000_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_"
+Hi Walther,
 
---_000_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+On Fri, Aug 28, 2026 at 12:01:22PM +0000, Walther, Jens-Uwe wrote:
+> Hey folks,
+> 
+> We have two independent occurrences of silent data corruption on EROFS roots, on
+> two machines run by two different operators, and we cannot reproduce it locally.
+> The corruption is not random: a contiguous region of a read-only file comes back
+> containing that same file's own bytes taken from a different offset. Details in
+> case the pattern is recognisable.
 
-Hey folks,
+So, so far there is only two individual reports, and it is
+unreproducible locally?
 
-We have two independent occurrences of silent data corruption on EROFS root=
-s, on
-two machines run by two different operators, and we cannot reproduce it loc=
-ally.
-The corruption is not random: a contiguous region of a read-only file comes=
- back
-containing that same file's own bytes taken from a different offset. Detail=
-s in
-case the pattern is recognisable.
+> 
+> Environment
+>   EROFS root image built with mkfs.erofs --all-root -z lz4hc,12 -C 262144
+>   mounted ro, cache_strategy=readaround, dm-verity below with
+>   restart_on_corruption
+>   kernels 6.18.38 (case A) and 6.12.95 (case B), x86_64
+>   8 GiB and 16 GiB machines; swap is zram only (1 GiB, lz4), no disk swap
+>   failures appeared after 9d5h and 5d16h uptime
+> 
+> Symptom
+>   A 3,627,816-byte shared library reads back with one contiguous region
+>   replaced. It has a self-integrity check, which is how it was noticed.
+>   Everything outside the region is byte-identical to a known-good copy, and the
+>   region reconstructs 100% from that copy as exactly two contiguous runs taken
+>   from elsewhere in the same file:
+> 
+>   case A   region 0x239000-0x23afff (8,192 B)
+>            run 1  at 0x239000  3,694 B  from +16,786
+>            run 2  at 0x239e6e  4,498 B  from +8,393
+> 
+>   case B   region 0x271d0c-0x273fff (8,948 B)
+>            run 1  at 0x271d0c  7,436 B  from +17,896
+>            run 2  at 0x273a18  1,512 B  from +8,948
+> 
+>   In both cases the first shift is exactly twice the second. Neither is a
+>   multiple of PAGE_SIZE (8,393 = 2*4096 + 201), so this is not a page- or
+>   folio-level mixup.
 
-Environment
-  EROFS root image built with mkfs.erofs --all-root -z lz4hc,12 -C 262144
-  mounted ro, cache_strategy=3Dreadaround, dm-verity below with
-  restart_on_corruption
-  kernels 6.18.38 (case A) and 6.12.95 (case B), x86_64
-  8 GiB and 16 GiB machines; swap is zram only (1 GiB, lz4), no disk swap
-  failures appeared after 9d5h and 5d16h uptime
+I'm not sure I could parse it correctly (for example, I don't quite get
+the idea what shift means), but if the shared library can be shared with
+me, could you just send the binary to me directly?
 
-Symptom
-  A 3,627,816-byte shared library reads back with one contiguous region
-  replaced. It has a self-integrity check, which is how it was noticed.
-  Everything outside the region is byte-identical to a known-good copy, and=
- the
-  region reconstructs 100% from that copy as exactly two contiguous runs ta=
-ken
-  from elsewhere in the same file:
+Or when the wrong data was read, did you find the same data in the
+image?
 
-  case A   region 0x239000-0x23afff (8,192 B)
-           run 1  at 0x239000  3,694 B  from +16,786
-           run 2  at 0x239e6e  4,498 B  from +8,393
+> 
+> Location
+>   dump.erofs -e places both corrupted ranges and both of their source ranges
+>   inside a single extent: logical 2,177,202..2,779,162 (601,960 B) decompressed
+>   from one 262,144-byte pcluster. Nothing sits near an extent boundary. The
+>   error is therefore produced within one decompression, not by selecting the
+>   wrong pcluster.
+> 
+> Ruled out
+>   on-disk corruption - dm-verity reported no error across 15.92 days spanning
+>     the fault, with restart_on_corruption armed
+>   a stale mapping - a read() of the file and the process mapping return the same
+>     wrong bytes, so the page cache itself holds them
+>   hardware - two operators, different CPU vendors, and the result is structured
+>   folio migration as the copying agent - migration moves whole pages, the shifts
+>     are not page-aligned
+> 
+> Conditions
+>   Both machines were under sustained page-cache reclaim. Case A: 956M
+>   pgsteal_kswapd and 559M workingset_refault_file over 17.7 days. Case B: 71M
+>   and 16M over 7.74 days. A comparable machine on the same image with no reclaim
+>   shows pgscan_kswapd and pgsteal_kswapd exactly 0. Since the only swap is zram,
+>   clean page cache - i.e. the EROFS image - is the only memory the kernel can
+>   genuinely free, so all pressure lands on evicting and re-reading these pages.
+> 
+> Geometry in this configuration
+>   bpftrace on z_erofs_lz4_decompress, same image and mount options, while the
+>   library was evicted and re-read about a million times:
+>     rq->inplace_io was 0 for all 963,196 calls
+>     74.7% had rq->partial_decoding = 1
+>     inplace_io=1 occurs only when the compressed pages are absent from the
+>       managed cache; with a warm managed cache we never observed it
+>   So the failing path is very likely a managed-cache decode, mostly partial.
+> 
+> Not reproduced
+>   ~33M real decompressions of the same file, same image and mount options, under
+>   heavier reclaim than either failing machine (66x the pgsteal_kswapd rate, 1.4x
+>   the pgmigrate_success rate), produced no mismatch. Also tried: 92M single-page
+>   faults against a purpose-built image with an identical extent map, forced
+>   compaction, and cache_strategy=disabled. No mismatch in any configuration.
+> 
+> Questions
+>   1. Is a byte-granular displacement of this shape known in the partial decode
+>      path with big pclusters - output written at rq->pageofs_out into a
+>      partially populated rq->out[] set?
+>   2. Does the first shift being exactly twice the second suggest particular
+>      index or length arithmetic worth looking at?
+>   3. Could z_erofs_lz4_prepare_dstpages() or the fillgaps handling place output
+>      at the wrong offset when only a subset of out[] is requested?
 
-  case B   region 0x271d0c-0x273fff (8,948 B)
-           run 1  at 0x271d0c  7,436 B  from +17,896
-           run 2  at 0x273a18  1,512 B  from +8,948
+I don't think answering the details of 1,2,3 helps since
+ - it involves many erofs implementation details and hard to write here
+   in simple words, for example fillgaps should have nothing with your
+   set since it's only related to mkfs.erofs `-Ededupe` feature;
 
-  In both cases the first shift is exactly twice the second. Neither is a
-  multiple of PAGE_SIZE (8,393 =3D 2*4096 + 201), so this is not a page- or
-  folio-level mixup.
+ - the decompression subsystem is basically unchanged from Linux 6.1
+   to Linux 6.12, except that:
+     - it adds subpage block support (I think it's unrelated to your
+       case);
+     - it adds large folio support (suspicious);
+     - the lz4 doesn't rely on some page refcount anymore (see below).
 
-Location
-  dump.erofs -e places both corrupted ranges and both of their source ranges
-  inside a single extent: logical 2,177,202..2,779,162 (601,960 B) decompre=
-ssed
-  from one 262,144-byte pcluster. Nothing sits near an extent boundary. The
-  error is therefore produced within one decompression, not by selecting the
-  wrong pcluster.
+ - If you didn't observe it on Linux 6.1/6.6, I guess it may due to the
+   following changes:
+     - (6.6~6.12) it implements large folios, so we could try to see if
+       the fleets can still be reproduced with large folios disabled;
 
-Ruled out
-  on-disk corruption - dm-verity reported no error across 15.92 days spanni=
-ng
-    the fault, with restart_on_corruption armed
-  a stale mapping - a read() of the file and the process mapping return the=
- same
-    wrong bytes, so the page cache itself holds them
-  hardware - two operators, different CPU vendors, and the result is struct=
-ured
-  folio migration as the copying agent - migration moves whole pages, the s=
-hifts
-    are not page-aligned
+     - we could try to revert 1001042e54ef ("erofs: avoid refcounting
+       short-lived pages") since I think it's a significant change from
+       Linux 6.1/6.6.
 
-Conditions
-  Both machines were under sustained page-cache reclaim. Case A: 956M
-  pgsteal_kswapd and 559M workingset_refault_file over 17.7 days. Case B: 7=
-1M
-  and 16M over 7.74 days. A comparable machine on the same image with no re=
-claim
-  shows pgscan_kswapd and pgsteal_kswapd exactly 0. Since the only swap is =
-zram,
-  clean page cache - i.e. the EROFS image - is the only memory the kernel c=
-an
-  genuinely free, so all pressure lands on evicting and re-reading these pa=
-ges.
+But anyway, if it only reproduced twice so far and no reproducer, I think
+first we need to find a better way to reproduce it in a short time; on
+the other hand, I will review and reproduce myself too, but as I said,
+the binary is helpful for me to get more clues.
 
-Geometry in this configuration
-  bpftrace on z_erofs_lz4_decompress, same image and mount options, while t=
-he
-  library was evicted and re-read about a million times:
-    rq->inplace_io was 0 for all 963,196 calls
-    74.7% had rq->partial_decoding =3D 1
-    inplace_io=3D1 occurs only when the compressed pages are absent from the
-      managed cache; with a warm managed cache we never observed it
-  So the failing path is very likely a managed-cache decode, mostly partial.
+Thanks,
+Gao Xiang
 
-Not reproduced
-  ~33M real decompressions of the same file, same image and mount options, =
-under
-  heavier reclaim than either failing machine (66x the pgsteal_kswapd rate,=
- 1.4x
-  the pgmigrate_success rate), produced no mismatch. Also tried: 92M single=
--page
-  faults against a purpose-built image with an identical extent map, forced
-  compaction, and cache_strategy=3Ddisabled. No mismatch in any configurati=
-on.
-
-Questions
-  1. Is a byte-granular displacement of this shape known in the partial dec=
-ode
-     path with big pclusters - output written at rq->pageofs_out into a
-     partially populated rq->out[] set?
-  2. Does the first shift being exactly twice the second suggest particular
-     index or length arithmetic worth looking at?
-  3. Could z_erofs_lz4_prepare_dstpages() or the fillgaps handling place ou=
-tput
-     at the wrong offset when only a subset of out[] is requested?
-  4. If field data would help, what would you want captured? We have a dete=
-ctor
-     running that hashes the file periodically and, when it fires, preserve=
-s the
-     machine along with the corrupted copy, /proc/vmstat and PSI. We can al=
-so
-     run additional tracing or a debug patch on affected fleets.
-
-
-Thank you in advance.
-
-Best regards
-Jens-Uwe Walther
-Senior Specialist TAM Containers
-AWS Enterprise Support
-[CKA badge]<https://www.credly.com/badges/b4f55949-4357-4062-93a9-6d0f0f5f3=
-833/linked_in>[CKAD badge]<https://www.credly.com/badges/85b75f03-91d4-4887=
--8150-cfb9ea39d272> [CKS: Certified Kubernetes Security Specialist] <https:=
-//www.credly.com/badges/c26e3b3c-cfc7-46d7-8b7b-7a7a59045c60/>
-e: waltju@amazon.com<mailto:waltju@amazon.com> m: +49 152 38870547
-[cid:image004.png@01D9D4D4.4DF69060]<http://www.aws.amazon.com/>
-
+>   4. If field data would help, what would you want captured? We have a detector
+>      running that hashes the file periodically and, when it fires, preserves the
+>      machine along with the corrupted copy, /proc/vmstat and PSI. We can also
+>      run additional tracing or a debug patch on affected fleets.
+> 
+> 
+> Thank you in advance.
+> 
+> Best regards
+> Jens-Uwe Walther
+> Senior Specialist TAM Containers
+> AWS Enterprise Support
+> [CKA badge]<https://www.credly.com/badges/b4f55949-4357-4062-93a9-6d0f0f5f3833/linked_in>[CKAD badge]<https://www.credly.com/badges/85b75f03-91d4-4887-8150-cfb9ea39d272> [CKS: Certified Kubernetes Security Specialist] <https://www.credly.com/badges/c26e3b3c-cfc7-46d7-8b7b-7a7a59045c60/>
+> e: waltju@amazon.com<mailto:waltju@amazon.com> m: +49 152 38870547
+> [cid:image004.png@01D9D4D4.4DF69060]<http://www.aws.amazon.com/>
+> 
+> 
+> 
+> Amazon Web Services EMEA SARL
+> 38 avenue John F. Kennedy, L-1855 Luxembourg
+> Sitz der Gesellschaft: L-1855 Luxemburg
+> eingetragen im Luxemburgischen Handelsregister unter R.C.S. B186284
+> 
+> Amazon Web Services EMEA SARL, Niederlassung Deutschland
+> Anni-Albers-Str. 21, D-80807 Muenchen
+> Sitz der Zweigniederlassung: Muenchen
+> eingetragen im Handelsregister des Amtsgerichts Muenchen unter HRB 242240
+> USt-ID DE317013094
 
 
-Amazon Web Services EMEA SARL
-38 avenue John F. Kennedy, L-1855 Luxembourg
-Sitz der Gesellschaft: L-1855 Luxemburg
-eingetragen im Luxemburgischen Handelsregister unter R.C.S. B186284
 
-Amazon Web Services EMEA SARL, Niederlassung Deutschland
-Anni-Albers-Str. 21, D-80807 Muenchen
-Sitz der Zweigniederlassung: Muenchen
-eingetragen im Handelsregister des Amtsgerichts Muenchen unter HRB 242240
-USt-ID DE317013094
 
---_000_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: text/html; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii">
-</head>
-<body>
-<pre style=3D"background-color: rgb(246, 248, 250); margin-top: 0px; margin=
--bottom: 16px; padding: 16px; border-radius: 6px;"><div style=3D"text-align=
-: left; text-indent: 0px; line-height: 1.45; text-transform: none; font-fam=
-ily: ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &q=
-uot;Liberation Mono&quot;, monospace; font-size: 13.6px; color: rgb(31, 35,=
- 40);"><code style=3D"font-family: ui-monospace, SFMono-Regular, &quot;SF M=
-ono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;, monospace; display=
-: inline;">Hey folks,</code></div><div style=3D"direction: ltr; text-align:=
- left; text-indent: 0px; line-height: 1.45; white-space: normal; text-trans=
-form: none; font-family: ui-monospace, SFMono-Regular, &quot;SF Mono&quot;,=
- Menlo, Consolas, &quot;Liberation Mono&quot;, monospace; font-size: 13.6px=
-; color: rgb(31, 35, 40);"><br></div><div style=3D"text-align: left; text-i=
-ndent: 0px; line-height: 1.45; text-transform: none; font-family: ui-monosp=
-ace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation=
- Mono&quot;, monospace; font-size: 13.6px; color: rgb(31, 35, 40);"><code s=
-tyle=3D"font-family: ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Men=
-lo, Consolas, &quot;Liberation Mono&quot;, monospace; display: inline;">We =
-have two independent occurrences of silent data corruption on EROFS roots, =
-on
-two machines run by two different operators, and we cannot reproduce it loc=
-ally.
-The corruption is not random: a contiguous region of a read-only file comes=
- back
-containing that same file's own bytes taken from a different offset. Detail=
-s in
-case the pattern is recognisable.
-
-Environment
- &nbsp;EROFS root image built with mkfs.erofs --all-root -z lz4hc,12 -C 262=
-144
- &nbsp;mounted ro, cache_strategy=3Dreadaround, dm-verity below with
- &nbsp;restart_on_corruption
- &nbsp;kernels 6.18.38 (case A) and 6.12.95 (case B), x86_64
- &nbsp;8 GiB and 16 GiB machines; swap is zram only (1 GiB, lz4), no disk s=
-wap
- &nbsp;failures appeared after 9d5h and 5d16h uptime
-
-Symptom
- &nbsp;A 3,627,816-byte shared library reads back with one contiguous region
- &nbsp;replaced. It has a self-integrity check, which is how it was noticed.
- &nbsp;Everything outside the region is byte-identical to a known-good copy=
-, and the
- &nbsp;region reconstructs 100% from that copy as exactly two contiguous ru=
-ns taken
- &nbsp;from elsewhere in the same file:
-
- &nbsp;case A &nbsp; region 0x239000-0x23afff (8,192 B)
- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; run 1 &nbsp;at 0x239000 &nbsp;3,694 B &=
-nbsp;from +16,786
- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; run 2 &nbsp;at 0x239e6e &nbsp;4,498 B &=
-nbsp;from +8,393
-
- &nbsp;case B &nbsp; region 0x271d0c-0x273fff (8,948 B)
- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; run 1 &nbsp;at 0x271d0c &nbsp;7,436 B &=
-nbsp;from +17,896
- &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; run 2 &nbsp;at 0x273a18 &nbsp;1,512 B &=
-nbsp;from +8,948
-
- &nbsp;In both cases the first shift is exactly twice the second. Neither i=
-s a
- &nbsp;multiple of PAGE_SIZE (8,393 =3D 2*4096 + 201), so this is not a pag=
-e- or
- &nbsp;folio-level mixup.
-
-Location
- &nbsp;dump.erofs -e places both corrupted ranges and both of their source =
-ranges
- &nbsp;inside a single extent: logical 2,177,202..2,779,162 (601,960 B) dec=
-ompressed
- &nbsp;from one 262,144-byte pcluster. Nothing sits near an extent boundary=
-. The
- &nbsp;error is therefore produced within one decompression, not by selecti=
-ng the
- &nbsp;wrong pcluster.
-
-Ruled out
- &nbsp;on-disk corruption - dm-verity reported no error across 15.92 days s=
-panning
- &nbsp; &nbsp;the fault, with restart_on_corruption armed
- &nbsp;a stale mapping - a read() of the file and the process mapping retur=
-n the same
- &nbsp; &nbsp;wrong bytes, so the page cache itself holds them
- &nbsp;hardware - two operators, different CPU vendors, and the result is s=
-tructured
- &nbsp;folio migration as the copying agent - migration moves whole pages, =
-the shifts
- &nbsp; &nbsp;are not page-aligned
-
-Conditions
- &nbsp;Both machines were under sustained page-cache reclaim. Case A: 956M
- &nbsp;pgsteal_kswapd and 559M workingset_refault_file over 17.7 days. Case=
- B: 71M
- &nbsp;and 16M over 7.74 days. A comparable machine on the same image with =
-no reclaim
- &nbsp;shows pgscan_kswapd and pgsteal_kswapd exactly 0. Since the only swa=
-p is zram,
- &nbsp;clean page cache - i.e. the EROFS image - is the only memory the ker=
-nel can
- &nbsp;genuinely free, so all pressure lands on evicting and re-reading the=
-se pages.
-
-Geometry in this configuration
- &nbsp;bpftrace on z_erofs_lz4_decompress, same image and mount options, wh=
-ile the
- &nbsp;library was evicted and re-read about a million times:
- &nbsp; &nbsp;rq-&gt;inplace_io was 0 for all 963,196 calls
- &nbsp; &nbsp;74.7% had rq-&gt;partial_decoding =3D 1
- &nbsp; &nbsp;inplace_io=3D1 occurs only when the compressed pages are abse=
-nt from the
- &nbsp; &nbsp; &nbsp;managed cache; with a warm managed cache we never obse=
-rved it
- &nbsp;So the failing path is very likely a managed-cache decode, mostly pa=
-rtial.
-
-Not reproduced
- &nbsp;~33M real decompressions of the same file, same image and mount opti=
-ons, under
- &nbsp;heavier reclaim than either failing machine (66x the pgsteal_kswapd =
-rate, 1.4x
- &nbsp;the pgmigrate_success rate), produced no mismatch. Also tried: 92M s=
-ingle-page
- &nbsp;faults against a purpose-built image with an identical extent map, f=
-orced
- &nbsp;compaction, and cache_strategy=3Ddisabled. No mismatch in any config=
-uration.
-
-Questions
- &nbsp;1. Is a byte-granular displacement of this shape known in the partia=
-l decode
- &nbsp; &nbsp; path with big pclusters - output written at rq-&gt;pageofs_o=
-ut into a
- &nbsp; &nbsp; partially populated rq-&gt;out[] set?
- &nbsp;2. Does the first shift being exactly twice the second suggest parti=
-cular
- &nbsp; &nbsp; index or length arithmetic worth looking at?
- &nbsp;3. Could z_erofs_lz4_prepare_dstpages() or the fillgaps handling pla=
-ce output
- &nbsp; &nbsp; at the wrong offset when only a subset of out[] is requested?
- &nbsp;4. If field data would help, what would you want captured? We have a=
- detector
- &nbsp; &nbsp; running that hashes the file periodically and, when it fires=
-, preserves the
- &nbsp; &nbsp; machine along with the corrupted copy, /proc/vmstat and PSI.=
- We can also
- &nbsp; &nbsp; run additional tracing or a debug patch on affected fleets.
-
-</code></div><div style=3D"direction: ltr; text-align: left; text-indent: 0=
-px; line-height: 1.45; white-space: normal; font-family: Aptos, Arial, Helv=
-etica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">Thank you in adva=
-nce.</div></pre>
-<div style=3D"direction: ltr; font-family: Aptos, Arial, Helvetica, sans-se=
-rif; font-size: 12pt; color: rgb(0, 0, 0);">
-<br>
-</div>
-<div id=3D"ms-outlook-mobile-signature">
-<div class=3D"MsoNormal" style=3D"color: black;">Best regards</div>
-<div class=3D"MsoNormal" style=3D"text-align: left; color: black;"><b>Jens-=
-Uwe Walther</b></div>
-<div class=3D"MsoNormal" style=3D"text-align: left; color: black;"><i>Senio=
-r Specialist TAM Containers</i></div>
-<div class=3D"MsoNormal" style=3D"text-align: left; color: black;">AWS Ente=
-rprise Support</div>
-<div class=3D"MsoNormal" style=3D"text-align: left;"><span style=3D"color: =
-black;"><a href=3D"https://www.credly.com/badges/b4f55949-4357-4062-93a9-6d=
-0f0f5f3833/linked_in" title=3D"https://www.credly.com/badges/b4f55949-4357-=
-4062-93a9-6d0f0f5f3833/linked_in" data-outlook-id=3D"d2d0dbfa-317e-4066-8a4=
-9-c224d2aa7167" style=3D"color: black;"><b><img src=3D"cid:image001.png@01D=
-9D4D4.4DF69060" alt=3D"CKA badge" id=3D"Picture_x0020_4" width=3D"54" heigh=
-t=3D"54" style=3D"width: 0.5729in; height: 0.5729in;"></b></a></span><span =
-style=3D"color: blue;"><a href=3D"https://www.credly.com/badges/85b75f03-91=
-d4-4887-8150-cfb9ea39d272" title=3D"https://www.credly.com/badges/85b75f03-=
-91d4-4887-8150-cfb9ea39d272" data-outlook-id=3D"78006900-e8a1-4a34-b911-f5f=
-6d4db267b" style=3D"color: blue;"><b><img src=3D"cid:image002.png@01D9D4D4.=
-4DF69060" alt=3D"CKAD badge" id=3D"Picture_x0020_3" width=3D"54" height=3D"=
-51" style=3D"width: 0.5625in; height: 0.5416in;"></b></a></span><span style=
-=3D"color: black;">&nbsp;</span><span style=3D"color: rgb(0, 0, 0);"><a hre=
-f=3D"https://www.credly.com/badges/c26e3b3c-cfc7-46d7-8b7b-7a7a59045c60/" t=
-itle=3D"https://www.credly.com/badges/c26e3b3c-cfc7-46d7-8b7b-7a7a59045c60/=
-" data-outlook-id=3D"81a9cfa9-80e5-42ec-8b79-f8a4fb135d63" style=3D"color: =
-rgb(0, 0, 0);"><img src=3D"cid:image003.png@01D9D4D4.4DF69060" alt=3D"CKS: =
-Certified Kubernetes Security Specialist" id=3D"Picture_x0020_2" width=3D"4=
-8" height=3D"48" style=3D"width: 0.5104in; height: 0.5104in;"></a></span></=
-div>
-<div class=3D"MsoNormal" style=3D"text-align: left;"><span style=3D"color: =
-black;">e: </span>
-<span style=3D"color: rgb(5, 99, 193);"><a href=3D"mailto:waltju@amazon.com=
-" title=3D"mailto:waltju@amazon.com" data-outlook-id=3D"e294a3e7-e143-4517-=
-b883-a25627ef5281" style=3D"color: rgb(5, 99, 193);">waltju@amazon.com</a><=
-/span><span style=3D"color: black;">&nbsp;m:&nbsp;+49
- 152 38870547</span></div>
-<div class=3D"MsoNormal" style=3D"direction: ltr; text-align: left; font-si=
-ze: 10pt; color: rgb(5, 99, 193);">
-<a href=3D"http://www.aws.amazon.com/" title=3D"http://www.aws.amazon.com/"=
- data-outlook-id=3D"b86ae84a-97c8-4b0e-b068-eb980f4bbdcc" style=3D"color: r=
-gb(5, 99, 193);"><b><img src=3D"cid:image004.png@01D9D4D4.4DF69060" id=3D"P=
-icture_x0020_1" width=3D"72" height=3D"42" style=3D"width: 0.7604in; height=
-: 0.4479in;"></b></a></div>
-</div>
-<br><br><br>Amazon Web Services EMEA SARL<br>38 avenue John F. Kennedy, L-1=
-855 Luxembourg<br>Sitz der Gesellschaft: L-1855 Luxemburg<br>eingetragen im=
- Luxemburgischen Handelsregister unter R.C.S. B186284<br><br>Amazon Web Ser=
-vices EMEA SARL, Niederlassung Deutschland<br>Anni-Albers-Str. 21, D-80807 =
-Muenchen<br>Sitz der Zweigniederlassung: Muenchen<br>eingetragen im Handels=
-register des Amtsgerichts Muenchen unter HRB 242240<br>USt-ID DE317013094
-</body>
-</html>
-
---_000_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_--
-
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: image/png; name="image001.png"
-Content-Description: image001.png
-Content-Disposition: inline; filename="image001.png"; size=5216;
-	creation-date="Fri, 28 Aug 2026 11:53:36 GMT";
-	modification-date="Fri, 28 Aug 2026 11:53:36 GMT"
-Content-ID: <image001.png@01D9D4D4.4DF69060>
-Content-Transfer-Encoding: base64
-
-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
-ekHoBbN7pv8Hbe64mj8KnqcAAAAASUVORK5CYII=
-
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: image/png; name="image002.png"
-Content-Description: image002.png
-Content-Disposition: inline; filename="image002.png"; size=5563;
-	creation-date="Fri, 28 Aug 2026 11:53:36 GMT";
-	modification-date="Fri, 28 Aug 2026 11:53:36 GMT"
-Content-ID: <image002.png@01D9D4D4.4DF69060>
-Content-Transfer-Encoding: base64
-
-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
-
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: image/png; name="image003.png"
-Content-Description: image003.png
-Content-Disposition: inline; filename="image003.png"; size=7022;
-	creation-date="Fri, 28 Aug 2026 11:53:37 GMT";
-	modification-date="Fri, 28 Aug 2026 11:53:37 GMT"
-Content-ID: <image003.png@01D9D4D4.4DF69060>
-Content-Transfer-Encoding: base64
-
-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
-AAAASUVORK5CYII=
-
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_
-Content-Type: image/png; name="image004.png"
-Content-Description: image004.png
-Content-Disposition: inline; filename="image004.png"; size=3073;
-	creation-date="Fri, 28 Aug 2026 11:53:37 GMT";
-	modification-date="Fri, 28 Aug 2026 11:53:37 GMT"
-Content-ID: <image004.png@01D9D4D4.4DF69060>
-Content-Transfer-Encoding: base64
-
-iVBORw0KGgoAAAANSUhEUgAAAEkAAAArCAYAAAA0T6WNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
-bWFnZVJlYWR5ccllPAAAAyhpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp
-bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6
-eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDY3IDc5LjE1
-Nzc0NywgMjAxNS8wMy8zMC0yMzo0MDo0MiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo
-dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw
-dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv
-IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS
-ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD
-cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKE1hY2ludG9zaCkiIHhtcE1NOklu
-c3RhbmNlSUQ9InhtcC5paWQ6NEVDNjI3Rjk4Q0U4MTFFNzg4OENBMzVDRjZFM0ZEQzYiIHhtcE1N
-OkRvY3VtZW50SUQ9InhtcC5kaWQ6NEVDNjI3RkE4Q0U4MTFFNzg4OENBMzVDRjZFM0ZEQzYiPiA8
-eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0RUM2MjdGNzhDRTgx
-MUU3ODg4Q0EzNUNGNkUzRkRDNiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0RUM2MjdGODhD
-RTgxMUU3ODg4Q0EzNUNGNkUzRkRDNiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8
-L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Plj3kGsAAAheSURBVHja7FoLkE9VGL//tR67
-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
-
---_007_BEZP281MB2102E57CD31862B8D958B33DD2AC2BEZP281MB2102DEUP_--
 
 
