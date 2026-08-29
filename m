@@ -1,82 +1,89 @@
-Return-Path: <linux-erofs+bounces-4366-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4367-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0645C61DCB
-	for <linux-erofs@archiver.kernel.org>; Fri, 28 Aug 2026 23:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2D56C61DBE
+	for <linux-erofs@archiver.kernel.org>; Sat, 29 Aug 2026 10:31:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hWvVr3x33z2y2L;
-	Sat, 29 Aug 2026 09:20:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::334"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787959204;
-	cv=none; b=lpXMZm3Xx6eGnIHm9oaBGl7HakczL8wDrY/f9fw8ddSodQABtkINJbkbz+ed5EPIcfkO8Js7EDvYd9CZQV2H36HR2Brx0Y8qtstZd5VU+qWaM3vcLIKsmc9JIDQ4qGlMrCa6kxNDhhL38/rnZMvGU6ez5QUdSaIUebTMfOc3y8ANAx3QeXm3SG/jmNgkfwqzIcpPJP6PE464fdHYbFI09DqJuULvJwFxppSIw/jokxFC7yyYi2M82nZJ6Hf8PsgPklxyoKgV6UUiz9qcW8hYjHdviSRqwpDwEVzKNV9R9QFwGzF1847vCTWlmdIv8vbPAyke4y/i+nf70JFRr6D+ng==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1787959204; c=relaxed/relaxed;
-	bh=Dsr8qBZLgil/7Jhc9mZG6IoOdofcq7dtRdjka7YmlGM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=T24lkbebW+qOvLcwN4Y0dP1jMvSZ/t/vdcMJ1wx1QC0UWKW4ehmyWV7NWfJWFVpYJ1zII7tHOHTOplFTlppgdqeKsUI5BVxDLbdUNVi4zXTSIv7Sw48NqTMVz7jjl01GWo5kaYUgz32CtTGQxVtbIWbo+PNUx6LWwgihGP3CtFW3mdhHYRAOL7yu/N6x2S96n97y6PZqNjq/Ezu+y6s6OA6l0/p5UbvMUdOKv/U3sobuQaqyIStYs4fE9/eK23d6gqQ7y45vZWF2hE6BuysnAAezrWoenG/DfhbR8tuqhLJ+1T/2Ce3ev0WAg4k7Cj1XkkKdSm/tyeGyn8HJsMbkdA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LbrgjPk/; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::334; helo=mail-wm1-x334.google.com; envelope-from=julianbraha@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hXBPG31vRz2xlZ;
+	Sat, 29 Aug 2026 20:31:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::32d" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1787999474;
+	cv=pass; b=BmU0Wtu+kYU9YJ7HcxG6lTjm8eZrGhCh2tmMf5mh/LD2FjSOd3RjBJ+8TtvbMi8ZxJ5IsUeN/guu18MQn6yKd+JZWn+cxUU4cWZ/mXr4vwtzysEFC4piWdfn4k9fXWyMRm2z4gQzRa4yGP9wjLrpLmPhbAiFuqWxOnyznR5VRNcY7YGlrjN3BcJmaX6eo+W3bItM3lQKnbTZ3DKeMBbJTzycSLGxqI9xqCsPGOwGBk51LyTjHc+OmjzB1+O3TUt0xhdMSmednZHrKQSzCMGIrzCnXFxaLLkqmw+bnsMbCXtHs3DljwkOHMLp9NDy3k2fBfYOPY7YbM3vfM0rFqCt5w==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1787999474; c=relaxed/relaxed;
+	bh=5YYwdbwIFm1bt+Bm+Slx8HLcSXB7jVVOB/aPsXgqr2E=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=FF/Zw03HN/MTW6pmLoiNQguRdyPZR+CW6HFH/2UQ8A+5VVIGMeU7p1R7G0YaIDXkZNSzfGXRudM4HObTu9ND2BDSvHbIs5agVtTUi1O/Cf3rerOvmc6gsKBIzZPC4ECtric0TdRPQbC/jPHT0eXoMsDs+aCPVLonvPITM82vnX1oTLHq5VDphZMY/fOgCWCYJ++rguBY/x8gEosV1TLmsc0qae6Jn99fKqsMXYdpJRbrLbL/VnGCJCEFSwyF+FK6P0B3UEfvJ0ZND+zzhsmnocRZFsNRlLBD5SAiNjYuOWjwW9t39BJc60C+IbOJuJB3niBmgCI+kEcW0vDfLkOvQA==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=nMF8W5t+; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::32d; helo=mail-ot1-x32d.google.com; envelope-from=atlasemma716@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=LbrgjPk/;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=nMF8W5t+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::334; helo=mail-wm1-x334.google.com; envelope-from=julianbraha@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::32d; helo=mail-ot1-x32d.google.com; envelope-from=atlasemma716@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hWvVp3zjzz2xLq
-	for <linux-erofs@lists.ozlabs.org>; Sat, 29 Aug 2026 09:20:01 +1000 (AEST)
-Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-49b8be0409fso8372455e9.2
-        for <linux-erofs@lists.ozlabs.org>; Fri, 28 Aug 2026 16:20:01 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hXBPF1FYyz2xT6
+	for <linux-erofs@lists.ozlabs.org>; Sat, 29 Aug 2026 20:31:12 +1000 (AEST)
+Received: by mail-ot1-x32d.google.com with SMTP id 46e09a7af769-7e6b5737bb2so2535520a34.1
+        for <linux-erofs@lists.ozlabs.org>; Sat, 29 Aug 2026 03:31:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787999469; cv=none;
+        d=google.com; s=arc-20260327;
+        b=pdKlxpZZ1B86VYBs1ybjGvv03ONT5boKrwrnKDyk7WW9C9LL3G7ZPxHopqiDDroYZh
+         Gy/AwVlDGRJmBGbtzAOLTlEbz1lG9xYSkuWFFRrgRL0hW9vYTvOuODVQ+dHYr+lIspeH
+         CpnEHd0rQlimET3IG/ybmZDN3WVdK0VyP5IaSycqS1q3YiT87ujwrHNGIEqaUOH1z5Cu
+         DvFOdENlZ+S8LD7YIR37ycSBaL12eHtbIAkTmFR6iGZtSR//B5cNe/WIGrZmHHsOuQ1W
+         2sK6Wi8+fb7/ArW/4DHw+O5q0T2mMfeCa5a/ll9JxkBim9x3ZSQkSDO3Ei2PJLRxJzcq
+         wSEg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=5YYwdbwIFm1bt+Bm+Slx8HLcSXB7jVVOB/aPsXgqr2E=;
+        fh=wOhGMmq2KH+KOElLlPuS8ws9o9ArjDb4wH58JVHh4Vg=;
+        b=Yk5RPeIFJ0ZkyYfTfvQgLDLMTdgBILaGmmZ4YRNqczSwypHtHKXd1T8o/uH92nBqnq
+         wq/NBXkrdgaAj4rzVQNQ8dwckZArRT5tX0t2S3N4Smxrfd0WCFnzA6umAxvnaZZxGmiL
+         W11ehBvTzk1UyeJmRKwO5A89k9jTPW5J1Es+MU19zOpubozs3wsdgLVyY35W7t1drLKV
+         NunfX2YxtMYdCoro642iXci+pzMcbMRTuti6MenaoggvVP/sAREpzABg366VsXDea3DN
+         GjZsNvmyDNa+jE51hsZ0OwoOhvxByYl5Dx+1PbxLvQCwJVnTz7+F/uN0uh6sRfZpzmP8
+         8n6w==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787959196; x=1788563996; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:sender:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Dsr8qBZLgil/7Jhc9mZG6IoOdofcq7dtRdjka7YmlGM=;
-        b=LbrgjPk/YmE5H8wdUmbya8ikBYWaeZlu1MYWaqQKE+d/rWsmaTkdhGy9PRsxJH/rUm
-         trSNoNaQ1HWVkKObA4FqYhHFS7wB08KgzK51LCGhUkDq5+JM5FxI8wOpMllOIZ8rfr2d
-         3kY8UEAjPSpJVq+JlgqupfmKhIM5eV84I/+x19xTeU01VAgz7xpHLUkiv201ksQNgdHB
-         rcet4CfhDqQYeRZGZ+4J59bnz0ugXKrgqjqjAIbuBWPNJlbQCHyEGvGneJVwP2/BoTS3
-         riFCoghyiZB//hfsqCj9mYwbb2gC+WXMw+xDPrsZgU9xWOWv3dIlIz1O9Tzcw6OWkv0X
-         K45Q==
+        d=gmail.com; s=20251104; t=1787999469; x=1788604269; darn=lists.ozlabs.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=5YYwdbwIFm1bt+Bm+Slx8HLcSXB7jVVOB/aPsXgqr2E=;
+        b=nMF8W5t+00dsuhXQUyzTIJy8cu5Ud2CUcHGzIvd991QfQ9nHxUF/6IxVq5Ds62bpGy
+         AWhtDtIiWIMNwVx2qlWRooUtfeVibxpnLe9dZwyfizrcwdhOeH4SZwCeFX1nv2ym3zyz
+         gV8sZpimUR6qXB9bxQvb8VFjU/5vRajD4+gyFCcd4k7tC2ncfBUmKYA9RV6bRO2S+9kd
+         aVEoHBkis2tojR/F0obJvLL0Ui+UcbBVwcUuYNUIk2y5uCEqzafV1U2YBcxcUgZgIlJ6
+         +eE6Hgv5BcjduuepdE4CmWToqzTBhWO7QWvFXlzi3QUOCyuCsQNeKbaLpidBFaxWfSq0
+         mOtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787959196; x=1788563996;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:to:subject:user-agent:mime-version:date
-         :message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Dsr8qBZLgil/7Jhc9mZG6IoOdofcq7dtRdjka7YmlGM=;
-        b=eXhOtctjj4ztplFTlL2CGrMb9WgWxPx6xmuFoDOqkKV/Rv7CDaOorWk77Ki9l8fT/b
-         rtaeI04ZuRj/C0jH7yRjMmeblaOThOfhoY+8eLScq0vyjthPWfio5fbLh6NCGTOUTQoT
-         A0KH5cuUNkfiMliVcnq4nZM+nG99lHvUYyH2QU6JtWahIFWd+bwQrpYe/16bKRu5ic/D
-         fYm0trhdpOF1uLKmHnPoge9TQR6b1dv4e+oQ2XbCDAQ/FGz8P6PVdLfui1iDUDmiXK99
-         GRtHyg9ZGKjbKYNegYRZJIWNGTXMGnPMRqyhXBMe2eZ3yDYAEJPWzUzsZneOYtsXaT27
-         5M4w==
-X-Forwarded-Encrypted: i=1; AHgh+RrN7lhYmuii1FPdW+TkOwY5eynNZNuE+zFpbdzncAutmpM9Y77LfAPtkoo7c61Oyf0WaoFBukpwNFe0dQ==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++mwHffbLl9zsFWJP8vGySk0MZ9gEnswYDJj5xX1VzW26KRiuhRF
-	wU5h5MVPvKB3u0PtwY8BJPOASkFrvK4dtQmRwVU9wdlZU64eOHaW18sc
-X-Gm-Gg: AR+sD13ExXFV9bhIN7Se7OG8M8Lpa3tKmfn+GQrCdHmxjCzucwBRflGiKVjgjJ377+8
-	WXDrEWV8tKSE5jhZEavb9KpIGyD4B2cvHqOUnc5WaTLBj4gH0L35zjpqix573YT+ylCDnF0UIAS
-	FEPlYnKrLdnfTnQBqR86jcL8nk8l2Jp3eTJPimCRyP0oyJJgIVo+9HfGAU6+bhaRlZDiXFmGktn
-	aE4STvLSBvUH/y9FkKN2WAFhAXFaWkyESQ9KPIvh/YkhXOr7LYavtloHMSZNlD1XAWFf9Z2JX6X
-	e+GgTqQVh8u/fhNkWjdVQQpi22yl5Sunrgd64pcqVERstWcVd2BgHo/AozeIqF/NaSASeaS9G4w
-	gv50b6f/pIu0VnukB0oGxgZPemcrmk5zDdw1vt8CKZzkqGIZw0ATsRbSxNYJUDqTk9TjKM/LNNA
-	QtyDy6GVFLXxHDtGvz8v0su8t6uerV1SWmm7XBiyHZmJJLyJYpKViL3w8B4FlYtPzbaUNeYGQ5B
-	AHL6CpgTxPhkJKUm6o5XIVqqYrHhrdHacnj1cjeA2QpNtjJtyfuoMsN
-X-Received: by 2002:a05:600d:8449:b0:49b:96a0:5c00 with SMTP id 5b1f17b1804b1-49b96a05caemr110929705e9.13.1787959195990;
-        Fri, 28 Aug 2026 16:19:55 -0700 (PDT)
-Received: from [10.128.10.232] (195-23-151-163.net.novis.pt. [195.23.151.163])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cca1ed292sm33018995e9.8.2026.08.28.16.19.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Aug 2026 16:19:55 -0700 (PDT)
-Sender: Julian Braha <julian.braha@gmail.com>
-Message-ID: <9de2f5e7-079b-472f-9d98-91d878dcefd3@gmail.com>
-Date: Sat, 29 Aug 2026 00:19:54 +0100
+        d=1e100.net; s=20251104; t=1787999469; x=1788604269;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5YYwdbwIFm1bt+Bm+Slx8HLcSXB7jVVOB/aPsXgqr2E=;
+        b=eIGIZqf1aapTs1FzPM6Nu+f3Al30C1KO+cUKB51MNSPUy2HwWkxFL8RqtDjwBnggm0
+         i+i9akIfDotLd+53TN1ZBJMl//Yd5seisZkk1pX+Dktn/rGAJo5NjwNxHwI61zbVqECy
+         IjZglN6qKOYXI2xNoO3/1FyTHXgnDMRAKnuqQqfWGdG0B1ElSzKRUoiDAm1UESiYKdqu
+         vNhxC45Yo8hLcbc/9Xf2ZMC7Ym9DFQrf1H+BtRgmaVpmHa3fEMwwcEVAO9zfin9opp2v
+         yByEWuDF/gK5eR3qH6g70HGcS9ACpWz5gfiAW4R/OY4sK/iRnd4EhrMIcL0JkYwvw+cc
+         xc6w==
+X-Gm-Message-State: AFuF++lo90ztKYmBgCsQ4lQCRn2N8+0KXbHDsrF+BM+i3cuwU/G3dEct
+	ps+d+xIKU/w+EwkL+06MCaoIVQLRnlJFbFYCgQ5m9PCB6wsDxvuMBDglEcwx3urbl2QBIhF7mng
+	8Rrdgw93okmm6Cyp44cI5rmeTPgAC4edaXM/x
+X-Gm-Gg: AR+sD12dgqTZMIXhiQnnlnWQa50ftX2ZyqNVOnni9EumEVRz1AQ6h6FE3YD+/jQPW4g
+	D5R8CjKS+vJnUYFUbzzjStzX4sWSklrvgpCV8K2OKg7H99cGoe/2RdAb0SB+rhT9KNbjh7q+Sl8
+	LLLHAA3S9Fg76CxGKpp5JCPwV3PCFyRUVbPpY4yE0wVjUavwSMA8E9A7puDXP5/olxM9k7Dgaxg
+	5k7lvvuz54RGeEkkCXgp0Y+vFfAH3uZGFYFn6ayWZA+nQpdzw0cVolWC42QHOnAJqDMrNurjn6t
+	MKQTh2GKfpwlh6Y3tRCj2o7l66e4WeynN92MwDmH0XI=
+X-Received: by 2002:a05:6830:3745:b0:7f4:eb76:881d with SMTP id
+ 46e09a7af769-7f4f228d84emr17425533a34.5.1787999469085; Sat, 29 Aug 2026
+ 03:31:09 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -88,46 +95,37 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] erofs: Fix EROFS_FS_ZIP_LZMA_DEFAULT_MAX_STREAMS default
- logic
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
- Nathan Chancellor <nathan@kernel.org>, Gao Xiang <xiang@kernel.org>,
- Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
- Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
- <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
- Chunhai Guo <guochunhai@vivo.com>,
- Michael Bommarito <michael.bommarito@gmail.com>,
- linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
- linux-kbuild <linux-kbuild@vger.kernel.org>
-References: <c480ed6b8bf38822263e2c5b7cf32b28600f212d.1787219898.git.geert+renesas@glider.be>
- <CAMuHMdVyUAA3L4mUkSjmnuE3cvj-+N8z-Bhxsh1wa-FQWc=fjw@mail.gmail.com>
- <apGqg5a5I9g1CoF_@levanger>
- <CAMuHMdXwmCrzLZiPnQejJ+dTvVNf2zTzgKwTWEFEkfKRkZQpPQ@mail.gmail.com>
- <apHfhILRL0-lFOEh@levanger>
-Content-Language: en-US
-From: Julian Braha <julianbraha@gmail.com>
-In-Reply-To: <apHfhILRL0-lFOEh@levanger>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Atlas Emma <atlasemma716@gmail.com>
+Date: Sat, 29 Aug 2026 11:30:56 +0100
+X-Gm-Features: AcwNN1WWq3546EtSCTktIHTjXzanz6bjUgwG_G50emLd_Zd5rgTIAEdRIbx2XpM
+Message-ID: <CAA9OPq45Aktwkf4yLr0ofHP--a4mn+BwFvA-ff26Kbd4-tGwxg@mail.gmail.com>
+Subject: A quick thought on erofs-image-spec
+To: linux-erofs@lists.ozlabs.org
+Content-Type: multipart/alternative; boundary="00000000000036a729065a2d117e"
 
-On 8/28/26 20:20, Nicolas Schier wrote:
-> Cc: Julian
+--00000000000036a729065a2d117e
+Content-Type: text/plain; charset="UTF-8"
 
-Thanks for looping me in.
+Hi EROFS team,
 
-So it's not great usage of the Kconfig language to have the 'range 1 1'
-and the 'default 16' here contradicting each other. But, it's currently
-legal.
+I came across erofs-image-spec and found the focus on filesystem image
+standards interesting.
 
-I would prefer to disallow this, but a proper check would actually
-require SAT solving (or similar) in the general case, so it's unlikely
-to become an error in the near future.
+Low-level engineering projects often serve a specialized audience, making
+discoverability an important challenge.
 
-Anyway, as long as we're continuing to allow it, savedefconfig should be
-considered bugged for not handling it accordingly.
+I work on GitHub visibility for open-source projects. Would you be open to
+one quick idea?
 
-Let me see if I can send something out this weekend.
+--00000000000036a729065a2d117e
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-- Julian Braha
+<div dir=3D"auto">Hi EROFS team,<br><br>I came across erofs-image-spec and =
+found the focus on filesystem image standards interesting.<br><br>Low-level=
+ engineering projects often serve a specialized audience, making discoverab=
+ility an important challenge.<br><br>I work on GitHub visibility for open-s=
+ource projects. Would you be open to one quick idea?=C2=A0</div>
+
+--00000000000036a729065a2d117e--
 
