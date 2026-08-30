@@ -1,69 +1,58 @@
-Return-Path: <linux-erofs+bounces-4379-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4380-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C10BC61DD9
-	for <linux-erofs@archiver.kernel.org>; Sun, 30 Aug 2026 04:19:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 745A1C61DE1
+	for <linux-erofs@archiver.kernel.org>; Sun, 30 Aug 2026 08:57:37 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hXf6214QBz2yhP;
-	Sun, 30 Aug 2026 14:19:38 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:8b0:10b:1236::1"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788063578;
-	cv=none; b=bjbd2SxYGtcSsh2pyjoUUvbeJXYye9pGeLxFE1eeKx7H5ciwWEJeGdxLnth243cioX5t+s+nWBvPndFCzZIUBfxCQcNj8yyMkjpHSNT+dF9KfSxYRWw5wer8iWBPN9BPP/JU8hgFtO0NmxRBOmhLKncDtMc2StUijtFc33FIJDBJj5dhas70ThlMoLf/hsyOiG/xQldS8MSKhyjvMjqdzkc9dUAHieYqSpDOdkgGjFNn1uq2qCIWqNg5AEP5iH+H/NPSJarEyJkpWAjM+paKhi1bGCMBGjSQ4wyZxMrpY2fn0tkKDip79FkqmYGeH1j0EX3+H+KCuffsu8/xsXbqYQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hXmGl1Qjyz2xbQ;
+	Sun, 30 Aug 2026 18:57:35 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788080255;
+	cv=none; b=Nufm1dissP6FiLEi2Wstm5WfDHXheqhzZ1RwkwAnABgjUyqaJxt4hba0D89OrUUq5gHyaChA5u0t43TpTGvhpZBnLVXzRl1WLlDlwxBwKqetCSPgZMYn20DJfU6VqsAhNDSABQsEHWy4pCeCeqK2N4zFllaG6bdu9Ax4xZxkclevTlN/h6Dk/1CwQ57zshvOraUBxSXn0WUhhC9zdbVMOOBHzk+39KtZH9fiToLw23622I7IZmwOnPAuCD2QzvDEAphS5YIekcn+5lo/D5MBk4ZWQb5L9afs6fFyU8aJFht8vt8UBUFrxgRo0nLSLaB/IqEVtmPv/1qxahKShLoiXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788063578; c=relaxed/relaxed;
-	bh=Aq91nEzmhiWcCrw9x2W22xOz/ZEdIqQpE8kWR+O0NkA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ju8bnnMvHxQ+BhGJECczdPjluUspyo5Gij6Lrca5H40j+5i73zCkOTsPiN44GZuBWlfJVPgkZOdstvvNjGBwa4zNajrULGwZGkp7Xkxx9ABIaENaWe9G1om6HfGwtsGQ1RdpF/0E/zqKbCliOdZLx0HmqObkL3nn/OjuMAkIvBiMvN5p71a6OapCGWDOMrT6smS9fnXWByJIORH/NER/KXnBZ6n0CAA8859Dg0JREuOb84BWqWhZxxLS/Fu7cP+SQ50K8Grmt0Hu4SPuR2cPqWUFDUzT3vKezkT7/YJ7LgPdleepIDG0kzTfDyHrjs0hIL45EPRZ3+jzaKV6qT+PbQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org; dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=SXgE0M1y; dkim-atps=neutral; spf=pass (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org; envelope-from=willy@infradead.org; receiver=lists.ozlabs.org) smtp.mailfrom=infradead.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+	t=1788080255; c=relaxed/relaxed;
+	bh=029+faS5ZzWsov4hpcUm5x/4rseKLpq/BvplkVhE40Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IeBEFfYdtTZmd/05cRgPpLAfPBv2aZYmzSRFjcNimdya9Yjry6y/HJQJQi46QCCmDKTZetf7sAK8mjAmMJ9D3mi0H21lG7u3bFg7rsjeuRFSFxxqXjNlJshXI3axqmorAUXgVFOtBtmrQFBDH9u14kIDO3GPEUlxtIHu1a4rUaE1KZJ6ooRThLti7Wb6z/abMjnFp72nkjUouV2hKUZEX5M2tD6xBrn88OQXXyVtVXk66PCWLGxkoM3r77Mx6nHRxE6e/gsN3WOLPouD3UwdkV7B3I7FtOyp3o+N6Yhjk2qSKF5lc3V+4v0r6YVzRJwS7uIG4Oo65fHlSjfPHvOYKA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oqxJpBEt; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=baohua@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; secure) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=SXgE0M1y;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oqxJpBEt;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=infradead.org (client-ip=2001:8b0:10b:1236::1; helo=casper.infradead.org; envelope-from=willy@infradead.org; receiver=lists.ozlabs.org)
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=baohua@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hXf6131tzz2ygg
-	for <linux-erofs@lists.ozlabs.org>; Sun, 30 Aug 2026 14:19:37 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=Aq91nEzmhiWcCrw9x2W22xOz/ZEdIqQpE8kWR+O0NkA=; b=SXgE0M1yzk/4IOCBxbi6JCeibY
-	l/ZzAsS0d9y+MhWS2Zj9oR1xd6NyCOGh/uXFJXxsDD9xtXsFxzXDUTbwoYyo/r5vkaFA90qrevPzA
-	lcSx0f7Ff8JB4PB2wkE+34bN9lcF3sELubj2ZVBVVIerSOgz/TMjaYVTkk0ruejPn9ra/2ubKqhLW
-	ctO3gUBseMzwy+wqmQ1R2Fr2PyQcqg5BYkMS5LKClOhhCGxe1P18Ba7RoSizVxbOex3a5H+2Yow2J
-	Jh9eKWbRJUSE/07pvTMCiIrwGBZjrjspB9zentyvDPzibetEfrvZQpHdqArWGUVK9Yi3a/4OxIb8n
-	TXuImnLQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1x0X0Y-000000000hK-3Hg9;
-	Sun, 30 Aug 2026 04:19:02 +0000
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To: Christian Brauner <christian@brauner.io>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Jan Kara <jack@suse.cz>,
-	Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>,
-	"Theodore Tso" <tytso@mit.edu>,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	Hyunchul Lee <hyc.lee@gmail.com>,
-	Phillip Lougher <phillip@squashfs.org.uk>,
-	linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	ntfs@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org
-Subject: [PATCH 0/9] Remove FGP_NOFS
-Date: Sun, 30 Aug 2026 05:18:47 +0100
-Message-ID: <20260830041901.2668-1-willy@infradead.org>
-X-Mailer: git-send-email 2.54.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hXmGj6nstz2xT6
+	for <linux-erofs@lists.ozlabs.org>; Sun, 30 Aug 2026 18:57:33 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 308FF43ECC
+	for <linux-erofs@lists.ozlabs.org>; Sun, 30 Aug 2026 08:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 062D31F00ADE
+	for <linux-erofs@lists.ozlabs.org>; Sun, 30 Aug 2026 08:57:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788080251;
+	bh=029+faS5ZzWsov4hpcUm5x/4rseKLpq/BvplkVhE40Q=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=oqxJpBEt3n/PrGLolRfZZ7q7RTLGVwOKqEZrxdigyJmNaxBaixGYhIkZxi2c5aHwD
+	 zunXvrJiXLvdfJs1+0b3rPl0Y12AJ6soo/nCjQKUUc1BAfJfxfp9TUJdt6hnaVQ5Xv
+	 EOylIyrS38eh5Fzk+dcH48n0ojGUMd2gnf020FT3U/1Gcnp3OqcRsb6YSMxUiPJQDF
+	 8CefjlqcToWNeNbAvueJxf/Hsb0MyCeMlYp437F6XPwy4Crs8HHWbPfdJdUMQclMCk
+	 CPhTPBIGDk+KRETf7XulrJk+h2d4YVk2vmGBwsCXP8eRAnUKt7aRL6YxuvwEqPA/JQ
+	 9/X7BSHxiyo4g==
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-92ed3993c1eso121461485a.1
+        for <linux-erofs@lists.ozlabs.org>; Sun, 30 Aug 2026 01:57:30 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RqcJqb+gC2HTL1BJgHLS1ACDJ9FOsQzLyoSjFmBQc+nG4gbHcT1mlFrDRb8om+QS3jqIgGP4zM46G0BBA==@lists.ozlabs.org
+X-Gm-Message-State: AFuF++n0kRPn4hISSGqxYoZysPorN/NOsds9XBy4ZHm4aN7D8VMoRnLR
+	OSH2i1gVPz41LvOQkpcu483c+4sYKggcRVNR2wQrpP4RR8e/z9fwgfND4DYGuT1NPIbe3bAqDhy
+	ZSDYeS6HGf/e8ZNjPU4dCjWTVuR9IKug=
+X-Received: by 2002:a05:620a:5d83:b0:92f:279:5953 with SMTP id
+ af79cd13be357-939138ae01emr1707149385a.27.1788080250323; Sun, 30 Aug 2026
+ 01:57:30 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -75,52 +64,120 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260730-blk-dontcache-v7-0-3e8e6850068d@columbia.edu>
+ <20260730-blk-dontcache-v7-2-3e8e6850068d@columbia.edu> <CAGsJ_4wUvLoKGafR3U-ji1kUUaz6K_QdN6QxMT-apSaO5tXp0A@mail.gmail.com>
+ <6672b30b-427f-45ed-a172-4c47a63d2c7c@columbia.edu>
+In-Reply-To: <6672b30b-427f-45ed-a172-4c47a63d2c7c@columbia.edu>
+From: Barry Song <baohua@kernel.org>
+Date: Sun, 30 Aug 2026 16:57:18 +0800
+X-Gmail-Original-Message-ID: <CAGsJ_4y8tAh8A8pfi5TJEtPq-JMPjrLX4gCLvesmPNYuZdWCCA@mail.gmail.com>
+X-Gm-Features: AcwNN1UV9cGDBED4rxscU4sOzbiEGy-p9iJ4uD11AMCMxh60PQMZXIFRTunlV-4
+Message-ID: <CAGsJ_4y8tAh8A8pfi5TJEtPq-JMPjrLX4gCLvesmPNYuZdWCCA@mail.gmail.com>
+Subject: Re: [PATCH v7 2/5] block: add task-context bio completion infrastructure
+To: Tal Zussman <tz2294@columbia.edu>
+Cc: Jens Axboe <axboe@kernel.dk>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Christian Brauner <brauner@kernel.org>, "Darrick J. Wong" <djwong@kernel.org>, Carlos Maiolino <cem@kernel.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	Christoph Hellwig <hch@infradead.org>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>, 
+	Sandeep Dhavale <dhavale@google.com>, Hongbo Li <lihongbo22@huawei.com>, 
+	Chunhai Guo <guochunhai@vivo.com>, Dave Chinner <dgc@kernel.org>, 
+	Bart Van Assche <bvanassche@acm.org>, Hillf Danton <hdanton@sina.com>, 
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-erofs@lists.ozlabs.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-There is broad agreement that we should eliminate __GFP_FS in favour of
-using memalloc_nofs_save().  This is a small step in that direction by
-getting rid of FGP_NOFS.  It's also a nice simplification in its own right.
+On Sat, Aug 29, 2026 at 11:26=E2=80=AFPM Tal Zussman <tz2294@columbia.edu> =
+wrote:
+>
+> On 8/16/26 7:11 AM, Barry Song wrote:
+> > Hi Tal,
+> >
+> > Thanks very much for the patch. I=E2=80=99m just a bit confused that
+> > folio_end_dropbehind() only requires in_task(), and nothing more.
+> >
+> > void folio_end_dropbehind(struct folio *folio)
+> > {
+> >          if (!folio_test_dropbehind(folio))
+> >                  return;
+> >
+> >          /*
+> >           * Hitting !in_task() should not happen off RWF_DONTCACHE writ=
+eback,
+> >           * but can happen if normal writeback just happens to find dir=
+ty folios
+> >           * that were created as part of uncached writeback, and that w=
+riteback
+> >           * would otherwise not need non-IRQ handling. Just skip the
+> >           * invalidation in that case.
+> >           */
+> >          if (in_task() && folio_trylock(folio)) {
+> >                  filemap_end_dropbehind(folio);
+> >                  folio_unlock(folio);
+> >          }
+> > }
+> >
+> > But we=E2=80=99re applying a much stricter check with bio_in_atomic():
+> >
+> > +static inline bool bio_in_atomic(void)
+> > +{
+> > +     if (IS_ENABLED(CONFIG_PREEMPTION) && rcu_preempt_depth())
+> > +           return true;
+> > +     if (!IS_ENABLED(CONFIG_PREEMPT_COUNT))
+> > +           return true;
+> > +      return !preemptible();
+> > +}
+> >
+> > I feel like something may be missing either in
+> > folio_end_dropbehind() itself or somewhere in the
+> > filesystem/block-device path.
+> >
+> > Do you know why they don=E2=80=99t match each other?
+> >
+> > Best Regards
+> > Barry
+> >
+>
+> Hi Barry,
+>
+> Apologies for the delay.
+>
+> As far as I can tell, the in_task() in folio_end_dropbehind() wasn't mean=
+t
+> to be a generic test for if it's safe to sleep, but rather filtered out t=
+he
+> known unsafe case of buffer_head writeback completing from IRQ context.
+> In contrast, the bio_in_atomic() check needs to be stricter since the bi_=
+end_io()
+> callbacks could sleep or the callers could be holding locks, RCU, etc.
+>
+> I see there's some more discussion about this at [1], but I suspect there=
+ are
+> other instances that are (incorrectly) using in_task() as a proxy for bei=
+ng able
+> to sleep (like f2fs_read_end_io(), but I haven't looked too closely at it=
+).
+>
+> Additionally, it probably only makes sense to use bio_in_atomic() when th=
+ere's
+> some deferral path, since with CONFIG_PREEMPT_COUNT=3Dn, it'll always ret=
+urn true.
 
-I added the documentation improvement at the start of this series, not
-because anything depends on that (obviously it doesn't), but because
-I thought the existing documentation was rather MM centric and it needs
-to be FS centric.  Hopefully the cc'd filesystem maintainers will have
-the chance to look at patch 1 and see if it makes sense to them.
+Tal, thanks very much for your reply and the kind clarification. It
+seems you're right, and I think we should also use `bio_in_atomic()` in
+`folio_end_dropbehind()`.
 
-There's a few different solutions here:
+On the other hand, as I mentioned in another thread[1], I really feel that
+`bio_in_atomic()` has nothing to do with `bio` at all; it's really a
+scheduler thing. We may want to move it to the scheduler layer and
+discuss it there.
 
- - Filesystems specifying both FGP_NOWAIT and FGP_NOFS.  If you're not
-   waiting, it doesn't matter if you're allowed to reclaim from FS
-   context or not, you're just not doing reclaim.
- - We're already under memalloc_nofs.
- - We can prove that the MM should be allowed to reclaim from
-   filesystem memory (and so specifying FGP_NOFS was wrong).
- - We can add a call to memalloc_nofs_save().
+[1] https://lore.kernel.org/linux-mm/CAGsJ_4xxDpeaPv9Uh_1qsuXsMLkx+J0X=3D2V=
+6342idLFO5jkTBw@mail.gmail.com/
 
-Matthew Wilcox (Oracle) (9):
-  mm: Improve memalloc_nofs_save() documentation
-  ext4: Remove uses of FGP_NOFS
-  erofs: Remove redundant FGP_NOFS
-  nfs: Remove redundant FGP_NOFS
-  ntfs: Remove FGP_NOFS from __ntfs_inode_resident_attr_pwrite()
-  ntfs: Remove redundant FGP_NOFS from ntfs_wof_collect_dest()
-  squashfs: Remove use of FGP_NOFS
-  filemap: Remove redundant FGP_NOFS
-  filemap: Remove FGP_NOFS
-
- fs/erofs/internal.h      |  2 +-
- fs/ext4/inline.c         |  6 ++----
- fs/nfs/dir.c             |  2 +-
- fs/ntfs/inode.c          |  2 +-
- fs/ntfs/wof.c            |  7 +++----
- fs/squashfs/file.c       |  5 ++++-
- include/linux/pagemap.h  | 12 +++++-------
- include/linux/sched/mm.h | 31 +++++++++++++++++++++++--------
- mm/filemap.c             |  2 --
- mm/readahead.c           | 14 ++------------
- 10 files changed, 42 insertions(+), 41 deletions(-)
-
--- 
-2.47.3
-
+Best Regards
+Barry
 
