@@ -1,104 +1,45 @@
-Return-Path: <linux-erofs+bounces-4388-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4389-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B0A3CC61DD3
-	for <linux-erofs@archiver.kernel.org>; Mon, 31 Aug 2026 10:12:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B1D4C61DD3
+	for <linux-erofs@archiver.kernel.org>; Mon, 31 Aug 2026 12:32:56 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hYPtF0vbhz2y2f;
-	Mon, 31 Aug 2026 20:12:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=195.135.223.131
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788171125;
-	cv=none; b=oFhPqNf8jmu1yCiKB7H/2uciNm/3zR4AjeIAFbMfDhotFYcEdl00KOoCHU+czyXxQeCk75O3UKUlm3LLO6AKTnYV2dtZuxk3pwMkBUWVZ76PhT66j8KCzBXPMlMdQ0nJCgb6DAUsK4Mb7DbMX+0GHgRPY89OqUy4oxgvXGchi86/o0yxh991D9wmG5bCN5SnN+l4+MOnN3V4y62xQb9vM+1Om6NKgN+aVrK9Ri0JTkvdeVUghYPb7g4zEGJ5cYVuMmObmPdT5pSaAw7+SkIy28vmp30sRmWDNZrgvTd/YxnF2HM1SwHCI0pNIPiMEZP65OXowpLM5VWEI7Ee1hfzzQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hYT0k4b8mz2xpn;
+	Mon, 31 Aug 2026 22:32:54 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788179574;
+	cv=none; b=VTp7QbqhLUe0L2Ft6BL7zF7kJsaG5Rrc7wAnNcIoaa9UzuOZltuL2yR+9WKFh1PDCOaWDcG3nffKDP7rMy4Vbl6xC1kDVRXf7zPlPKzfwuWLanDJEOi/FYOMRQNL/4HCzP7Rqfp6TknFVTxnYDRf6c9G2xMXmJcodNEH8rko1aHfxPRtvnHBxjGZiG/sDWuJyN/18Nh7UnWseBxYGsgFZe23Wf5RW0seiRRl+0mYd2/BQIdEZ1OTmWo5S39KbQUpuIUhKtktXQuni93uQYyUDBjjHrnZR12CQT8ulOrI4IdyMZjUylReZYDy3cqpFzx1gtxNdObLgYLibWlFjL/zpQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788171125; c=relaxed/relaxed;
-	bh=L58Z7+BXjdSqb3Vh9n8TDNy2pZxNZI0wP+OuP60u9BQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M+3Y5/tf5u0Th0028K7W5CoUmclxDXiTMci23dBOTZJSoQpUNe3I3E2JlRk5xnQ8FoL0JcIkga60dcYhCrO2Jz7fephBwFhQlANy5NnDjVzTq9gTHXvH4nqLy7sq0wR0UZ55Y4S8HnfOG9xoHqEK532ZNl0k5u30y3ZKwsaLYXTs1klLfBPf2z6ElxQWCFjBAB7YFMU9d9HK+7XZrUCHkT/F5ZvmAYvKGmHF2m1Tw8sM061tu6OcRIb6FTv9s7UOt9v1D9ItoZTIvcJUaJVCnD9qzgbK2Ho78JtF3PGDLVKa42f5a/oXaZ2hFxqBLVA0bqocJzat0CJakk7GhlOQKw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz; dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=A1cs8iP+; dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=xjG79jMA; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=F+W7yegO; dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=o4nK9Cvo; dkim-atps=neutral; spf=pass (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org) smtp.mailfrom=suse.cz
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=suse.cz
+	t=1788179574; c=relaxed/relaxed;
+	bh=d7kMVnx2LblB7BHqjw+a56gGYnnF9uAQgrmNwvR5plE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cPhNRJKIqi2vB9U4UdF2dAlq1z1obAI2ZHukNCZIQriZszSvj8KhRUkOaOI1r4ES8czk55LuXtvZTByiLEeI72abMfoLrDmEmVfoiZadHHMAsBzIjwQiAaoY9NMvS3KAxnRXLunNL4hm9enA8Iwmer3IKth09v6S6+GYo7p45j0aj9H7KaG0lSeeb5cG26ZA7eSwBLd0DIemN4pFZz0tbCBYkYno5FcE1o5gHAo5rOZcjbVQxUYiPoZ7RaGNZd5EiD5EcFMUyTs33EeEy4y6SHFo8xQfvMsUnFYqy/+E/qBVYHwarTwn6qGLLHMaDaOASjHHte0hGApkrFeZ5Pu9cA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WmpDWcMe; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=libaokun@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=A1cs8iP+;
-	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=xjG79jMA;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=F+W7yegO;
-	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=o4nK9Cvo;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=WmpDWcMe;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=suse.cz (client-ip=195.135.223.131; helo=smtp-out2.suse.de; envelope-from=jack@suse.cz; receiver=lists.ozlabs.org)
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=libaokun@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hYPtD0sNJz2xLf
-	for <linux-erofs@lists.ozlabs.org>; Mon, 31 Aug 2026 20:12:03 +1000 (AEST)
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 481B11FB86;
-	Mon, 31 Aug 2026 10:11:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1788171116; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L58Z7+BXjdSqb3Vh9n8TDNy2pZxNZI0wP+OuP60u9BQ=;
-	b=A1cs8iP+Nvyyux++q0vtbMa3kH8cI64Ua+JXZ3doMv37YUyN6i6MUwvKScUqv4zGOiMkI7
-	0asjHhByYIBYKrlmWDoiALVvUNpDsELSmrdS1USnP8/tEalHdoZi5+h6Z24vA9kyVtLcpV
-	rNxkPYv1HgsK/oxX4nBFrN3DA0IXaOQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1788171116;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L58Z7+BXjdSqb3Vh9n8TDNy2pZxNZI0wP+OuP60u9BQ=;
-	b=xjG79jMAZv7ON1n3tUBENQUqE/7TTqLmTnH+VeBN7NN4zMK43kKnRIFXyBdPEaRq12IcEl
-	Fpi9bK3txwfCOEDg==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=F+W7yegO;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=o4nK9Cvo
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1788171112; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L58Z7+BXjdSqb3Vh9n8TDNy2pZxNZI0wP+OuP60u9BQ=;
-	b=F+W7yegO8lF8Zxf8amh5VWl6oahxp5Hh6GwJLyL/oKyRWViCy1g0WLDkRWUrSGrEiVOZiY
-	RYWcFc0LIHfuMC+s0ovTElTgB1fzA0qhPB52C0MwARE0f/73BFUC3CtiFoe0jMzqytECQL
-	QDjGbU1OEohAUkq3r3ybPCcbLXaawVs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1788171112;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=L58Z7+BXjdSqb3Vh9n8TDNy2pZxNZI0wP+OuP60u9BQ=;
-	b=o4nK9Cvoz6WVPfkrCSBPa+eFBQwLBoRiLh9TgJmTbXQL+N79z47Fy4WidY40CcLTKJEZ7X
-	T8j1Yzcrdhfiv3Dw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 2891C13682;
-	Mon, 31 Aug 2026 10:11:52 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id bZnlCWhTlWoXfQAAD6G6ig
-	(envelope-from <jack@suse.cz>); Mon, 31 Aug 2026 10:11:52 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id B8034A13B5; Mon, 31 Aug 2026 12:11:51 +0200 (CEST)
-Date: Mon, 31 Aug 2026 12:11:51 +0200
-From: Jan Kara <jack@suse.cz>
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: Christian Brauner <christian@brauner.io>, Jan Kara <jack@suse.cz>, 
-	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, Theodore Tso <tytso@mit.edu>, 
-	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
-	Namjae Jeon <linkinjeon@kernel.org>, Hyunchul Lee <hyc.lee@gmail.com>, 
-	Phillip Lougher <phillip@squashfs.org.uk>, linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
-	linux-ext4@vger.kernel.org, linux-nfs@vger.kernel.org, ntfs@lists.linux.dev, 
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 7/9] squashfs: Remove use of FGP_NOFS
-Message-ID: <kg2pupprlig5gqaqgjydpxfkrsi42bu2li6cingcmu3aidqhyp@afi5wxdrauk6>
-References: <20260830041901.2668-1-willy@infradead.org>
- <20260830041901.2668-8-willy@infradead.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hYT0f6ndGz2xLf
+	for <linux-erofs@lists.ozlabs.org>; Mon, 31 Aug 2026 22:32:48 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1788179561; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=d7kMVnx2LblB7BHqjw+a56gGYnnF9uAQgrmNwvR5plE=;
+	b=WmpDWcMeDT18m0AmkXO8QDGK2sYnHgGPTtyS4hLdv09g9gWiEasAJKsB37n5C2qEpBFWIg3Tth0dVWqvBrLIldYh9gdpN5lvpvRlGVY6SJCAOM9q1pBhFlrSZz3dZoBviUY/woq61fDp7/pxqLls+G0CBgfmgoU3cnvNCnCUPnA=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=libaokun@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0X9yvEG1_1788179558;
+Received: from 30.221.129.244(mailfrom:libaokun@linux.alibaba.com fp:SMTPD_---0X9yvEG1_1788179558 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 31 Aug 2026 20:32:39 +0800
+Message-ID: <156326be-7d4a-4bdf-b0c0-030dc951af2e@linux.alibaba.com>
+Date: Mon, 31 Aug 2026 20:32:38 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -110,91 +51,65 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260830041901.2668-8-willy@infradead.org>
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 481B11FB86
-X-Spamd-Result: default: False [-2.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[18];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_COUNT_THREE(0.00)[3];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCVD_TLS_LAST(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	MISSING_XM_UA(0.00)[];
-	FREEMAIL_CC(0.00)[brauner.io,suse.cz,kernel.org,mit.edu,gmail.com,squashfs.org.uk,lists.ozlabs.org,vger.kernel.org,lists.linux.dev,kvack.org];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[infradead.org:email,suse.cz:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:email]
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/9] ext4: Remove uses of FGP_NOFS
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Christian Brauner <christian@brauner.io>, Jan Kara <jack@suse.cz>,
+ Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+ Theodore Tso <tytso@mit.edu>, Trond Myklebust <trondmy@kernel.org>,
+ Anna Schumaker <anna@kernel.org>, Namjae Jeon <linkinjeon@kernel.org>,
+ Hyunchul Lee <hyc.lee@gmail.com>, Phillip Lougher <phillip@squashfs.org.uk>,
+ linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+ linux-ext4@vger.kernel.org, linux-nfs@vger.kernel.org, ntfs@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
+References: <20260830041901.2668-1-willy@infradead.org>
+ <20260830041901.2668-3-willy@infradead.org>
+Content-Language: en-US
+From: Baokun Li <libaokun@linux.alibaba.com>
+In-Reply-To: <20260830041901.2668-3-willy@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sun 30-08-26 05:18:54, Matthew Wilcox (Oracle) wrote:
-> Since we can allocate memory while holding a folio locked, we cannot
-> allow page reclaim to call into the filesystem and attempt to compact
-> the folio we're currently holding locked.  Use memalloc_nofs_save()
-> instead of FGP_NOFS here.
-> 
+On 2026/8/30 12:18, Matthew Wilcox (Oracle) wrote:
+> Both of these locations are called while a transaction is in progress.
+> Starting a transaction uses memalloc_nofs_save(), so we are already
+> prevented from recursing into the filesystem and using GFP_NOFS was
+> unnecessary.
+>
 > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+
+Looks good to me.
+
+Reviewed-by: Baokun Li <libaokun@linux.alibaba.com>
+
 > ---
->  fs/squashfs/file.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/squashfs/file.c b/fs/squashfs/file.c
-> index d83594ce91d2..34c550a266bc 100644
-> --- a/fs/squashfs/file.c
-> +++ b/fs/squashfs/file.c
-> @@ -398,6 +398,7 @@ void squashfs_copy_cache(struct folio *folio,
->  	struct squashfs_sb_info *msblk = inode->i_sb->s_fs_info;
->  	int i, mask = (1 << (msblk->block_log - PAGE_SHIFT)) - 1;
->  	int start_index = folio->index & ~mask, end_index = start_index | mask;
-> +	unsigned int nofs = memalloc_nofs_save();
-
-Why do you need this? The only allocation I can see is the one using
-FGP_NOWAIT below...
-
-								Honza
-
->  
->  	/*
->  	 * Loop copying datablock into pages.  As the datablock likely covers
-> @@ -415,7 +416,7 @@ void squashfs_copy_cache(struct folio *folio,
->  
->  		push_folio = (i == folio->index) ? folio :
->  			__filemap_get_folio(mapping, i,
-> -					FGP_LOCK|FGP_CREAT|FGP_NOFS|FGP_NOWAIT,
-> +					FGP_LOCK | FGP_CREAT | FGP_NOWAIT,
->  					mapping_gfp_mask(mapping));
->  
->  		if (IS_ERR(push_folio))
-> @@ -430,6 +431,8 @@ void squashfs_copy_cache(struct folio *folio,
->  		if (i != folio->index)
->  			folio_put(push_folio);
+>  fs/ext4/inline.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+>
+> diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
+> index ceee69a66482..1884abb09614 100644
+> --- a/fs/ext4/inline.c
+> +++ b/fs/ext4/inline.c
+> @@ -601,9 +601,7 @@ static int ext4_convert_inline_data_to_extent(struct address_space *mapping,
+>  		goto out;
 >  	}
-> +
-> +	memalloc_nofs_restore(nofs);
->  }
 >  
->  /* Read datablock stored packed inside a fragment (tail-end packed block) */
-> -- 
-> 2.47.3
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+> -	/* We cannot recurse into the filesystem as the transaction is already
+> -	 * started */
+> -	folio = __filemap_get_folio(mapping, 0, FGP_WRITEBEGIN | FGP_NOFS,
+> +	folio = __filemap_get_folio(mapping, 0, FGP_WRITEBEGIN,
+>  			mapping_gfp_mask(mapping));
+>  	if (IS_ERR(folio)) {
+>  		ret = PTR_ERR(folio);
+> @@ -734,7 +732,7 @@ int ext4_generic_write_inline_data(struct address_space *mapping,
+>  		goto out_release_bh;
+>  	}
+>  
+> -	folio = __filemap_get_folio(mapping, 0, FGP_WRITEBEGIN | FGP_NOFS,
+> +	folio = __filemap_get_folio(mapping, 0, FGP_WRITEBEGIN,
+>  					mapping_gfp_mask(mapping));
+>  	if (IS_ERR(folio)) {
+>  		ret = PTR_ERR(folio);
+
+
 
