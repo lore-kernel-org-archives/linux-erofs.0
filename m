@@ -1,51 +1,79 @@
-Return-Path: <linux-erofs+bounces-4397-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4398-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83ED8C61DFD
-	for <linux-erofs@archiver.kernel.org>; Tue,  1 Sep 2026 02:46:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2AF2BC624CE
+	for <linux-erofs@archiver.kernel.org>; Tue,  1 Sep 2026 05:56:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hYqxm1JbKz2yCv;
-	Tue, 01 Sep 2026 12:46:36 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.100
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788230796;
-	cv=none; b=hJMzdMxrMczKjUQ69i5B9MLadE1QDbOUuu9JWjRR1KRujP6XIOlaCYVJC7JA47H0Z9Mpx8Iv8iJeISpeFisuyX4kWRyt8hqZACI25eKTqQHOaIFMSSSYtUySTxDADElDjeyxxfzBAAMN5B4RNkOnzKVPqLwW3K1f1Po1W/7zaJkSSBNFB3b9GrxutsCrll0rcv1dzOONDCQm8OBGBThSrTjwjCNREtLqlqIadvlFbpLaLXEq2LxlmhOqUZKLVpJINGr9x+SQQiNOgMpau6V59lzrzowtCumcbQfiMhdN4U84PaTBjKlhQl06OYj3OvRPWMBUM1NEIPo05IYUswkjYg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hYw8Z6P0Rz2y2P;
+	Tue, 01 Sep 2026 15:56:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788242174;
+	cv=none; b=gI4J/3tX42h23KD3JrpGA3nZ+mh3Y3ti6EgoY8fRI9guRBvWx5oN4R55Nh03X6W2Sx9Adhw5/6JGdPJusw0Wm9MHYFe9wRpfFbQJ3GPZhI1G0UA/4dqVpybGmk68BzjcaJrp3HIcgRKE1iyzZ6nrYqD0RBFWazNEmAOgCy50j6ezk6LxE94x6l7/Gp0vbgG+Jmdj31Lpj5sAUGooClO+GJ6cZgPvdxxKIi5grkK2RhwjwcHAvzO6u+g9zBBVzHpXKkuGLA/zsLR5pYp3fFf8K3FNKljNH8tgTkOpj9RZ9WNul805RTLPix2DrltBxzqu6WlfBIqmM/z1Yk+twUYAcQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788230796; c=relaxed/relaxed;
-	bh=IyaV4kBdlXf7cBkSle+mYaQW1tk/WVCgk/l7xdb2q8w=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=IeUn1aZh5QoWGDFxJmEsS7mOX0GmegKlIg5oKVBOGMGIG6WPG8S7IOsVuV43H97zJqqmhehFSNPhiMC67Io3YpTls/RJYrLzrHPBO0Lxpb7JuyA3fsQzi/qYK72OJBWa8/2DEXJqFuOcQ3KNVHZwYkTzWS0zvmVTZOvQxzNz4R5jgIEK/mcJGBDOgfMfMWveBS/P/Aob3k8u9pyjGcpnCWXrcEwGYZgoY3jGtjQ88/cKTLewCsvceeqto8FQjltXwlyPJSsrcoJ11V4Zya1PLzxZ1hsumZdCq/cLnd7ovROqqkLyst5v5X/4hHCQ6OmFXUxZZ/Du9LY5vB3n51sy+w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YK30FSwW; dkim-atps=neutral; spf=pass (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1788242174; c=relaxed/relaxed;
+	bh=3Mnj837MmtIz++Lx3CjViaHZJuFNdZX481goDRHR5Jo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UPV7Lb8wZ58tFts4Iu0n23zOAi6UljUXiJA9YqosEl9nLGAyhNRI8Glad6Kt/otpEYsMLVjpkn5mTRQk5yvfxsOnfMbugpEW4ch1NHyFABvhS+UxMZ8CDXVllGU011EYCdH+zcB8+cTr5uh+K6KrdyTUYl+H07VtLMpA8m3reeodVkdsK0aSIuY4WLpeSru36zRLDFsMcREfqfe+RxBoA58sThQv/zI+snSZDFfqNMYrznpHoLh85GbGfCNKM4H/Xa+8fisZwAvITub+HETDq1uXA+xsZ+PF5Y4Iwih6hhbIeVjq6a9Dh3z7N5GJPc3HKK6hkwkMdu53UnoofKPkbQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ou7BODbI; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=YK30FSwW;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ou7BODbI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.100; helo=out30-100.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hYqxj13mTz2xpn
-	for <linux-erofs@lists.ozlabs.org>; Tue, 01 Sep 2026 12:46:30 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788230784; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=IyaV4kBdlXf7cBkSle+mYaQW1tk/WVCgk/l7xdb2q8w=;
-	b=YK30FSwW5sgQ6KHWS+pnZre4DJP6Q9P4rmFiK1TzoYGweRG14OZef+up6knJoRsJWZTNbdipeSs4+CTz0h4gJyYHTnD+No+vQsGe4tQw8brETUD7BejS5wUgepqM+ZkSuhWpVKAaG3RxPsBlNjhI0ULhRSokdhMfHeTDg1NR8Is=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R721e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0XA1RXuA_1788230782;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0XA1RXuA_1788230782 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 01 Sep 2026 10:46:22 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: xiang@kernel.org,
-	chao@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] erofs: add sysfs feature entry for xattr prefixes
-Date: Tue,  1 Sep 2026 10:46:22 +0800
-Message-Id: <20260901024622.108319-1-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hYw8Y4WNBz2y2B
+	for <linux-erofs@lists.ozlabs.org>; Tue, 01 Sep 2026 15:56:13 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id CC3FB40338;
+	Tue,  1 Sep 2026 05:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 494581F000E9;
+	Tue,  1 Sep 2026 05:56:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788242170;
+	bh=3Mnj837MmtIz++Lx3CjViaHZJuFNdZX481goDRHR5Jo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Ou7BODbIZicrSpeSM00EfOJQrJABefs9Kuf2EhFYV6gK2dq64CXKdSuL3RyZbLucK
+	 TPg17Tyz0+5ncdV6c1HL6WGWK3QRh4+wm6tY9EoV1ldMeb65SaokB3SYllaBh+BMU+
+	 k3fxxYQqKpob1eGKNeK6NERFb4+ExYOKE40Jru2B8rYntpuKlNuC0j8YO4qOVeoRfS
+	 0Gai2YDP4tJxaz3XlpWyH0B+gdt6KErKtSPMpBpFla9M4/VF7fFDFR9rb7sXCytJmv
+	 hvNVEuFK2QwrR66uR+fQsxbPPuwkUO9XsB0pubH/TfXp4lry7WXlo5qdiAM9FijGEM
+	 OmAyFu0d6q/4A==
+Date: Tue, 1 Sep 2026 13:55:42 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Christian Brauner <christian@brauner.io>, Jan Kara <jack@suse.cz>,
+	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Theodore Tso <tytso@mit.edu>, Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	Hyunchul Lee <hyc.lee@gmail.com>,
+	Phillip Lougher <phillip@squashfs.org.uk>,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-ext4@vger.kernel.org, linux-nfs@vger.kernel.org,
+	ntfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: Re: [PATCH 3/9] erofs: Remove redundant FGP_NOFS
+Message-ID: <apZo3lDaDp3hQhRq@XiangdeMacBook-Pro.local>
+Mail-Followup-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	Christian Brauner <christian@brauner.io>, Jan Kara <jack@suse.cz>,
+	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
+	Theodore Tso <tytso@mit.edu>, Trond Myklebust <trondmy@kernel.org>,
+	Anna Schumaker <anna@kernel.org>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	Hyunchul Lee <hyc.lee@gmail.com>,
+	Phillip Lougher <phillip@squashfs.org.uk>,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-ext4@vger.kernel.org, linux-nfs@vger.kernel.org,
+	ntfs@lists.linux.dev, linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20260830041901.2668-1-willy@infradead.org>
+ <20260830041901.2668-4-willy@infradead.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,37 +85,18 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260830041901.2668-4-willy@infradead.org>
 
-Let /sys/fs/erofs/features/xattr_prefixes advertise that this kernel
-supports the EROFS_FEATURE_INCOMPAT_XATTR_PREFIXES on-disk format.
+On Sun, Aug 30, 2026 at 05:18:50AM +0100, Matthew Wilcox (Oracle) wrote:
+> The flags already include FGP_NOWAIT which prohibits all reclaim, not
+> just reclaiming from the filesystem.
+> 
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- fs/erofs/sysfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+Reviewed-by: Gao Xiang <xiang@kernel.org>
 
-diff --git a/fs/erofs/sysfs.c b/fs/erofs/sysfs.c
-index 6734483a440f..dfcec9376cd5 100644
---- a/fs/erofs/sysfs.c
-+++ b/fs/erofs/sysfs.c
-@@ -95,6 +95,7 @@ EROFS_ATTR_FEATURE(sb_chksum);
- EROFS_ATTR_FEATURE(ztailpacking);
- EROFS_ATTR_FEATURE(fragments);
- EROFS_ATTR_FEATURE(dedupe);
-+EROFS_ATTR_FEATURE(xattr_prefixes);
- EROFS_ATTR_FEATURE(48bit);
- EROFS_ATTR_FEATURE(metabox);
- 
-@@ -108,6 +109,7 @@ static struct attribute *erofs_feat_attrs[] = {
- 	ATTR_LIST(ztailpacking),
- 	ATTR_LIST(fragments),
- 	ATTR_LIST(dedupe),
-+	ATTR_LIST(xattr_prefixes),
- 	ATTR_LIST(48bit),
- 	ATTR_LIST(metabox),
- 	NULL,
--- 
-2.19.1.6.gb485710b
-
+Thanks,
+Gao Xiang
 
