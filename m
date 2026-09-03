@@ -1,100 +1,70 @@
-Return-Path: <linux-erofs+bounces-4462-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4463-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4B8DC61DD6
-	for <linux-erofs@archiver.kernel.org>; Wed,  2 Sep 2026 17:39:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1EDFDC61DD3
+	for <linux-erofs@archiver.kernel.org>; Thu,  3 Sep 2026 05:58:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hZqj23p05z2xlv;
-	Thu, 03 Sep 2026 03:39:02 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788370742;
-	cv=none; b=G7moS3Walm9Mw1bZbDbX+8sO9qhpfxGNed46bwhuoTxthYhmhKbunnX2r8VunXLoZnL9b3GHRNWI5P1jFq261sRJQflr+/LgFSRRsIjrXX6830if9625ZhVIND7C1bpplLHERDiYb3ATdOg9pqvcVAUuIFDXuU3rQ+QjS4W7YLOB0vuCQQvwWcT5YIIUZcTMG+hyqe89worFxX2vpPzu9ACk/gdyj3hrnBy2mWdLMcH3DcQY/DQuQuKiVO/ZjUBlYUzfrS8jfVUEs1qE8shjMkCOZlnhYOmFf+2RXxFj4a+xchWjM/vtee2s8UDL1USenjgrw6hVFsdMQ9DaKqI5yg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hb85y05XQz2y8p;
+	Thu, 03 Sep 2026 15:58:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=198.175.65.10
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788415093;
+	cv=none; b=UeuUUTyjiPsrfT54lBR76PdFyEVweM8fqsGemeGm8ta03kfr3R+eXFAXLuGlRcn7MP0LDTPGi/sYYIJLlrFL4wpa0I6l7nryDRtjqSE+3XPLT30kEfctMdQg7F7Xi1BxZ0C2/BMQNJ8vQEeIY1hl5mo/Sgu4j9OyFQFTarDGYUkg3HpO8qwN5pq8yimXCrZfsSY1t60ahWCLsqqem8KNMROW3aAUhF9snHkz3yzZEjoJ0bc9j1Orn3E1e4XX7j30sOkQcySsyL8hkoqAUz9RAal2yizxo8KegS9oI2wrBJDM81RltKv+trbvyhzNdUJXooSD+E2es2/cC86ChGb9iw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788370742; c=relaxed/relaxed;
-	bh=SbbONJHaUDhDkGGWK9BkP7IsF+RViURMz0/NQExnPJo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=Wc859EOQptkZVJ2ZPhVrjke1nmCmpiDwGX3E+oupCeLtQQaDMSV+gBL/bLYdzAgJwx8qMffQHJbrVey+vzXsaJhIa22s4NQ5YTN0LESSL4232PdpuTYxgkqNyyPgmugRe3qpV0D7mOMj0OosusBL37L+kfqlZ0Dz9fw1Q2U/4GvXcmJc4sVNaYxfXCR3jTpVY9HlN9Y4ka6IQtIzVtkhJu3vAUJSrZtmM+42H6PcPP3Bvnsct1hLgfDHS0lEJcg8GLyDcluvuyBERDIETQycgfh2ZzZwqppxiJ4R9VCQvHx99+Z92KU4qlwLSlPYS3QgSf9ink8npPkBx4nUqCtWyg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZjJMpj5q; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZjJMpj5q; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1788415093; c=relaxed/relaxed;
+	bh=dHBdkyeBKadXP/ANicgGTrrttkcLUnipW/hGXWm4fck=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=c1Itxz2gHzwGtKCDqx6Z1kEeqpGfHiSiZuQAIcPPb9DGDDb9jIx/0Si4/NNyvUDqcCMp7PmvO1GYyKHXQwANRCiGTleZOTDSH0nLexZJIRq9EYOOlcObbJjLR1lsTT5NOcEDJfIizuYpWI+tGdmRVcBFLvYH2xtN5RChA8isppW6NETTtVKGszCtZuKW7jd5ZX8KsU2EJjnm5V3B+oKXwDgkQWbccresO6RLKCd2UYuJxW8jLt5hbC7y/rY2gEOQ/f8faMolg0CzkdlrmgyJbJ53iTi0ox7BxzTBTq/yLAS18aOO3uddA1i3J51FH+RscmO8s4S+NfAyojLoF66tAA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lzSjL9Oa; dkim-atps=neutral; spf=pass (client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZjJMpj5q;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZjJMpj5q;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=lzSjL9Oa;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=198.175.65.10; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hZqj11MKwz2xl6
-	for <linux-erofs@lists.ozlabs.org>; Thu, 03 Sep 2026 03:39:00 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788370738;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SbbONJHaUDhDkGGWK9BkP7IsF+RViURMz0/NQExnPJo=;
-	b=ZjJMpj5qcGW5+P9lniabSJ7fCHo09zzJJ4bhtTKS+/rzzk9u/KOcEFUK5IElNA1ZVhPLjE
-	dof0VCqRSke/9eiMjjlUBbvBI+3xwemAlOock8tnHg/xk/rIZUomeIYsK/Bp4g+YiR+69f
-	maCEQ1xhFSYyBp/oDrFDMlP7Jzqr7YY=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788370738;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SbbONJHaUDhDkGGWK9BkP7IsF+RViURMz0/NQExnPJo=;
-	b=ZjJMpj5qcGW5+P9lniabSJ7fCHo09zzJJ4bhtTKS+/rzzk9u/KOcEFUK5IElNA1ZVhPLjE
-	dof0VCqRSke/9eiMjjlUBbvBI+3xwemAlOock8tnHg/xk/rIZUomeIYsK/Bp4g+YiR+69f
-	maCEQ1xhFSYyBp/oDrFDMlP7Jzqr7YY=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-694-8jYihk-xMcWohK_zZMUEbw-1; Wed,
- 02 Sep 2026 13:38:53 -0400
-X-MC-Unique: 8jYihk-xMcWohK_zZMUEbw-1
-X-Mimecast-MFC-AGG-ID: 8jYihk-xMcWohK_zZMUEbw_1788370730
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9A41E195604B;
-	Wed,  2 Sep 2026 17:38:50 +0000 (UTC)
-Received: from warthog.com (unknown [10.44.32.158])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B35D11955F02;
-	Wed,  2 Sep 2026 17:38:44 +0000 (UTC)
-From: David Howells <dhowells@redhat.com>
-To: Paulo Alcantara <pc@manguebit.org>
-Cc: David Howells <dhowells@redhat.com>,
-	Christian Brauner <christian@brauner.io>,
-	Matthew Wilcox <willy@infradead.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Jens Axboe <axboe@kernel.dk>,
-	Leon Romanovsky <leon@kernel.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	ChenXiaoSong <chenxiaosong@chenxiaosong.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Stefan Metzmacher <metze@samba.org>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	netfs@lists.linux.dev,
-	linux-afs@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	ceph-devel@vger.kernel.org,
-	v9fs@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v11 36/36] cachefiles: Preset the state xattr when creating a new file
-Date: Wed,  2 Sep 2026 18:33:48 +0100
-Message-ID: <20260902173350.3468672-37-dhowells@redhat.com>
-In-Reply-To: <20260902173350.3468672-1-dhowells@redhat.com>
-References: <20260902173350.3468672-1-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hb85t287dz2y2W
+	for <linux-erofs@lists.ozlabs.org>; Thu, 03 Sep 2026 15:58:07 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1788415091; x=1819951091;
+  h=date:from:to:cc:subject:message-id;
+  bh=4dRMWHlXlUsJZgkuYC6stPRbZP1c4lwT2dPAPosPgL4=;
+  b=lzSjL9Oa3X6y4pR07fu6mLBKEL8U6XKXZlHzoEAyvLoGxxlRh/7Lrb62
+   diU4ms8pB4Wpo5AgS4Q/5oiIJDwUSZgKteuxoeTvkZLwrr9K7BG6h2eyN
+   pTZ/ZU05sW22hs8qoSWZYGQxeuS+JO98Nh8wHO+Ky6P9b5m4KuWKaTqaz
+   4sHeWZ+ybMB7MWZwe8ekzhJwhU8eCuIdVe22IqjN6plZywmA/JPZWPCtZ
+   1I8wSsMEl+a6eAtxIOytJabo+g3R+eUYkbAbt047sdsc7W7DuldQmRvCd
+   PrGURLzUpOzJ+ETK+ALHwi7R6gvC4R620mDN1P5AXbysKjzK0yVUP5EJ7
+   w==;
+X-CSE-ConnectionGUID: saVfI9l3RTK8TSjyxuHcYQ==
+X-CSE-MsgGUID: iok0keSMS/OdY1avv08emw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11894"; a="106250787"
+X-IronPort-AV: E=Sophos;i="6.25,258,1779174000"; 
+   d="scan'208";a="106250787"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2026 22:58:03 -0700
+X-CSE-ConnectionGUID: j3gJ4GpdS5agoXHQZ3neeA==
+X-CSE-MsgGUID: V9Y7Bw0xT8SkpxaA+alNbA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,258,1779174000"; 
+   d="scan'208";a="271576127"
+Received: from lkp-server01.sh.intel.com (HELO bfac249b2189) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 02 Sep 2026 22:58:01 -0700
+Received: from kbuild by bfac249b2189 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x20SU-000000004CW-2rWw;
+	Thu, 03 Sep 2026 05:57:58 +0000
+Date: Thu, 03 Sep 2026 13:57:42 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <xiang@kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 617d0d8d199ba1790c94310fd75a22d01c97a8d6
+Message-ID: <202609031338.LZel8cLk-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -105,324 +75,94 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: HOvCIR4B3P5M9wmGaW8mySuufZZPMpdmJOuKOXehBrY_1788370730
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-With a really small cache, cachefiles is likely to see a lot of writes
-hitting ENOSPC - and this can include setxattr that sets the state xattr on
-a cachefile - but we don't really want to successfully fill a cache file
-only to have to scrap it because we can't set the xattr.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 617d0d8d199ba1790c94310fd75a22d01c97a8d6  erofs: preserve LZMA decoders on resize failure
 
-Instead, preset the xattr when we create the tmpfile we're going to use,
-and scrap the file at that point if we get ENOSPC.  Only if setxattr
-succeeds do we allow data to be written to the file.
+elapsed time: 1622m
 
-Note that there is a potential performance loss in that writes to the cache
-have to be delayed until this is completed - but we do the tmpfile/setxattr
-in parallel, starting when the file is opened and only have to wait once
-writeback occurs.
+configs tested: 73
+configs skipped: 0
 
-Further, a new tracepoint, cachefiles_no_space, has been added to log ENOSPC
-events, along with a couple of subreq traces to log failure detection in
-netfslib.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: Paulo Alcantara <pc@manguebit.org>
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
----
- fs/cachefiles/internal.h          |  1 +
- fs/cachefiles/io.c                | 23 ++++++++----
- fs/cachefiles/namei.c             | 15 ++++++--
- fs/cachefiles/xattr.c             | 59 ++++++++++++++++++++++++++++++-
- include/trace/events/cachefiles.h | 30 +++++++++++++++-
- include/trace/events/netfs.h      |  2 ++
- 6 files changed, 120 insertions(+), 10 deletions(-)
+tested configs:
+alpha         allnoconfig    gcc-16.1.0
+alpha        allyesconfig    gcc-16.1.0
+arc          allmodconfig    gcc-16.1.0
+arc           allnoconfig    gcc-16.1.0
+arc          allyesconfig    clang-24
+arc          allyesconfig    gcc-16.1.0
+arm           allnoconfig    clang-17
+arm           allnoconfig    gcc-16.1.0
+arm          allyesconfig    gcc-16.1.0
+arm64        allmodconfig    clang-24
+arm64         allnoconfig    gcc-16.1.0
+csky         allmodconfig    gcc-16.1.0
+csky          allnoconfig    gcc-16.1.0
+hexagon      allmodconfig    clang-24
+hexagon      allmodconfig    gcc-16.1.0
+hexagon       allnoconfig    clang-24
+hexagon       allnoconfig    gcc-16.1.0
+i386         allmodconfig    clang-22
+i386          allnoconfig    gcc-14
+i386          allnoconfig    gcc-16.1.0
+i386         allyesconfig    clang-22
+loongarch    allmodconfig    clang-19
+loongarch    allmodconfig    clang-24
+loongarch     allnoconfig    clang-20
+loongarch     allnoconfig    gcc-16.1.0
+m68k         allmodconfig    gcc-16.1.0
+m68k          allnoconfig    gcc-16.1.0
+m68k         allyesconfig    gcc-16.1.0
+microblaze    allnoconfig    gcc-16.1.0
+microblaze   allyesconfig    gcc-16.1.0
+mips         allmodconfig    gcc-16.1.0
+mips          allnoconfig    gcc-16.1.0
+mips         allyesconfig    gcc-16.1.0
+nios2        allmodconfig    gcc-11.5.0
+nios2         allnoconfig    clang-24
+nios2         allnoconfig    gcc-11.5.0
+openrisc     allmodconfig    gcc-16.1.0
+openrisc      allnoconfig    clang-24
+openrisc      allnoconfig    gcc-16.1.0
+parisc       allmodconfig    gcc-16.1.0
+parisc        allnoconfig    clang-24
+parisc        allnoconfig    gcc-16.1.0
+parisc       allyesconfig    gcc-16.1.0
+powerpc      allmodconfig    gcc-16.1.0
+powerpc       allnoconfig    clang-24
+powerpc       allnoconfig    gcc-16.1.0
+riscv        allmodconfig    clang-24
+riscv         allnoconfig    clang-24
+riscv         allnoconfig    gcc-16.1.0
+riscv        allyesconfig    clang-24
+s390         allmodconfig    clang-24
+s390          allnoconfig    clang-24
+s390         allyesconfig    gcc-16.1.0
+sh           allmodconfig    gcc-16.1.0
+sh            allnoconfig    clang-24
+sh            allnoconfig    gcc-16.1.0
+sh           allyesconfig    gcc-16.1.0
+sparc         allnoconfig    clang-24
+sparc         allnoconfig    gcc-16.1.0
+sparc64      allmodconfig    clang-20
+um           allmodconfig    clang-17
+um            allnoconfig    clang-17
+um            allnoconfig    clang-24
+um           allyesconfig    gcc-14
+um           allyesconfig    gcc-16.1.0
+x86_64       allmodconfig    clang-22
+x86_64        allnoconfig    clang-22
+x86_64        allnoconfig    clang-24
+x86_64       allyesconfig    clang-22
+x86_64      rhel-9.4-rust    clang-22
+xtensa        allnoconfig    clang-24
+xtensa        allnoconfig    gcc-16.1.0
+xtensa       allyesconfig    gcc-16.1.0
 
-diff --git a/fs/cachefiles/internal.h b/fs/cachefiles/internal.h
-index b2605111fd56..664be64ab538 100644
---- a/fs/cachefiles/internal.h
-+++ b/fs/cachefiles/internal.h
-@@ -283,6 +283,7 @@ void cachefiles_withdraw_volume(struct cachefiles_volume *volume);
- /*
-  * xattr.c
-  */
-+int cachefiles_preset_object_xattr(struct cachefiles_object *object, struct file *file);
- extern int cachefiles_set_object_xattr(struct cachefiles_object *object);
- extern int cachefiles_check_auxdata(struct cachefiles_object *object,
- 				    struct file *file);
-diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
-index a1580385d5fb..73c8ba01a9e2 100644
---- a/fs/cachefiles/io.c
-+++ b/fs/cachefiles/io.c
-@@ -672,10 +672,14 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
- 	 * space, we need to see if it's fully allocated.  If it's not, we may
- 	 * want to cull it.
- 	 */
--	if (cachefiles_has_space(cache, 0, *_len / cache->bsize,
--				 cachefiles_has_space_check) == 0)
-+	ret = cachefiles_has_space(cache, 0, *_len / cache->bsize,
-+				   cachefiles_has_space_check);
-+	if (ret == 0)
- 		return 0; /* Enough space to simply overwrite the whole block */
- 
-+	if (ret == -ENOBUFS)
-+		trace_cachefiles_no_space(object, cachefiles_trace_write_nospace_2);
-+
- 	pos = cachefiles_inject_read_error();
- 	if (pos == 0)
- 		pos = vfs_llseek(file, start, SEEK_HOLE);
-@@ -704,8 +708,11 @@ int __cachefiles_prepare_write(struct cachefiles_object *object,
- 	return ret;
- 
- check_space:
--	return cachefiles_has_space(cache, 0, *_len / cache->bsize,
--				    cachefiles_has_space_for_write);
-+	ret = cachefiles_has_space(cache, 0, *_len / cache->bsize,
-+				   cachefiles_has_space_for_write);
-+	if (ret == -ENOBUFS)
-+		trace_cachefiles_no_space(object, cachefiles_trace_write_nospace);
-+	return ret;
- }
- 
- static int cachefiles_prepare_write_old(struct netfs_cache_resources *cres,
-@@ -757,10 +764,14 @@ static int cachefiles_issue_write(struct netfs_io_subrequest *subreq)
- 	       wreq->debug_id, subreq->debug_index, start, start + len - 1);
- 
- 	if (!cachefiles_cres_file(cres)) {
--		if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE))
-+		if (!fscache_wait_for_operation(cres, FSCACHE_WANT_WRITE)) {
-+			trace_netfs_sreq(subreq, netfs_sreq_trace_cache_waitfail);
- 			return -ENOBUFS;
--		if (!cachefiles_cres_file(cres))
-+		}
-+		if (!cachefiles_cres_file(cres)) {
-+			trace_netfs_sreq(subreq, netfs_sreq_trace_cache_nofile);
- 			return -ENOBUFS;
-+		}
- 	}
- 
- 	ret = netfs_prepare_write_buffer(subreq, BIO_MAX_VECS);
-diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
-index a30df0f91e5e..ef656a319ede 100644
---- a/fs/cachefiles/namei.c
-+++ b/fs/cachefiles/namei.c
-@@ -117,8 +117,11 @@ struct dentry *cachefiles_get_directory(struct cachefiles_cache *cache,
- 	if (d_is_negative(subdir)) {
- 		ret = cachefiles_has_space(cache, 1, 0,
- 					   cachefiles_has_space_for_create);
--		if (ret < 0)
-+		if (ret < 0) {
-+			if (ret == -ENOBUFS)
-+				trace_cachefiles_no_space(NULL, cachefiles_trace_mkdir_nospace);
- 			goto mkdir_error;
-+		}
- 
- 		_debug("attempt mkdir");
- 
-@@ -447,6 +450,11 @@ struct file *cachefiles_create_tmpfile(struct cachefiles_object *object)
- 		pr_notice("Cache does not support read_iter and write_iter\n");
- 		goto err_unuse;
- 	}
-+
-+	/* Preallocate space for the xattr. */
-+	ret = cachefiles_preset_object_xattr(object, file);
-+	if (ret < 0)
-+		goto err_unuse;
- out:
- 	cachefiles_end_secure(cache, saved_cred);
- 	object->content_info = CACHEFILES_CONTENT_ALL;
-@@ -470,8 +478,11 @@ static bool cachefiles_create_file(struct cachefiles_object *object)
- 
- 	ret = cachefiles_has_space(object->volume->cache, 1, 0,
- 				   cachefiles_has_space_for_create);
--	if (ret < 0)
-+	if (ret < 0) {
-+		if (ret == -ENOBUFS)
-+			trace_cachefiles_no_space(object, cachefiles_trace_create_nospace);
- 		return false;
-+	}
- 
- 	file = cachefiles_create_tmpfile(object);
- 	if (IS_ERR(file))
-diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
-index 551a3b0069c2..8ebb713482e3 100644
---- a/fs/cachefiles/xattr.c
-+++ b/fs/cachefiles/xattr.c
-@@ -34,6 +34,57 @@ struct cachefiles_vol_xattr {
- 	__u8	data[];		/* netfs volume coherency data */
- } __packed;
- 
-+/*
-+ * Preset the state xattr on a cache file to allocate space for it.
-+ */
-+int cachefiles_preset_object_xattr(struct cachefiles_object *object, struct file *file)
-+{
-+	struct cachefiles_xattr *buf;
-+	struct dentry *dentry = file->f_path.dentry;
-+	unsigned int len = object->cookie->aux_len;
-+	int ret;
-+
-+	buf = kzalloc(sizeof(struct cachefiles_xattr) + min(len, sizeof(__be64)), GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	buf->type		= CACHEFILES_COOKIE_TYPE_DATA;
-+	buf->content		= CACHEFILES_CONTENT_DIRTY;
-+
-+	ret = cachefiles_inject_write_error();
-+	if (ret == 0) {
-+		ret = mnt_want_write_file(file);
-+		if (ret == 0) {
-+			ret = vfs_setxattr(&nop_mnt_idmap, dentry,
-+					   cachefiles_xattr_cache, buf,
-+					   sizeof(struct cachefiles_xattr) + len, 0);
-+			mnt_drop_write_file(file);
-+		}
-+	}
-+	if (ret < 0) {
-+		trace_cachefiles_vfs_error(object, file_inode(file), ret,
-+					   cachefiles_trace_setxattr_error);
-+		trace_cachefiles_coherency(object, file_inode(file)->i_ino,
-+					   object->object_size,
-+					   buf->data, buf->content,
-+					   cachefiles_coherency_set_fail);
-+		switch (ret) {
-+		case -ENOMEM:
-+		case -ENOSPC:
-+			break;
-+		default:
-+			cachefiles_io_error_obj(
-+				object,
-+				"Failed to set xattr with error %d", ret);
-+			break;
-+		}
-+	}
-+
-+	kfree(buf);
-+	_leave(" = %d", ret);
-+	return ret;
-+}
-+
- /*
-  * set the state xattr on a cache file
-  */
-@@ -82,10 +133,16 @@ int cachefiles_set_object_xattr(struct cachefiles_object *object)
- 		trace_cachefiles_coherency(object, file_inode(file)->i_ino,
- 					   object_size, buf->data, buf->content,
- 					   cachefiles_coherency_set_fail);
--		if (ret != -ENOMEM)
-+		switch (ret) {
-+		case -ENOMEM:
-+			break;
-+		case -ENOSPC:
-+		default:
- 			cachefiles_io_error_obj(
- 				object,
- 				"Failed to set xattr with error %d", ret);
-+			break;
-+		}
- 	} else {
- 		trace_cachefiles_coherency(object, file_inode(file)->i_ino,
- 					   object_size, buf->data, buf->content,
-diff --git a/include/trace/events/cachefiles.h b/include/trace/events/cachefiles.h
-index 61007729e55f..a19233e8ae78 100644
---- a/include/trace/events/cachefiles.h
-+++ b/include/trace/events/cachefiles.h
-@@ -85,11 +85,13 @@ enum cachefiles_prepare_read_trace {
- 
- enum cachefiles_error_trace {
- 	cachefiles_trace_alignment_error,
-+	cachefiles_trace_create_nospace,
- 	cachefiles_trace_fallocate_error,
- 	cachefiles_trace_getxattr_error,
- 	cachefiles_trace_link_error,
- 	cachefiles_trace_lookup_error,
- 	cachefiles_trace_mkdir_error,
-+	cachefiles_trace_mkdir_nospace,
- 	cachefiles_trace_notify_change_error,
- 	cachefiles_trace_open_error,
- 	cachefiles_trace_read_error,
-@@ -102,6 +104,8 @@ enum cachefiles_error_trace {
- 	cachefiles_trace_trunc_error,
- 	cachefiles_trace_unlink_error,
- 	cachefiles_trace_write_error,
-+	cachefiles_trace_write_nospace,
-+	cachefiles_trace_write_nospace_2,
- };
- 
- #endif
-@@ -171,11 +175,13 @@ enum cachefiles_error_trace {
- 
- #define cachefiles_error_traces						\
- 	EM(cachefiles_trace_alignment_error,	"align")		\
-+	EM(cachefiles_trace_create_nospace,	"create-nospace")	\
- 	EM(cachefiles_trace_fallocate_error,	"fallocate")		\
- 	EM(cachefiles_trace_getxattr_error,	"getxattr")		\
- 	EM(cachefiles_trace_link_error,		"link")			\
- 	EM(cachefiles_trace_lookup_error,	"lookup")		\
- 	EM(cachefiles_trace_mkdir_error,	"mkdir")		\
-+	EM(cachefiles_trace_mkdir_nospace,	"mkdir-nospace")	\
- 	EM(cachefiles_trace_notify_change_error, "notify_change")	\
- 	EM(cachefiles_trace_open_error,		"open")			\
- 	EM(cachefiles_trace_read_error,		"read")			\
-@@ -187,7 +193,9 @@ enum cachefiles_error_trace {
- 	EM(cachefiles_trace_tmpfile_error,	"tmpfile")		\
- 	EM(cachefiles_trace_trunc_error,	"trunc")		\
- 	EM(cachefiles_trace_unlink_error,	"unlink")		\
--	E_(cachefiles_trace_write_error,	"write")
-+	EM(cachefiles_trace_write_error,	"write")		\
-+	EM(cachefiles_trace_write_nospace,	"write-nospace")	\
-+	E_(cachefiles_trace_write_nospace_2,	"write-nospace-2")
- 
- 
- /*
-@@ -707,6 +715,26 @@ TRACE_EVENT(cachefiles_io_error,
- 		      __entry->error)
- 	    );
- 
-+TRACE_EVENT(cachefiles_no_space,
-+	    TP_PROTO(struct cachefiles_object *obj, enum cachefiles_error_trace trace),
-+
-+	    TP_ARGS(obj, trace),
-+
-+	    TP_STRUCT__entry(
-+		    __field(unsigned int,			obj)
-+		    __field(enum cachefiles_error_trace,	trace)
-+			     ),
-+
-+	    TP_fast_assign(
-+		    __entry->obj	= obj ? obj->debug_id : 0;
-+		    __entry->trace	= trace;
-+			   ),
-+
-+	    TP_printk("o=%08x %s",
-+		      __entry->obj,
-+		      __print_symbolic(__entry->trace, cachefiles_error_traces))
-+	    );
-+
- #endif /* _TRACE_CACHEFILES_H */
- 
- /* This part must be outside protection */
-diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
-index f43a212e4a79..8dad2211a2d7 100644
---- a/include/trace/events/netfs.h
-+++ b/include/trace/events/netfs.h
-@@ -102,8 +102,10 @@
- 	EM(netfs_sreq_trace_abandoned,		"ABNDN")	\
- 	EM(netfs_sreq_trace_add_donations,	"+DON ")	\
- 	EM(netfs_sreq_trace_added,		"ADD  ")	\
-+	EM(netfs_sreq_trace_cache_nofile,	"CA-!F")	\
- 	EM(netfs_sreq_trace_cache_nowrite,	"CA-NW")	\
- 	EM(netfs_sreq_trace_cache_prepare,	"CA-PR")	\
-+	EM(netfs_sreq_trace_cache_waitfail,	"CA-!W")	\
- 	EM(netfs_sreq_trace_cache_write,	"CA-WR")	\
- 	EM(netfs_sreq_trace_cancel,		"CANCL")	\
- 	EM(netfs_sreq_trace_clear,		"CLEAR")	\
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
