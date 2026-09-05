@@ -1,81 +1,81 @@
-Return-Path: <linux-erofs+bounces-4479-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4480-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29852C624DB
-	for <linux-erofs@archiver.kernel.org>; Sat,  5 Sep 2026 08:45:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B58DC624DB
+	for <linux-erofs@archiver.kernel.org>; Sat,  5 Sep 2026 12:09:13 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hcRk320kgz2ygW;
-	Sat, 05 Sep 2026 18:45:31 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::62b"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788597931;
-	cv=none; b=izuEkxa1V3agvoh9RAjv/ssY/HP+M+zjYmMuP77VIlhbV7HpBIatfp4Qwc81h33qgJowvzHcfW2r4GXJJjji6VDmMQ0ahCVJHTl3LdSRLRijoUvwBB+PMirmaIlZWt6RY4IvJux2iDMQZPv8OISJauEeAiGu9BRS0odty++r49bcOTaEOzSLvirjW4+gdSxBnUywGxSi1eeQu1U5btxbw7lzv9r9iq58sVe1dEa1PO7dogOLaONr9jYgyD5vmDybh5EwKhxgLV3vpElNpfwGzy9uNmURBiKPoLsirk/P8XmIHjnDXA/M3Nwbvm7dC9VymBfqtrCUYFrcE4iRgGusPQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hcXF31lYfz2yv2;
+	Sat, 05 Sep 2026 22:09:11 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1029"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788610151;
+	cv=none; b=N33I63PLNZKxMjZ8vQu87JgRkWox5EvNABh2VetPQEy5ADOE1xfNtifAx54lkskz6TTmME3WJE8saX2mKw02XTsRhz/D6ROLz9F5du4xNwqjogTpDv8iCafZ7lpcYRSuu/Guj9HH/GtcgI+KaeSPBqCxrWHONnk9kzGZP0YfsS+6jd/DcW5ftEg7dK2hyZj5qpArm+JBYH4aYkJ/HgpIGPtFYmC9MxkjwxIjbfB7jU5f4VEAnWUwZILrUk0sYDZWY/PfBZwQBaaUxvsbarIM8q82wbMxgkzPVsIF0WC13Jqh1Jwj8c1DXwkGt/z2ibl2BoEQHU7QxRoch43kGm8ruw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788597931; c=relaxed/relaxed;
-	bh=RRdpbNuoFopGxQAo+PwRfmXvRKAFbNR0VaX5eXiz7Ac=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DXaaQf+eWpJm5+xRXbkcwjHG3vAeBWMnx/cKJrBxpanO4LUqEg9J4Cdx2YodmmYQdIgYnWaVVaHINS+cnQT9DWWqv/U+xQy5vCLjH2CvlR0fH/I5h/X27iG6GdxLbLfUsHG9uK7wzzlwjMVfdsNmUTVmWOK1AsVEeC9PbE/gXm+ODns6c44/rF93kGdJ1p7lut5mhzsHCa4rt84MqlgklQm4XEDMbTqCoB5TI0PIl+0xaaPLNYuSpnu7iAIOdCiMGvX4F43QZ14DcoTju5tm3NR7b9QgP8qNhGMp+0iiaZZXieFnFzivmByFKAv3uTDiW7Zp2kSyaWGI3Bp0hwU8Bg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=k8yvAdDm; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	t=1788610151; c=relaxed/relaxed;
+	bh=L0Mz9q9D31hlW2IcBGeGYl1vfO3cS5A2SQxmG0qD+rM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dI8KiD/cx4jpjpH6dFIv2DaRVEd4HQ0yWPIXagmqhekjdeq6r804RQLE/X1fbgNo5dzjqDxBwr0aRIUjcb7x/dTYRs/Vy3gDByUtxrze4NXZzy1Vk8eKT5Qj1gQxThXYwJYJLzRThoHSN3q5Rp7zXI95YimHbFJXanT2Z+cvAPbn0eW2g9Uycf1V26MayAJ+wskLmJo9klIjGpTPd6BFTiHUrfzgmKRatYNxoAKOdPRB4D214C8c7SYO/S02odWUbm64PhNoP9I7iQKemBZWLkFFYviyegrqd/Jy6uuhffa1kxYVsfWpBaG1v8K9FziWCpbIavuBxMbJuECeAbhc5g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mI/L+uPm; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=k8yvAdDm;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mI/L+uPm;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hcRk14l44z2ygK
-	for <linux-erofs@lists.ozlabs.org>; Sat, 05 Sep 2026 18:45:29 +1000 (AEST)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2cc891373e0so19861115ad.2
-        for <linux-erofs@lists.ozlabs.org>; Sat, 05 Sep 2026 01:45:28 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hcXF11pvNz2ytj
+	for <linux-erofs@lists.ozlabs.org>; Sat, 05 Sep 2026 22:09:08 +1000 (AEST)
+Received: by mail-pj1-x1029.google.com with SMTP id 98e67ed59e1d1-39647184c73so2903803a91.1
+        for <linux-erofs@lists.ozlabs.org>; Sat, 05 Sep 2026 05:09:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788597926; x=1789202726; darn=lists.ozlabs.org;
+        d=gmail.com; s=20251104; t=1788610146; x=1789214946; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=RRdpbNuoFopGxQAo+PwRfmXvRKAFbNR0VaX5eXiz7Ac=;
-        b=k8yvAdDmIYzMSMq+cRtPewuUT6KbZopAYYKH54+zntYwJALYnxpfYr6K8Ba1SH6oSN
-         pCTZxouO7ftgbqXQWEuebwfbart0OAOyhw8Vz3o6AEggZMJGWAYRr67jgigEzpo+xdJd
-         vrk5AKj8lFrbhf79EcR34Rpqi6sbuDVgrj2eyB/i8CUTJumEnS58Yo9qZfaBbeVMa+bd
-         X2CqLu6NgHlhayZ2wjTRvvxAyjBll3hOKu8gV35IR0ddgrkD6/1u8W8vTTXeKeWzqZMb
-         vBlffh/qmM9D6Siz/ulU+Q03djC7vlLQPL/nAxgEpesI2+KZZquOC/706J86AI13Q+Ft
-         LHhQ==
+        bh=L0Mz9q9D31hlW2IcBGeGYl1vfO3cS5A2SQxmG0qD+rM=;
+        b=mI/L+uPmXLsX3Pd5cS4bP/Mh5TggN/bGGhl1I3FKU4diInCOyUTIPX9IZDBajr1Ef1
+         qfRDO1nDnNaY+1x6MStniQ+3gcY/Io5iWKF+u+a4WpGmT1/fQ029/sA6HOb6sL6Q3tXU
+         OnbxFC9FRf/g0YfYW8kukwF0g1bijuHLwKfyGFg7yw96WUPxTi9OQnJu3p83VZOfq6xa
+         SIDiD495S0+O6BLwMFNNlu7ixOfpyr7h0hVTS/5zQ6AVqBxj3+8X0OAJtfV69dP5+oLB
+         xDJ6e+BUeT6/9esS2sctumszfURMdsXrbXc6EnOLJLioqtDEqqxevDFbaxSiP4W+Rl0+
+         b2vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788597926; x=1789202726;
+        d=1e100.net; s=20251104; t=1788610146; x=1789214946;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=RRdpbNuoFopGxQAo+PwRfmXvRKAFbNR0VaX5eXiz7Ac=;
-        b=iiexIXb+fu42b2V4N6OG9b8OhoGxDdWD6cYSgWt9uXw1MaXugB9FtH5teFKkPgsOw3
-         ddprqwdaa7nW5Tc6gkPidGjSaK5yCUS6fsLHVYY/PSwc8mNDbDp4ZiohZfGrm4jEyKS3
-         G/StIVMi5colfURDVe7NY9TmvU7KvNqhbOi1a7ZbDBDrvA1G1bnFeK5C+xbKuKDt2pcV
-         xtj1+x5IfMwh701xHhgJzh+14YmdwDPIkCxrC9R5wOz/DIedN1kNNNDbguBU5Oz04EjJ
-         FWZWuLQfgbMXJnnPWqxpvUamnV4tMLHMP/bBQjCHZ340EwNEmdZJs2KgNyvhwKWjLab/
-         mWuA==
-X-Gm-Message-State: AFuF++nHXg/IaIw1FCW1OAUrNSzz42tdXP1x16Pfgl6U5eEibxf/qgvT
-	zUl23kF4GTuaGvqGvX/Tg8F370Axyu/YR5T6XxNy37zjri2AX6UrociEz7NZRJh5tag=
-X-Gm-Gg: AYBFou1eKJhZ8O7M2A1A+QhQ2q9P39dnUkXGtaqiRzmluQX0qsWvM2lZ1ml8OHPvpB4
-	zyJjKnEGONsUjymJyCWwWRJxhbeOwuZklYwIp4k4XnWQCi6a0TN7PJ307SicTzAJ+A8jR5XqLYJ
-	qj50GI79PAzsKdI/qAvAxSKL5ECz9ArJAIxaxi1j/YLpYKxYQB5AxhpO96aR5KZbfCj9ZRMpget
-	dz1ZvIbygWBmCajkfJby8WR1Kx0VpUVIaM2TYf8Zk5IE6YNf/dL1RW4IpYoJCRY4RZ0c/oFFAbx
-	6+s0AqBavQBDRtoTQND8MP2H/pWpugogZOfTj31pDkEfahonbF1Qa0AjQf33MD9VEqD25fP9D7D
-	YsW5NbQJ03iBAURwsGtA/T70GFOtRflzw7MORNQME9D/aNgYCYilJrJNbD/ktYTE3YUWNSu2iLP
-	XsiKo74NLqvucIQxxlEU4jvmPW/YIAdMvkri51t5j8gGnehF2pkaSpuEperTUDjPQg6IrIvf3/8
-	a+GeRD56zmZ9TpvYu7dpTAeutpAy3iVS2LDgZc=
-X-Received: by 2002:a17:903:1aec:b0:2d9:6db:9fcb with SMTP id d9443c01a7336-2db125ca3bbmr165244765ad.11.1788597925143;
-        Sat, 05 Sep 2026 01:45:25 -0700 (PDT)
-Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.58])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2db24ccb4a3sm10868435ad.36.2026.09.05.01.45.23
+        bh=L0Mz9q9D31hlW2IcBGeGYl1vfO3cS5A2SQxmG0qD+rM=;
+        b=tHIMzab1CuqvVol4FrtLFck3yU24yTtLbBPoYA/74UzIB3op2fYaKONEosyVzf09JU
+         +xnminOarsQNxAGcxM6lV1lAxgqdGISi0WSW0IRSMnB6OIPP9PMwEd8gpboFtJYhhmWm
+         mF4Ylyg5OwZyUxwt/0pg33tj/BaHvYV1xa7XjjaWmTXeKzDnWhCrByvrHiZzdzFUX6t+
+         GTJrHWF0oL3vnYe/qNteb3twbDvn2nd7WqhVlNgM5BJeLtyCr84BvP5MO0tpbPcsE71F
+         1dRYe7QDY5uKmm4/7XpsyiSLkJtSLlNMrZZ+fyzSZ9FqNMNIqKRCjOvmODa7XYiYauC3
+         UEzQ==
+X-Gm-Message-State: AFuF++nuAdVPNNzJT2UTzKanDhTjLJuZWMTA79cKrSdlrL0oLC6p99fZ
+	pC9Cbtcb0yI2RAgV1FaewLFi8wB6wLtj+Rzs/vXV+LV4/G7PocvoZDmb1qhf+SlBLxUv0g==
+X-Gm-Gg: AYBFou2h9aI5yeTW/uu/Q/EKiWHcJ9AT0/nMYwcE7cNEaSa6PjLV23pGhCLyk7G/3Eq
+	QYbbDI7sqSY9qU6l8mcakSZzLULj8UVEdF271AJSocYvsHL/nmgX8W5EOij19/hmECFmnu2puaf
+	1wbagP1jsNzgiOSE005MPqgA/t4pk8ZTJqJEoWV3Mxyyk9k8M8cemLWyy+Lifgu8sYb2Unga+hN
+	XiDRRPBq5WyGJIyQ7CixpD3zVysxbRGdYSTFSoDJRqfU9inZjm2jddVh8stgDsN7/Y5mQWOqDRW
+	ZCW0vO1kVOWAXY+IDpx/76XDA0GVUwE67RoaeCsHMFHwfMRFCGn/UruFEGvoyNRTuDpQUjzgsen
+	GzqHqTofgzpncewkonVilJjGRujjyyYkCqS4bdMba4sU50zJDZZ9sCnL6f/LbjrzntOx6GuWf7Q
+	UWiMQ6bevgJrerhIPvKKAREkmLB+VUnJOwhp7yA523UQFAxACDhunPlMt7YL2mTx/2s/j6LBw4Y
+	MFT7Dxyvm7lstr7rqsIsIrczvwanDM6bMJqwXsZzA==
+X-Received: by 2002:a17:90b:2751:b0:398:9bd3:d6d4 with SMTP id 98e67ed59e1d1-39b27ec580fmr9758682a91.14.1788610145854;
+        Sat, 05 Sep 2026 05:09:05 -0700 (PDT)
+Received: from zyf-laptop.tail52ade4.ts.net ([2406:da18:1fc5:7000:bd99:825f:cbe1:e75f])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b08bcc081sm15980035a91.6.2026.09.05.05.09.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Sep 2026 01:45:24 -0700 (PDT)
+        Sat, 05 Sep 2026 05:09:05 -0700 (PDT)
 From: Yifan Zhao <stopire@gmail.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <xiang@kernel.org>,
+Cc: xiang@kernel.org,
 	Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH] erofs-utils: mkfs: fix blobdev with metadata zones
-Date: Sat,  5 Sep 2026 16:45:20 +0800
-Message-ID: <20260905084520.861790-1-stopire@gmail.com>
+Subject: [PATCH] erofs-utils: lib: fix chunk index reads from metabox
+Date: Sat,  5 Sep 2026 20:09:00 +0800
+Message-ID: <20260905120900.943511-1-stopire@gmail.com>
 X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -90,134 +90,52 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Using --blobdev with --MZ flushes flat inodes before unified device
-addresses are assigned, leaving their data addresses unresolved.
-
-Reserve metadata zone space before calculating device addresses, then
-flush the zone once those addresses are available.
+Chunk indexes stored in metabox are incorrectly read from the primary
+device, resulting in incorrect file contents.
 
 Assisted-by: Codex:gpt-6-astra
 Signed-off-by: Yifan Zhao <stopire@gmail.com>
 ---
- lib/importer.c         |  7 ++++++-
- lib/liberofs_metabox.h |  1 +
- lib/metabox.c          | 42 ++++++++++++++++++++++++------------------
- 3 files changed, 31 insertions(+), 19 deletions(-)
+ lib/data.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/lib/importer.c b/lib/importer.c
-index 89d4d8b..4506040 100644
---- a/lib/importer.c
-+++ b/lib/importer.c
-@@ -120,7 +120,8 @@ int erofs_importer_flush_all(struct erofs_importer *im)
- 	if (err)
- 		return err;
+diff --git a/lib/data.c b/lib/data.c
+index 5a17af5..fa2907b 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -72,7 +72,7 @@ int __erofs_map_blocks(struct erofs_inode *inode,
+ 	struct erofs_sb_info *sbi = inode->sbi;
+ 	unsigned int unit, blksz = 1 << sbi->blkszbits;
+ 	struct erofs_inode_chunk_index *idx;
+-	u8 buf[EROFS_MAX_BLOCK_SIZE];
++	struct erofs_buf buf = __EROFS_BUF_INITIALIZER;
+ 	erofs_blk_t startblk, addrmask, nblocks;
+ 	bool tailpacking;
+ 	erofs_off_t pos;
+@@ -115,11 +115,10 @@ int __erofs_map_blocks(struct erofs_inode *inode,
+ 	pos = roundup(erofs_iloc(vi) + vi->inode_isize +
+ 		      vi->xattr_isize, unit) + unit * chunknr;
  
--	err = erofs_metazone_flush(sbi);
-+	/* Include the metadata zone before assigning unified device addresses. */
-+	err = erofs_metazone_reserve(sbi);
- 	if (err)
- 		return err;
- 
-@@ -132,6 +133,10 @@ int erofs_importer_flush_all(struct erofs_importer *im)
- 	if (err)
- 		return err;
- 
-+	err = erofs_metazone_flush(sbi);
-+	if (err)
-+		return err;
-+
- 	err = erofs_write_device_table(sbi);
- 	if (err)
- 		return err;
-diff --git a/lib/liberofs_metabox.h b/lib/liberofs_metabox.h
-index f966c20..156b651 100644
---- a/lib/liberofs_metabox.h
-+++ b/lib/liberofs_metabox.h
-@@ -25,6 +25,7 @@ void erofs_metadata_exit(struct erofs_sb_info *sbi);
- int erofs_metadata_init(struct erofs_sb_info *sbi);
- struct erofs_bufmgr *erofs_metadata_bmgr(struct erofs_sb_info *sbi, bool mbox);
- int erofs_metabox_iflush(struct erofs_importer *im);
-+int erofs_metazone_reserve(struct erofs_sb_info *sbi);
- int erofs_metazone_flush(struct erofs_sb_info *sbi);
- 
- #endif
-diff --git a/lib/metabox.c b/lib/metabox.c
-index 5c2eada..4750b36 100644
---- a/lib/metabox.c
-+++ b/lib/metabox.c
-@@ -117,18 +117,16 @@ int erofs_metabox_iflush(struct erofs_importer *im)
- 	return 0;
- }
- 
--int erofs_metazone_flush(struct erofs_sb_info *sbi)
-+int erofs_metazone_reserve(struct erofs_sb_info *sbi)
- {
- 	struct erofs_metamgr *m2gr = sbi->m2gr;
- 	struct erofs_buffer_head *bh;
--	struct erofs_bufmgr *m2bgr;
--	erofs_blk_t meta_blkaddr;
- 	u64 length, pos_out;
--	int ret, count;
- 
- 	if (!m2gr)
- 		return 0;
--	bh = erofs_balloc(sbi->bmgr, DATA, 0, 0);
-+	length = erofs_pos(sbi, erofs_mapbh(m2gr->bmgr, NULL));
-+	bh = erofs_balloc(sbi->bmgr, DATA, length, 0);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
- 	erofs_mapbh(NULL, bh->block);
-@@ -137,29 +135,37 @@ int erofs_metazone_flush(struct erofs_sb_info *sbi)
- 		erofs_bdrop(bh, true);
- 		return -EFAULT;
+-	err = erofs_blk_read(sbi, 0, buf, erofs_blknr(sbi, pos), 1);
+-	if (err < 0)
+-		return -EIO;
+-
+-	idx = (void *)buf + erofs_blkoff(sbi, pos);
++	idx = erofs_read_metabuf(&buf, sbi, pos,
++				erofs_inode_in_metabox(vi));
++	if (IS_ERR(idx))
++		return PTR_ERR(idx);
+ 	map->m_la = chunknr << vi->u.chunkbits;
+ 	map->m_llen = min_t(erofs_off_t, 1ULL << vi->u.chunkbits,
+ 			    round_up(inode->i_size - map->m_la, blksz));
+@@ -141,6 +140,7 @@ int __erofs_map_blocks(struct erofs_inode *inode,
+ 			map->m_flags = EROFS_MAP_MAPPED;
+ 		}
  	}
--	meta_blkaddr = pos_out >> sbi->blkszbits;
--	sbi->metazone_startblk = meta_blkaddr;
-+	sbi->metazone_startblk = pos_out >> sbi->blkszbits;
-+	/* Keep the mapped space; its contents will be copied after inode flush. */
-+	erofs_bdrop(bh, false);
-+	return 0;
-+}
- 
--	m2bgr = m2gr->bmgr;
--	ret = erofs_bflush(m2bgr, NULL);
--	if (ret)
--		return ret;
-+int erofs_metazone_flush(struct erofs_sb_info *sbi)
-+{
-+	struct erofs_metamgr *m2gr = sbi->m2gr;
-+	u64 length, pos_out;
-+	int ret, count;
- 
--	length = erofs_mapbh(m2bgr, NULL) << sbi->blkszbits;
--	ret = erofs_bh_balloon(bh, length);
--	if (ret < 0)
-+	if (!m2gr)
-+		return 0;
-+	if (sbi->metazone_startblk == EROFS_META_NEW_ADDR)
-+		return -EINVAL;
-+
-+	ret = erofs_bflush(m2gr->bmgr, NULL);
-+	if (ret)
- 		return ret;
- 
-+	length = erofs_pos(sbi, erofs_mapbh(m2gr->bmgr, NULL));
-+	pos_out = erofs_pos(sbi, sbi->metazone_startblk);
- 	do {
- 		count = min_t(erofs_off_t, length, INT_MAX);
- 		ret = erofs_io_xcopy(sbi->bmgr->vf, (off_t)pos_out,
- 				     &m2gr->vf, count, false);
- 		if (ret < 0)
--			break;
-+			return ret;
- 		pos_out += count;
- 	} while (length -= count);
--	bh->op = &erofs_drop_directly_bhops;
--	erofs_bdrop(bh, false);
--	sbi->meta_blkaddr += meta_blkaddr;
-+	sbi->meta_blkaddr += sbi->metazone_startblk;
- 	return 0;
- }
++	erofs_put_metabuf(&buf);
+ out:
+ 	if (!err) {
+ 		map->m_plen = map->m_llen;
 -- 
 2.55.0
 
