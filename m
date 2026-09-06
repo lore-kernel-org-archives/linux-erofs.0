@@ -1,70 +1,94 @@
-Return-Path: <linux-erofs+bounces-4481-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4482-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60B2FC79F8C
-	for <linux-erofs@archiver.kernel.org>; Sun,  6 Sep 2026 05:35:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 529FDC79F8C
+	for <linux-erofs@archiver.kernel.org>; Sun,  6 Sep 2026 18:06:27 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hczSm5j1qz2yvD;
-	Sun, 06 Sep 2026 15:35:52 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.7
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788672952;
-	cv=none; b=EdTr5C1UQaVNoC2q2evwoc2pP4/jXz9tZ0SninNJ1Dy+tEIEL0SS4uA/xDSPrAEE5GfDxMi9gnJCcfyS1XBVlezzSKxnQQIvN+SbVqaICCEiAS584AAY9crEZdoliaMTTWPosjDQ4FfsroyXo5iW+h0IvmE9YpATvjysKQnax29B1LB/3WQF5pmWmJFALzT6U65rOoRz+r3jaFRjzS5+6DllnTS/sj+M6PyPjtWhkQv72VT0i1rUvhGndJTEgksLoOlzpJb7sTvXW8fcJPo5NFICUt659TdW0s6d4FuVqGfj/v9q3tU1xvstBnzUmWJ6GtyJpHTD1CfknAq+7Wo9mA==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788672952; c=relaxed/relaxed;
-	bh=baQdiLZwnOOhuB4cDBNyeRph5mSjuet7hk3J9Pqd7uk=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=PE3vo5Y3mhKqavIEo0HRF6CwziqKdA5cwL3Br4Qei3ofnrcYRvXjmFXqYc4QQCk838OGR45wdxn89W/dNgnPEv0rnerNS3ltRR+/j9c974kC1qnI+bHZ6RIF0s1JVim2goL/PTquusOeLizHmpQ+Up/Ze4oFtez8ga2Xc8WbIVsrCkLes39jxA6i5Ekd/GZ5JH/ADeCYS3ECzTxep6ivYYezmsGfBRqqMeAM3TfmZZr2rGjdRQENXxgQZAffEd4xjVD/6EsacZJE01xl815IlAFWAZMq4H43SiNRt14fpsOmhPAOLsidxSziUrENvC9Mwg9v3Fq6c/T1CmX7O6YWZQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SWAe8Pzv; dkim-atps=neutral; spf=pass (client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hdJ6m6dYJz2y2S;
+	Mon, 07 Sep 2026 04:06:24 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1029" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788717984;
+	cv=pass; b=o2rrjX/MF4mTMl2BiVr+U3IB/GS4ROctP6HAet+rOf2kI75S3Ow74ElTUBw3TqGYUbX2i8CH2PQT8D1n+oO2RvCziM98OAI8HR9hRyMFLfJkdUPZgBzZiCnNpXsGf8l6DQj8ilmX7uklfW36qJWGZSuSTEKvNEwPbXko/DpkhjQpdlGDIeWMFTQGL2GyAtqfShPLT4S3NSg5z6Bs8HO2c+my5U0XH/ZdYrjHODGo/FmpWDOiHxx23QFenBWuXsKtICk1duCEcyP5XVfGtgXHr+KPdaO95CLQlgD5YsJWyHu6GgksMusz7JO5L1MPL8edW03I/xkQoJaWNUD46D6vsg==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1788717984; c=relaxed/relaxed;
+	bh=gWulUfgeId9qrCMdd5oBv0M7YdFc/1Rp/05i9Kepj4U=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=M7KRQx5dvVa/wiyn0jveGXOf2gNB8PYoL+odeZHdTELgPO25ZdYY6U5rIuMAHkv8b9+WFnxdjM4EGhIFHsgeE7L08boyh2e2gYh1ekK9+mfPwTCO3AOATtBNyd0JjAwDCstKpwIncODGoyPi/Xayq1rf6bnpm6TvWNE5vtU3iOx0LgRJiXUkb7AoX4holwipQAv0tEgxdSqnic8iVvrKn7Cs7jnPx99aZtv3GW8fNgzR2NrjGI0GmgNHdu9XIaZGuJ8DNc5Lrc7ki8HkzKmfn5K75oo5d1uYwnkpXK5t+Y+6zD0VYm07XFQMbikLJgW/9+6YpHYw9j5NOihWAtsY9Q==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=AiBkUz8C; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=virtuowebinnovators@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=SWAe8Pzv;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=AiBkUz8C;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.7; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1029; helo=mail-pj1-x1029.google.com; envelope-from=virtuowebinnovators@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hczSj4Yyvz2xyh
-	for <linux-erofs@lists.ozlabs.org>; Sun, 06 Sep 2026 15:35:46 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1788672950; x=1820208950;
-  h=date:from:to:cc:subject:message-id;
-  bh=90xuL/PDhK7ev1wDh+CK08s0GhHK3E5A7XCR4EPV9D0=;
-  b=SWAe8Pzv576NIvfNp2aq985k7rAarERcG/96D3q2uMQOEPpcuar5Xbpu
-   ZGq/drsX8fjqYQoAdfCODJPRR4NcQSrYAGXu5hlxU87ZvJJR4wkfd/Q1b
-   qfElc4+fDLNwMVBBKmP9JpGJqPAr0f//u9B1YT6HHF2n6NfS6dyb89NAZ
-   hWL2PR6jaYf31KsfAONGEkZwJgSwOY2S/PefQQTeRmWHbSAm7YkChHqD/
-   n+idU5HdhFR/X6xTG8YngVpVI+8wfKcutTeqskGCOR4y4h3T7N1IKJZZo
-   C4U4ngIZvCDNCZBO/0o8h42S8ZdGTLNRM6GntqJfqbyt1EW4J+Rhpp0OM
-   w==;
-X-CSE-ConnectionGUID: GvVZotEYRleE8bVGidyWEA==
-X-CSE-MsgGUID: uq+MIt2hTc+YxSsa97rmtw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11897"; a="114658111"
-X-IronPort-AV: E=Sophos;i="6.25,264,1779174000"; 
-   d="scan'208";a="114658111"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2026 22:35:41 -0700
-X-CSE-ConnectionGUID: KS+VMnt3TvG3XG8VscUZRw==
-X-CSE-MsgGUID: kUoA3C7bRKO0nDzpSGy9wg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,264,1779174000"; 
-   d="scan'208";a="270942214"
-Received: from lkp-server01.sh.intel.com (HELO 73f3364bc37e) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 05 Sep 2026 22:35:41 -0700
-Received: from kbuild by 73f3364bc37e with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1x35XW-000000001Pb-1Hw1;
-	Sun, 06 Sep 2026 05:35:38 +0000
-Date: Sun, 06 Sep 2026 13:34:59 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org
-Subject: [xiang-erofs:dev-test] BUILD SUCCESS
- 82e664cf1219c459c33aae931b222cf951af9cb7
-Message-ID: <202609061356.Ts5dvKqG-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hdJ6k5G0tz2xmh
+	for <linux-erofs@lists.ozlabs.org>; Mon, 07 Sep 2026 04:06:21 +1000 (AEST)
+Received: by mail-pj1-x1029.google.com with SMTP id 98e67ed59e1d1-38e58034d05so2188600a91.2
+        for <linux-erofs@lists.ozlabs.org>; Sun, 06 Sep 2026 11:06:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788717979; cv=none;
+        d=google.com; s=arc-20260327;
+        b=MOA3hCNR9faP5xxrV5n9aWZuX1U4HB1QIO2hp2mvxQMCU+DeY5kbdoALlFjdBsuAmF
+         AigC/+jE5B+3Dy9i2+47omSPOaDlKCe1kkWxhz3laa0wQ4FHLvP38MnVaO7lOQxyg5ki
+         KQdlQDQ0707Nj773Da20eRHCh6KsspHJwL45oxTiii9NvaUwrqMqQrtO/QBztguqkwFF
+         7Qij2Monl+Amixr3aV4nVeWfELkebu15QEzInWqpbbquWEk43l263CzFCmcM9xYFoRKm
+         O7mF/g7/sQsyLP5o8h8S+6T7XxpBuUInawzOROFf1nOdqa0OSVHc66SrwhSqr0CBC1Ag
+         NMjg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:sender:mime-version:dkim-signature;
+        bh=gWulUfgeId9qrCMdd5oBv0M7YdFc/1Rp/05i9Kepj4U=;
+        fh=wOhGMmq2KH+KOElLlPuS8ws9o9ArjDb4wH58JVHh4Vg=;
+        b=BYR5IrA96A6lT/Gi5i8q4xYbPatYVxVBJWKesyVhtodZBBDWiuL/5GS8Uvv4WOMwrG
+         C9eOKuUnt3082X8Ugz+QgWb6CS3cjDdd/0UMgywy5Swvaea9EofkcOZ4uI1+PGL74L0D
+         A1dF7dh5JqoDF4yPNhkx1y8uSuXSVPGEFp57Xb7vQ1/EjB6kZg4Ono5D/wIl5HjABt5z
+         LktPPNKxOZItMyBoPJMOZY9F5ZHSZCZyjcY/AvA8nUwTwsMACa548/XyBfDFZ+/ywmb6
+         URdoEVbTVMTnPoiapIRgL3GiFBW108Oe1OXfr94iUjSFghkCchiVN04HE+wVqbGu69bJ
+         BxMQ==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788717979; x=1789322779; darn=lists.ozlabs.org;
+        h=content-type:to:subject:message-id:date:from:sender:mime-version
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gWulUfgeId9qrCMdd5oBv0M7YdFc/1Rp/05i9Kepj4U=;
+        b=AiBkUz8C0gfGmF/dQKOfocC1mj/39oNX+15glH3DPUHoBn5LTFTXhWTpz21O8+jurM
+         W5XKgG4tA/gn9c88ZgXWb5vj0/oJF2vpls5mIvmbUNMVbPltEKkqN6SJcK2DPiI76jqV
+         vBDOSu4/BecoAamldmX3csUTlbKDHSdqvw8XcVbYBEFKxg3n0Hb31VPqgSPOGt6ulOGY
+         CniS08ybg0rprRe4mBIFdL4UBM5fyMGNfWHXMInWHh9oJfxkzI2wAIMWVE5SLRk02S8U
+         GY9OBh8aGFmg6yQlDyjaCtFWYykxBj/yDMMazTv+aTxf2YIgEYRiALg4pGens7ArJPU0
+         o0Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788717979; x=1789322779;
+        h=content-type:to:subject:message-id:date:from:sender:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=gWulUfgeId9qrCMdd5oBv0M7YdFc/1Rp/05i9Kepj4U=;
+        b=HgvD/l84sLSjyk42XVIN6TWRKhCg4z0iwK7OQDwTqFVh2guy9H06irwEe/BCQjLofX
+         4Lk3zqOuXgeTBKsVK36DSf5jPAPUcZx4T1ivntGbF3WNEvaHHpeG51iwAIIAqV60c5eM
+         1FzLlwJ5HFThomovCnaWkvJTX4OIMRMbbK/4NemyDyD1wmtqsu2LsyWZUZMCuszDrstB
+         QvLxv/Dv/3kNiXnfFQwGNQFVywyUTV+8P+fk+T5p3elyVUQ64oQ+rfMNKzzfQWHond82
+         /Lbna/N/ZAcR2MdCybLcC1bOfp/zRrP/c2vVxM/UHlCrC/xOZbhL97SUfv4ruQzVkJ5z
+         WFiw==
+X-Gm-Message-State: AFuF++m8d6ZBvpTC5TMUQkQGS3r+tk0rLm4U/p1YCS3WDFySIiU+Vg74
+	rnEX5tLcBjsAi/Zjn5GFHftvPSJCkGoFGJkrVYE2XJRqK5F2viVXaQzxyb7NswjJlCEQPTq43mY
+	20Qz5E+UF/QnMYkebTheVdGPTUNlAB7wJx18+Dog2SA==
+X-Gm-Gg: AYBFou0MiyOVF2mwABi8idbfJZrAOAtmbDMHd7NQPPCKBMnTlGAQjt+tjzHAi/Dy8jh
+	QASWPzipBF6QYqZg1DiBExGFrwcA0Hu4kVHDp4abc1CZVXgtK0HNKePeCySTMwMxhuXGlyYkHfR
+	QR8fGc9fUPv7xx3jkplBDFB+9PkcRtOT0hVPZNUAdmAp3lCr/A9OQmTP6+zi/dgmctxIp7J855o
+	PvX94bJ9866utmbJYC3JuE+aLfVqh65kB5LLjbUxbeo01/FoI14ORm6UqeYR1L9xeXJsfUtKHsL
+	9PPRKGFLSfRhXiqsu0yss0R1vzbWtmVEvNZWbu+Y0svuUGAOMdZeWkmKxbMnkxpstYrguF5FQ9D
+	bwKRGn/mT6d5r2CY9YZ2wvZxGiy5Y3VA7AiKajP7tMfjA0/P7uu3EaaoZ0CkDzg==
+X-Received: by 2002:a17:90b:3804:b0:366:3517:1aa2 with SMTP id
+ 98e67ed59e1d1-39b25f4397emr28377423a91.0.1788717979059; Sun, 06 Sep 2026
+ 11:06:19 -0700 (PDT)
+Received: from 257406940090 named unknown by gmailapi.google.com with
+ HTTPREST; Sun, 6 Sep 2026 11:06:17 -0700
+Received: from 257406940090 named unknown by gmailapi.google.com with
+ HTTPREST; Sun, 6 Sep 2026 11:06:17 -0700
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -75,76 +99,29 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
+MIME-Version: 1.0
+Sender: virtuowebinnovators@gmail.com
+From: virtuowebinnovators@gmail.com
+Date: Sun, 6 Sep 2026 11:06:17 -0700
+X-Google-Sender-Auth: WvbrLUdPXXW9W1er-uWuiUFMbAw
+X-Gm-Features: AcwNN1Wbzsq7yTlclEd48ZvmuXKt4QANA0WEJkLBDT4HSl-4WXHUJGBxOdrKl-A
+Message-ID: <CAP-DNBU9h2_9cSP0bJHmXFSiSfU2xyEq_L1tve9ckSmxTq3OEA@mail.gmail.com>
+Subject: go-erofs deserves more eyes
+To: linux-erofs@lists.ozlabs.org
+Content-Type: text/plain; charset="UTF-8"
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
-branch HEAD: 82e664cf1219c459c33aae931b222cf951af9cb7  erofs: disable LZ4 rolling decompression for now
+Hi erofs,
 
-elapsed time: 3760m
+ Came across go-erofs today. Spent a few minutes in the repo nice work.
 
-configs tested: 55
-configs skipped: 5
+ Right now it's at 26 stars. I think the only thing missing is the
+right people actually seeing it.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+ I help people get their repos in front of real developers actual
+stars, forks and users, not bots or bought numbers.
 
-tested configs:
-alpha         allnoconfig    gcc-16.1.0
-alpha        allyesconfig    gcc-16.1.0
-arc          allmodconfig    gcc-16.1.0
-arc           allnoconfig    gcc-16.1.0
-arc          allyesconfig    clang-24
-arm           allnoconfig    gcc-16.1.0
-arm          allyesconfig    gcc-16.1.0
-arm64        allmodconfig    clang-24
-arm64         allnoconfig    gcc-16.1.0
-csky         allmodconfig    gcc-16.1.0
-csky          allnoconfig    gcc-16.1.0
-hexagon      allmodconfig    gcc-16.1.0
-hexagon       allnoconfig    gcc-16.1.0
-i386         allmodconfig    clang-22
-i386          allnoconfig    gcc-16.1.0
-i386         allyesconfig    clang-22
-loongarch    allmodconfig    clang-24
-loongarch     allnoconfig    gcc-16.1.0
-m68k         allmodconfig    gcc-16.1.0
-m68k          allnoconfig    gcc-16.1.0
-m68k         allyesconfig    gcc-16.1.0
-microblaze    allnoconfig    gcc-16.1.0
-microblaze   allyesconfig    gcc-16.1.0
-mips         allmodconfig    gcc-16.1.0
-mips          allnoconfig    gcc-16.1.0
-mips         allyesconfig    gcc-16.1.0
-nios2        allmodconfig    clang-20
-nios2         allnoconfig    clang-24
-openrisc     allmodconfig    clang-20
-openrisc      allnoconfig    clang-24
-parisc       allmodconfig    gcc-16.1.0
-parisc        allnoconfig    clang-24
-parisc       allyesconfig    gcc-16.1.0
-powerpc      allmodconfig    gcc-16.1.0
-powerpc       allnoconfig    clang-24
-riscv        allmodconfig    clang-24
-riscv         allnoconfig    clang-24
-riscv        allyesconfig    clang-24
-s390         allmodconfig    clang-24
-s390          allnoconfig    clang-24
-s390         allyesconfig    gcc-16.1.0
-sh           allmodconfig    gcc-16.1.0
-sh            allnoconfig    clang-24
-sh           allyesconfig    gcc-16.1.0
-sparc         allnoconfig    clang-24
-sparc64      allmodconfig    clang-20
-um           allmodconfig    clang-17
-um            allnoconfig    clang-24
-um           allyesconfig    gcc-16.1.0
-x86_64       allmodconfig    clang-22
-x86_64        allnoconfig    clang-24
-x86_64       allyesconfig    clang-22
-x86_64      rhel-9.4-rust    clang-22
-xtensa        allnoconfig    clang-24
-xtensa       allyesconfig    clang-20
+ Want me to send a couple of ideas for go-erofs?
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+ Cheers,
+ Nexora
 
