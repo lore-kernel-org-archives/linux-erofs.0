@@ -1,62 +1,59 @@
-Return-Path: <linux-erofs+bounces-4491-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4492-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB649C79FA1
-	for <linux-erofs@archiver.kernel.org>; Mon,  7 Sep 2026 14:50:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FB97C79FA0
+	for <linux-erofs@archiver.kernel.org>; Mon,  7 Sep 2026 17:01:12 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hdqjy5B0Sz2xk7;
-	Tue, 08 Sep 2026 00:50:14 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=203.205.221.239
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788792614;
-	cv=none; b=WnEFBqwtQ7cB3xdl6hfsjM0ix+PaYh4w0FmZP0YwlB4WBDzOJQJxmyx5bn7EZQhCO1BEyw/EYpYgd2xfDEZVQkUi2JANMJGcwUN+uw+ZWQYWYXl1DbTkBQnklmLnTOcdKfTf+UFvoloFWUxci2izDCSQ+R/yfGRt+rSMH2gMyHHV2IMDqr2AFlp1LIOkMmVSqj8rRBjh57ifG2GOGRI4+izrK5d0ln8+AA7UiR97OnVxRHZs8T7lRrTzN1aT2b/mJkKL5MAce1hI1J925hPm2dZ2G/MqNlLZNROVGXTB7UKSEDw4svYKNkdv0dDbHcS6BD/cCHkeSPGLc2Rf55cb8A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hdtd23vJHz2ytv;
+	Tue, 08 Sep 2026 03:01:10 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788800470;
+	cv=none; b=Xc1CdCUS32DyQPM4FETp0RXMI+58y2jLzQ25uGf9khbND45y9HiYuy3hD7/mdTLzW9+oBmH1K1zaaCZ14CTbzBhPYwvBF/XDabiO8YoGS6Tl2UOiEUzUwkWRtW0fFsAPOMvnMvekUbBbrRF1DaFqZWV6inUN3krIGkivK20etXcZ1TuIGOB1kk9dCOQLcACWliOKus6w0qA4A2M2GBS25T4Cw41wLEMxTNKLHmiXWYCIi11+h9L+xs1ntxRK+jFEZPR+HBlP1Bai2+6MmH+ROKvP6aLkibIgLZE0pRcLN5rcJEo575okWEvMLgO7WM8AnEwTReq0lBoMh92OGSLemg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788792614; c=relaxed/relaxed;
-	bh=5Td8aUIZ9BCAa1tGjWQMGfDSHSB8C01PBcI3FXS1CRs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=oAKjA7WdNvos6KFiLsemv/PQ9TnKiU/+jWeVnZVe51rwJ8z0nnmLOji13t6fseRwp77jwTA9VIk5UzYa3+4ffBSZEm9JlRpaiIMuJIQRopbe/7yNsbwXPy8hZVB3FYxE+bmdl8KBf5KTEaO29KgM/4EwVyvo3PM0X/+Q9boe/H0/3/o222TPMIwIDpINgaCz0kJSQtYbIUNOJaoG2y7U0PFSWQh8Sdae0b5L+xgIe1EycSdM0u0QxG6lJvA0i516Q+ivrjORKS+EQauxZOyuXEAUcc7ulExDNtZSxBzNNlbKQSbPjecGGo4EWzHOOwi7cfvUINosmDPMXFxTAvsiYg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=foxmail.com; dkim=pass (1024-bit key; unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=midh9TG4; dkim-atps=neutral; spf=pass (client-ip=203.205.221.239; helo=out203-205-221-239.mail.qq.com; envelope-from=yifan.yfzhao@foxmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=foxmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=foxmail.com
+	t=1788800470; c=relaxed/relaxed;
+	bh=MaXDcai1D5iQBoi7xi9olTK/TjK+YeuvCgmC2IXSMX8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C51kyPIPD8qz98QU0f3c9wQgJFVYmo0FXH5ExFdnE1/z2B17eNOjPXDb3VrbG+9t3yHe2QHuB+6oQuwHmXjkLxoanmgQUeSbfDOf2lLIdIjrHYdtcu1Yueb7xrdTKexsFFyHl/9CJc7xkCHcQSjgSfs/xtKAk7wMttkmA7IPkNAXKWrSzYHQiKjRSjgsm7x8gIzniznAobzd62a/ne4k7I4xmYls6zEaFCHbv5uFXFcVF3fqM/EDe7Ks8Achna8ZWEY87UPqClc8jHjtk5OLfCZUlkao3RHL5ihxtswDUdZLs4VhdFP9y6hZFiQyV4cKw44EddVlx8LlYcD3FevZHA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnAtHcWZ; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=foxmail.com header.i=@foxmail.com header.a=rsa-sha256 header.s=s201512 header.b=midh9TG4;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CnAtHcWZ;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=foxmail.com (client-ip=203.205.221.239; helo=out203-205-221-239.mail.qq.com; envelope-from=yifan.yfzhao@foxmail.com; receiver=lists.ozlabs.org)
-Received: from out203-205-221-239.mail.qq.com (out203-205-221-239.mail.qq.com [203.205.221.239])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hdqjq0bhYz2xfT
-	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 00:49:59 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-	s=s201512; t=1788792593;
-	bh=5Td8aUIZ9BCAa1tGjWQMGfDSHSB8C01PBcI3FXS1CRs=;
-	h=Date:Subject:To:References:From:In-Reply-To;
-	b=midh9TG4Yw8s9A9MADoXXYBo07aGIfqt71OsKwCaSi8hWmIRQrQUJs4gqyY0N3WmM
-	 uWzezZP+QDpFjduxUMvUyj+8zkX6NPWo42ztJ29dpxhiVuQpf5QNXGROJygqVCM4Ta
-	 UpJR9TnH1dISYqIuyCyGOBQ2jrIbI3R/p+P0aEjo=
-Received: from [127.0.0.1] ([112.64.102.27])
-	by newxmesmtplogicsvrszb51-1.qq.com (NewEsmtp) with SMTP
-	id C1CA1CAE; Mon, 07 Sep 2026 22:48:28 +0800
-X-QQ-mid: xmsmtpt1788792508tsm9ye5p6
-Message-ID: <tencent_2885ED3B33A8AB09CB47F47ECF92AE9DC508@qq.com>
-X-QQ-XMAILINFO: OVFdYp27KdlJhx4svpIW5M3Mz6JONa2JbiSTDCWFuRYTmXggJHk0yDPj9TjvC7
-	 j9s+d5z6MKE0dzF6i9QG3Ff2D1GnpNHrZHy0BYu1SFUOJYzQAp63rMPvqqWNK113egv94drWs60C
-	 cJ+UIjTXA5c+M9hlbDZcqI5JjSCwvhS1HaT/lBGPICuLlwP0eVByR2jqTL1JrolG0jULRzvNX/bn
-	 jEKTUTyJzag11HpujS1zNERrGs3IGB01LNFJmTRQhOUG2bNIrxpNjTYuLG62F/4i48Vq1rysmTVW
-	 mzYrtgTkCLeFGEQj1217t9QJKhZvXdClC6qSZWyf30C7es1xRrorGa3Mj84DITHGA4pFZncKy0QN
-	 ETurXgTRnc3Ztk5jWGp/6tqlJFNwiqrSaxe31iz0Wr86NMrItB8VL9xgkBTeHZqIm/P6oN8217l+
-	 lNRLv9v1fDUtopKEF2tym7tEHnnd0mFdlSfvV2AdoTMhNPg0cQ2/Kb983xcypU/1L14s/PJg4Xup
-	 TsReCQ9noxlx8i8806hKTZZqdspxv8dEkm0zY3XWp5FDTjtSsIW60KxXOn1q+fW9i8bsN3xakBiR
-	 IrPJNL5JOa/Uxz0wNkCDVn8snzvqo4ECzEjeG41FdKynE/WTjbAS0E5wowLqJFIxWuL1PRUF2KLB
-	 uFkAzu8KSysKO5+9Qm4F3gSPvBxt0pS4hrg8UM8N3pu6uBrvzOJ6Y7n8qM6cM7u5vy/fAHYKJ/AE
-	 U4hQzzxkOW9PdSYXwJxhdiTPiFUekuudrv2F9c+ZxVle6gDUFlPaq6vNaZPPqtvKDP/JKlOSwnzR
-	 gh5VsRi9GChXNI1xfGnGzQJu+nMnbZaYsvg6b/M3v6ZpahmTffv9gVhEu+p5xkNisdPyYwt4Bky4
-	 fHXEgLKK1X/fUMkY9YF1lvGMK79mbLK7ad4MwJHkueejB8x8jvpF7bLLIwyECIovQoe971+1E25D
-	 s1OCOA13gjYBkOwjulwYtasmqbwTtCxR1efXc3ccNd3XAcvNHyf5qsJikmmPpVg2dQtAi/KF4=
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-X-OQ-MSGID: <e59c165f-cc55-4a95-b560-5ce8b19ac55c@foxmail.com>
-Date: Mon, 7 Sep 2026 22:48:32 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hdtd13WsPz2yCr
+	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 03:01:09 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 89A2E40A73;
+	Mon,  7 Sep 2026 17:01:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C751F00A3A;
+	Mon,  7 Sep 2026 17:01:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788800466;
+	bh=MaXDcai1D5iQBoi7xi9olTK/TjK+YeuvCgmC2IXSMX8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=CnAtHcWZun0ywBpa/QxielXJkob1gtc1EOpEoBvphgwGpyWFh7vF6rpneH1FPmjDV
+	 lJmHd2f3hdNeRDKOyQXlXJltUjZW1I9E3c5A+XrBgml+qVzBGPf8YJU4aWSAD6yZZ0
+	 2qGSNaJOAiVNyGI9aqbMr247O7po02Y2T1W3elzESJO2dkVgQsc+oNj6mr8ZDrERT+
+	 DAMGK8cK0R8I34mDuCVbckMIS6ar0iuvAlfMRrbaqRKZTQiIzOxK/bNZvkTu5x5njG
+	 DFXbFuwFxDUVPOJR/mkyFqahlAseGibgVn6NyRmD87WFVSAEcWupNxDzbdoDalUtv7
+	 SnxN4d3ciUp/w==
+Date: Tue, 8 Sep 2026 01:00:56 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Jonathan Calmels <jcalmels@nvidia.com>
+Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
+Subject: Re: [PATCH] erofs-utils: lib: refresh device table slots on
+ incremental builds
+Message-ID: <ap7tyB-Nv_BhPU4d@XiangdeMacBook-Pro.local>
+Mail-Followup-To: Jonathan Calmels <jcalmels@nvidia.com>,
+	linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>
+References: <20260903232109.1198449-1-jcalmels@nvidia.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -68,40 +65,31 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] erofs-utils: lib: fix direct S3 writes to blob
- devices
-To: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
-References: <20260907083027.13793-1-xiang@kernel.org>
- <20260907083027.13793-2-xiang@kernel.org>
- <tencent_B0673C3FB942146BB5B3CD80ADEE2CDBD20A@qq.com>
- <ap7HTja0xidxmBX7@XiangdeMacBook-Pro.local>
-Content-Language: en-US
-From: Yifan Zhao <yifan.yfzhao@foxmail.com>
-In-Reply-To: <ap7HTja0xidxmBX7@XiangdeMacBook-Pro.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260903232109.1198449-1-jcalmels@nvidia.com>
 
+Hi Jonathan,
 
-On 9/7/2026 10:16 PM, Gao Xiang wrote:
-> Hi Yifan,
->
-> On Mon, Sep 07, 2026 at 07:04:18PM +0800, Yifan Zhao wrote:
->> missing #include "liberofs_cache.h" in s3.c
->>
->> remotes/s3.c: In function 's3erofs_remote_getobject':
->> remotes/s3.c:1068:54: error: invalid use of undefined type 'struct
->> erofs_bufmgr'
->>   1068 |                         sbi->devs[device_id - 1].bmgr->vf :
->> &sbi->bdev;
->>
-> I've fixed it up, could you check again?
-Tested-by: Yifan Zhao <yifan.yfzhao@foxmail.com>
-> Thanks,
-> Gao Xiang
->
->> Thanks,
->>
->> Yifan
+On Thu, Sep 03, 2026 at 04:21:14PM -0700, Jonathan Calmels wrote:
+> When --incremental=data is run on a merged image, erofs_write_device_table()
+> leaves unified addresses and total block count stale after the primary device
+> grows. Fix it by rewriting the slots in place with updated uniaddr value.
+> 
+> Reproducer:
+> 
+> mkfs.erofs -Enoinline_data a.erofs a/
+> mkfs.erofs -Enoinline_data b.erofs b/
+> mkfs.erofs merged.erofs a.erofs b.erofs
+> mkfs.erofs --incremental=data merged.erofs c/
+> 
+> Signed-off-by: Jonathan Calmels <jcalmels@nvidia.com>
 
+Sorry for the delay. I've applied with minor changes.
+
+Also it'd be better to have some basic functionality test case
+targeting for experimental-tests.
+
+Thanks,
+Gao Xiang
 
