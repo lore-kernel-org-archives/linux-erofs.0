@@ -1,97 +1,70 @@
-Return-Path: <linux-erofs+bounces-4505-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4506-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CFAC6C79F82
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 09:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33D05C79F82
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 12:12:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfJ9B2hrWz2yqT;
-	Tue, 08 Sep 2026 19:11:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788858718;
-	cv=none; b=Bu+lgwpnCZG/urH8j7BoTZbW8BscqZrUNf5HOCtfD1LwEh55gHcQDcvSOTBQETxtVOO3Jh4wnQIKqIj9/nmcqtuL0ds3X5hqpKldynI0TzED+k1KqyLPzn7ZM24OO1ikx+OpoH6547bHSbMOKjtjIeub019BQFtZorrObFVbSs/QlgGkgEsb/cga8NEqhXAsiKZBs7FDwIvvjPusXsovfPgdtRhV4O3TFXwRXBxxEEFMdIjUo3VrffTiJh8VfW3yg0TYYL9owBfNUCWIVNcRnPrcIscKi8FaK4n0g6JVtq1pqB3lPR0TFYT3iHP83wkz3JyIZorxYYYxKwtN30R0Mw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfN9n2j8qz2y2b;
+	Tue, 08 Sep 2026 22:12:45 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.18
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788869565;
+	cv=none; b=U86cmj3KLtyEKqpX+/JVaa5QW1htx0G0MiNk+PoAbc/+PBUi71GfwXfFTgUt+KAR6WUM3mxKQQs4UeCvkukuk22ug5JCN+dsPwvEVL8msW7EYd6aXJTkn7ovVIKAyLRC9FxusM8YDgmKTEK83Cbi2gR/8t/Iyr6XO42UF5IzaFxPKQhdEy0OZymcnB4Jm1eSIJoWV/eF6ieDMxb4/PraTjy0Ol0+7JieaEczsNQHy4acb7sQv0GJRJzB1JUvsNnVS45mFuXMbRc914KZ1UW674M/wgsjkuUQfa4i5xSyiVGAw4N8PBNkFL2sbgJIQ7pX7Dc+CWPyXpOqHyJYG9FWFQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788858718; c=relaxed/relaxed;
-	bh=sxO7FEkCCz/20KjVrg30v5ozCynNyOtWLTOKJ0S48jc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=T+VwEyBrLlE42ERlNvxamoLma8KeKTy0z563sqrUJ11gMBQxDo83+rinKTaaqycY3kdUbtVcPH0VaIMIrtrceiEtrupAx37/rr3kYDi+jQ6ebtIQnfPpUezOGzMJj13+AadSM2C0hVy+Vlk3vhnbtezoDwxY6thxYVogImo+rLm99Y9r8EhScA6d9e7Vm0AGcBscFLkit2+cYCrk9uyYRAm2qxpDEUwbJlfT+4SNWUauGtiv6f6sVju8tJfsWVdWLzGUxPshUjX7J1o51vLh4H8BvumpSnq0h928wPGxftIHSF1e4j56VAnSFEPyijMx6hPzLa3OaBAyepxH2wSlXQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQ/Qk+A4; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQ/Qk+A4; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1788869565; c=relaxed/relaxed;
+	bh=4jZ73zSFs8YrDXG0RMmU2p9sST4TMhpplgB3nL3uVw0=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=LbzcSpAuj2nsyzCPgO/faaCLmPN3xD34tgb5RTiHtNzbMYw4wDaUJVMOdU03Q74z4m3N6/UPpR72mv0cGEpvvJuQeiMSPQyUzuBs5Jawy0z/bhR+ybFZuKZzRRCMwZxfxcl2/sA+B+xMsjH8eZpkuZ/ZctLufre4MoTb+ouPJSjCRjkc3fNHEHTxugSVR0iy0rSuGPx/kVD2EPrfWa4FDFWcWAsyAK1kd7AH+0s89nRSFa0KXkPvbkpsuGwRLT2fNJhyrFbCG1/iSLgWz46K2NH/pOLkPmOJh/wMFlFYYRnJrKzFU8MMAEE24tpaHn36Uet5nypeAMhAgq2A48wVtg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kQjqHlXL; dkim-atps=neutral; spf=pass (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQ/Qk+A4;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQ/Qk+A4;
+	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kQjqHlXL;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfJ992f70z2y8d
-	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 19:11:57 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788858713;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sxO7FEkCCz/20KjVrg30v5ozCynNyOtWLTOKJ0S48jc=;
-	b=gQ/Qk+A40MANOLMJBdXkvAJS+UY73N9Boz3JXNyf+Cx7hI2QtwlG8qOmiEq2oHfSyUiAQn
-	JJG2NO2AW4+jO2iDX0xQxEtlMMIK37zaPAZKrgXmvCnLq18vMavCyMcZIeBYqsFdi3nhwe
-	Nw2ONP8ndp8EHEckUT30J/k5PytTmTI=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788858713;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sxO7FEkCCz/20KjVrg30v5ozCynNyOtWLTOKJ0S48jc=;
-	b=gQ/Qk+A40MANOLMJBdXkvAJS+UY73N9Boz3JXNyf+Cx7hI2QtwlG8qOmiEq2oHfSyUiAQn
-	JJG2NO2AW4+jO2iDX0xQxEtlMMIK37zaPAZKrgXmvCnLq18vMavCyMcZIeBYqsFdi3nhwe
-	Nw2ONP8ndp8EHEckUT30J/k5PytTmTI=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-622-8YNJsXH9MtiWIpWsQgpP2g-1; Tue,
- 08 Sep 2026 05:11:47 -0400
-X-MC-Unique: 8YNJsXH9MtiWIpWsQgpP2g-1
-X-Mimecast-MFC-AGG-ID: 8YNJsXH9MtiWIpWsQgpP2g_1788858705
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 017AC195DB9B;
-	Tue,  8 Sep 2026 09:11:45 +0000 (UTC)
-Received: from warthog.com (unknown [10.44.32.158])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 260CF1800605;
-	Tue,  8 Sep 2026 09:11:38 +0000 (UTC)
-From: David Howells <dhowells@redhat.com>
-To: Paulo Alcantara <pc@manguebit.org>
-Cc: David Howells <dhowells@redhat.com>,
-	Christian Brauner <christian@brauner.io>,
-	Matthew Wilcox <willy@infradead.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Stefan Metzmacher <metze@samba.org>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	netfs@lists.linux.dev,
-	linux-afs@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	ceph-devel@vger.kernel.org,
-	v9fs@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-Subject: [PATCH v12 8/8] netfs: Set subrequest->source at alloc before trace emission
-Date: Tue,  8 Sep 2026 10:10:29 +0100
-Message-ID: <20260908091031.1506798-9-dhowells@redhat.com>
-In-Reply-To: <20260908091031.1506798-1-dhowells@redhat.com>
-References: <20260908091031.1506798-1-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfN9k0gGMz2xlJ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 22:12:39 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1788869562; x=1820405562;
+  h=date:from:to:cc:subject:message-id;
+  bh=xtQya+s8YdIgbtlsfIgCT2SrlQtmMWehPnCPpKVSUkU=;
+  b=kQjqHlXLquz6RDcsCIDGaxJrC+0DwfiQtcclI10VfOzPpNu2EojrC4QC
+   c1MwP/t39kpufOFldtPVKrXMySoMk2OlN/liwfVl34blm7wP2lNGZeuFE
+   UU8n2gYs8F80fO+wOUHl8pHNk+3s+Y+YORDg3UetH/BdYnrXoHYn3VuFu
+   /UoiQNRuBvMSerQmEpMm7j/hEyFey2z20RrSixSMPs58BZmm8waqJAIQH
+   MC9lqA1tv7xc0LrDqvRN/FXKBBKohGlnIH/azs44Nl45D+AisbLMJs0um
+   59jetziAyh5IB4zufoX5nvitWFepOLNATcvKOAemyUGKkalVQ/jPRw10F
+   A==;
+X-CSE-ConnectionGUID: gEhasWRtQJazNMjnfkRQCQ==
+X-CSE-MsgGUID: ISFS12WoQ8CufaKiMTkizA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11899"; a="88419178"
+X-IronPort-AV: E=Sophos;i="6.25,268,1779174000"; 
+   d="scan'208";a="88419178"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2026 05:12:35 -0700
+X-CSE-ConnectionGUID: 3kt8iKcNT8at1OK2oOzk6w==
+X-CSE-MsgGUID: o3E4Y/AWS86pAH/XGxJWBQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,268,1779174000"; 
+   d="scan'208";a="268394154"
+Received: from lkp-server01.sh.intel.com (HELO dc5b8f51e05b) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 08 Sep 2026 05:12:34 -0700
+Received: from kbuild by dc5b8f51e05b with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x3ugh-0000000005z-4BRS;
+	Tue, 08 Sep 2026 12:12:31 +0000
+Date: Tue, 08 Sep 2026 20:11:42 +0800
+From: kernel test robot <lkp@intel.com>
+To: Gao Xiang <xiang@kernel.org>
+Cc: linux-erofs@lists.ozlabs.org
+Subject: [xiang-erofs:dev-test] BUILD SUCCESS
+ 96bf9831fbf423b8104f7948cd8fe7007ecfb46c
+Message-ID: <202609082040.G2ik1ktl-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -102,168 +75,102 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: bd0RY1USNimUtWeMphjH019ydl5_6uewUvlG7UfUiE0_1788858705
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Set subrequest->source in netfs_alloc_subrequest() before we emit the trace
-line indicating we allocated the subrequest.  Note that this requires the
-allocation of the subreq in netfs_read_to_pagecache() to be pushed to after
-the decision about what sort of subreq it should be.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev-test
+branch HEAD: 96bf9831fbf423b8104f7948cd8fe7007ecfb46c  erofs: delimit inode_share cache key components
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Paulo Alcantara <pc@manguebit.org>
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
-cc: linux-mm@kvack.org
----
- fs/netfs/buffered_read.c | 4 ++--
- fs/netfs/direct_read.c   | 3 +--
- fs/netfs/internal.h      | 3 ++-
- fs/netfs/objects.c       | 4 +++-
- fs/netfs/read_retry.c    | 3 +--
- fs/netfs/read_single.c   | 2 +-
- fs/netfs/write_issue.c   | 3 +--
- fs/netfs/write_retry.c   | 3 +--
- 8 files changed, 12 insertions(+), 13 deletions(-)
+elapsed time: 1519m
 
-diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
-index e7fa30376862..f88b87c8303e 100644
---- a/fs/netfs/buffered_read.c
-+++ b/fs/netfs/buffered_read.c
-@@ -276,10 +276,10 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq)
- 
- 	do {
- 		struct netfs_io_subrequest *subreq;
--		enum netfs_io_source source = NETFS_SOURCE_UNKNOWN;
-+		enum netfs_io_source source;
- 		ssize_t slice;
- 
--		subreq = netfs_alloc_subrequest(rreq);
-+		subreq = netfs_alloc_subrequest(rreq, NETFS_SOURCE_UNKNOWN);
- 		if (!subreq) {
- 			ret = -ENOMEM;
- 			break;
-diff --git a/fs/netfs/direct_read.c b/fs/netfs/direct_read.c
-index 5405e108b7a3..8c15f3079723 100644
---- a/fs/netfs/direct_read.c
-+++ b/fs/netfs/direct_read.c
-@@ -55,7 +55,7 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
- 		struct netfs_io_subrequest *subreq;
- 		ssize_t slice;
- 
--		subreq = netfs_alloc_subrequest(rreq);
-+		subreq = netfs_alloc_subrequest(rreq, NETFS_DOWNLOAD_FROM_SERVER);
- 		if (!subreq) {
- 			/* Stash the error in the request if there's not
- 			 * already an error set.
-@@ -64,7 +64,6 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
- 			break;
- 		}
- 
--		subreq->source	= NETFS_DOWNLOAD_FROM_SERVER;
- 		subreq->start	= start;
- 		subreq->len	= size;
- 
-diff --git a/fs/netfs/internal.h b/fs/netfs/internal.h
-index e0aa0ea510e9..ec520c948420 100644
---- a/fs/netfs/internal.h
-+++ b/fs/netfs/internal.h
-@@ -92,7 +92,8 @@ void netfs_get_request(struct netfs_io_request *rreq, enum netfs_rreq_ref_trace
- void netfs_clear_subrequests(struct netfs_io_request *rreq);
- void netfs_put_request(struct netfs_io_request *rreq, enum netfs_rreq_ref_trace what);
- void netfs_put_failed_request(struct netfs_io_request *rreq);
--struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq);
-+struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq,
-+						   enum netfs_io_source source);
- 
- static inline void netfs_see_request(struct netfs_io_request *rreq,
- 				     enum netfs_rreq_ref_trace what)
-diff --git a/fs/netfs/objects.c b/fs/netfs/objects.c
-index 3460aa1c4af1..9c6ea718692a 100644
---- a/fs/netfs/objects.c
-+++ b/fs/netfs/objects.c
-@@ -207,7 +207,8 @@ void netfs_put_failed_request(struct netfs_io_request *rreq)
- /*
-  * Allocate and partially initialise an I/O request structure.
-  */
--struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq)
-+struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq,
-+						   enum netfs_io_source source)
- {
- 	struct netfs_io_subrequest *subreq;
- 	mempool_t *mempool = rreq->netfs_ops->subrequest_pool ?: &netfs_subrequest_pool;
-@@ -224,6 +225,7 @@ struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq
- 	INIT_WORK(&subreq->work, NULL);
- 	INIT_LIST_HEAD(&subreq->rreq_link);
- 	refcount_set(&subreq->ref, 2);
-+	subreq->source = source;
- 	subreq->rreq = rreq;
- 	subreq->debug_index = atomic_inc_return(&rreq->subreq_counter);
- 	netfs_get_request(rreq, netfs_rreq_trace_get_subreq);
-diff --git a/fs/netfs/read_retry.c b/fs/netfs/read_retry.c
-index 46810d29f0c0..396a05432a7e 100644
---- a/fs/netfs/read_retry.c
-+++ b/fs/netfs/read_retry.c
-@@ -195,12 +195,11 @@ static void netfs_retry_read_subrequests(struct netfs_io_request *rreq)
- 		 * and insert them after.
- 		 */
- 		do {
--			subreq = netfs_alloc_subrequest(rreq);
-+			subreq = netfs_alloc_subrequest(rreq, NETFS_DOWNLOAD_FROM_SERVER);
- 			if (!subreq) {
- 				subreq = to;
- 				goto abandon_after;
- 			}
--			subreq->source		= NETFS_DOWNLOAD_FROM_SERVER;
- 			subreq->start		= start;
- 			subreq->len		= len;
- 			subreq->stream_nr	= stream->stream_nr;
-diff --git a/fs/netfs/read_single.c b/fs/netfs/read_single.c
-index ccb5fc809d99..50775370d13d 100644
---- a/fs/netfs/read_single.c
-+++ b/fs/netfs/read_single.c
-@@ -92,7 +92,7 @@ static int netfs_single_dispatch_read(struct netfs_io_request *rreq)
- 	struct netfs_io_subrequest *subreq;
- 	int ret = 0;
- 
--	subreq = netfs_alloc_subrequest(rreq);
-+	subreq = netfs_alloc_subrequest(rreq, NETFS_DOWNLOAD_FROM_SERVER);
- 	if (!subreq)
- 		return -ENOMEM;
- 
-diff --git a/fs/netfs/write_issue.c b/fs/netfs/write_issue.c
-index 9a528da4bf9f..e7cb496f6324 100644
---- a/fs/netfs/write_issue.c
-+++ b/fs/netfs/write_issue.c
-@@ -168,10 +168,9 @@ void netfs_prepare_write(struct netfs_io_request *wreq,
- 	    wreq_iter->folioq_slot >= folioq_nr_slots(wreq_iter->folioq))
- 		rolling_buffer_make_space(&wreq->buffer, wreq->gfp);
- 
--	subreq = netfs_alloc_subrequest(wreq);
-+	subreq = netfs_alloc_subrequest(wreq, stream->source);
- 	if (!subreq)
- 		return;
--	subreq->source		= stream->source;
- 	subreq->start		= start;
- 	subreq->stream_nr	= stream->stream_nr;
- 	subreq->io_iter		= *wreq_iter;
-diff --git a/fs/netfs/write_retry.c b/fs/netfs/write_retry.c
-index 6cd584242af2..d7d5348496fc 100644
---- a/fs/netfs/write_retry.c
-+++ b/fs/netfs/write_retry.c
-@@ -149,8 +149,7 @@ static void netfs_retry_write_stream(struct netfs_io_request *wreq,
- 		 * and insert them after.
- 		 */
- 		do {
--			subreq = netfs_alloc_subrequest(wreq);
--			subreq->source		= to->source;
-+			subreq = netfs_alloc_subrequest(wreq, stream->source);
- 			subreq->start		= start;
- 			subreq->stream_nr	= to->stream_nr;
- 			subreq->retry_count	= 1;
+configs tested: 81
+configs skipped: 6
 
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+tested configs:
+alpha         allnoconfig    gcc-16.1.0
+alpha        allyesconfig    gcc-16.1.0
+arc          allmodconfig    clang-24
+arc          allmodconfig    gcc-16.1.0
+arc           allnoconfig    gcc-16.1.0
+arc          allyesconfig    clang-24
+arc          allyesconfig    gcc-16.1.0
+arm           allnoconfig    clang-17
+arm           allnoconfig    gcc-16.1.0
+arm          allyesconfig    clang-24
+arm          allyesconfig    gcc-16.1.0
+arm64        allmodconfig    clang-24
+arm64         allnoconfig    gcc-16.1.0
+csky         allmodconfig    gcc-16.1.0
+csky          allnoconfig    gcc-16.1.0
+hexagon      allmodconfig    clang-24
+hexagon      allmodconfig    gcc-16.1.0
+hexagon       allnoconfig    clang-24
+hexagon       allnoconfig    gcc-16.1.0
+i386         allmodconfig    clang-22
+i386          allnoconfig    gcc-14
+i386          allnoconfig    gcc-16.1.0
+i386         allyesconfig    clang-22
+loongarch    allmodconfig    clang-24
+loongarch     allnoconfig    clang-20
+loongarch     allnoconfig    gcc-16.1.0
+m68k         allmodconfig    gcc-16.1.0
+m68k          allnoconfig    gcc-16.1.0
+m68k         allyesconfig    clang-24
+m68k         allyesconfig    gcc-16.1.0
+microblaze    allnoconfig    gcc-16.1.0
+microblaze   allyesconfig    gcc-16.1.0
+mips         allmodconfig    gcc-16.1.0
+mips          allnoconfig    gcc-16.1.0
+mips         allyesconfig    gcc-16.1.0
+nios2        allmodconfig    clang-20
+nios2        allmodconfig    gcc-11.5.0
+nios2         allnoconfig    clang-24
+nios2         allnoconfig    gcc-11.5.0
+openrisc     allmodconfig    clang-20
+openrisc     allmodconfig    gcc-16.1.0
+openrisc      allnoconfig    clang-24
+openrisc      allnoconfig    gcc-16.1.0
+parisc       allmodconfig    gcc-16.1.0
+parisc        allnoconfig    clang-24
+parisc        allnoconfig    gcc-16.1.0
+parisc       allyesconfig    clang-17
+parisc       allyesconfig    gcc-16.1.0
+powerpc      allmodconfig    gcc-16.1.0
+powerpc       allnoconfig    clang-24
+powerpc       allnoconfig    gcc-16.1.0
+riscv        allmodconfig    clang-24
+riscv         allnoconfig    clang-24
+riscv         allnoconfig    gcc-16.1.0
+riscv        allyesconfig    clang-24
+s390         allmodconfig    clang-17
+s390         allmodconfig    clang-24
+s390          allnoconfig    clang-24
+s390         allyesconfig    gcc-16.1.0
+sh           allmodconfig    gcc-16.1.0
+sh            allnoconfig    clang-24
+sh            allnoconfig    gcc-16.1.0
+sh           allyesconfig    clang-17
+sh           allyesconfig    gcc-16.1.0
+sparc         allnoconfig    clang-24
+sparc         allnoconfig    gcc-16.1.0
+sparc64      allmodconfig    clang-20
+um           allmodconfig    clang-17
+um            allnoconfig    clang-17
+um            allnoconfig    clang-24
+um           allyesconfig    gcc-14
+um           allyesconfig    gcc-16.1.0
+x86_64       allmodconfig    clang-22
+x86_64        allnoconfig    clang-22
+x86_64        allnoconfig    clang-24
+x86_64       allyesconfig    clang-22
+x86_64      rhel-9.4-rust    clang-22
+xtensa        allnoconfig    clang-24
+xtensa        allnoconfig    gcc-16.1.0
+xtensa       allyesconfig    clang-20
+xtensa       allyesconfig    gcc-16.1.0
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
