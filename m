@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-4503-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4504-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9980CC79FA0
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 09:11:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68900C79F82
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 09:11:50 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfJ8q12rLz2ypw;
-	Tue, 08 Sep 2026 19:11:39 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788858699;
-	cv=none; b=D0o+EnFdB+0ZYJ/nyMgTTQd7QWd24yfNg4D+kBPh1mtyQ4czN4e18LsrHQ2gdF8dHYzL310OOnoNh4K5qpKpspiN1HEu0PJzhMWS8sMReS5bq8MNm6XzwBTPY1AByUUXKoSMcWEiW8tPkOO7WSsd5Nw9HFktw9vRAAhho/KzWl/ee//32z/PDMCLwXDl3geBRXKbb/VPNAqhTs63bubTP0SuJmGWZDe+Al3G+ylx2Q8DUiSO4HrteiGr3Z2fgMf3dU6rToRjfkJ1Mk9+SZQElL8YQGeLXeQ+/ODc9c56WVDYv5ZF1uMgxaplP8FzCHrAMs/3nSqRbUU0LUAAsqCmbQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfJ906tkXz2yqL;
+	Tue, 08 Sep 2026 19:11:48 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788858708;
+	cv=none; b=RqCi6VnRVynvm+Y/yQkA5CvzWc4ZttIJ9j3A9GdKguJ5r7YH+2TlKBvZurWHY/S2t8fAok9PZyYX6w8OpI3Tr4kaAxaQeklTMs2gdzqFJ7Gn4ggFardtsfXeMREAld5hn9bYe17HatcBGXq7DCtd9xdd62yDBix/rnGk0+boQzaN3kgKytmR1aOUl4qb7mptvGMwvcIQjp1J827BMHolLPF1d29doD9Lpq/cBv9vcXe2stQv5PwymZVeV2EiHtPWT3rbQpbJIO/SNA6FbcCu1G5TqVa2LVaxqYhlUsvePlMbnJ+v0t97tfNZMBMiXInV5k9ho3CPBnbKoKqsY1WF8A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788858699; c=relaxed/relaxed;
-	bh=p547j3VyZN42h1CHEtOtl085drm+stiJJ8mToU3R6J4=;
+	t=1788858708; c=relaxed/relaxed;
+	bh=0o5QpxFeu5TrNwGgmbvg+/fFTzaz02uc6YukdcDfJEU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=RPy8ejoiBLJLxyXOgwglEzSSudKQZkxfC5he1xUctBvmj28jSggitk0LBTgRwaaxnR+aI47+cY2xuIYu5inx33jdZfQwCw9ouWkZCBlnmEwwpYHxtTR0dHWIAUKeBSytZ1iylavmsJKrB19BeI88RycP6g47pVBWnT7W3IoqbNm0YnbzGd2ZUxpNvjXFloF6wDoJtSjqPu0qsWNN1z2+DV+jLmXx5rSQ0QKc/GemnUBLwVodlarODAskT5BibnY4gyWeREG/RMMvMPdpQR7vbU3ZqMTApkZ+WdfKIo1iSul7Xz5gsXpM4YhB0HJUgaSW+Co+QVgda0+hOOQJeyJyoQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PL7WEDtQ; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YxKx2JJ6; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=UqbexCPlIKfRrGGTQEZVx27FK8oP0jmzukStgOoBPSseNB851KRX+I0QzNo7t7ZV53b5bJaIia1iVcXiwmz0isKXiffQIDWyjJ089O2BB0jCbZYi7GCC76kpI8/3IGRfP3UqWTsLg3TpMoG/aTAqqdxSOcM0mXVdcjYtbS61BLKN6dyla9I2J7N/B0b+EgZAD+5rtNze/QaFUWcpIOY+Pv0NVATKUU+GDjMs8aheXWzqZS7kA7q0CUJfJ5bo1hT+Hzfm1uKbXh/cxVTL+xjTTZa/4ggVd8qrVZKQZ8Y8HEfZe45j4ObZ8kv4DG6r1JFt1B4IsNKMqFD1apLE0RwqcQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PN9o3mSX; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PN9o3mSX; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PL7WEDtQ;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YxKx2JJ6;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PN9o3mSX;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PN9o3mSX;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfJ8p15gnz2y8d
-	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 19:11:37 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfJ8z63pDz2y8d
+	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 19:11:47 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788858694;
+	s=mimecast20190719; t=1788858704;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=p547j3VyZN42h1CHEtOtl085drm+stiJJ8mToU3R6J4=;
-	b=PL7WEDtQTpdtBNPWh+nM1W76dsR7phqNjVhVLQD+sFhbwr+5w0/YYGkdb+MBQfT15+o0wM
-	6x2Nd989vFp3wngbXPgyA6JRfrXccrEt3Xp6beTzsBaBdmupZsKZltxT+BCp8Z0xUn5zeC
-	uXVYjd1kC3vBHr0p3kD+IXNryT3PP9c=
+	bh=0o5QpxFeu5TrNwGgmbvg+/fFTzaz02uc6YukdcDfJEU=;
+	b=PN9o3mSX4/LqSR2qdu/BNdvE/rp8AGSJUQRSD0FquqqVnXqFzCtHPcEigRd7rHdGtn1dDa
+	Z1e5/7wdE6PLbeclnqgN1CC00HP6Sn6UZJpkgCZ35gGbqujyDgjXwN4p8binTbTSAuzfFN
+	wN6klx9sPRJB7iv3Lcs5Eh4aaVB3uuU=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788858695;
+	s=mimecast20190719; t=1788858704;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=p547j3VyZN42h1CHEtOtl085drm+stiJJ8mToU3R6J4=;
-	b=YxKx2JJ6J+NJMkDTZA0tYHWFxeo4vki68vtTN8fdOuBd5E9cyUb3nYW1mYZXXa6SqSxsUI
-	Vjac6/mAQkn46m1dad4EHTOOchc42CifgQ0/0cWzb+rkJX9PMZa81UrlI8t+2u3XR4jrmW
-	brIND4hXnLC/i8Qz65QXIET609ai0WY=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=0o5QpxFeu5TrNwGgmbvg+/fFTzaz02uc6YukdcDfJEU=;
+	b=PN9o3mSX4/LqSR2qdu/BNdvE/rp8AGSJUQRSD0FquqqVnXqFzCtHPcEigRd7rHdGtn1dDa
+	Z1e5/7wdE6PLbeclnqgN1CC00HP6Sn6UZJpkgCZ35gGbqujyDgjXwN4p8binTbTSAuzfFN
+	wN6klx9sPRJB7iv3Lcs5Eh4aaVB3uuU=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-150-4eFBHzqLNde9yRx9H1gK_Q-1; Tue,
- 08 Sep 2026 05:11:33 -0400
-X-MC-Unique: 4eFBHzqLNde9yRx9H1gK_Q-1
-X-Mimecast-MFC-AGG-ID: 4eFBHzqLNde9yRx9H1gK_Q_1788858690
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-497-dDMc-nE1MM-cxGhXBWiWwA-1; Tue,
+ 08 Sep 2026 05:11:39 -0400
+X-MC-Unique: dDMc-nE1MM-cxGhXBWiWwA-1
+X-Mimecast-MFC-AGG-ID: dDMc-nE1MM-cxGhXBWiWwA_1788858697
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3984F195E907;
-	Tue,  8 Sep 2026 09:11:30 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 750D818345B6;
+	Tue,  8 Sep 2026 09:11:37 +0000 (UTC)
 Received: from warthog.com (unknown [10.44.32.158])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 811801800346;
-	Tue,  8 Sep 2026 09:11:23 +0000 (UTC)
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BC25C1955F0C;
+	Tue,  8 Sep 2026 09:11:31 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Paulo Alcantara <pc@manguebit.org>
 Cc: David Howells <dhowells@redhat.com>,
@@ -85,14 +85,10 @@ Cc: David Howells <dhowells@redhat.com>,
 	v9fs@lists.linux.dev,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Trond Myklebust <trondmy@kernel.org>,
-	Anna Schumaker <anna@kernel.org>,
-	Alex Markuze <amarkuze@redhat.com>,
-	Viacheslav Dubeyko <slava@dubeyko.com>
-Subject: [PATCH v12 6/8] netfs: Make deprecated PG_private_2 support opt-in
-Date: Tue,  8 Sep 2026 10:10:27 +0100
-Message-ID: <20260908091031.1506798-7-dhowells@redhat.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v12 7/8] netfs: Add some functions to wrap the all-queued handling
+Date: Tue,  8 Sep 2026 10:10:28 +0100
+Message-ID: <20260908091031.1506798-8-dhowells@redhat.com>
 In-Reply-To: <20260908091031.1506798-1-dhowells@redhat.com>
 References: <20260908091031.1506798-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -106,172 +102,240 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: qFdJ0VwntXg4xVA3SsvApW2JIA5TXyWxzrJNaJ1CgKA_1788858690
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Mimecast-MFC-PROC-ID: 3y0Nk1DXkQw-Nz9QowuXXrCNUEmfNWuihdyZAy_w-QA_1788858697
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Make the deprecated PG_private_2 support opt-in, requiring it to be
-selected by the filesystems that might want to use it.
+Add some helper functions to wrap the handling of the NETFS_RREQ_ALL_QUEUED
+flag and to insert the appropriate barriers.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 Reviewed-by: Paulo Alcantara <pc@manguebit.org>
-cc: Trond Myklebust <trondmy@kernel.org>
-cc: Anna Schumaker <anna@kernel.org>
-cc: Ilya Dryomov <idryomov@gmail.com>
-cc: Alex Markuze <amarkuze@redhat.com>
-cc: Viacheslav Dubeyko <slava@dubeyko.com>
 cc: netfs@lists.linux.dev
-cc: linux-nfs@vger.kernel.org
-cc: ceph-devel@vger.kernel.org
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/ceph/Kconfig         |  1 +
- fs/netfs/Kconfig        |  3 +++
- fs/netfs/Makefile       |  2 +-
- fs/netfs/internal.h     | 28 ++++++++++++++++++++++++++++
- fs/netfs/read_collect.c |  4 ++--
- fs/nfs/Kconfig          |  1 +
- include/linux/netfs.h   |  2 ++
- 7 files changed, 38 insertions(+), 3 deletions(-)
+ fs/netfs/buffered_read.c     |  9 +++------
+ fs/netfs/direct_read.c       |  9 +++------
+ fs/netfs/internal.h          | 19 +++++++++++++++++++
+ fs/netfs/misc.c              |  2 +-
+ fs/netfs/read_collect.c      |  4 +---
+ fs/netfs/read_pgpriv2.c      |  3 +--
+ fs/netfs/read_single.c       |  9 +++------
+ fs/netfs/write_collect.c     |  3 +--
+ fs/netfs/write_issue.c       |  6 ++----
+ include/trace/events/netfs.h |  1 +
+ 10 files changed, 35 insertions(+), 30 deletions(-)
 
-diff --git a/fs/ceph/Kconfig b/fs/ceph/Kconfig
-index 3d64a316ca31..aa6ccd7794d2 100644
---- a/fs/ceph/Kconfig
-+++ b/fs/ceph/Kconfig
-@@ -4,6 +4,7 @@ config CEPH_FS
- 	depends on INET
- 	select CEPH_LIB
- 	select NETFS_SUPPORT
-+	select NETFS_PGPRIV2
- 	select FS_ENCRYPTION_ALGS if FS_ENCRYPTION
- 	default n
- 	help
-diff --git a/fs/netfs/Kconfig b/fs/netfs/Kconfig
-index 7701c037c328..d0e7b0971fa3 100644
---- a/fs/netfs/Kconfig
-+++ b/fs/netfs/Kconfig
-@@ -22,6 +22,9 @@ config NETFS_STATS
- 	  between CPUs.  On the other hand, the stats are very useful for
- 	  debugging purposes.  Saying 'Y' here is recommended.
+diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
+index 61cf82b4b60d..e7fa30376862 100644
+--- a/fs/netfs/buffered_read.c
++++ b/fs/netfs/buffered_read.c
+@@ -355,10 +355,8 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq)
+ 		}
+ 		start += slice;
+ 		size -= slice;
+-		if (size <= 0) {
+-			smp_wmb(); /* Write lists before ALL_QUEUED. */
+-			set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
+-		}
++		if (size <= 0)
++			netfs_all_subreqs_queued(rreq);
  
-+config NETFS_PGPRIV2
-+	bool
-+
- config NETFS_DEBUG
- 	bool "Enable dynamic debugging netfslib and FS-Cache"
- 	depends on NETFS_SUPPORT
-diff --git a/fs/netfs/Makefile b/fs/netfs/Makefile
-index b43188d64bd8..54834cde7e56 100644
---- a/fs/netfs/Makefile
-+++ b/fs/netfs/Makefile
-@@ -11,7 +11,6 @@ netfs-y := \
- 	misc.o \
- 	objects.o \
- 	read_collect.o \
--	read_pgpriv2.o \
- 	read_retry.o \
- 	read_single.o \
- 	rolling_buffer.o \
-@@ -19,6 +18,7 @@ netfs-y := \
- 	write_issue.o \
- 	write_retry.o
+ 		if (fq) {
+ 			/* See if the cache indicated this should be cached. */
+@@ -378,8 +376,7 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq)
+ 	} while (size > 0);
  
-+netfs-$(CONFIG_NETFS_PGPRIV2) += read_pgpriv2.o
- netfs-$(CONFIG_NETFS_STATS) += stats.o
+ 	if (unlikely(size > 0)) {
+-		smp_wmb(); /* Write lists before ALL_QUEUED. */
+-		set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++		netfs_all_subreqs_queued(rreq);
+ 		netfs_wake_collector(rreq);
+ 	}
  
- netfs-$(CONFIG_FSCACHE) += \
+diff --git a/fs/netfs/direct_read.c b/fs/netfs/direct_read.c
+index aa10af5171a8..5405e108b7a3 100644
+--- a/fs/netfs/direct_read.c
++++ b/fs/netfs/direct_read.c
+@@ -84,10 +84,8 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
+ 		size -= slice;
+ 		start += slice;
+ 		rreq->submitted += slice;
+-		if (size <= 0) {
+-			smp_wmb(); /* Write lists before ALL_QUEUED. */
+-			set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
+-		}
++		if (size <= 0)
++			netfs_all_subreqs_queued(rreq);
+ 
+ 		rreq->netfs_ops->issue_read(subreq);
+ 
+@@ -99,8 +97,7 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
+ 	} while (size > 0);
+ 
+ 	if (unlikely(size > 0)) {
+-		smp_wmb(); /* Write lists before ALL_QUEUED. */
+-		set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++		netfs_all_subreqs_queued(rreq);
+ 		netfs_wake_collector(rreq);
+ 	}
+ }
 diff --git a/fs/netfs/internal.h b/fs/netfs/internal.h
-index a4c834e32214..532263d896a1 100644
+index 532263d896a1..e0aa0ea510e9 100644
 --- a/fs/netfs/internal.h
 +++ b/fs/netfs/internal.h
-@@ -120,9 +120,37 @@ void netfs_cache_read_terminated(void *priv, ssize_t transferred_or_error);
- /*
-  * read_pgpriv2.c
-  */
-+#ifdef CONFIG_NETFS_PGPRIV2
-+int netfs_prepare_pgpriv2_write_buffer(struct netfs_io_subrequest *subreq,
-+				       unsigned int max_segs);
- void netfs_pgpriv2_copy_to_cache(struct netfs_io_request *rreq, struct folio *folio);
- void netfs_pgpriv2_end_copy_to_cache(struct netfs_io_request *rreq);
- bool netfs_pgpriv2_unlock_copied_folios(struct netfs_io_request *wreq);
-+static inline bool netfs_using_pgpriv2(const struct netfs_io_request *rreq)
-+{
-+	return test_bit(NETFS_RREQ_USE_PGPRIV2, &rreq->flags);
-+}
-+#else
-+static inline int netfs_prepare_pgpriv2_write_buffer(struct netfs_io_subrequest *subreq,
-+						     unsigned int max_segs)
-+{
-+	return -EIO;
-+}
-+static inline void netfs_pgpriv2_copy_to_cache(struct netfs_io_request *rreq, struct folio *folio)
-+{
-+}
-+static inline void netfs_pgpriv2_end_copy_to_cache(struct netfs_io_request *rreq)
-+{
-+}
-+static inline bool netfs_pgpriv2_unlock_copied_folios(struct netfs_io_request *wreq)
-+{
-+	return true;
-+}
-+static inline bool netfs_using_pgpriv2(const struct netfs_io_request *rreq)
-+{
-+	return false;
-+}
-+#endif
+@@ -341,6 +341,25 @@ static inline bool netfs_check_subreq_in_progress(const struct netfs_io_subreque
+ 	return test_bit_acquire(NETFS_SREQ_IN_PROGRESS, &subreq->flags);
+ }
  
++/*
++ * Indicate that we've generated and queued all the subrequests we're going to.
++ */
++static inline void netfs_all_subreqs_queued(struct netfs_io_request *rreq)
++{
++	smp_wmb(); /* Write lists before ALL_QUEUED. */
++	set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++	trace_netfs_rreq(rreq, netfs_rreq_trace_all_queued);
++}
++
++/*
++ * Query if all subrequests are queued.
++ */
++static inline bool netfs_are_all_subreqs_queued(const struct netfs_io_request *rreq)
++{
++	/* Read lists after ALL_QUEUED. */
++	return test_bit_acquire(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++}
++
  /*
-  * read_retry.c
+  * fscache-cache.c
+  */
+diff --git a/fs/netfs/misc.c b/fs/netfs/misc.c
+index eafc4edae6a0..a3cd76d584b8 100644
+--- a/fs/netfs/misc.c
++++ b/fs/netfs/misc.c
+@@ -424,7 +424,7 @@ static int netfs_collect_in_app(struct netfs_io_request *rreq,
+ 			need_collect = true;
+ 			break;
+ 		}
+-		if (subreq || !test_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags))
++		if (subreq || !netfs_are_all_subreqs_queued(rreq))
+ 			done = false;
+ 	}
+ 
 diff --git a/fs/netfs/read_collect.c b/fs/netfs/read_collect.c
-index 61f2664de6d3..01ea1ddae04b 100644
+index 01ea1ddae04b..cb97dedad170 100644
 --- a/fs/netfs/read_collect.c
 +++ b/fs/netfs/read_collect.c
-@@ -38,7 +38,7 @@ static void netfs_clear_unread(struct netfs_io_subrequest *subreq)
-  */
- void netfs_cancel_copy_to_cache(struct netfs_io_request *rreq, struct folio *folio)
+@@ -462,10 +462,8 @@ bool netfs_read_collection(struct netfs_io_request *rreq)
+ 	/* We're done when the app thread has finished posting subreqs and the
+ 	 * queue is empty.
+ 	 */
+-	if (!test_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags))
++	if (!netfs_are_all_subreqs_queued(rreq))
+ 		return false;
+-	smp_rmb(); /* Read ALL_QUEUED before subreq lists. */
+-
+ 	if (!list_empty(&stream->subrequests))
+ 		return false;
+ 
+diff --git a/fs/netfs/read_pgpriv2.c b/fs/netfs/read_pgpriv2.c
+index bf4d9d6877d7..5280b606fda4 100644
+--- a/fs/netfs/read_pgpriv2.c
++++ b/fs/netfs/read_pgpriv2.c
+@@ -158,8 +158,7 @@ void netfs_pgpriv2_end_copy_to_cache(struct netfs_io_request *rreq)
+ 		return;
+ 
+ 	netfs_issue_write(creq, &creq->io_streams[1]);
+-	smp_wmb(); /* Write lists before ALL_QUEUED. */
+-	set_bit(NETFS_RREQ_ALL_QUEUED, &creq->flags);
++	netfs_all_subreqs_queued(creq);
+ 	trace_netfs_rreq(rreq, netfs_rreq_trace_end_copy_to_cache);
+ 	if (list_empty_careful(&creq->io_streams[1].subrequests))
+ 		netfs_wake_collector(creq);
+diff --git a/fs/netfs/read_single.c b/fs/netfs/read_single.c
+index de67ac41548d..ccb5fc809d99 100644
+--- a/fs/netfs/read_single.c
++++ b/fs/netfs/read_single.c
+@@ -113,14 +113,12 @@ static int netfs_single_dispatch_read(struct netfs_io_request *rreq)
+ 				goto cancel;
+ 		}
+ 
+-		smp_wmb(); /* Write lists before ALL_QUEUED. */
+-		set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++		netfs_all_subreqs_queued(rreq);
+ 		rreq->netfs_ops->issue_read(subreq);
+ 		rreq->submitted += subreq->len;
+ 		break;
+ 	case NETFS_READ_FROM_CACHE:
+-		smp_wmb(); /* Write lists before ALL_QUEUED. */
+-		set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++		netfs_all_subreqs_queued(rreq);
+ 		trace_netfs_sreq(subreq, netfs_sreq_trace_submit);
+ 		netfs_single_read_cache(rreq, subreq);
+ 		rreq->submitted += subreq->len;
+@@ -136,8 +134,7 @@ static int netfs_single_dispatch_read(struct netfs_io_request *rreq)
+ 	return ret;
+ cancel:
+ 	netfs_cancel_read(subreq, ret);
+-	smp_wmb(); /* Write lists before ALL_QUEUED. */
+-	set_bit(NETFS_RREQ_ALL_QUEUED, &rreq->flags);
++	netfs_all_subreqs_queued(rreq);
+ 	netfs_wake_collector(rreq);
+ 	return ret;
+ }
+diff --git a/fs/netfs/write_collect.c b/fs/netfs/write_collect.c
+index 7194182b975c..6d99d4a6f780 100644
+--- a/fs/netfs/write_collect.c
++++ b/fs/netfs/write_collect.c
+@@ -371,9 +371,8 @@ bool netfs_write_collection(struct netfs_io_request *wreq)
+ 	/* We're done when the app thread has finished posting subreqs and all
+ 	 * the queues in all the streams are empty.
+ 	 */
+-	if (!test_bit(NETFS_RREQ_ALL_QUEUED, &wreq->flags))
++	if (!netfs_are_all_subreqs_queued(wreq))
+ 		return false;
+-	smp_rmb(); /* Read ALL_QUEUED before lists. */
+ 
+ 	transferred = LONG_MAX;
+ 	for (s = 0; s < NR_IO_STREAMS; s++) {
+diff --git a/fs/netfs/write_issue.c b/fs/netfs/write_issue.c
+index 5d130df2ff0d..9a528da4bf9f 100644
+--- a/fs/netfs/write_issue.c
++++ b/fs/netfs/write_issue.c
+@@ -520,8 +520,7 @@ static void netfs_end_issue_write(struct netfs_io_request *wreq)
  {
--	if (!test_bit(NETFS_RREQ_USE_PGPRIV2, &rreq->flags)) {
-+	if (!netfs_using_pgpriv2(rreq)) {
- 		if (folio_get_private(folio) == NETFS_FOLIO_COPY_TO_CACHE) {
- 			folio_detach_private(folio);
- 			trace_netfs_folio(folio, netfs_folio_trace_cancel_copy);
-@@ -81,7 +81,7 @@ static void netfs_unlock_read_folio(struct netfs_io_request *rreq,
- 	if (unlikely(test_bit(NETFS_RREQ_CANCEL_CACHING, &rreq->flags)))
- 		netfs_cancel_copy_to_cache(rreq, folio);
+ 	bool needs_poke = true;
  
--	if (!test_bit(NETFS_RREQ_USE_PGPRIV2, &rreq->flags)) {
-+	if (!netfs_using_pgpriv2(rreq)) {
- 		if (netfs_folio_group(folio) == NETFS_FOLIO_COPY_TO_CACHE)  {
- 			trace_netfs_folio(folio, netfs_folio_trace_sched_copy);
- 			folio_mark_dirty(folio);
-diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
-index 6bb30543eff0..e7862f35b72c 100644
---- a/fs/nfs/Kconfig
-+++ b/fs/nfs/Kconfig
-@@ -174,6 +174,7 @@ config NFS_FSCACHE
- 	bool "Provide NFS client caching support"
- 	depends on NFS_FS
- 	select NETFS_SUPPORT
-+	select NETFS_PGPRIV2
- 	select FSCACHE
- 	help
- 	  Say Y here if you want NFS data to be cached locally on disc through
-diff --git a/include/linux/netfs.h b/include/linux/netfs.h
-index f2b3e61c1891..71fdd6ef43a7 100644
---- a/include/linux/netfs.h
-+++ b/include/linux/netfs.h
-@@ -279,8 +279,10 @@ struct netfs_io_request {
- #define NETFS_RREQ_UPLOAD_TO_SERVER	11	/* Need to write to the server */
- #define NETFS_RREQ_USE_IO_ITER		12	/* Use ->io_iter rather than ->i_pages */
- #define NETFS_RREQ_NEED_PUT_RA_REFS	17	/* Need to put the folio refs RA gave us */
-+#ifdef CONFIG_NETFS_PGPRIV2
- #define NETFS_RREQ_USE_PGPRIV2		31	/* [DEPRECATED] Use PG_private_2 to mark
- 						 * write to cache on read */
-+#endif
- 	const struct netfs_request_ops *netfs_ops;
- };
+-	smp_wmb(); /* Write subreq lists before ALL_QUEUED. */
+-	set_bit(NETFS_RREQ_ALL_QUEUED, &wreq->flags);
++	netfs_all_subreqs_queued(wreq);
  
+ 	for (int s = 0; s < NR_IO_STREAMS; s++) {
+ 		struct netfs_io_stream *stream = &wreq->io_streams[s];
+@@ -789,8 +788,7 @@ int netfs_writeback_single(struct address_space *mapping,
+ stop:
+ 	for (int s = 0; s < NR_IO_STREAMS; s++)
+ 		netfs_issue_write(wreq, &wreq->io_streams[s]);
+-	smp_wmb(); /* Write lists before ALL_QUEUED. */
+-	set_bit(NETFS_RREQ_ALL_QUEUED, &wreq->flags);
++	netfs_all_subreqs_queued(wreq);
+ 
+ 	netfs_wake_collector(wreq);
+ 
+diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
+index c9ec4da97f0b..303309be253f 100644
+--- a/include/trace/events/netfs.h
++++ b/include/trace/events/netfs.h
+@@ -47,6 +47,7 @@
+ 	E_(NETFS_PGPRIV2_COPY_TO_CACHE,		"2C")
+ 
+ #define netfs_rreq_traces					\
++	EM(netfs_rreq_trace_all_queued,		"ALL-Q  ")	\
+ 	EM(netfs_rreq_trace_assess,		"ASSESS ")	\
+ 	EM(netfs_rreq_trace_collect,		"COLLECT")	\
+ 	EM(netfs_rreq_trace_complete,		"COMPLET")	\
 
 
