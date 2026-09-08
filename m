@@ -1,48 +1,91 @@
-Return-Path: <linux-erofs+bounces-4496-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4497-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D02EC79FA0
-	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 06:05:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06C90C79FA0
+	for <linux-erofs@archiver.kernel.org>; Tue,  8 Sep 2026 09:11:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfD1h0D1kz2yFK;
-	Tue, 08 Sep 2026 16:05:12 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=148.135.91.214
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788847511;
-	cv=none; b=GK+4KyozJv6kiv8o6dGcINipQVSpZ3R4TtfOwLgQwJCD+q7vNdBxY41kfJHcY3AfzYqybWDv2T3bQ7LsGMMzOvzfcatxrNwUgqFdZEp+Atbda9cksILfw3niTo13CH0Y1u1ziEl9TgEavlran8bDf6qWaX7ojEH3vzUbNQizhlQ1g1UuHid8THCVE3DQTWMi8i6136bxglki/Rkwb5YsFKEf1DucWYr02F7gnsUx3lnhXOeA6SLhJzL7+wcTh/bEmZ1c7ssaVmOJbqj/y37Jrk39axD3Orbf/qcePz2ZTWxNYAgWw107ojhQBjRUASdYrK2afAPdrGfBDTtw4vHR8g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfJ822M1Rz2yqq;
+	Tue, 08 Sep 2026 19:10:58 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788858658;
+	cv=none; b=M/xnWtuObYGUi/67Ofs20UEjmzdc7Wfum5gP10VR8ZmTzxy7dEKhLlHRj+oWw3tfoWc2U8paU+Z2FZbpDUaE7eODhcCmvcI7YzoDCEqB5DYm81GUMhosrCvVNNXTECAviiSFVAzQ86v5uhrAzLKTgXPpw6XNgGcIkI/5Vbe1A0wv27o8t+QevOhxJcQByRMxaBIz34hY5WWvPYE/PRNIowHXzWyh2eS0LqCLiWdfTuS0IXx+zuQsKtNnaEbs/+pbmTQ9QMyLtlqHs6y2NxBGPGMvqdwGZ9BGqgtVAltGSTCD87lVgfg1YxXM1xbQvW3mABcQkASVGepoI9urzEyoiQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788847511; c=relaxed/relaxed;
-	bh=ZteNFlbVKtQFbhOb1IFZdAQlOhf06PxVtOnx8xHKOKk=;
-	h=From:To:Subject:Message-ID:MIME-Version:Content-Type:Date; b=OkyA1MDpXhi5BEYj9+JklpCZYu4zyxdnOD330hQ1JKhBqnYAtjy2AzFKgGa7mbfu+UvNIEEIL4ny2aCxSznlQ8TDHPZJgbvaByTnaeKcpamsgxPzC7+5RpUT7GFBVM97eZVxn4VsZPwuw0OXTDXU+DhMh2jCUb/FoAWhpeK193qRzsQ5UU2wKwyeB3HMTP9hpNzyB1t4BxkMV8ha3M+OkNBYblxODxSlUYWmxmh9GmJLIUmAw2OieJgwKhDO7aSTK4paPQwx80lG/fr0s5LBBq6i25Pog64QcG04m5sjA+DhGPRAwJOwqPHRIopD3Cm7Sr5z5j+rZ10dojoUWAKFuQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=culturalines.com; dkim=pass (2048-bit key; unprotected) header.d=culturalines.com header.i=@culturalines.com header.a=rsa-sha256 header.s=default header.b=h36kETmB; dkim-atps=neutral; spf=pass (client-ip=148.135.91.214; helo=mail.culturalines.com; envelope-from=info@culturalines.com; receiver=lists.ozlabs.org) smtp.mailfrom=culturalines.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=culturalines.com
+	t=1788858658; c=relaxed/relaxed;
+	bh=C0xiqVZ1UP4oD+0sq73SGDSnEeFESxAGnTexw/YKrQk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=FWa2qTUV9ZYqMLdQ5+W5BlbGK5/KJr2oC8ZIXGC871qISu+Tj+ptOhHkB/WQ/N852AzVKzMPhbNlA505eD5AZufEABJ2bcFjTa40t5DiB0yEWZDunY7JEK8WGqOzQOhg7Zgaa32NVrK378SQFV1kxNaAFO7vP0ouukUzps0OvfcbCr52Xuxijw1y02J3vGHQqPvmGXaz37jT0sWHi2F0n7bg2xo9ULmXAW39FzadlrCaW6uo0uy1KH1nEdG08VuMvKcjHRYJ72KPvmeQ67Ge3a1CA6/7f2jaQ7+KB1Effzx57N2X5d8LE6GnNdqbHudcqK+FQSA+aaUdnmYCiBUV/g==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VsIpgwz5; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VsIpgwz5; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=culturalines.com header.i=@culturalines.com header.a=rsa-sha256 header.s=default header.b=h36kETmB;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VsIpgwz5;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VsIpgwz5;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=culturalines.com (client-ip=148.135.91.214; helo=mail.culturalines.com; envelope-from=info@culturalines.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 4056 seconds by postgrey-1.37 at boromir; Tue, 08 Sep 2026 16:05:08 AEST
-Received: from mail.culturalines.com (mail.culturalines.com [148.135.91.214])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfD1c5Hxpz2xqp
-	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 16:05:08 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=culturalines.com;
-	s=default; t=1788842496;
-	bh=ZteNFlbVKtQFbhOb1IFZdAQlOhf06PxVtOnx8xHKOKk=;
-	h=From:To:Subject:Date:From;
-	b=h36kETmBGKothyiOiemDEhtZM/pwh8NaVl8+QkmsiFL2rMhGdEsOgUWBOH/zSbAnv
-	 DONTUXXTTNdlmm+WYyiKlJp3HmwvBNV/HeVVRZ+SgJJxSQesJD/9TUOWffscaZCfj3
-	 CcLMUI+2/OnefoG2f4Q4TV7m2fvQIqUmRn4BgNaYNP7H+Myf709RFP3IzHRjAaJgQ9
-	 uhZWB7y/hduwFXKuNcFvCrOtRwoyn/Uqfv/3fHkkonHcitywy3aM099AXs70GNtvzz
-	 F7HOLYdKE3kQVVW8wffb5biwR7OBi1VYvvxx+GEOj8vV/YEI02bVA8zGt1ex7ihwK/
-	 QyT+97a1a3s3A==
-From: "HR department" <info@culturalines.com>
-To: linux-erofs@lists.ozlabs.org
-Subject: Your latest payment stub is now available to download.
-Message-ID: <f9f681dc8b7f192b68c8affd9d8c053d@culturalines.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfJ805hwrz2xlJ
+	for <linux-erofs@lists.ozlabs.org>; Tue, 08 Sep 2026 19:10:55 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788858651;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=C0xiqVZ1UP4oD+0sq73SGDSnEeFESxAGnTexw/YKrQk=;
+	b=VsIpgwz5JaPlEfHCcFlDur6mqH2SRNOvZCw5qbFlAgoi643qOiOuf3A2EI/sSHNqHTi/jh
+	mngsJHMhcoKAuAVq2mymSjpMeFXn4XbTl1TyhJ5EDBOXWCxjxOa/tAa057dzoWH0ezHq78
+	pf4I8ng8V8uoniDojTClogRDKUxMGMU=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788858651;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=C0xiqVZ1UP4oD+0sq73SGDSnEeFESxAGnTexw/YKrQk=;
+	b=VsIpgwz5JaPlEfHCcFlDur6mqH2SRNOvZCw5qbFlAgoi643qOiOuf3A2EI/sSHNqHTi/jh
+	mngsJHMhcoKAuAVq2mymSjpMeFXn4XbTl1TyhJ5EDBOXWCxjxOa/tAa057dzoWH0ezHq78
+	pf4I8ng8V8uoniDojTClogRDKUxMGMU=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-522-Z9G_OryfNLuOMVNfyLh3Ag-1; Tue,
+ 08 Sep 2026 05:10:46 -0400
+X-MC-Unique: Z9G_OryfNLuOMVNfyLh3Ag-1
+X-Mimecast-MFC-AGG-ID: Z9G_OryfNLuOMVNfyLh3Ag_1788858644
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4B2B31834595;
+	Tue,  8 Sep 2026 09:10:43 +0000 (UTC)
+Received: from warthog.com (unknown [10.44.32.158])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3AA8430001A2;
+	Tue,  8 Sep 2026 09:10:34 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: Paulo Alcantara <pc@manguebit.org>
+Cc: David Howells <dhowells@redhat.com>,
+	Christian Brauner <christian@brauner.io>,
+	Matthew Wilcox <willy@infradead.org>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	Marc Dionne <marc.dionne@auristor.com>,
+	Stefan Metzmacher <metze@samba.org>,
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Dominique Martinet <asmadeus@codewreck.org>,
+	Ilya Dryomov <idryomov@gmail.com>,
+	netfs@lists.linux.dev,
+	linux-afs@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	ceph-devel@vger.kernel.org,
+	v9fs@lists.linux.dev,
+	linux-erofs@lists.ozlabs.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v12 0/8] netfs: Miscellaneous preparatory changes
+Date: Tue,  8 Sep 2026 10:10:21 +0100
+Message-ID: <20260908091031.1506798-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -54,51 +97,103 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="91dcf73a582a86a4bea1293812b6243e6971"
-Date: Tue, 08 Sep 2026 04:41:36 +0000
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-Mimecast-MFC-PROC-ID: 7ib5lBGJnhgEKcHV4noiaeNfnAJhD4vJuI4Dj26ZG3E_1788858644
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
---91dcf73a582a86a4bea1293812b6243e6971
-Content-Type: text/plain; charset=UTF-8
+Hi Christian,
 
-Dear Team,
+Could you pull these patches please for -next?  This is the first of four
+batches.  This is based on your vfs.fixes as there are some prerequisite
+patches there.  This was split from v11 of a larger series[1].
 
-Your latest paystub is ready. We have updated your payment account details, so please review your statement to ensure your bank information is correct.
+This a collection of miscellaneous modifications to netfslib that I want to
+make ahead of bigger changes, including:
 
-Best regards,
-HR department
---91dcf73a582a86a4bea1293812b6243e6971
-Content-Type: text/html; charset=UTF-8
+ (1) Convert "unsigned long long" to "uoff_t".  This makes it a little more
+     obvious as to the meaning of the value.  Also convert some "loff_t" to
+     "uoff_t" as most of the time it's used the value really should never
+     be negative.
 
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-<table style="width: 100%; background-color: #f4f7f6; margin: 0; font-family: -apple-system, sans-serif;" role="presentation" border="0" cellspacing="0" cellpadding="0">
-<tbody>
-<tr>
-<td style="padding: 40px 20px;" align="center">
-<table style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 8px;" role="presentation" border="0" cellspacing="0" cellpadding="0">
-<tbody>
-<tr>
-<td style="background-color: #0f2a4a; height: 4px; border-top-left-radius: 8px; border-top-right-radius: 8px;">&nbsp;</td>
-</tr>
-<tr>
-<td style="padding: 30px; font-size: 16px; line-height: 1.5; color: #333333;">
-<p style="margin: 0 0 15px;">Dear Team,</p>
-<p style="margin: 0 0 15px;">Your latest paystub is ready. <strong>We have updated your payment account details</strong>, so please review your statement to ensure your bank information is correct.</p>
-<p style="margin: 0;">Best regards,<br><strong>HR department</strong></p>
-</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-</tbody>
-</table>
-</body>
-</html>
---91dcf73a582a86a4bea1293812b6243e6971--
+ (2) Remove the writethrough code as the locking is really tricky to get
+     right and it looks like it could deadlock with Ceph if snapshots are
+     used.
+
+ (3) Adjust some tracepoints, including adding the cache object ID to
+     certain tracepoinits.
+
+ (4) Make use of PG_private_2 opt-in.  Use of PG_private_2 is deprecated
+     and the MM people would like their page bit back, so we need to stop
+     using it soon.
+
+ (5) Add some helper functions to handle the barriering needed for the
+     NETFS_RREQ_ALL_QUEUED flag.
+
+ (6) Set the subrequest type at allocation time so that the allocation
+     trace records the proposed type.
+
+The patches can also be found here:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=netfs-next-1
+
+Thanks,
+David
+
+Changes
+=======
+ver #12)
+- Split from v11 of "netfs: Keep track of folios in a segmented bio_vec[]
+  chain"[1]
+
+[1] https://lore.kernel.org/r/20260902173350.3468672-1-dhowells@redhat.com/
+
+David Howells (8):
+  netfs: Use uoff_t instead of unsigned long long and loff_t
+  netfs: Remove the writethrough code
+  netfs: trace: Change the "clear" folio traces to "endwb"
+  netfs: trace: Rejig a couple of the tracepoints
+  netfs: Add the cache object ID to netfs_read/write tracepoints
+  netfs: Make deprecated PG_private_2 support opt-in
+  netfs: Add some functions to wrap the all-queued handling
+  netfs: Set subrequest->source at alloc before trace emission
+
+ fs/9p/vfs_addr.c                  |   1 -
+ fs/afs/file.c                     |   5 +-
+ fs/cachefiles/interface.c         |  10 +--
+ fs/cachefiles/internal.h          |   4 +-
+ fs/cachefiles/io.c                |  25 +++---
+ fs/ceph/Kconfig                   |   1 +
+ fs/ceph/addr.c                    |   4 +-
+ fs/netfs/Kconfig                  |   3 +
+ fs/netfs/Makefile                 |   2 +-
+ fs/netfs/buffered_read.c          |  35 ++++----
+ fs/netfs/buffered_write.c         |  66 +++------------
+ fs/netfs/direct_read.c            |  14 ++--
+ fs/netfs/direct_write.c           |   8 +-
+ fs/netfs/fscache_cookie.c         |   8 +-
+ fs/netfs/fscache_io.c             |  10 +--
+ fs/netfs/internal.h               |  67 ++++++++++++---
+ fs/netfs/iterator.c               |   2 +-
+ fs/netfs/main.c                   |   1 -
+ fs/netfs/misc.c                   |  10 +--
+ fs/netfs/objects.c                |   6 +-
+ fs/netfs/read_collect.c           |  14 ++--
+ fs/netfs/read_pgpriv2.c           |  13 ++-
+ fs/netfs/read_retry.c             |   5 +-
+ fs/netfs/read_single.c            |  11 +--
+ fs/netfs/stats.c                  |   4 +-
+ fs/netfs/write_collect.c          |  25 +++---
+ fs/netfs/write_issue.c            | 123 ++-------------------------
+ fs/netfs/write_retry.c            |   5 +-
+ fs/nfs/Kconfig                    |   1 +
+ include/linux/fscache-cache.h     |   2 +-
+ include/linux/fscache.h           |  36 ++++----
+ include/linux/netfs.h             |  80 +++++++++---------
+ include/trace/events/cachefiles.h |  30 +++----
+ include/trace/events/fscache.h    |  10 +--
+ include/trace/events/netfs.h      | 134 +++++++++++++++---------------
+ 35 files changed, 324 insertions(+), 451 deletions(-)
+
 
