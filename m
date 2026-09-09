@@ -1,51 +1,51 @@
-Return-Path: <linux-erofs+bounces-4522-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4523-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 895DBC79FB6
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 13:27:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 984DEC79FB6
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 14:10:29 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hg1nJ1Lyhz2yyJ;
-	Wed, 09 Sep 2026 23:27:16 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788960436;
-	cv=none; b=IBu6KpWEKcnbB/EjsgqTVaTHQUBNG5bGdWIbwgnvsKT3htT8io/iUvQuziLPeIpPNSdM/00IWThlIRdp4+gd/b6bar9+dv3xD9p4zGhXGVnq9YtPm0nOBxcZIG5dB4GjU8e0iWvHOq3g74v+4sOnQsewIXUi4pdn0RFllhOhePFMxgP/NfrQtNwlsqQ/je4WHK6WZg2YSPfxWofunjxeRfjitZs1PphdotZM/92U40vdb5mEvE9+QcPvhpg4BTb5PcccsciAgB7LnnLAiJ3QulskIktKlVAyNbPYY8C+Waia+vCdadyovUxW9ZSXdMrGdtjnE65FAP28+lpj6EhEnQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hg2l75g1Nz2yth;
+	Thu, 10 Sep 2026 00:10:27 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788963027;
+	cv=none; b=gX2xLPenogUgHk+Z0rPCrHQZXB3YshNXkdt/FtYX32Ij2mvAQKNnB8bUizl/Tfhg1qy89VqpZeHSnu4jd37y5Dk3mfMS1AUMo2pvpjvtCFIHDS6BVjuAMGXVYKsdDErGfLtZgPU86968dql5OLnw2ZbhNxCxOzNAeHqeu5Xx1joYxu40GdxxOyQarQCX6quwIjnzhgAC4D2rQpNS4QoTmy1QpEkqjTgCv7PX8kgUicM8+xj17YkKCXmo3GLmOMNKqcj7sXqNUF3d4sIuvMWeZHYGb/AUxymaLFNW68CHMD0VIkOO3plCqQeSHjJmxPj6M7WUPUsCiMPNfmeppIe/gw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788960436; c=relaxed/relaxed;
-	bh=RS94z3rEAyu0Bjc7OED+9UH7pawFKgmuE2czeP57phU=;
+	t=1788963027; c=relaxed/relaxed;
+	bh=pOXZ86V7gEk1w7Bapk1GcuFyX4Hl3hOcDoOjdyQuqEY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fQt8DIRrmGkKVNFk3X5fv78QcyogjYCYqBKAKjm+AxpasDGLJ86BuhJ5iFv+4ZOHHQfq3v3nx9FHz+ITmCsfaPfiKe5Aqadle+/jRllkrweAokq7QrGmI1xYyrXNXz3tTeroHEGOziYRHK0NKR3/LgphRuq8Phqd97f8da4e4poBgduLo8bTCU0Ypmx7iWKS16cRIEdttYAqruBEI7Zy/vKcmwx77gxzNWFkLy4ORz0FkiC/DqGfqS+HbByVXJD05lQc16gWvxdiegU9wr3fMbDIStatKblC9D0Y8W9QYx9/WK0ei20H5GYzN+TLRT7LR8NTUlwFK/ww0VSxkBzNHA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R6GXnFu8; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:Content-Type; b=ofj7EExpgXowblsm5eSS6A99+3dLzanRP6nPGu++VOdzsfM4YtqhHrfCKgdvqsks3ikK++gZ25NWzwQ0VVTtRSpAZyifd/FzBmivBA6L9+bzrwesj9m35aCoPo6s/UBIcGCRD8bdFOiVLncg9rf7ttquVLS14fF4M6gJh7ZE8VvRHyv4/VSN0qglEbl7ccmJeY1JTmde3fa0kUNbl/CLThU1nR3y2OvEWv3uQZZYW8sPiUR1Ft6QpgtCntJ2psNoOFtT7MbcNy4oWuTiEqazbluQ3tg3yF+aSxZuc61539weTm0gCBz6XPHvXnjh6CWafF/P11EYmuuo2K0XL3l/MA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nBABSYKc; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R6GXnFu8;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nBABSYKc;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=david@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hg1nH1zt4z2ysW
-	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 23:27:15 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hg2l22zwxz2yqX
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 00:10:21 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id EB9CB60216;
-	Wed,  9 Sep 2026 13:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F461F00A3A;
-	Wed,  9 Sep 2026 13:27:04 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id DD63560214;
+	Wed,  9 Sep 2026 14:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65B391F00A3A;
+	Wed,  9 Sep 2026 14:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788960432;
-	bh=RS94z3rEAyu0Bjc7OED+9UH7pawFKgmuE2czeP57phU=;
+	s=k20260515; t=1788963018;
+	bh=pOXZ86V7gEk1w7Bapk1GcuFyX4Hl3hOcDoOjdyQuqEY=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=R6GXnFu8mwOitVsLDqixKEjX05Dbn1yn80ABydAZ+iG2csBdc8qLDLiGZms52yQeR
-	 Qo+SJ0uhkIYEpcfkw04tMaGvcHiDQVghyck05icc7KQfuX9Es4+6ioM9vooN+FEKQQ
-	 d+YN4rgalDXNOhmnUS5K9vdKMQe6bEnBQ4Z7n3LZifCPT9hJpV/znd3fhrBwxMAOQL
-	 aPZom5TZTUdifDvkaRiU0X2HGDEnKKe49JnL8wsqRi7XQqHbewo9yN7iEUERXgPTKQ
-	 FFw9nlGfN21z/sYGUGQ0m8lqNHXt7GR/TqZoVXo0il69z8Io36XBvjmmg76H0dDpy7
-	 MFkQJM7oq/52A==
-Message-ID: <6a465ff3-21ff-435d-963b-385e7e5174fa@kernel.org>
-Date: Wed, 9 Sep 2026 15:27:03 +0200
+	b=nBABSYKchY7wcnJtyWy+cEItvh9ka1L52TnNXwFAU4EET/ki8hhcXOhw+Pd8Wt3YY
+	 mNiN5x0pVLb+FQon788ytN5uc1wRvO0WO9aiypMyHCm/osQKYAe0lqcKij3KdPog62
+	 duGllUAgxZloduF66dypFkpugBAimsXFAqzRVoHobcM8q69o0S9gyk4PKB6GWudvch
+	 x/migNK60lqqxslKNKOHXLOfooWB9OWgVRzjuvg8NB1JtyWhGl/4v+31Pl7ytIh9CG
+	 yD7Lm4Dfon72msbCyIxhMgJnCyYiCbyqeaT4mTsMJYIpxw3QBQy7UuLJ9VfjHSsfIB
+	 uPFy+2LGFiZoQ==
+Message-ID: <30e544c3-eada-4f08-8971-aa07d6b38ffb@kernel.org>
+Date: Wed, 9 Sep 2026 16:10:06 +0200
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 08/14] erofs: use folio_attach/detach_private() instead
- of direct assignment
+Subject: Re: [PATCH v3 07/14] erofs: mm/pagemap: add readahead_folio_last() to
+ avoid folio->private
 To: Zi Yan <ziy@nvidia.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  Andrew Morton <akpm@linux-foundation.org>,
  Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>,
@@ -75,13 +75,15 @@ To: Zi Yan <ziy@nvidia.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>,
  Shakeel Butt <shakeel.butt@linux.dev>, Kairui Song <kasong@tencent.com>
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>,
- Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
- Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org
+ Jan Kara <jack@suse.cz>, Yue Hu <zbestahu@gmail.com>,
+ Jeffle Xu <jefflexu@linux.alibaba.com>, Sandeep Dhavale
+ <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>,
+ Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org,
+ linux-fsdevel@vger.kernel.org
 References: <20260907-remove-pg_private-v3-0-6ae22f9d9272@nvidia.com>
- <20260907-remove-pg_private-v3-8-6ae22f9d9272@nvidia.com>
- <5b02f5de-00b6-4f8e-9e30-6d0acedafaf4@kernel.org>
- <DLA3V43TKTU8.20221CSH8UJ5T@nvidia.com>
+ <20260907-remove-pg_private-v3-7-6ae22f9d9272@nvidia.com>
+ <eefbff2b-d619-496e-a977-52062da90f05@kernel.org>
+ <DLA3KHC5R6G3.22TAPOVQ1589Q@nvidia.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -128,36 +130,102 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <DLA3V43TKTU8.20221CSH8UJ5T@nvidia.com>
+In-Reply-To: <DLA3KHC5R6G3.22TAPOVQ1589Q@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 9/8/26 19:19, Zi Yan wrote:
-> On Tue Sep 8, 2026 at 12:13 PM EDT, David Hildenbrand (Arm) wrote:
+On 9/8/26 19:05, Zi Yan wrote:
+> On Tue Sep 8, 2026 at 12:04 PM EDT, David Hildenbrand (Arm) wrote:
 >> On 9/8/26 04:56, Zi Yan wrote:
->>> erofs_onlinefolio_init/split/end() use folio->private without setting
->>> PG_private or increasing folio refcount and it works. But after PG_private
->>> is replaced by checking folio->private in a future commit, it can break
->>> folio_expected_ref_count(), since the folio has private data without
->>> elevated refcount. Change them to use folio_attach/detach_private().
+>>> erofs needs to traverse readahead folios in reverse order to achieve
+>>> maximum performance by
+>>> 1. reading all folios from readahead_folio();
+>>> 2. storing the prior folio pointer in folio->private;
+>>> 3. traverse from the last folio to the first one.
+>>>
+>>> Add readahead_folio_last() to achieve the same function without using
+>>> folio->private. __readahead_advance() helper shares readahead_control
+>>> adjustment code among __readahead_folio(), readahead_folio_last(), and
+>>> __readahead_batch() by checking new private member, _forward, of
+>>> readahead_control.
+>>>
+>>> It prepares for a future commit that replaces PG_private checks with
+>>> !folio->private checks. After switching the checks, erofs's use of
+>>> folio->private without bumping folio refcount can cause unexpected
+>>> outcomes, e.g., in filemap_release_folio(), try_to_free_buffers() becomes
+>>> reachable.
 >>
->> Freezing the folio will properly work I assume, as we'd always freeze with that
->> refcount in mind or remove the reference (detach private) early?
-> 
-> Yes.
-> 
+>> Ah, I was just about to ask. So it's really about folios never using
+>> folio->private manually (without the attach/detach).
 >>
->> I'm thinking of folio_ref_freeze() in __folio_freeze_and_split_unmapped().
+>>>
+>>> No functional change intended.
+>>>
+>>> Assisted-by: Claude:claude-opus-4-8
+>>> Assisted-by: Codex:gpt-5
+>>> Signed-off-by: Zi Yan <ziy@nvidia.com>
+>>> To: Gao Xiang <xiang@kernel.org>
+>>> To: Chao Yu <chao@kernel.org>
+>>> To: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+>>> To: Jan Kara <jack@suse.cz>
+>>> Cc: Yue Hu <zbestahu@gmail.com>
+>>> Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+>>> Cc: Sandeep Dhavale <dhavale@google.com>
+>>> Cc: Hongbo Li <hongbohbli@tencent.com>
+>>> Cc: Chunhai Guo <guochunhai@vivo.com>
+>>> Cc: linux-erofs@lists.ozlabs.org
+>>> Cc: linux-kernel@vger.kernel.org
+>>> Cc: linux-fsdevel@vger.kernel.org
+>>> Cc: linux-mm@kvack.org
+>>> ---
+>>>  fs/erofs/zdata.c        | 13 +++---------
+>>>  include/linux/pagemap.h | 56 ++++++++++++++++++++++++++++++++++++++++++-------
+>>>  2 files changed, 51 insertions(+), 18 deletions(-)
+>>>
+>>> diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+>>> index e1e25ca0d1904..78fd7d980e957 100644
+>>> --- a/fs/erofs/zdata.c
+>>> +++ b/fs/erofs/zdata.c
+>>> @@ -1898,21 +1898,14 @@ static void z_erofs_readahead(struct readahead_control *rac)
+>>>  	struct inode *realinode = erofs_real_inode(sharedinode, &need_iput);
+>>>  	Z_EROFS_DEFINE_FRONTEND(f, realinode, sharedinode, readahead_pos(rac));
+>>>  	unsigned int nrpages = readahead_count(rac);
+>>> -	struct folio *head = NULL, *folio;
+>>> +	struct folio *folio;
+>>>  	int err;
+>>>  
+>>>  	trace_erofs_readahead(realinode, readahead_index(rac), nrpages, false);
+>>>  	z_erofs_pcluster_readmore(&f, rac, true);
+>>> -	while ((folio = readahead_folio(rac))) {
+>>> -		folio->private = head;
+>>> -		head = folio;
+>>> -	}
+>>> -
+>>> -	/* traverse in reverse order for best metadata I/O performance */
+>>> -	while (head) {
+>>> -		folio = head;
+>>> -		head = folio_get_private(folio);
+>>>  
+>>> +	/* traverse from last to first for best metadata I/O performance */
+>>> +	while ((folio = readahead_folio_last(rac))) {
 >>
->> Or is the ref only very short-lived either way such that we don't care?
+>> Intuitively, this should be called readahead_folio_reverse /
+>> readahead_folio_reversed, thinking of list_for_each_entry_reverse()?
+>>
+>> 	list_for_each_entry_reverse - iterate backwards over list of given type.
+>>
+>> or maybe readahead_folio_backwards (which matches the forward below)
+>>
+>> But I'm not a readahead expert :)
 > 
-> The folios here are locked since they are in the process of
-> readahead, which requires all folios locked. So they are not reachable
-> from folio split code. In additio, the private is deatched and ref is
-> decreased before the folio lock is dropped.
+> Jan suggested the name[1]. It can be readahead_folio_reverse() if you
+> prefer it, like Jan said.
+> 
+> [1] https://lore.kernel.org/all/332rknj4vo3cfhvfhhlf6pvg37s3lbrnzbbnv4swa6gctsiu6a@ndotgokvnglc/
 
-It would be great to summarize this interaction with core-mm (migration/split)
-in the patch description.
+Heh, to me _reverse() is clearer; whatever people prefer.
+
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
