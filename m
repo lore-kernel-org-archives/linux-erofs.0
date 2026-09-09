@@ -1,71 +1,71 @@
-Return-Path: <linux-erofs+bounces-4516-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4517-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1821CC79FAA
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 07:22:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35AB7C79F8C
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 07:22:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfsgy3rYPz2ynZ;
-	Wed, 09 Sep 2026 17:22:06 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.129.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788938526;
-	cv=none; b=jjst2ikw2n43CODDrsM6bWf7gs8ZuYCXg+sT5+5HswG1qwGIcLUPLdKvMJTkpY4FfMPC+MdxZXQfet59cCGzKaR3btdjS+cNdMGL/7FXUIvV5/KTqfQaf7GNihq4SC643DzvJh6yWzeccFXlD1acV7srPTu6zmbXR0CZYLjctJbgjxwiwmMUPbIEjTINbhCQ5VLECQsP7jzutf7bUTRSO/HbFezTtwqwHvuoFHmCns8RC4CEgA3oYtw0x2rlhC8kg3bZdlxX7I4NdQKrIquehbDZJAw9CzeoELXpnAy/XZ8S/jFvEtmOC0q0LpKi3dCQHbBbUkV1TRtRoye+MjontQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfsh62q0Kz2yps;
+	Wed, 09 Sep 2026 17:22:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788938534;
+	cv=none; b=hNrnRaVBwaJfZ1FoD+bK8xql8emm0zwo7QAry6gLbv7R5luUHjeNYWR0WqsOsIulyvYEIdNDXKyB8cBu/lXcejidcpHmasTNeXEnFngW+1JZPnKwciY700RFhGFF9+TlZAaMrc1t8yyKBJXFqcdMpjquT406Oyw50Zn0TLuheLtkugyCMCjrtw38DBmrEmblDNSjB/iBPYcd7A/VcBIYMt/ECX3i+SXh8cqHFBz6CgKykOz4UYe8wdBWguYYxGUwghPX3jpNUy0B1rY6OAgn02F2aHxpB3K6YYv1nAeJ4IkxAbuZUorjw4SNBU3C1EAc3ZsIKiEWgbufVDufpcaa6w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788938526; c=relaxed/relaxed;
-	bh=qqlNS8q69FtxFvuCMkUAvTzRLGn3SbS5MM4c4KSMrN8=;
+	t=1788938534; c=relaxed/relaxed;
+	bh=p1mDwxZ1LnJ55G7jnnc/zLXcplu6e9EZLDtgfjC8YTQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=cIGc4lRw68N0pCxFzNotB8J7cu/zFwJpWVZYU8N73SsLCzoWzNyNCbGhbP7dBsYV2ylpqH7K6TqIXHpzvJccQsYxTIctfjBIZxeJ7nheXLEZ1JA2sWwFO+5eUu/lHJl+6OT1kljilXaxqO3JPqXvKWNNbINsUVQrWvg8WAqHT8LzKswvZ4x2uVwBUIexZGvybaGaVSbqm5Ns78yqS/Az0y+znhPaHDYNdpjENTb69/B2IzJpJCagOWHj//dVLcYQS9LFL1Iybkot1POAYSgMZfIxwHdhpvM6YqKgU7W+uPsFz1fwTAtptH02Yu63FoYdsa1N82SHOha9LqNvOp++bQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GHajuMvL; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UcjkihAr; dkim-atps=neutral; spf=pass (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+	 MIME-Version:content-type; b=BeiXjut4oiwn97tBXMliq/aK0bFuzmt47DtQyJMW08idQTBHelWafkRxu7P55bl0O8YGoJMVhs4ogqvXT+HIEytvv2kOxwZzg51YZd+x+j7u9DUF45cUhzqYquXgjeRsfs8DrgOSzUx/bXACcHf+gUQb5a+bUHUp3Vz8VcWTZ74Cjw+JURCQUMMdGh7ZazhmGLCD9lg8zIltW4jQtDkHoCTrrJ4CDKl4M64ZO+9qwdqCJt/ILjgoIHKz053gfZr94yAgf2FVab5vc9zzz9sWShutx/KtsOcXhzwyrod7HQxI8MekQmhRIooEzK2GFsEvkMGbfXhZ4OzmTs/jFGpmAA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cJ5hqMXl; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cJ5hqMXl; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GHajuMvL;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UcjkihAr;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cJ5hqMXl;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cJ5hqMXl;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfsgx3Smsz2y2J
-	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 17:22:05 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfsh510SWz2y2J
+	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 17:22:12 +1000 (AEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788938521;
+	s=mimecast20190719; t=1788938529;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qqlNS8q69FtxFvuCMkUAvTzRLGn3SbS5MM4c4KSMrN8=;
-	b=GHajuMvLfgNThiOWmjGxwZLM1axgGBdFdhq0zkbhFz9uODpGCVlCxNSH5jGAXmbiaZw7xn
-	T7woxsRZNSRygfLQ0odlVDATe3739irXerv8w0o4xiX1ZBl3P8L1gDHo7qMhVIsqgsLrsw
-	GCKewgOcrPp7NCFeeZaNMBBJKoKQ1HU=
+	bh=p1mDwxZ1LnJ55G7jnnc/zLXcplu6e9EZLDtgfjC8YTQ=;
+	b=cJ5hqMXlRCHAyfgxKya7Nh07QUcr1Ydrdl+mrySN5r1DtkjDxWAVvPu9iRskil+ckZjQxq
+	aaGxsDuEL9LpPiL1jP64UcTQo4NMAJSyfQWzMHTKa7ni0C8G2xWFvRi/rrpxZV/eZKmT1y
+	xwVhFZH3EFBajmvjUj1O8Z/pD7UHdIw=
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788938522;
+	s=mimecast20190719; t=1788938529;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qqlNS8q69FtxFvuCMkUAvTzRLGn3SbS5MM4c4KSMrN8=;
-	b=UcjkihArbXay4ccrTFJs1/PxuEC1ULs2llFWcRAeczUrcDo2nDPGSbd6p/Qrcfbqwxbg0F
-	XTBDCzaBx6AC7saNIZvki62FX2oshZCCdJdknGlU8ZlpRkcGzn8/l5jjiwfdRFJ/57NqAY
-	s9hAJDA2C7OnbIQPDUzlSN9q6x2PW7Q=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=p1mDwxZ1LnJ55G7jnnc/zLXcplu6e9EZLDtgfjC8YTQ=;
+	b=cJ5hqMXlRCHAyfgxKya7Nh07QUcr1Ydrdl+mrySN5r1DtkjDxWAVvPu9iRskil+ckZjQxq
+	aaGxsDuEL9LpPiL1jP64UcTQo4NMAJSyfQWzMHTKa7ni0C8G2xWFvRi/rrpxZV/eZKmT1y
+	xwVhFZH3EFBajmvjUj1O8Z/pD7UHdIw=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-175-eG-8yY5dO2m2xFl11_c_TA-1; Wed,
- 09 Sep 2026 03:21:57 -0400
-X-MC-Unique: eG-8yY5dO2m2xFl11_c_TA-1
-X-Mimecast-MFC-AGG-ID: eG-8yY5dO2m2xFl11_c_TA_1788938515
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-604-RJwoWBJcOl2_hgfCSLm8cA-1; Wed,
+ 09 Sep 2026 03:22:04 -0400
+X-MC-Unique: RJwoWBJcOl2_hgfCSLm8cA-1
+X-Mimecast-MFC-AGG-ID: RJwoWBJcOl2_hgfCSLm8cA_1788938521
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DABA2195609D;
-	Wed,  9 Sep 2026 07:21:54 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AE98F1800676;
+	Wed,  9 Sep 2026 07:22:01 +0000 (UTC)
 Received: from warthog.com (unknown [10.44.32.158])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 60869195608E;
-	Wed,  9 Sep 2026 07:21:49 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8306E1800446;
+	Wed,  9 Sep 2026 07:21:56 +0000 (UTC)
 From: David Howells <dhowells@redhat.com>
 To: Christian Brauner <christian@brauner.io>
 Cc: David Howells <dhowells@redhat.com>,
@@ -86,9 +86,9 @@ Cc: David Howells <dhowells@redhat.com>,
 	linux-erofs@lists.ozlabs.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v13 4/8] netfs: trace: Rejig a couple of the tracepoints
-Date: Wed,  9 Sep 2026 08:20:58 +0100
-Message-ID: <20260909072105.1663687-5-dhowells@redhat.com>
+Subject: [PATCH v13 5/8] netfs: Add the cache object ID to netfs_read/write tracepoints
+Date: Wed,  9 Sep 2026 08:20:59 +0100
+Message-ID: <20260909072105.1663687-6-dhowells@redhat.com>
 In-Reply-To: <20260909072105.1663687-1-dhowells@redhat.com>
 References: <20260909072105.1663687-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
@@ -102,132 +102,161 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: Ww3YfSXZezVyUYHAFtpbnIjxl5KzYaSwZkZZA2RAI0s_1788938515
+X-Scanned-By: MIMEDefang 3.4.1 on 127.0.0.2
+X-Mimecast-MFC-PROC-ID: rSYZIWnJQKF49XGPt4M0xQtViAFScCTU4oP8Je93J18_1788938521
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Rejig the following tracepoints:
-
- (1) Change netfs_folio to show the pfn.
-
- (2) Change netfs_collect_folio to show a folio index range rather than
-     file position range and don't show the cleaned_to or collected_to
-     points.
+Add the cache object debug ID to netfs_read/write tracepoints to make
+debugging easier as there's now a direct cross-reference with the
+cachefiles tracepoints that only log that debug ID.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 Reviewed-by: Paulo Alcantara <pc@manguebit.org>
 cc: netfs@lists.linux.dev
 cc: linux-fsdevel@vger.kernel.org
 ---
- fs/netfs/read_collect.c      |  2 +-
- fs/netfs/read_pgpriv2.c      |  2 +-
- fs/netfs/write_collect.c     |  2 +-
- include/trace/events/netfs.h | 23 ++++++++++-------------
- 4 files changed, 13 insertions(+), 16 deletions(-)
+ fs/cachefiles/io.c           |  1 +
+ fs/netfs/fscache_io.c        |  2 +-
+ include/linux/netfs.h        |  3 ++-
+ include/trace/events/netfs.h | 27 +++++++++++++++------------
+ 4 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/fs/netfs/read_collect.c b/fs/netfs/read_collect.c
-index 6576a9b8671d..61f2664de6d3 100644
---- a/fs/netfs/read_collect.c
-+++ b/fs/netfs/read_collect.c
-@@ -192,7 +192,7 @@ static void netfs_read_unlock_folios(struct netfs_io_request *rreq,
- 		fpos = folio_pos(folio);
- 		fend = fpos + fsize;
+diff --git a/fs/cachefiles/io.c b/fs/cachefiles/io.c
+index 7de8069d15b6..e61e885784d6 100644
+--- a/fs/cachefiles/io.c
++++ b/fs/cachefiles/io.c
+@@ -721,6 +721,7 @@ bool cachefiles_begin_operation(struct netfs_cache_resources *cres,
  
--		trace_netfs_collect_folio(rreq, folio, fend, collected_to);
-+		trace_netfs_collect_folio(rreq, folio);
+ 	if (!cachefiles_cres_file(cres)) {
+ 		cres->ops = &cachefiles_netfs_cache_ops;
++		cres->object_id = object->debug_id;
+ 		if (object->file) {
+ 			spin_lock(&object->lock);
+ 			if (!cres->cache_priv2 && object->file)
+diff --git a/fs/netfs/fscache_io.c b/fs/netfs/fscache_io.c
+index 8bca63721eeb..056a2bae5d99 100644
+--- a/fs/netfs/fscache_io.c
++++ b/fs/netfs/fscache_io.c
+@@ -79,7 +79,7 @@ static int fscache_begin_operation(struct netfs_cache_resources *cres,
+ 	cres->ops		= NULL;
+ 	cres->cache_priv	= cookie;
+ 	cres->cache_priv2	= NULL;
+-	cres->debug_id		= cookie->debug_id;
++	cres->cookie_id		= cookie->debug_id;
+ 	cres->inval_counter	= cookie->inval_counter;
  
- 		/* Unlock any folio we've transferred all of. */
- 		if (collected_to < fend)
-diff --git a/fs/netfs/read_pgpriv2.c b/fs/netfs/read_pgpriv2.c
-index 4d50585f69a6..bf4d9d6877d7 100644
---- a/fs/netfs/read_pgpriv2.c
-+++ b/fs/netfs/read_pgpriv2.c
-@@ -201,7 +201,7 @@ bool netfs_pgpriv2_unlock_copied_folios(struct netfs_io_request *creq)
+ 	if (!fscache_begin_cookie_access(cookie, why)) {
+diff --git a/include/linux/netfs.h b/include/linux/netfs.h
+index a3ef0e983a86..f2b3e61c1891 100644
+--- a/include/linux/netfs.h
++++ b/include/linux/netfs.h
+@@ -161,7 +161,8 @@ struct netfs_cache_resources {
+ 	const struct netfs_cache_ops	*ops;
+ 	void				*cache_priv;
+ 	void				*cache_priv2;
+-	unsigned int			debug_id;	/* Cookie debug ID */
++	unsigned int			cookie_id;	/* Cache cookie debug ID */
++	unsigned int			object_id;	/* Cache object debug ID */
+ 	unsigned int			inval_counter;	/* object->inval_counter at begin_op */
+ };
  
- 		fend = min_t(uoff_t, fpos + flen, creq->i_size);
- 
--		trace_netfs_collect_folio(creq, folio, fend, collected_to);
-+		trace_netfs_collect_folio(creq, folio);
- 
- 		/* Unlock any folio we've transferred all of. */
- 		if (collected_to < fend)
-diff --git a/fs/netfs/write_collect.c b/fs/netfs/write_collect.c
-index 6114bdf27ce0..7194182b975c 100644
---- a/fs/netfs/write_collect.c
-+++ b/fs/netfs/write_collect.c
-@@ -156,7 +156,7 @@ static void netfs_writeback_unlock_folios(struct netfs_io_request *wreq,
- 
- 		fend = min_t(uoff_t, fpos + flen, wreq->i_size);
- 
--		trace_netfs_collect_folio(wreq, folio, fend, collected_to);
-+		trace_netfs_collect_folio(wreq, folio);
- 
- 		/* Unlock any folio we've transferred all of. */
- 		if (collected_to < fend)
 diff --git a/include/trace/events/netfs.h b/include/trace/events/netfs.h
-index 2491a0bc4179..21a661cd1ca4 100644
+index 21a661cd1ca4..c9ec4da97f0b 100644
 --- a/include/trace/events/netfs.h
 +++ b/include/trace/events/netfs.h
-@@ -497,6 +497,7 @@ TRACE_EVENT(netfs_folio,
+@@ -305,6 +305,7 @@ TRACE_EVENT(netfs_read,
  	    TP_STRUCT__entry(
- 		    __field(u64,			ino)
- 		    __field(pgoff_t,			index)
-+		    __field(unsigned long,		pfn)
- 		    __field(unsigned int,		nr)
- 		    __field(enum netfs_folio_trace,	why)
- 			     ),
-@@ -507,9 +508,11 @@ TRACE_EVENT(netfs_folio,
- 		    __entry->why = why;
- 		    __entry->index = folio->index;
- 		    __entry->nr = folio_nr_pages(folio);
-+		    __entry->pfn = folio_pfn(folio);
+ 		    __field(unsigned int,		rreq)
+ 		    __field(unsigned int,		cookie)
++		    __field(unsigned int,		object)
+ 		    __field(uoff_t,			i_size)
+ 		    __field(uoff_t,			start)
+ 		    __field(size_t,			len)
+@@ -314,7 +315,8 @@ TRACE_EVENT(netfs_read,
+ 
+ 	    TP_fast_assign(
+ 		    __entry->rreq	= rreq->debug_id;
+-		    __entry->cookie	= rreq->cache_resources.debug_id;
++		    __entry->cookie	= rreq->cache_resources.cookie_id;
++		    __entry->object	= rreq->cache_resources.object_id;
+ 		    __entry->i_size	= rreq->i_size;
+ 		    __entry->start	= start;
+ 		    __entry->len	= len;
+@@ -322,10 +324,10 @@ TRACE_EVENT(netfs_read,
+ 		    __entry->netfs_inode = rreq->inode->i_ino;
  			   ),
  
--	    TP_printk("i=%05llx ix=%05lx-%05lx %s",
-+	    TP_printk("p=%lx i=%05llx ix=%05lx-%05lx %s",
-+		      __entry->pfn,
- 		      __entry->ino, __entry->index, __entry->index + __entry->nr - 1,
- 		      __print_symbolic(__entry->why, netfs_folio_traces))
+-	    TP_printk("R=%08x %s c=%08x ni=%llx s=%llx l=%zx sz=%llx",
++	    TP_printk("R=%08x %s c=%08x o=%08x ni=%llx s=%llx l=%zx sz=%llx",
+ 		      __entry->rreq,
+ 		      __print_symbolic(__entry->what, netfs_read_traces),
+-		      __entry->cookie,
++		      __entry->cookie, __entry->object,
+ 		      __entry->netfs_inode,
+ 		      __entry->start, __entry->len, __entry->i_size)
  	    );
-@@ -656,31 +659,25 @@ TRACE_EVENT(netfs_collect_sreq,
- 
- TRACE_EVENT(netfs_collect_folio,
- 	    TP_PROTO(const struct netfs_io_request *wreq,
--		     const struct folio *folio,
--		     uoff_t fend, uoff_t collected_to),
-+		     const struct folio *folio),
- 
--	    TP_ARGS(wreq, folio, fend, collected_to),
-+	    TP_ARGS(wreq, folio),
- 
+@@ -549,6 +551,7 @@ TRACE_EVENT(netfs_write,
  	    TP_STRUCT__entry(
- 		    __field(unsigned int,	wreq)
- 		    __field(unsigned long,	index)
--		    __field(uoff_t,		fend)
--		    __field(uoff_t,		cleaned_to)
--		    __field(uoff_t,		collected_to)
-+		    __field(unsigned int,	nr)
+ 		    __field(unsigned int,		wreq)
+ 		    __field(unsigned int,		cookie)
++		    __field(unsigned int,		object)
+ 		    __field(unsigned int,		ino)
+ 		    __field(enum netfs_write_trace,	what)
+ 		    __field(uoff_t,			start)
+@@ -556,20 +559,19 @@ TRACE_EVENT(netfs_write,
  			     ),
  
  	    TP_fast_assign(
+-		    struct netfs_inode *__ctx = netfs_inode(wreq->inode);
+-		    struct fscache_cookie *__cookie = netfs_i_cookie(__ctx);
  		    __entry->wreq	= wreq->debug_id;
- 		    __entry->index	= folio->index;
--		    __entry->fend	= fend;
--		    __entry->cleaned_to	= wreq->cleaned_to;
--		    __entry->collected_to = collected_to;
-+		    __entry->nr		= folio_nr_pages(folio);
+-		    __entry->cookie	= __cookie ? __cookie->debug_id : 0;
++		    __entry->cookie	= wreq->cache_resources.cookie_id;
++		    __entry->object	= wreq->cache_resources.object_id;
+ 		    __entry->ino	= wreq->inode->i_ino;
+ 		    __entry->what	= what;
+ 		    __entry->start	= wreq->start;
+ 		    __entry->len	= wreq->len;
  			   ),
  
--	    TP_printk("R=%08x ix=%05lx r=%llx-%llx t=%llx/%llx",
-+	    TP_printk("R=%08x ix=%05lx-%05lx",
- 		      __entry->wreq, __entry->index,
--		      (uoff_t)__entry->index * PAGE_SIZE, __entry->fend,
--		      __entry->cleaned_to, __entry->collected_to)
-+		      __entry->index + __entry->nr - 1)
+-	    TP_printk("R=%08x %s c=%08x i=%x by=%llx-%llx",
++	    TP_printk("R=%08x %s c=%08x o=%08x i=%x by=%llx-%llx",
+ 		      __entry->wreq,
+ 		      __print_symbolic(__entry->what, netfs_write_traces),
+-		      __entry->cookie,
++		      __entry->cookie, __entry->object,
+ 		      __entry->ino,
+ 		      __entry->start, __entry->start + __entry->len - 1)
+ 	    );
+@@ -584,22 +586,23 @@ TRACE_EVENT(netfs_copy2cache,
+ 		    __field(unsigned int,	rreq)
+ 		    __field(unsigned int,	creq)
+ 		    __field(unsigned int,	cookie)
++		    __field(unsigned int,	object)
+ 		    __field(unsigned int,	ino)
+ 			     ),
+ 
+ 	    TP_fast_assign(
+-		    struct netfs_inode *__ctx = netfs_inode(rreq->inode);
+-		    struct fscache_cookie *__cookie = netfs_i_cookie(__ctx);
+ 		    __entry->rreq	= rreq->debug_id;
+ 		    __entry->creq	= creq->debug_id;
+-		    __entry->cookie	= __cookie ? __cookie->debug_id : 0;
++		    __entry->cookie	= rreq->cache_resources.cookie_id;
++		    __entry->object	= rreq->cache_resources.object_id;
+ 		    __entry->ino	= rreq->inode->i_ino;
+ 			   ),
+ 
+-	    TP_printk("R=%08x CR=%08x c=%08x i=%x ",
++	    TP_printk("R=%08x CR=%08x c=%08x o=%08x i=%x ",
+ 		      __entry->rreq,
+ 		      __entry->creq,
+ 		      __entry->cookie,
++		      __entry->object,
+ 		      __entry->ino)
  	    );
  
- TRACE_EVENT(netfs_collect_state,
 
 
