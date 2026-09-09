@@ -1,97 +1,49 @@
-Return-Path: <linux-erofs+bounces-4520-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4521-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D0F7C79FB5
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 07:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFE8AC79FAD
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 09:34:49 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfshZ0bGrz2ygp;
-	Wed, 09 Sep 2026 17:22:38 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788938558;
-	cv=none; b=eg521Z9eIh/2XSDYar5aKMIJla9enYMCsbZ7k6eDQeaKoXL/sSv/UpjLeMMK7i69QABJlMuNsvOzqUOhJSN/xPWL/LjvcmPP5T79BNz5/kXjQXGmquEQxzNkRU0ToBRtAMPRBkI5VWNZUd3avAqvVqh4kWiIuyjBLtEq4jy8rAHGDDSWVpAMoIunjKa5Kj4QEWGfxw9oxIRyDyEbQhRRZEyv9yIpSosnVwSO9qf/LfNf36uvpmm8b3+LHAjVpotSh7SYLID+Epg/o3MaANlt3a/47lYil4YPFepBHexZuYfQbcrnyl9fb6oglKECYifwAfWZoKKCBf6C0rLaQURIqA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfwd40gYWz2yqd;
+	Wed, 09 Sep 2026 19:34:48 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788946488;
+	cv=none; b=DLiYephlNdzZmHT2FVMT0djmoQ6KT2ad44QtaNAQa9U/f+zsoNVTPS3ZXqJhGt3RwP4XNDvTavAZvjJtOkMa+8f6n8mwytS6U00VHwZctWs56arJC3pRR7v0lLG6P9ipqAweOut4DQtCv7Px1L06/yPdxSTPrBMv3X8xQmn2iuSATe1tf9LIq78bbbriv7TNxCrF6CBNiyGE8ely2FXIU3bUYKnFXa+eqC/ivUPOH+99J3lZ6BB+OHhJ2EQh2cgrRTPagv1ii/K5c7iJ1dEDaH3+kNLd0EZyjEsX+Gt3pi5mKV14lzI1M/OsxMkqPviaPHf4ym4bqPHLRyv7603O8g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788938558; c=relaxed/relaxed;
-	bh=/xgppktK1ya3AHkXZxi9vPI0IjVoDDvwcSOEfPSvP+w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=Gtmjjj9QaXBC+m4K+giU47KN46fEHhhCiHwieGAIzJczWQnvuQYnhz7UE1M+AAlKOkgVvdFWDDQYNQhQFDNUUDphULnP4B1OrNpAA/VOK0Cp/NYNaS6Sr/pICplfS/g4cNk/t/bwBrWaZc37Unaqadmj4pjfk4ISdb6PV252XhSxWGwRsAJ2QMwUSj6vPOfu9CACo6D3VDWFmkcrOPaDj8S12ST/FZtn4ge8N8MbqDewL9EfuqxFZ+h8lVYd4CRGcVI1cNlKIJQNazDQTxtkeBWAZ3jBuCzLN0lk+WmT+IbE1/GNfKNR2Th1kJk/VjP6PTs6OQaRFl/pesfHtw3IOQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V5gnwMIX; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V5gnwMIX; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+	t=1788946488; c=relaxed/relaxed;
+	bh=2pu5v3PkvxboxIbvkXuXaRX4FWEIA4yXTJpoZvgvlcU=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version; b=GXOqDatynMtXyOxHJqUL0QGtRWAC23AMnkNG/XB5XYUsyofFXtYU14MmES9dBsnMKbbqkbPMSgUUxn3NeaFC4Zz9AA+AMGdnG0mNyPD6oc95LeoTejz4AzS20Eg4VZk6f48TiW0skXEK5fE18n1dLyazOGgCJu2Niy42+eoshX9mCpXNLIkLm/NPsKmf0Qc+Jj3WZ01mV4zvKnSyf2zbEf8tjDBQjs3dKSABz4E8r0BtByc5mIoTAx0Sym3nep4Wc1EDyfVxlSwQyztj7MeQFoZxPtjivi7+I9MZm0Lh1cqLT+dErzIuzeGEQKV718rYlt2dT/EZOAUb7Si4xKc1vA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CTOC/SWy; dkim-atps=neutral; spf=pass (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V5gnwMIX;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V5gnwMIX;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=CTOC/SWy;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.124; helo=out30-124.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfshY0Gdcz2y2J
-	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 17:22:36 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788938553;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/xgppktK1ya3AHkXZxi9vPI0IjVoDDvwcSOEfPSvP+w=;
-	b=V5gnwMIX8XWl5RiB/7+8y7ssUfJc2YPKbTsXjVX4b3P6kiv4mnSwb/5Y1e3k0uPR26UBim
-	jrUY/94bJFWYhTd/02MXjoF/RdA4Iq6tvhjZWrl6u9XFVdsNPNsplsfZO/EVFRMPerMTkK
-	DBXtrI3wEAkiEU9//FTmFCJFMMJO1rg=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788938553;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/xgppktK1ya3AHkXZxi9vPI0IjVoDDvwcSOEfPSvP+w=;
-	b=V5gnwMIX8XWl5RiB/7+8y7ssUfJc2YPKbTsXjVX4b3P6kiv4mnSwb/5Y1e3k0uPR26UBim
-	jrUY/94bJFWYhTd/02MXjoF/RdA4Iq6tvhjZWrl6u9XFVdsNPNsplsfZO/EVFRMPerMTkK
-	DBXtrI3wEAkiEU9//FTmFCJFMMJO1rg=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-488-jc9DiHqrPbe-2bcDCqYZSQ-1; Wed,
- 09 Sep 2026 03:22:27 -0400
-X-MC-Unique: jc9DiHqrPbe-2bcDCqYZSQ-1
-X-Mimecast-MFC-AGG-ID: jc9DiHqrPbe-2bcDCqYZSQ_1788938544
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D94681800598;
-	Wed,  9 Sep 2026 07:22:23 +0000 (UTC)
-Received: from warthog.com (unknown [10.44.32.158])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 57C9A195608C;
-	Wed,  9 Sep 2026 07:22:18 +0000 (UTC)
-From: David Howells <dhowells@redhat.com>
-To: Christian Brauner <christian@brauner.io>
-Cc: David Howells <dhowells@redhat.com>,
-	Paulo Alcantara <pc@manguebit.org>,
-	Matthew Wilcox <willy@infradead.org>,
-	Namjae Jeon <linkinjeon@kernel.org>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Stefan Metzmacher <metze@samba.org>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Dominique Martinet <asmadeus@codewreck.org>,
-	Ilya Dryomov <idryomov@gmail.com>,
-	netfs@lists.linux.dev,
-	linux-afs@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	ceph-devel@vger.kernel.org,
-	v9fs@lists.linux.dev,
-	linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-Subject: [PATCH v13 8/8] netfs: Set subrequest->source at alloc before trace emission
-Date: Wed,  9 Sep 2026 08:21:02 +0100
-Message-ID: <20260909072105.1663687-9-dhowells@redhat.com>
-In-Reply-To: <20260909072105.1663687-1-dhowells@redhat.com>
-References: <20260909072105.1663687-1-dhowells@redhat.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfwd03bdMz2ypw
+	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 19:34:40 +1000 (AEST)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1788946474; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=2pu5v3PkvxboxIbvkXuXaRX4FWEIA4yXTJpoZvgvlcU=;
+	b=CTOC/SWyXnh5J2R8SFY2l9XD74tIukK9+Zlkw66oxYWzrNoe4vqJxby23Hg5B2gA52Jg3t9bKnjoLhXmvIKhHnWBDdh10eKjV4ktPnP29Pe98F0IkSSg0JqrODffPG6OLkiPiTRH7niGJSYjWtudKLk1bqOA+l+h+AmanKCIm90=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0XAeWW.r_1788946473;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0XAeWW.r_1788946473 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 09 Sep 2026 17:34:33 +0800
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
+To: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2] erofs-utils: tests: check SEEK_HOLE/SEEK_DATA in inode_share mode
+Date: Wed,  9 Sep 2026 17:34:33 +0800
+Message-Id: <20260909093433.95193-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -103,171 +55,304 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: I1e61hUZA_wLIWVrYdxZL0ekH5J391jWoi2LOec5w1w_1788938544
-X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Set subrequest->source in netfs_alloc_subrequest() before we emit the trace
-line indicating we allocated the subrequest.  Note that this requires the
-allocation of the subreq in netfs_read_to_pagecache() to be pushed to after
-the decision about what sort of subreq it should be.
+In inode_share mode erofs_ishare_fops used to fall back to
+generic_file_llseek(), which considers the whole file to be data, so
+SEEK_HOLE always returned i_size and the real holes of sparse files
+were hidden.  This is fixed by kernel commit 8ebf95897885 ("erofs:
+support SEEK_HOLE/SEEK_DATA in inode_share mode").
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Paulo Alcantara <pc@manguebit.org>
-cc: netfs@lists.linux.dev
-cc: linux-fsdevel@vger.kernel.org
-cc: linux-mm@kvack.org
+Add a regression test for it.
+
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
 ---
- fs/netfs/buffered_read.c | 4 ++--
- fs/netfs/direct_read.c   | 3 +--
- fs/netfs/internal.h      | 3 ++-
- fs/netfs/objects.c       | 4 +++-
- fs/netfs/read_retry.c    | 3 +--
- fs/netfs/read_single.c   | 3 +--
- fs/netfs/write_issue.c   | 3 +--
- fs/netfs/write_retry.c   | 3 +--
- 8 files changed, 12 insertions(+), 14 deletions(-)
+changes since v1:
+- add a minimal util probing SEEK_HOLE/SEEK_DATA, rather than relying
+  on xfs_io
+---
+ tests/Makefile.am     |   3 +
+ tests/erofs/033       | 151 ++++++++++++++++++++++++++++++++++++++++++
+ tests/erofs/033.out   |   2 +
+ tests/src/Makefile.am |   5 +-
+ tests/src/lseek.c     |  65 ++++++++++++++++++
+ 5 files changed, 225 insertions(+), 1 deletion(-)
+ create mode 100755 tests/erofs/033
+ create mode 100644 tests/erofs/033.out
+ create mode 100644 tests/src/lseek.c
 
-diff --git a/fs/netfs/buffered_read.c b/fs/netfs/buffered_read.c
-index 887d45f3745a..68496e1a171f 100644
---- a/fs/netfs/buffered_read.c
-+++ b/fs/netfs/buffered_read.c
-@@ -276,10 +276,10 @@ static void netfs_read_to_pagecache(struct netfs_io_request *rreq)
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 363b93dc..b60a6cc9 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -135,6 +135,9 @@ TESTS += erofs/031
+ # 032 - check that the xattr layout does not depend on listxattr(2) order
+ TESTS += erofs/032
  
- 	do {
- 		struct netfs_io_subrequest *subreq;
--		enum netfs_io_source source = NETFS_SOURCE_UNKNOWN;
-+		enum netfs_io_source source;
- 		ssize_t slice;
++# 033 - regression test for SEEK_HOLE/SEEK_DATA in inode_share mode
++TESTS += erofs/033
++
+ # NEW TEST CASE HERE
+ # TESTS += erofs/999
  
--		subreq = netfs_alloc_subrequest(rreq);
-+		subreq = netfs_alloc_subrequest(rreq, NETFS_SOURCE_UNKNOWN);
- 		if (!subreq) {
- 			ret = -ENOMEM;
- 			break;
-diff --git a/fs/netfs/direct_read.c b/fs/netfs/direct_read.c
-index 5405e108b7a3..8c15f3079723 100644
---- a/fs/netfs/direct_read.c
-+++ b/fs/netfs/direct_read.c
-@@ -55,7 +55,7 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
- 		struct netfs_io_subrequest *subreq;
- 		ssize_t slice;
+diff --git a/tests/erofs/033 b/tests/erofs/033
+new file mode 100755
+index 00000000..b3e58628
+--- /dev/null
++++ b/tests/erofs/033
+@@ -0,0 +1,151 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++#
++# Check that SEEK_HOLE/SEEK_DATA see the real holes in inode_share mode
++#
++# In an inode_share mount regular files are served by erofs_ishare_fops,
++# whose .llseek used to be generic_file_llseek().  That one considers the
++# whole file to be data, so SEEK_HOLE always returned i_size and SEEK_DATA
++# always returned the offset it was handed.
++#
++# Regression test for Linux commit 8ebf95897885 ("erofs: support
++# SEEK_HOLE/SEEK_DATA in inode_share mode").
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++_require_erofs
++_require_erofs_inode_sharing
++_require_mkfs_blksize
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++if [ -z $SCRATCH_DEV ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f $SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++# eight chunks, of which chunk 1, 3, 4, 6, 7 stay holes
++chunksize=4096
++truncate -s $((8 * chunksize)) $localdir/sparse ||
++	_fail "failed to truncate $localdir/sparse"
++for i in 0 2 5; do
++	dd if=/dev/urandom of=$localdir/sparse bs=$chunksize seek=$i count=1 \
++		conv=notrunc >> $seqres.full 2>&1 ||
++		_fail "failed to write chunk $i of $localdir/sparse"
++done
++
++# the same size without any hole at all
++dd if=/dev/urandom of=$localdir/dense bs=$chunksize count=8 \
++	>> $seqres.full 2>&1 || _fail "failed to write $localdir/dense"
++
++sparse_layout="data 0 4096
++hole 4096 4096
++data 8192 4096
++hole 12288 8192
++data 20480 4096
++hole 24576 8192"
++dense_layout="data 0 32768"
++
++# seek to the next data or hole, the result ends up in $seek_result
++_seek()
++{
++	local whence=$1
++	local offset=$2
++	local file=$3
++
++	seek_result=`${PWD}/src/lseek "$file" $whence $offset` ||
++		_fail "lseek failed to seek $whence at $offset in $file"
++}
++
++# write the data/hole layout of $1 to $tmp.layout as "<type> <off> <len>"
++_seek_layout()
++{
++	local file="$1"
++	local size=`_get_filesize "$file"`
++	local pos=0
++
++	: > $tmp.layout
++	while [ $pos -lt $size ]; do
++		_seek data $pos "$file"
++		if [ "$seek_result" = "EOF" ]; then
++			echo "hole $pos $((size - pos))" >> $tmp.layout
++			break
++		fi
++		if [ $seek_result -gt $pos ]; then
++			echo "hole $pos $((seek_result - pos))" >> $tmp.layout
++		fi
++		pos=$seek_result
++
++		_seek hole $pos "$file"
++		[ "$seek_result" = "EOF" ] && seek_result=$size
++		echo "data $pos $((seek_result - pos))" >> $tmp.layout
++		pos=$seek_result
++	done
++}
++
++_check_layout()
++{
++	local tag="$1"
++	local file="$2"
++	local expected="$3"
++
++	_seek_layout "$file"
++	if [ "`cat $tmp.layout`" != "$expected" ]; then
++		{
++			echo "--- $tag expected ---"
++			echo "$expected"
++			echo "--- $tag reported ---"
++			cat $tmp.layout
++		} >> $seqres.full
++		_fail "$tag: SEEK_DATA/SEEK_HOLE reported an unexpected layout"
++	fi
++}
++
++for format in force-chunk-indexes force-inode-blockmap; do
++	echo "=== -E$format ===" >> $seqres.full
++
++	_scratch_mkfs -b$chunksize --chunksize=$chunksize -E$format \
++		--xattr-inode-digest=system.erofs.fingerprint \
++		$localdir >> $seqres.full 2>&1 ||
++		_fail "failed to mkfs (-E$format)"
++
++	# make sure that mkfs wrote ishare_xattrs feature bit
++	$DUMP_EROFS_PROG -s $SCRATCH_DEV | grep -q ishare_xattrs ||
++		_fail "the image carries no inode fingerprints (-E$format)"
++
++	# the very same image without inode_share tells them apart
++	_scratch_mount 2>> $seqres.full
++	_check_layout "sparse (-E$format)" \
++		$SCRATCH_MNT/sparse "$sparse_layout"
++	_check_layout "dense (-E$format)" $SCRATCH_MNT/dense "$dense_layout"
++	_scratch_unmount
++
++	_scratch_mount -oinode_share,domain_id=erofs-$seq-$format 2>> $seqres.full
++	_check_layout "sparse (-E$format, inode_share)" \
++		$SCRATCH_MNT/sparse "$sparse_layout"
++	_check_layout "dense (-E$format, inode_share)" \
++		$SCRATCH_MNT/dense "$dense_layout"
++	_scratch_unmount
++done
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/033.out b/tests/erofs/033.out
+new file mode 100644
+index 00000000..c5d29149
+--- /dev/null
++++ b/tests/erofs/033.out
+@@ -0,0 +1,2 @@
++QA output created by 033
++Silence is golden
+diff --git a/tests/src/Makefile.am b/tests/src/Makefile.am
+index 16de41a1..4d9975e0 100644
+--- a/tests/src/Makefile.am
++++ b/tests/src/Makefile.am
+@@ -3,12 +3,15 @@
  
--		subreq = netfs_alloc_subrequest(rreq);
-+		subreq = netfs_alloc_subrequest(rreq, NETFS_DOWNLOAD_FROM_SERVER);
- 		if (!subreq) {
- 			/* Stash the error in the request if there's not
- 			 * already an error set.
-@@ -64,7 +64,6 @@ static void netfs_dispatch_unbuffered_reads(struct netfs_io_request *rreq)
- 			break;
- 		}
+ AUTOMAKE_OPTIONS	= foreign
+ check_PROGRAMS		=
+-noinst_PROGRAMS		= fssum
++noinst_PROGRAMS	= fssum lseek
  
--		subreq->source	= NETFS_DOWNLOAD_FROM_SERVER;
- 		subreq->start	= start;
- 		subreq->len	= size;
+ fssum_CFLAGS = -Wall -I$(top_srcdir)/include
+ fssum_LDADD = $(top_builddir)/lib/liberofs.la
+ fssum_SOURCES = fssum.c
  
-diff --git a/fs/netfs/internal.h b/fs/netfs/internal.h
-index d579c5d79609..4891e6e3c5db 100644
---- a/fs/netfs/internal.h
-+++ b/fs/netfs/internal.h
-@@ -92,7 +92,8 @@ void netfs_get_request(struct netfs_io_request *rreq, enum netfs_rreq_ref_trace
- void netfs_clear_subrequests(struct netfs_io_request *rreq);
- void netfs_put_request(struct netfs_io_request *rreq, enum netfs_rreq_ref_trace what);
- void netfs_put_failed_request(struct netfs_io_request *rreq);
--struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq);
-+struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq,
-+						   enum netfs_io_source source);
- 
- static inline void netfs_see_request(struct netfs_io_request *rreq,
- 				     enum netfs_rreq_ref_trace what)
-diff --git a/fs/netfs/objects.c b/fs/netfs/objects.c
-index 3460aa1c4af1..9c6ea718692a 100644
---- a/fs/netfs/objects.c
-+++ b/fs/netfs/objects.c
-@@ -207,7 +207,8 @@ void netfs_put_failed_request(struct netfs_io_request *rreq)
- /*
-  * Allocate and partially initialise an I/O request structure.
-  */
--struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq)
-+struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq,
-+						   enum netfs_io_source source)
- {
- 	struct netfs_io_subrequest *subreq;
- 	mempool_t *mempool = rreq->netfs_ops->subrequest_pool ?: &netfs_subrequest_pool;
-@@ -224,6 +225,7 @@ struct netfs_io_subrequest *netfs_alloc_subrequest(struct netfs_io_request *rreq
- 	INIT_WORK(&subreq->work, NULL);
- 	INIT_LIST_HEAD(&subreq->rreq_link);
- 	refcount_set(&subreq->ref, 2);
-+	subreq->source = source;
- 	subreq->rreq = rreq;
- 	subreq->debug_index = atomic_inc_return(&rreq->subreq_counter);
- 	netfs_get_request(rreq, netfs_rreq_trace_get_subreq);
-diff --git a/fs/netfs/read_retry.c b/fs/netfs/read_retry.c
-index 46810d29f0c0..396a05432a7e 100644
---- a/fs/netfs/read_retry.c
-+++ b/fs/netfs/read_retry.c
-@@ -195,12 +195,11 @@ static void netfs_retry_read_subrequests(struct netfs_io_request *rreq)
- 		 * and insert them after.
- 		 */
- 		do {
--			subreq = netfs_alloc_subrequest(rreq);
-+			subreq = netfs_alloc_subrequest(rreq, NETFS_DOWNLOAD_FROM_SERVER);
- 			if (!subreq) {
- 				subreq = to;
- 				goto abandon_after;
- 			}
--			subreq->source		= NETFS_DOWNLOAD_FROM_SERVER;
- 			subreq->start		= start;
- 			subreq->len		= len;
- 			subreq->stream_nr	= stream->stream_nr;
-diff --git a/fs/netfs/read_single.c b/fs/netfs/read_single.c
-index ccb5fc809d99..81295c055ced 100644
---- a/fs/netfs/read_single.c
-+++ b/fs/netfs/read_single.c
-@@ -92,11 +92,10 @@ static int netfs_single_dispatch_read(struct netfs_io_request *rreq)
- 	struct netfs_io_subrequest *subreq;
- 	int ret = 0;
- 
--	subreq = netfs_alloc_subrequest(rreq);
-+	subreq = netfs_alloc_subrequest(rreq, NETFS_SOURCE_UNKNOWN);
- 	if (!subreq)
- 		return -ENOMEM;
- 
--	subreq->source	= NETFS_SOURCE_UNKNOWN;
- 	subreq->start	= 0;
- 	subreq->len	= rreq->len;
- 	subreq->io_iter	= rreq->buffer.iter;
-diff --git a/fs/netfs/write_issue.c b/fs/netfs/write_issue.c
-index 9a528da4bf9f..e7cb496f6324 100644
---- a/fs/netfs/write_issue.c
-+++ b/fs/netfs/write_issue.c
-@@ -168,10 +168,9 @@ void netfs_prepare_write(struct netfs_io_request *wreq,
- 	    wreq_iter->folioq_slot >= folioq_nr_slots(wreq_iter->folioq))
- 		rolling_buffer_make_space(&wreq->buffer, wreq->gfp);
- 
--	subreq = netfs_alloc_subrequest(wreq);
-+	subreq = netfs_alloc_subrequest(wreq, stream->source);
- 	if (!subreq)
- 		return;
--	subreq->source		= stream->source;
- 	subreq->start		= start;
- 	subreq->stream_nr	= stream->stream_nr;
- 	subreq->io_iter		= *wreq_iter;
-diff --git a/fs/netfs/write_retry.c b/fs/netfs/write_retry.c
-index 6cd584242af2..d7d5348496fc 100644
---- a/fs/netfs/write_retry.c
-+++ b/fs/netfs/write_retry.c
-@@ -149,8 +149,7 @@ static void netfs_retry_write_stream(struct netfs_io_request *wreq,
- 		 * and insert them after.
- 		 */
- 		do {
--			subreq = netfs_alloc_subrequest(wreq);
--			subreq->source		= to->source;
-+			subreq = netfs_alloc_subrequest(wreq, stream->source);
- 			subreq->start		= start;
- 			subreq->stream_nr	= to->stream_nr;
- 			subreq->retry_count	= 1;
++lseek_CFLAGS = -Wall
++lseek_SOURCES = lseek.c
++
+ if ENABLE_LZ4
+ check_PROGRAMS += badlz4
+ badlz4_SOURCES = badlz4.c
+diff --git a/tests/src/lseek.c b/tests/src/lseek.c
+new file mode 100644
+index 00000000..c8bd2998
+--- /dev/null
++++ b/tests/src/lseek.c
+@@ -0,0 +1,65 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * erofs-utils/tests/src/lseek.c
++ *
++ * Minimal SEEK_DATA/SEEK_HOLE probe: report the offset the kernel
++ * resolves a seek to, or EOF if there is nothing left to find.
++ */
++#define _GNU_SOURCE
++#include <errno.h>
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++
++int main(int argc, char *argv[])
++{
++	const char *file, *whence_name;
++	char *end;
++	long long offset, ret;
++	int whence, fd;
++
++	if (argc != 4) {
++		fprintf(stderr, "Usage: %s FILE data|hole OFFSET\n", argv[0]);
++		return 2;
++	}
++	file = argv[1];
++	whence_name = argv[2];
++	if (!strcmp(whence_name, "data")) {
++		whence = SEEK_DATA;
++	} else if (!strcmp(whence_name, "hole")) {
++		whence = SEEK_HOLE;
++	} else {
++		fprintf(stderr, "bad whence: %s\n", whence_name);
++		return 2;
++	}
++	errno = 0;
++	offset = strtoll(argv[3], &end, 0);
++	if (*argv[3] == '\0' || *end != '\0' || errno) {
++		fprintf(stderr, "bad offset: %s\n", argv[3]);
++		return 2;
++	}
++
++	fd = open(file, O_RDONLY);
++	if (fd < 0) {
++		fprintf(stderr, "failed to open %s: %s\n", file, strerror(errno));
++		return 2;
++	}
++	/* the kernel reports -ENXIO when no data/hole is left past EOF */
++	ret = lseek(fd, offset, whence);
++	if (ret < 0) {
++		if (errno == ENXIO) {
++			printf("EOF\n");
++			close(fd);
++			return 0;
++		}
++		fprintf(stderr, "lseek %s %lld in %s: %s\n", whence_name,
++			offset, file, strerror(errno));
++		close(fd);
++		return 2;
++	}
++	printf("%lld\n", ret);
++	close(fd);
++	return 0;
++}
+-- 
+2.19.1.6.gb485710b
 
 
