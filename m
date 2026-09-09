@@ -1,49 +1,91 @@
-Return-Path: <linux-erofs+bounces-4511-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4512-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 96D00C79FAD
-	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 03:43:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03CA2C79FAA
+	for <linux-erofs@archiver.kernel.org>; Wed,  9 Sep 2026 07:21:41 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hfmqs2k1Qz2xlZ;
-	Wed, 09 Sep 2026 13:43:37 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.133
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788925417;
-	cv=none; b=eKSgm/518AjQ8UCdRpxR5LvXgJDJrfcbBhbwxIXSUJ0zTBCncanH+9h8BjMhKm6DiYUB99zxA65aWWMtPBgSryee3S6LgasIZmBAiM1HgOxl5CPTKqb6j0S0K9GzklOu31f5MKbUEdbSu2I/q9cbyBz3wuKwD3yKBOLjpWqcPwJRnZqSPLNFxbV6pUzu7YQbqjxzuLTxHgnlyDhNKbngklGXEbTbINxI8Z3R5abHUOZEzwKizHwahMiHtRwUJHD6J59gJnZWiL74Ow0yCD87+Zmq8aB2YHI1HJtyUJgeX7NMPAw7iTVpb0ZfjyoPLMIWN3cugHbV+xRGAG5N62iEdQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hfsgR6Fqpz2y8c;
+	Wed, 09 Sep 2026 17:21:39 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=170.10.133.124
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1788938499;
+	cv=none; b=nRhgiR5M/lKBI57zdMAew1jByqHCFgNY8YEhxwUR/MLJKJd8tDovOaZUbl9U+ZtYO/cgtDwwQai7aHzBGFjdPn8H5YsfaZMg+XhnCZdWtPWFKVUVsWEZCEWjdIextE7ilAm02QKvKbWrddggZNRMZQvKXenz23cxXHbKpeSSwztJAyGHDmhHNS9GyurJrlx/wj+hLySyGiVB08gKyVbL8CImPiwEcRR7IuPX9yiodxyHmnxz4DEO+AMEj9+88NuNwW37regDtU6AILVX//Xv3mlKWWpVQbjvVUmgXONKvPt+UCIzct4aW6EFuFXqvX7JCC3LIxgdPVpIY1gFpxeJow==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1788925417; c=relaxed/relaxed;
-	bh=Qk34OFBLaHONDey23ejQAmQuwsl07Z5fcWkdj/ABYk4=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=kWdYt2j16Ms+4ILMazgHvUIA80lcyVzPSjFVpP3PQErRUxQrUZKdCBTqgDaZ5cbaA6Nq0zm8d7PqSfeZxKj68zLrjSoOxaCvfS6yMp1swU4PceNB03RsnmpXyuuTzTxQf7pHqlOwYlwr1oZY4w3BiKFkOLcnDtnkGDafpc43l6YUs73vs8HoNpnPs30nOF15y4dBeOxgTKPUrvC5ocN1VEb9jtS6jsqCv/x8ZBM6JbCir4OOM5RQtQsLGv5h0s4+8TROEqiSBQPRo7/1RGky7gN7bRQ6gW3CEu+4x2ScQblnnyeM1rgBXxmQsJL92dHWiI+m7xjUiO1cj71WdR5Eew==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Mc3su9P+; dkim-atps=neutral; spf=pass (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1788938499; c=relaxed/relaxed;
+	bh=NwTohl+L3wBgxbiNt8Qf67OZRjLUf9WteY3EfU1JFtw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=ef6Rgy7MHsqmhuI5d45IXuILdqDImHdzAEOxNChLwGXDPWrrD3DvdqBc+aUC/QGg58QzvD4N+cGY33DAU9QZhgdjToV8nwQRxEpR3nKouOoGG5PiIRakqQN0kjcO4COaTewYlKvrVysEkPH7oxMY5VZ0GTXBSgVN2QPUa1ZzOfTdyrjlVMenW9AOdczsaDRsMYxWFi4bpk4UyKl1P6J8BRJFB9oFImHN4rhCQRCp8D25V0I4tjEmIF5j/uQ98pAAh6AUDpmta/lesS6LIvlaD00Hifz0kzsQMYvLAgLlCjDxjV3OopwH5YpSn5AGBlw3wWtssgc9rIr92QxcMabFgA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gHFGrtTD; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Qs8svAIR; dkim-atps=neutral; spf=pass (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org) smtp.mailfrom=redhat.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=Mc3su9P+;
+	dkim=pass (1024-bit key; unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gHFGrtTD;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Qs8svAIR;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.133; helo=out30-133.freemail.mail.aliyun.com; envelope-from=jefflexu@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=redhat.com (client-ip=170.10.133.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=dhowells@redhat.com; receiver=lists.ozlabs.org)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfmqn2gpCz2xWV
-	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 13:43:31 +1000 (AEST)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788925405; h=From:To:Subject:Date:Message-Id:MIME-Version;
-	bh=Qk34OFBLaHONDey23ejQAmQuwsl07Z5fcWkdj/ABYk4=;
-	b=Mc3su9P+sZgDJWoCP++sz+5bJY6zVHH3GKKs2nN5cYE5dqmzpTWJtd3SJtjD8iFCu/uVJKpGTWVUESFFYctsyD2lJWmjwOhJX9siM8Z7foVqnPAmpXLEXDI3ogbFI9TyHClAr/3ZcajY2zUyUWcC+lGIVlGYEfSySDYjX25Ci+s=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R291e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=2;SR=0;TI=SMTPD_---0XAdoBbL_1788925403;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0XAdoBbL_1788925403 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 09 Sep 2026 11:43:24 +0800
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
-To: xiang@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH] erofs-utils: tests: check SEEK_HOLE/SEEK_DATA in inode_share mode
-Date: Wed,  9 Sep 2026 11:43:23 +0800
-Message-Id: <20260909034323.51773-1-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hfsgQ2HHrz2y2J
+	for <linux-erofs@lists.ozlabs.org>; Wed, 09 Sep 2026 17:21:36 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788938492;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=NwTohl+L3wBgxbiNt8Qf67OZRjLUf9WteY3EfU1JFtw=;
+	b=gHFGrtTDJaolgTC4xTiIVM4wIcqwe5H7onK5K9FaoNBGm4L0TGDgpL65P6Cq9FNXXjr3bO
+	zhflNApdxm+4YEv75SjsjRUcpuxNqd16Fj81U2liuW6eSTyHnLEPtaoDMxKr3K07LcUKz0
+	kErbtAsXDznjkw9L6V6q2oxkMWU8ha8=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788938493;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=NwTohl+L3wBgxbiNt8Qf67OZRjLUf9WteY3EfU1JFtw=;
+	b=Qs8svAIR3VPomHsya23SSMDcd2pAq8ViKIG5onSqNPmcPY5OCKRZcVJVK3RwOZ1sUmcrAO
+	QwUlmESMq92pzlbTYNF9ZWR+qbV0mZ2iNTuyEdlSC7cKdl4y8HVHGLyz2gMK6lxK6T2C1s
+	CC5cZLFMRA0NSeyGRSOecp5ZmHe2iHE=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-608-5zXez9ViMRWllKQjIz_I_A-1; Wed,
+ 09 Sep 2026 03:21:28 -0400
+X-MC-Unique: 5zXez9ViMRWllKQjIz_I_A-1
+X-Mimecast-MFC-AGG-ID: 5zXez9ViMRWllKQjIz_I_A_1788938486
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 97D8218005B3;
+	Wed,  9 Sep 2026 07:21:24 +0000 (UTC)
+Received: from warthog.com (unknown [10.44.32.158])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C1CB01800446;
+	Wed,  9 Sep 2026 07:21:16 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: Christian Brauner <christian@brauner.io>
+Cc: David Howells <dhowells@redhat.com>,
+	Paulo Alcantara <pc@manguebit.org>,
+	Matthew Wilcox <willy@infradead.org>,
+	Namjae Jeon <linkinjeon@kernel.org>,
+	Marc Dionne <marc.dionne@auristor.com>,
+	Stefan Metzmacher <metze@samba.org>,
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Dominique Martinet <asmadeus@codewreck.org>,
+	Ilya Dryomov <idryomov@gmail.com>,
+	netfs@lists.linux.dev,
+	linux-afs@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	ceph-devel@vger.kernel.org,
+	v9fs@lists.linux.dev,
+	linux-erofs@lists.ozlabs.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v13 0/8] netfs: Miscellaneous preparatory changes
+Date: Wed,  9 Sep 2026 08:20:54 +0100
+Message-ID: <20260909072105.1663687-1-dhowells@redhat.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -55,212 +97,113 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.4.1 on 127.0.0.2
+X-Mimecast-MFC-PROC-ID: EsAH9YhPVzhgH0CulBHemDp1z0fB1-2UVuDmIA-29yg_1788938486
+X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-In inode_share mode erofs_ishare_fops used to fall back to
-generic_file_llseek(), which considers the whole file to be data, so
-SEEK_HOLE always returned i_size and the real holes of sparse files
-were hidden.  This is fixed by kernel commit 8ebf95897885 ("erofs:
-support SEEK_HOLE/SEEK_DATA in inode_share mode").
+Hi Christian,
 
-Add a regression test for it.  xfs_io is requisite for seeking
-SEEK_HOLE and SEEK_DATA.
+Could you pull these patches please for -next?  This is the first of four
+batches.  This is based on your vfs.fixes as there are some prerequisite
+patches there.  This was split from v11 of a larger series[1].
 
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
----
- tests/Makefile.am   |   3 +
- tests/erofs/033     | 157 ++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/033.out |   2 +
- 3 files changed, 162 insertions(+)
- create mode 100755 tests/erofs/033
- create mode 100644 tests/erofs/033.out
+This a collection of miscellaneous modifications to netfslib that I want to
+make ahead of bigger changes, including:
 
-diff --git a/tests/Makefile.am b/tests/Makefile.am
-index 363b93dc..b60a6cc9 100644
---- a/tests/Makefile.am
-+++ b/tests/Makefile.am
-@@ -135,6 +135,9 @@ TESTS += erofs/031
- # 032 - check that the xattr layout does not depend on listxattr(2) order
- TESTS += erofs/032
- 
-+# 033 - regression test for SEEK_HOLE/SEEK_DATA in inode_share mode
-+TESTS += erofs/033
-+
- # NEW TEST CASE HERE
- # TESTS += erofs/999
- 
-diff --git a/tests/erofs/033 b/tests/erofs/033
-new file mode 100755
-index 00000000..1ec0aac0
---- /dev/null
-+++ b/tests/erofs/033
-@@ -0,0 +1,157 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0+
-+#
-+# Check that SEEK_HOLE/SEEK_DATA see the real holes in inode_share mode
-+#
-+# In an inode_share mount regular files are served by erofs_ishare_fops,
-+# whose .llseek used to be generic_file_llseek().  That one considers the
-+# whole file to be data, so SEEK_HOLE always returned i_size and SEEK_DATA
-+# always returned the offset it was handed.
-+#
-+# Regression test for Linux commit 8ebf95897885 ("erofs: support
-+# SEEK_HOLE/SEEK_DATA in inode_share mode").
-+#
-+seq=`basename $0`
-+seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
-+
-+# get standard environment, filters and checks
-+. "${srcdir}/common/rc"
-+
-+cleanup()
-+{
-+	cd /
-+	rm -rf $tmp.*
-+}
-+
-+_require_erofs
-+_require_erofs_inode_sharing
-+_require_mkfs_blksize
-+
-+XFS_IO_PROG="$(command -v xfs_io)"
-+[ -z "$XFS_IO_PROG" ] && _notrun "xfs_io is not found"
-+
-+# remove previous $seqres.full before test
-+rm -f $seqres.full
-+
-+# real QA test starts here
-+echo "QA output created by $seq"
-+
-+if [ -z $SCRATCH_DEV ]; then
-+	SCRATCH_DEV=$tmp/erofs_$seq.img
-+	rm -f $SCRATCH_DEV
-+fi
-+
-+localdir="$tmp/$seq"
-+rm -rf $localdir
-+mkdir -p $localdir
-+
-+# eight chunks, of which chunk 1, 3, 4, 6, 7 stay holes
-+chunksize=4096
-+truncate -s $((8 * chunksize)) $localdir/sparse ||
-+	_fail "failed to truncate $localdir/sparse"
-+for i in 0 2 5; do
-+	dd if=/dev/urandom of=$localdir/sparse bs=$chunksize seek=$i count=1 \
-+		conv=notrunc >> $seqres.full 2>&1 ||
-+		_fail "failed to write chunk $i of $localdir/sparse"
-+done
-+
-+# the same size without any hole at all
-+dd if=/dev/urandom of=$localdir/dense bs=$chunksize count=8 \
-+	>> $seqres.full 2>&1 || _fail "failed to write $localdir/dense"
-+
-+sparse_layout="data 0 4096
-+hole 4096 4096
-+data 8192 4096
-+hole 12288 8192
-+data 20480 4096
-+hole 24576 8192"
-+dense_layout="data 0 32768"
-+
-+# seek to the next data (-d) or hole (-h), the offset ends up in $seek_result
-+_seek()
-+{
-+	local whence=$1
-+	local offset=$2
-+	local file=$3
-+
-+	$XFS_IO_PROG -r -c "seek -$whence $offset" "$file" > $tmp.seek ||
-+		_fail "xfs_io failed to seek $whence at $offset in $file"
-+	seek_result=`tail -n 1 $tmp.seek | awk '{print $2}'`
-+	[ -n "$seek_result" ] ||
-+		_fail "cannot parse the seek output of xfs_io for $file"
-+}
-+
-+# write the data/hole layout of $1 to $tmp.layout as "<type> <off> <len>"
-+_seek_layout()
-+{
-+	local file="$1"
-+	local size=`_get_filesize "$file"`
-+	local pos=0
-+
-+	: > $tmp.layout
-+	while [ $pos -lt $size ]; do
-+		_seek d $pos "$file"
-+		if [ "$seek_result" = "EOF" ]; then
-+			echo "hole $pos $((size - pos))" >> $tmp.layout
-+			break
-+		fi
-+		if [ $seek_result -gt $pos ]; then
-+			echo "hole $pos $((seek_result - pos))" >> $tmp.layout
-+		fi
-+		pos=$seek_result
-+
-+		_seek h $pos "$file"
-+		[ "$seek_result" = "EOF" ] && seek_result=$size
-+		echo "data $pos $((seek_result - pos))" >> $tmp.layout
-+		pos=$seek_result
-+	done
-+}
-+
-+_check_layout()
-+{
-+	local tag="$1"
-+	local file="$2"
-+	local expected="$3"
-+
-+	_seek_layout "$file"
-+	if [ "`cat $tmp.layout`" != "$expected" ]; then
-+		{
-+			echo "--- $tag expected ---"
-+			echo "$expected"
-+			echo "--- $tag reported ---"
-+			cat $tmp.layout
-+		} >> $seqres.full
-+		_fail "$tag: SEEK_DATA/SEEK_HOLE reported an unexpected layout"
-+	fi
-+}
-+
-+for format in force-chunk-indexes force-inode-blockmap; do
-+	echo "=== -E$format ===" >> $seqres.full
-+
-+	_scratch_mkfs -b$chunksize --chunksize=$chunksize -E$format \
-+		--xattr-inode-digest=system.erofs.fingerprint \
-+		$localdir >> $seqres.full 2>&1 ||
-+		_fail "failed to mkfs (-E$format)"
-+
-+	# make sure that mkfs wrote ishare_xattrs feature bit
-+	$DUMP_EROFS_PROG -s $SCRATCH_DEV | grep -q ishare_xattrs ||
-+		_fail "the image carries no inode fingerprints (-E$format)"
-+
-+	# the very same image without inode_share tells them apart
-+	_scratch_mount 2>> $seqres.full
-+	_check_layout "sparse (-E$format)" \
-+		$SCRATCH_MNT/sparse "$sparse_layout"
-+	_check_layout "dense (-E$format)" $SCRATCH_MNT/dense "$dense_layout"
-+	_scratch_unmount
-+
-+	_scratch_mount -oinode_share,domain_id=erofs-$seq-$format 2>> $seqres.full
-+	_check_layout "sparse (-E$format, inode_share)" \
-+		$SCRATCH_MNT/sparse "$sparse_layout"
-+	_check_layout "dense (-E$format, inode_share)" \
-+		$SCRATCH_MNT/dense "$dense_layout"
-+	_scratch_unmount
-+done
-+
-+echo Silence is golden
-+status=0
-+exit 0
-diff --git a/tests/erofs/033.out b/tests/erofs/033.out
-new file mode 100644
-index 00000000..c5d29149
---- /dev/null
-+++ b/tests/erofs/033.out
-@@ -0,0 +1,2 @@
-+QA output created by 033
-+Silence is golden
--- 
-2.19.1.6.gb485710b
+ (1) Convert "unsigned long long" to "uoff_t".  This makes it a little more
+     obvious as to the meaning of the value.  Also convert some "loff_t" to
+     "uoff_t" as most of the time it's used the value really should never
+     be negative.
+
+ (2) Remove the writethrough code as the locking is really tricky to get
+     right and it looks like it could deadlock with Ceph if snapshots are
+     used.
+
+ (3) Adjust some tracepoints, including adding the cache object ID to
+     certain tracepoinits.
+
+ (4) Make use of PG_private_2 opt-in.  Use of PG_private_2 is deprecated
+     and the MM people would like their page bit back, so we need to stop
+     using it soon.
+
+ (5) Add some helper functions to handle the barriering needed for the
+     NETFS_RREQ_ALL_QUEUED flag.
+
+ (6) Set the subrequest type at allocation time so that the allocation
+     trace records the proposed type.
+
+The patches can also be found here:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=netfs-next-1
+
+Thanks,
+David
+
+Changes
+=======
+ver #13)
+- Fixed some sashiko-raised issues:
+  - Fixed netfs_mark_copy_to_cache() to use netfs_using_pgpriv2() rather
+    than checking NETFS_RREQ_USE_PGPRIV2.
+  - Fixed netfs_all_subreqs_queued() to do smp_mb__after_atomic() after
+    setting the NETFS_RREQ_ALL_QUEUED bit.
+  - Fixed netfs_single_dispatch_read() to not immediately contradict its
+    own initialisation of subreq->source.
+
+ver #12)
+- Split from v11 of "netfs: Keep track of folios in a segmented bio_vec[]
+  chain"[1]
+
+[1] https://lore.kernel.org/r/20260902173350.3468672-1-dhowells@redhat.com/
+[2] https://sashiko.dev/#/patchset/20260908091031.1506798-1-dhowells%40redhat.com
+
+David Howells (8):
+  netfs: Use uoff_t instead of unsigned long long and loff_t
+  netfs: Remove the writethrough code
+  netfs: trace: Change the "clear" folio traces to "endwb"
+  netfs: trace: Rejig a couple of the tracepoints
+  netfs: Add the cache object ID to netfs_read/write tracepoints
+  netfs: Make deprecated PG_private_2 support opt-in
+  netfs: Add some functions to wrap the all-queued handling
+  netfs: Set subrequest->source at alloc before trace emission
+
+ fs/9p/vfs_addr.c                  |   1 -
+ fs/afs/file.c                     |   5 +-
+ fs/cachefiles/interface.c         |  10 +--
+ fs/cachefiles/internal.h          |   4 +-
+ fs/cachefiles/io.c                |  25 +++---
+ fs/ceph/Kconfig                   |   1 +
+ fs/ceph/addr.c                    |   4 +-
+ fs/netfs/Kconfig                  |   3 +
+ fs/netfs/Makefile                 |   2 +-
+ fs/netfs/buffered_read.c          |  37 ++++-----
+ fs/netfs/buffered_write.c         |  66 +++------------
+ fs/netfs/direct_read.c            |  14 ++--
+ fs/netfs/direct_write.c           |   8 +-
+ fs/netfs/fscache_cookie.c         |   8 +-
+ fs/netfs/fscache_io.c             |  10 +--
+ fs/netfs/internal.h               |  68 ++++++++++++---
+ fs/netfs/iterator.c               |   2 +-
+ fs/netfs/main.c                   |   1 -
+ fs/netfs/misc.c                   |  10 +--
+ fs/netfs/objects.c                |   6 +-
+ fs/netfs/read_collect.c           |  14 ++--
+ fs/netfs/read_pgpriv2.c           |  13 ++-
+ fs/netfs/read_retry.c             |   5 +-
+ fs/netfs/read_single.c            |  12 +--
+ fs/netfs/stats.c                  |   4 +-
+ fs/netfs/write_collect.c          |  25 +++---
+ fs/netfs/write_issue.c            | 123 ++-------------------------
+ fs/netfs/write_retry.c            |   5 +-
+ fs/nfs/Kconfig                    |   1 +
+ include/linux/fscache-cache.h     |   2 +-
+ include/linux/fscache.h           |  36 ++++----
+ include/linux/netfs.h             |  80 +++++++++---------
+ include/trace/events/cachefiles.h |  30 +++----
+ include/trace/events/fscache.h    |  10 +--
+ include/trace/events/netfs.h      | 134 +++++++++++++++---------------
+ 35 files changed, 326 insertions(+), 453 deletions(-)
 
 
