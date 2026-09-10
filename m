@@ -1,55 +1,58 @@
-Return-Path: <linux-erofs+bounces-4527-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4528-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7BFEDC79FB9
-	for <linux-erofs@archiver.kernel.org>; Thu, 10 Sep 2026 11:59:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FC24C79F9F
+	for <linux-erofs@archiver.kernel.org>; Thu, 10 Sep 2026 11:59:54 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hgbnw26Czz2xRs;
-	Thu, 10 Sep 2026 21:59:48 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789041588;
-	cv=none; b=kOWmFOXB4jRmeVmaPFWPmlcMHShco0eac6m/RaSU6GhC/lhPSRihJtyl0yltFpgEJXUgrTjRls8t9ZiMX6+KyD1q72IjQWw0+2IGgtuR4bGo6tyiMmZcx6m0k4m+TqwfTdO/tKKhAQ/zRVTF5X85G+dFnUE/g9eF5vAr/ob6v1227/fSqnWZxwEDicJYqEpWu8umM10UKfc9xnRqcD65tpQyFNgPh97FH75Bc4+VuzLKSbFIkcAE9zgz2d3tgOB3EIOlBGtZkRsUBcekSgd1MylxZjUF20ISqeDMy0Oamt+0If6F8YcYb/2FHd2w8fkePzlLo8axSf7EQBBoBukaKw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hgbp12hLjz2xjM;
+	Thu, 10 Sep 2026 21:59:53 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789041593;
+	cv=none; b=TrgefXXvAtMOrp6TU92JmRkobn4py+2fziw36tmkT/PbHSsFwIChxEFwB46LxhZLF6L/2EgVuU/bI/eY5t4e4Seg1Lv+ic/u3PubUcHoMxgor/KYFyt82EIFECYpYz8F07SEVOUrraj9wHdqfx6EhE8/YXqhjxp0xPst+6D0ZTqVrlrgOHPdOM7vcEXTqJADSLUQyAw9JH3oatoL0kXiubiRv/wIdASFa5iUBez5BfYWC7IVIBSxSIs6Vz1ojOoLtxtUMbl9xSzB7OuOvGzrSGeRz4KI46Iyivjt5CNkzjyGiPMmOR+2WUSSy9+bXQtIltz5odTo0LQxMmOyFGk8Iw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789041588; c=relaxed/relaxed;
-	bh=AVvXTCJTomjVEi8SSyDAjvQ1aYg/kcc3p1FeJnIaY3g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dqmoMVFo2OKYKOwJQdgqqAIYldwai0xQCPqxYefsHyG90HbY736oXRZNGHANIRJytpo0cyv+11AR6DOo9wkT5wDH+/D4v6t/igd4k9Gm9wFZfYgJnht3V0xldAN6GetkK8u8n+ct9MtjPSqXESvt2C9Yw8s4uchnqsvlCppudcwG7ncEDypTV0TdINWMtHF7leEmbG74vVixbbPjM0x451iaZ+KHORcjsRk9uBg4Q1aRSdk+6Ltj/gcr07l0gvIdX7ZvVieGWn3NapiHhwfNf8f2LRyePB6ODBlimK+QF4kbyHvB+BqzYWLvW+2roaeOCN8dbllln70u/SXeocyxKA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tinb5IHu; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1789041593; c=relaxed/relaxed;
+	bh=XJyIufYUiRZELEI+Rw2ehjJhsQDzahzgWthOe9i4BR4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=gKYel+KBFOkmVSfRbYcUKaocfsTCj2PQOxc+21fDDWjLDD4uyGw55VcUU0L+8QqX1kleJR0n5++dw+qfhUBkOG6TjWoO4AFYmoeQwWXERz/TJD6T4ivslDNV3vdRJXKAlupwVjezH80spQXCYybncDGCHkQiHhHSO/Yk7IXYQfEqINTW751z6krbyBkXTQxgKq4Rj7TfEyIY9ZZbMnqm7WAsNkeng4ebtIJ0kPjT4KC1VftNADoniKsVgoAlyrUTv9AQcT851nTFD6Q0dB+nY1wUaWasFrn74gcmcDikgvOv8U15mhjbC1/9Ga6XCo+tcIT7SvKaFrYDZSIJaWy79Q==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aOC7KKO5; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tinb5IHu;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aOC7KKO5;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hgbnt4zLKz2xLq
-	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 21:59:46 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hgbny6LyJz2xLq
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 21:59:50 +1000 (AEST)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 2ECCF601F0
-	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 11:59:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 237361F00893;
-	Thu, 10 Sep 2026 11:59:41 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 784AE413C2
+	for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 11:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 987981F000FF;
+	Thu, 10 Sep 2026 11:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789041582;
-	bh=AVvXTCJTomjVEi8SSyDAjvQ1aYg/kcc3p1FeJnIaY3g=;
-	h=From:To:Cc:Subject:Date;
-	b=Tinb5IHu8aQ0DpLQnwt9xThj8l285LjhukvgELUVJSqaiAl7q6VBOa8hg7BvDHsdu
-	 cJ59ICkXvvRUooGTUhKaukbHJETfAN0psSzprtbK5DBQvC2Ukvn51wrTuerDoU55Yb
-	 5TMUdMRQCTrBcNNA5+wxmm1ck2YGxxsHSWcy0dMWzE24RPt+uAVZzmV8sAQapI7WLt
-	 Q/ubG8PgEzzWEwWh2QGKNRSN6HnYOsaqT3zxzOlTachChtIsr8gEjFwHTfgb5IIoIH
-	 OykKia0dgahCwveR1aoZRF5vf/+wZ0Aaq2NyHrfFcOGa4gK0IdCXEo5qalW8YJK//H
-	 ZbhOT/2wvIyUA==
+	s=k20260515; t=1789041586;
+	bh=XJyIufYUiRZELEI+Rw2ehjJhsQDzahzgWthOe9i4BR4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=aOC7KKO5lrIKd4jhEFHxXh2Kb9DhCMbPGIAyW/r1Or1i9ZHGcQcB6H1YFEwtnN7lA
+	 7hdi0zB+OUW4mRY9xjWMeqZ/INqGdDr/WPM5e8SPjjxQ2lif0tHQjxD+hNz6OeHJ0r
+	 VWlbyBMAMfDd6eOzk+ZjgxaAzMMJR8hqhwxnqkJXkoV15n6842MQG/DQ4cxprW+iT3
+	 twkovyGrmA/VbXr7KcjL3Gzjdq25aGW1r26a45tlvwKgAqH0Lh9ETuGJ0w+ML4mL5E
+	 dUdnNC3ImKupOGvWi2Ct9sMFJqZ9CyBG3lB5t9KyGaa3oWZ2JK3/OeVnacZtcICUGG
+	 3b3PWIpzjMYLA==
 From: Gao Xiang <xiang@kernel.org>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <xiang@kernel.org>
-Subject: [PATCH 1/2] erofs-utils: mkfs: defer compressed metadata generation
-Date: Thu, 10 Sep 2026 19:58:51 +0800
-Message-ID: <20260910115852.149572-1-xiang@kernel.org>
+Subject: [PATCH 2/2] erofs-utils: mkfs: enable `--blobdev` for compressed inode layouts
+Date: Thu, 10 Sep 2026 19:58:52 +0800
+Message-ID: <20260910115852.149572-2-xiang@kernel.org>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260910115852.149572-1-xiang@kernel.org>
+References: <20260910115852.149572-1-xiang@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,695 +66,410 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Generally, unique addresses should be assigned after the size of
-the primary device is decided.
+Add metadata-only image support for compressed inode layouts, e.g.:
+ $ mkfs.erofs -zlz4 --blobdev blob.erofs fsmeta.erofs foo/
 
-Defer compressed metadata generation until after
-erofs_update_all_devices().  This is used to support multi-device
-compressed filesystems (including fsmerge support for compressed
-images.)
+Note that `-Efragments` and `-Ededupe` haven't supported yet.
+
+Follow-up: support rebuild mode for compressed inode layouts.
 
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- include/erofs/internal.h |   1 -
- lib/compress.c           | 462 +++++++++++++++++++++------------------
- lib/inode.c              |   8 +-
- lib/liberofs_compress.h  |   1 +
- 4 files changed, 261 insertions(+), 211 deletions(-)
+ include/erofs/dedupe.h   |  1 +
+ include/erofs/internal.h | 12 ++-----
+ lib/compress.c           | 67 +++++++++++++++++++++++++++++-----------
+ lib/data.c               | 16 ++++++++++
+ lib/inode.c              |  5 +--
+ lib/super.c              |  6 ++--
+ lib/tar.c                |  2 +-
+ lib/xattr.c              |  2 +-
+ 8 files changed, 77 insertions(+), 34 deletions(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 84a7590..0de71fb 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -212,7 +212,6 @@ struct erofs_diskbuf;
- enum erofs_idata_type {
- 	EROFS_IDATA_TYPE_RAW,
- 	EROFS_IDATA_TYPE_COMPRESSED_DEFAULT,
--	EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B,
+diff --git a/include/erofs/dedupe.h b/include/erofs/dedupe.h
+index 267d9b9..14dd7dc 100644
+--- a/include/erofs/dedupe.h
++++ b/include/erofs/dedupe.h
+@@ -16,6 +16,7 @@ struct z_erofs_inmem_extent {
+ 	erofs_off_t pstart;
+ 	unsigned int plen;
+ 	unsigned int length;
++	unsigned short device_id;
+ 	bool raw, partial, inlined;
  };
  
- #define EROFS_I_BLKADDR_DEV_ID_BIT		48
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 0de71fb..3ca5553 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -513,6 +513,8 @@ static inline int erofs_get_occupied_size(const struct erofs_inode *inode,
+ }
+ 
+ /* data.c */
++int erofs_dev_write(struct erofs_sb_info *sbi, int device_id,
++		    const void *buf, u64 offset, size_t len);
+ int erofs_getxattr(struct erofs_inode *vi, const char *name, char *buffer,
+ 		   size_t buffer_size);
+ int erofs_listxattr(struct erofs_inode *vi, char *buffer, size_t buffer_size);
+@@ -533,18 +535,10 @@ int erofs_blob_open_ro(struct erofs_sb_info *sbi, const char *dev);
+ ssize_t erofs_dev_read(struct erofs_sb_info *sbi, int device_id,
+ 		       void *buf, u64 offset, size_t len);
+ 
+-static inline int erofs_dev_write(struct erofs_sb_info *sbi, const void *buf,
+-				  u64 offset, size_t len)
+-{
+-	if (erofs_io_pwrite(&sbi->bdev, buf, offset, len) != (ssize_t)len)
+-		return -EIO;
+-	return 0;
+-}
+-
+ static inline int erofs_blk_write(struct erofs_sb_info *sbi, const void *buf,
+ 				  erofs_blk_t blkaddr, u32 nblocks)
+ {
+-	return erofs_dev_write(sbi, buf, erofs_pos(sbi, blkaddr),
++	return erofs_dev_write(sbi, 0, buf, erofs_pos(sbi, blkaddr),
+ 			       erofs_pos(sbi, nblocks));
+ }
+ 
 diff --git a/lib/compress.c b/lib/compress.c
-index 9bbb127..bcb064f 100644
+index bcb064f..956bf80 100644
 --- a/lib/compress.c
 +++ b/lib/compress.c
-@@ -141,7 +141,13 @@ static bool z_erofs_mt_enabled;
- 
- #define Z_EROFS_LEGACY_MAP_HEADER_SIZE	Z_EROFS_FULL_INDEX_START(0)
- 
--static void z_erofs_fini_full_indexes(struct z_erofs_compress_ictx *ctx)
-+struct z_erofs_index_writer {
-+	struct erofs_inode *inode;
-+	u8 *metacur;
-+	unsigned short clusterofs;
-+};
-+
-+static void z_erofs_fini_full_indexes(struct z_erofs_index_writer *ctx)
- {
- 	const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
+@@ -51,6 +51,7 @@ struct z_erofs_compress_ictx {		/* inode context */
+ 	/* fields for write indexes */
+ 	u8 *metacur;
+ 	struct list_head extents;
++	u16 device_id;
+ 	u16 clusterofs;
+ 	int seg_num;
+ 	u32 max_compressed_extent_size;
+@@ -174,6 +175,7 @@ static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
+ 	unsigned int d0 = 0, d1 = (clusterofs + count) >> bbits;
  	struct z_erofs_lcluster_index di;
-@@ -157,10 +163,9 @@ static void z_erofs_fini_full_indexes(struct z_erofs_compress_ictx *ctx)
- 	ctx->metacur += sizeof(di);
- }
+ 	unsigned int type, advise;
++	erofs_blk_t blkaddr;
  
--static void z_erofs_write_full_indexes(struct z_erofs_compress_ictx *ctx,
-+static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
- 				       struct z_erofs_inmem_extent *e)
- {
--	const struct erofs_importer_params *params = ctx->im->params;
- 	struct erofs_inode *inode = ctx->inode;
- 	struct erofs_sb_info *sbi = inode->sbi;
- 	unsigned int clusterofs = ctx->clusterofs;
-@@ -181,7 +186,7 @@ static void z_erofs_write_full_indexes(struct z_erofs_compress_ictx *ctx,
- 		 * A lcluster cannot have three parts with the middle one which
- 		 * is well-compressed for !ztailpacking cases.
- 		 */
--		DBG_BUGON(!e->raw && !params->ztailpacking && !params->fragments);
-+		DBG_BUGON(!e->raw && !inode->idata_size && !inode->fragment_size);
- 		DBG_BUGON(e->partial);
- 		type = e->raw ? Z_EROFS_LCLUSTER_TYPE_PLAIN :
+ 	DBG_BUGON(!count);
+ 	DBG_BUGON(e->pstart & (BIT(bbits) - 1));
+@@ -192,10 +194,14 @@ static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
  			Z_EROFS_LCLUSTER_TYPE_HEAD1;
-@@ -895,15 +900,15 @@ static void *write_compacted_indexes(u8 *out,
- 	return out + destsize * vcnt;
- }
+ 		di.di_advise = cpu_to_le16(type);
  
--int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
--					erofs_off_t pstart,
--					unsigned int legacymetasize,
--					void *compressmeta)
-+int z_erofs_convert_to_compact_format(struct erofs_inode *inode,
-+				      erofs_off_t pstart,
-+				      unsigned int fullmetasz,
-+				      void *metabuf)
- {
- 	const unsigned int mpos = roundup(inode->inode_isize +
- 					  inode->xattr_isize, 8) +
- 				  sizeof(struct z_erofs_map_header);
--	const unsigned int totalidx = (legacymetasize -
-+	const unsigned int totalidx = (fullmetasz -
- 			Z_EROFS_LEGACY_MAP_HEADER_SIZE) /
- 				sizeof(struct z_erofs_lcluster_index);
- 	const unsigned int logical_clusterbits = inode->z_lclusterbits;
-@@ -953,7 +958,15 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
- 		compacted_4b_end = totalidx;
- 	}
- 
--	out = in = compressmeta;
-+	if (!metabuf) {
-+		out = (u8 *)sizeof(struct z_erofs_map_header);
-+		out += 4 * compacted_4b_initial;
-+		out += 2 * compacted_2b;
-+		out += 4 * round_up(compacted_4b_end, 2);
-+		return out - (u8 *)metabuf;
-+	}
-+
-+	out = in = metabuf;
- 
- 	out += sizeof(struct z_erofs_map_header);
- 	in += Z_EROFS_LEGACY_MAP_HEADER_SIZE;
-@@ -977,9 +990,6 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
- 
- 	/* generate compacted_2b */
- 	if (compacted_2b) {
--		if (!compacted_4b_end && inode->idata_size &&
--		    inode->idata_type != EROFS_IDATA_TYPE_RAW)
--			inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
- 		do {
- 			in = parse_legacy_indexes(cv, 16, in);
- 			out = write_compacted_indexes(out, cv, &blkaddr,
-@@ -1006,8 +1016,7 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
- 					      4, logical_clusterbits, true,
- 					      &dummy_head, big_pcluster);
- 	}
--	inode->extent_isize = out - (u8 *)compressmeta;
--	return 0;
-+	return out - (u8 *)metabuf;
- }
- 
- static void z_erofs_write_mapheader(struct erofs_inode *inode,
-@@ -1044,9 +1053,8 @@ static void z_erofs_write_mapheader(struct erofs_inode *inode,
- 			h.h_fragmentoff = cpu_to_le32(inode->fragmentoff);
- 		else
- 			h.h_idata_size = cpu_to_le16(inode->idata_size);
--
--		memset(compressmeta, 0, Z_EROFS_LEGACY_MAP_HEADER_SIZE);
- 	}
-+	memset(compressmeta, 0, Z_EROFS_LEGACY_MAP_HEADER_SIZE);
- 	/* write out map header */
- 	memcpy(compressmeta, &h, sizeof(struct z_erofs_map_header));
- }
-@@ -1055,67 +1063,146 @@ static void z_erofs_write_mapheader(struct erofs_inode *inode,
- 	(BLK_ROUND_UP(inode->sbi, inode->i_size) * \
- 	 sizeof(struct z_erofs_lcluster_index) + Z_EROFS_LEGACY_MAP_HEADER_SIZE)
- 
--static void *z_erofs_write_extents(struct z_erofs_compress_ictx *ctx)
-+struct z_erofs_metadata_ctx {
-+	struct list_head extents;
-+};
-+
-+static int z_erofs_prepare_layout(struct erofs_inode *inode,
-+				  struct list_head *extents,
-+				  bool consecutive, bool no_compact)
- {
--	struct erofs_inode *inode = ctx->inode;
- 	struct erofs_sb_info *sbi = inode->sbi;
--	struct z_erofs_extent_item *ei, *n;
--	unsigned int lclusterbits, nexts;
--	bool pstart_hi = false, unaligned_data = false;
--	erofs_off_t pstart, pend, lstart;
--	unsigned int recsz, metasz, moff;
--	void *metabuf;
--
--	ei = list_first_entry(&ctx->extents, struct z_erofs_extent_item,
--			      list);
--	lclusterbits = max_t(u8, ilog2(ei->e.length - 1) + 1, sbi->blkszbits);
--	pend = pstart = ei->e.pstart;
--	nexts = 0;
--	list_for_each_entry(ei, &ctx->extents, list) {
--		pstart_hi |= (ei->e.pstart > UINT32_MAX);
--		if ((ei->e.pstart | ei->e.plen) & ((1U << sbi->blkszbits) - 1))
--			unaligned_data = true;
--		if (pend != ei->e.pstart)
--			pend = EROFS_NULL_ADDR;
+-		if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL && !e->plen)
++		if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL && !e->plen) {
+ 			di.di_u.blkaddr = cpu_to_le32(inode->fragmentoff >> 32);
 -		else
--			pend += ei->e.plen;
--		if (ei->e.length != 1 << lclusterbits) {
--			if (ei->list.next != &ctx->extents ||
--			    ei->e.length > 1 << lclusterbits)
--				lclusterbits = 0;
-+	struct z_erofs_metadata_ctx *ctx;
-+	unsigned int metasz;
-+	int ret;
-+
-+	ctx = malloc(sizeof(*ctx));
-+	if (!ctx)
-+		return -ENOMEM;
-+	init_list_head(&ctx->extents);
-+	list_splice_tail(extents, &ctx->extents);
-+
-+	/* TODO: support writing encoded extents for ztailpacking later. */
-+	if (erofs_sb_has_48bit(sbi) && !inode->idata_size) {
-+		bool pstart_hi = false, unaligned_data = false;
-+		unsigned int lclusterbits, nexts;
-+		struct z_erofs_extent_item *ei;
-+		erofs_off_t pstart, pend;
-+		unsigned int recsz, moff;
-+
-+		ei = list_first_entry(&ctx->extents, struct z_erofs_extent_item,
-+				      list);
-+		lclusterbits = max_t(u8, ilog2(ei->e.length - 1) + 1, sbi->blkszbits);
-+		pend = pstart = ei->e.pstart;
-+		nexts = 0;
-+		list_for_each_entry(ei, &ctx->extents, list) {
-+			pstart_hi |= (ei->e.pstart > UINT32_MAX);
-+			if ((ei->e.pstart | ei->e.plen) & ((1U << sbi->blkszbits) - 1))
-+				unaligned_data = true;
-+			if (pend != ei->e.pstart)
-+				pend = EROFS_NULL_ADDR;
-+			else
-+				pend += ei->e.plen;
-+			if (ei->e.length != 1 << lclusterbits) {
-+				if (ei->list.next != &ctx->extents ||
-+				    ei->e.length > 1 << lclusterbits)
-+					lclusterbits = 0;
+-			di.di_u.blkaddr = cpu_to_le32(e->pstart >> bbits);
++		} else {
++			blkaddr = e->pstart >> bbits;
++			if (e->device_id)
++				blkaddr += sbi->devs[e->device_id - 1].uniaddr;
++			di.di_u.blkaddr = cpu_to_le32(blkaddr);
++		}
+ 		memcpy(ctx->metacur, &di, sizeof(di));
+ 		ctx->metacur += sizeof(di);
+ 
+@@ -237,10 +243,14 @@ static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
+ 				Z_EROFS_LCLUSTER_TYPE_HEAD1;
+ 
+ 			if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL &&
+-			    !e->plen)
++			    !e->plen) {
+ 				di.di_u.blkaddr = cpu_to_le32(inode->fragmentoff >> 32);
+-			else
+-				di.di_u.blkaddr = cpu_to_le32(e->pstart >> bbits);
++			} else {
++				blkaddr = e->pstart >> bbits;
++				if (e->device_id)
++					blkaddr += sbi->devs[e->device_id - 1].uniaddr;
++				di.di_u.blkaddr = cpu_to_le32(blkaddr);
 +			}
-+			++nexts;
+ 
+ 			if (e->partial) {
+ 				DBG_BUGON(e->raw);
+@@ -257,7 +267,7 @@ static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
+ 
+ 		++d0;
+ 		--d1;
+-	} while (clusterofs + count >= 1 << bbits);
++	} while (clusterofs + count >= (1 << bbits));
+ 
+ 	ctx->clusterofs = clusterofs + count;
+ }
+@@ -396,6 +406,8 @@ static int write_uncompressed_block(struct z_erofs_compress_sctx *ctx,
+ 	struct erofs_sb_info *sbi = inode->sbi;
+ 	unsigned int count = min(erofs_blksiz(sbi), len);
+ 	unsigned int interlaced_offset, rightpart;
++	unsigned int device_id = ctx->ictx->device_id;
++	unsigned int bs = erofs_blksiz(sbi);
+ 	int ret;
+ 
+ 	/* write interlaced uncompressed data if needed */
+@@ -417,7 +429,7 @@ static int write_uncompressed_block(struct z_erofs_compress_sctx *ctx,
+ 	} else {
+ 		erofs_dbg("Writing %u uncompressed data to %llu", count,
+ 			  ctx->pstart | 0ULL);
+-		ret = erofs_dev_write(sbi, dst, ctx->pstart, erofs_blksiz(sbi));
++		ret = erofs_dev_write(sbi, device_id, dst, ctx->pstart, bs);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -454,6 +466,7 @@ static int write_uncompressed_extents(struct z_erofs_compress_sctx *ctx,
+ 			.plen = round_up(count, erofs_blksiz(inode->sbi)),
+ 			.raw = true,
+ 			.pstart = ctx->pstart,
++			.device_id = ctx->ictx->device_id,
+ 		};
+ 		if (ctx->pstart != EROFS_NULL_ADDR)
+ 			ctx->pstart += ei->e.plen;
+@@ -586,6 +599,7 @@ static int __z_erofs_compress_one(struct z_erofs_compress_sctx *ctx,
+ 	bool may_inline = (params->ztailpacking && !data_unaligned && tsg &&
+ 			   final && !may_packing);
+ 	unsigned int compressedsize;
++	int device_id = ictx->device_id;
+ 	int ret;
+ 
+ 	DBG_BUGON(ctx->pivot);
+@@ -736,8 +750,8 @@ frag_packing:
+ 			erofs_dbg("Writing %u compressed data to %llu of %u bytes",
+ 				  e->length, ctx->pstart, e->plen);
+ 
+-			ret = erofs_dev_write(sbi, dst - padding, ctx->pstart,
+-					      e->plen);
++			ret = erofs_dev_write(sbi, device_id, dst - padding,
++					      ctx->pstart, e->plen);
+ 			if (ret)
+ 				return ret;
  		}
--		++nexts;
-+		inode->z_extents = nexts;
-+		recsz = inode->i_size > UINT32_MAX ? 32 : 16;
-+		if (lclusterbits) {
-+			if (pend != EROFS_NULL_ADDR)
-+				recsz = 4;
-+			else if (recsz <= 16 && !pstart_hi)
-+				recsz = 8;
-+		}
-+
-+		moff = Z_EROFS_MAP_HEADER_END(inode->inode_isize + inode->xattr_isize);
-+		moff = round_up(moff, recsz) -
-+			Z_EROFS_MAP_HEADER_START(inode->inode_isize + inode->xattr_isize);
-+		metasz = moff + recsz * nexts + 8 * (recsz <= 4);
-+		if (unaligned_data || metasz < EROFS_FULL_INDEXES_SZ(inode)) {
-+			inode->z_lclusterbits = lclusterbits;
-+			inode->z_extents = nexts;
-+			inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
-+			inode->z_advise |= Z_EROFS_ADVISE_EXTENTS |
-+				((ilog2(recsz) - 2) << Z_EROFS_ADVISE_EXTRECSZ_BIT);
-+			goto out;
-+		}
-+	}
-+
-+	/* if the entire file is a fragment, a simplified form is used. */
-+	if (inode->i_size <= inode->fragment_size) {
-+		DBG_BUGON(inode->i_size < inode->fragment_size);
-+		DBG_BUGON(inode->fragmentoff >> 63);
-+		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
-+		metasz = Z_EROFS_LEGACY_MAP_HEADER_SIZE;
-+		goto out;
-+	}
-+
-+	/*
-+	 * If the packed inode is larger than 4GiB, the full fragmentoff
-+	 * will be recorded by switching to the noncompact layout anyway.
-+	 */
-+	if (inode->fragment_size && inode->fragmentoff >> 32) {
-+		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
-+	} else if (!no_compact && consecutive &&
-+		   inode->z_lclusterbits <= 14) {
-+		if (inode->z_lclusterbits <= 12)
-+			inode->z_advise |= Z_EROFS_ADVISE_COMPACTED_2B;
-+		inode->datalayout = EROFS_INODE_COMPRESSED_COMPACT;
-+	} else {
-+		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
- 	}
+@@ -750,6 +764,7 @@ frag_packing:
+ 	e->pstart = ctx->pstart;
+ 	if (ctx->pstart != EROFS_NULL_ADDR)
+ 		ctx->pstart += e->plen;
++	e->device_id = device_id;
+ 	if (!may_inline && !may_packing && !is_packed_inode)
+ 		(void)z_erofs_dedupe_insert(e, ctx->queue + ctx->head);
+ 	ctx->head += e->length;
+@@ -1183,6 +1198,7 @@ static void z_erofs_write_extents(struct erofs_inode *inode,
+ 				  struct list_head *extents, u8 *metabuf)
+ {
+ 	unsigned int recsz = z_erofs_extent_recsize(inode->z_advise);
++	struct erofs_sb_info *sbi = inode->sbi;
+ 	struct z_erofs_extent_item *ei, *n;
+ 	erofs_off_t pstart, lstart;
+ 	unsigned int moff;
+@@ -1205,16 +1221,22 @@ static void z_erofs_write_extents(struct erofs_inode *inode,
+ 	list_for_each_entry_safe(ei, n, extents, list) {
+ 		struct z_erofs_extent de;
+ 		u32 fmt, plen;
++		int devid;
  
--	recsz = inode->i_size > UINT32_MAX ? 32 : 16;
--	if (lclusterbits) {
--		if (pend != EROFS_NULL_ADDR)
--			recsz = 4;
--		else if (recsz <= 16 && !pstart_hi)
--			recsz = 8;
-+	if (erofs_sb_has_big_pcluster(sbi)) {
-+		inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_1;
-+		if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT)
-+			inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_2;
- 	}
+ 		plen = ei->e.plen;
+ 		if (!plen) {
+ 			plen = inode->fragmentoff;
+-			ei->e.pstart = inode->fragmentoff >> 32;
++			pstart = inode->fragmentoff >> 32;
+ 		} else {
+ 			fmt = ei->e.raw ? 0 : inode->z_algorithmtype[0] + 1;
+ 			plen |= fmt << Z_EROFS_EXTENT_PLEN_FMT_BIT;
+ 			if (ei->e.partial)
+ 				plen |= Z_EROFS_EXTENT_PLEN_PARTIAL;
++			pstart = ei->e.pstart;
++			devid = ei->e.device_id;
++			if (devid)
++				pstart += (erofs_off_t)sbi->devs[devid - 1].uniaddr
++					<< sbi->blkszbits;
+ 		}
+ 		de = (struct z_erofs_extent) {
+ 			.plen = cpu_to_le32(plen),
+@@ -1453,6 +1475,8 @@ char *z_erofs_write_metadata(struct erofs_inode *inode)
+ 	DBG_BUGON(list_empty(&mctx->extents));
+ 	ei = list_first_entry(&mctx->extents, struct z_erofs_extent_item, list);
+ 	pstart = ei->e.pstart;
++	if (ei->e.device_id)
++		pstart += sbi->devs[ei->e.device_id - 1].uniaddr << sbi->blkszbits;
  
-+	metasz = EROFS_FULL_INDEXES_SZ(inode);
+ 	list_for_each_entry_safe(ei, n, &mctx->extents, list) {
+ 		DBG_BUGON(ei->list.next != &mctx->extents &&
+@@ -1657,8 +1681,8 @@ int z_erofs_merge_segment(struct z_erofs_compress_ictx *ictx,
+ 		}
+ 		erofs_dbg("Writing %u %scompressed data of %s to %llu", ei->e.length,
+ 			  ei->e.raw ? "un" : "", ictx->inode->i_srcpath, ei->e.pstart);
+-		ret2 = erofs_dev_write(sbi, sctx->membuf + off, ei->e.pstart,
+-				       ei->e.plen);
++		ret2 = erofs_dev_write(sbi, ei->e.device_id, sctx->membuf + off,
++				       ei->e.pstart, ei->e.plen);
+ 		off += ei->e.plen;
+ 		if (ret2)
+ 			ret = ret2;
+@@ -1751,9 +1775,11 @@ int erofs_mt_write_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 	struct erofs_buffer_head *bh = NULL;
+ 	struct erofs_compress_work *head = ictx->mtworks, *cur;
+ 	erofs_off_t pstart, ptotal = 0;
++	struct erofs_bufmgr *bmgr = ictx->device_id ?
++		sbi->devs[ictx->device_id - 1].bmgr : sbi->bmgr;
+ 	int ret;
+ 
+-	bh = erofs_balloc(sbi->bmgr, DATA, 0, 0);
++	bh = erofs_balloc(bmgr, DATA, 0, 0);
+ 	if (IS_ERR(bh)) {
+ 		ret = PTR_ERR(bh);
+ 		goto out;
+@@ -1910,6 +1936,11 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 	}
+ 	ictx->im = im;
+ 	ictx->inode = inode;
++	ictx->device_id = !params->fragments && !params->dedupe &&
++		!erofs_is_packed_inode(inode) &&
++		!erofs_is_metabox_inode(inode) &&
++		params->ddev_id_def && S_ISREG(inode->i_mode) ?
++		params->ddev_id_def : 0;
+ 	if (erofs_is_metabox_inode(inode))
+ 		ictx->ccfg = &sbi->zmgr->ccfg[cfg.c_mkfs_metabox_algid];
+ 	else
+@@ -2161,7 +2192,7 @@ static int z_erofs_build_compr_cfgs(struct erofs_importer *im,
+ 			return PTR_ERR(bh);
+ 		}
+ 		erofs_mapbh(NULL, bh->block);
+-		ret = erofs_dev_write(sbi, &lz4alg, erofs_btell(bh, false),
++		ret = erofs_dev_write(sbi, 0, &lz4alg, erofs_btell(bh, false),
+ 				      sizeof(lz4alg));
+ 		bh->op = &erofs_drop_directly_bhops;
+ 	}
+@@ -2185,7 +2216,7 @@ static int z_erofs_build_compr_cfgs(struct erofs_importer *im,
+ 			return PTR_ERR(bh);
+ 		}
+ 		erofs_mapbh(NULL, bh->block);
+-		ret = erofs_dev_write(sbi, &lzmaalg, erofs_btell(bh, false),
++		ret = erofs_dev_write(sbi, 0, &lzmaalg, erofs_btell(bh, false),
+ 				      sizeof(lzmaalg));
+ 		bh->op = &erofs_drop_directly_bhops;
+ 	}
+@@ -2209,7 +2240,7 @@ static int z_erofs_build_compr_cfgs(struct erofs_importer *im,
+ 			return PTR_ERR(bh);
+ 		}
+ 		erofs_mapbh(NULL, bh->block);
+-		ret = erofs_dev_write(sbi, &zalg, erofs_btell(bh, false),
++		ret = erofs_dev_write(sbi, 0, &zalg, erofs_btell(bh, false),
+ 				      sizeof(zalg));
+ 		bh->op = &erofs_drop_directly_bhops;
+ 	}
+@@ -2232,7 +2263,7 @@ static int z_erofs_build_compr_cfgs(struct erofs_importer *im,
+ 			return PTR_ERR(bh);
+ 		}
+ 		erofs_mapbh(NULL, bh->block);
+-		ret = erofs_dev_write(sbi, &zalg, erofs_btell(bh, false),
++		ret = erofs_dev_write(sbi, 0, &zalg, erofs_btell(bh, false),
+ 				      sizeof(zalg));
+ 		bh->op = &erofs_drop_directly_bhops;
+ 	}
+diff --git a/lib/data.c b/lib/data.c
+index fa2907b..c73cbe3 100644
+--- a/lib/data.c
++++ b/lib/data.c
+@@ -8,8 +8,24 @@
+ #include "erofs/internal.h"
+ #include "erofs/trace.h"
+ #include "erofs/decompress.h"
++#include "liberofs_cache.h"
+ #include "liberofs_fragments.h"
+ 
++int erofs_dev_write(struct erofs_sb_info *sbi, int device_id,
++		    const void *buf, u64 offset, size_t len)
++{
++	ssize_t ret;
 +
-+	if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
-+		ret = z_erofs_convert_to_compact_format(inode, 0, metasz,
-+							NULL);
-+		if (ret < 0)
-+			return ret;
-+		metasz = ret;
-+	}
-+
-+out:
-+	inode->extent_isize = metasz;
-+	inode->compressmeta = ctx;
++	ret = erofs_io_pwrite(device_id ?
++				sbi->devs[device_id - 1].bmgr->vf : &sbi->bdev,
++			      buf, offset, len);
++	if (ret < 0)
++		return ret;
++	if (ret != (ssize_t)len)
++		return -EIO;
 +	return 0;
 +}
 +
-+static void z_erofs_write_extents(struct erofs_inode *inode,
-+				  struct list_head *extents, u8 *metabuf)
-+{
-+	unsigned int recsz = z_erofs_extent_recsize(inode->z_advise);
-+	struct z_erofs_extent_item *ei, *n;
-+	erofs_off_t pstart, lstart;
-+	unsigned int moff;
-+	u8 *metacur;
-+	u64 nexts;
-+
- 	moff = Z_EROFS_MAP_HEADER_END(inode->inode_isize + inode->xattr_isize);
- 	moff = round_up(moff, recsz) -
- 		Z_EROFS_MAP_HEADER_START(inode->inode_isize + inode->xattr_isize);
--	metasz = moff + recsz * nexts + 8 * (recsz <= 4);
--	if (!unaligned_data && metasz > EROFS_FULL_INDEXES_SZ(inode))
--		return ERR_PTR(-EAGAIN);
--
--	metabuf = malloc(metasz);
--	if (!metabuf)
--		return ERR_PTR(-ENOMEM);
--	inode->z_lclusterbits = lclusterbits;
--	inode->z_extents = nexts;
--	ctx->metacur = metabuf + moff;
-+	metacur = metabuf + moff;
- 	if (recsz <= 4) {
--		*(__le64 *)ctx->metacur	= cpu_to_le64(pstart);
--		ctx->metacur += sizeof(__le64);
-+		ei = list_first_entry(extents, struct z_erofs_extent_item, list);
-+		pstart = ei->e.pstart;
-+		*(__le64 *)metacur = cpu_to_le64(pstart);
-+		metacur += sizeof(__le64);
- 	}
- 
- 	nexts = 0;
- 	lstart = 0;
--	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
-+	list_for_each_entry_safe(ei, n, extents, list) {
- 		struct z_erofs_extent de;
- 		u32 fmt, plen;
- 
-@@ -1136,128 +1223,30 @@ static void *z_erofs_write_extents(struct z_erofs_compress_ictx *ctx)
- 			.pstart_hi = cpu_to_le32(ei->e.pstart >> 32),
- 			.lstart_hi = cpu_to_le32(lstart >> 32),
- 		};
--		memcpy(ctx->metacur, &de, recsz);
--		ctx->metacur += recsz;
-+		memcpy(metacur, &de, recsz);
-+		metacur += recsz;
- 		lstart += ei->e.length;
- 		list_del(&ei->list);
- 		free(ei);
-+		++nexts;
- 	}
--	inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
--	inode->z_advise |= Z_EROFS_ADVISE_EXTENTS |
--		((ilog2(recsz) - 2) << Z_EROFS_ADVISE_EXTRECSZ_BIT);
--	return metabuf;
--}
--
--static void *z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
--{
--	const struct erofs_importer_params *params = ctx->im->params;
--	struct erofs_inode *inode = ctx->inode;
--	struct erofs_sb_info *sbi = inode->sbi;
--	struct z_erofs_extent_item *ei, *n;
--	void *metabuf;
--
--	/* TODO: support writing encoded extents for ztailpacking later. */
--	if (erofs_sb_has_48bit(sbi) && !inode->idata_size) {
--		metabuf = z_erofs_write_extents(ctx);
--		if (metabuf != ERR_PTR(-EAGAIN)) {
--			if (IS_ERR(metabuf))
--				return metabuf;
--			goto out;
--		}
--	}
--
--	/*
--	 * If the packed inode is larger than 4GiB, the full fragmentoff
--	 * will be recorded by switching to the noncompact layout anyway.
--	 */
--	if (inode->fragment_size && inode->fragmentoff >> 32) {
--		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
--	} else if (!params->no_zcompact && !ctx->dedupe &&
--		   inode->z_lclusterbits <= 14) {
--		if (inode->z_lclusterbits <= 12)
--			inode->z_advise |= Z_EROFS_ADVISE_COMPACTED_2B;
--		inode->datalayout = EROFS_INODE_COMPRESSED_COMPACT;
--	} else {
--		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
--	}
--
--	if (erofs_sb_has_big_pcluster(sbi)) {
--		inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_1;
--		if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT)
--			inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_2;
--	}
--
--	metabuf = malloc(BLK_ROUND_UP(inode->sbi, inode->i_size) *
--			 sizeof(struct z_erofs_lcluster_index) +
--			 Z_EROFS_LEGACY_MAP_HEADER_SIZE);
--	if (!metabuf)
--		return ERR_PTR(-ENOMEM);
--
--	ctx->metacur = metabuf + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
--	ctx->clusterofs = 0;
--	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
--		DBG_BUGON(ei->list.next != &ctx->extents &&
--			  ctx->clusterofs + ei->e.length < erofs_blksiz(sbi));
--		z_erofs_write_full_indexes(ctx, &ei->e);
--
--		list_del(&ei->list);
--		free(ei);
--	}
--	z_erofs_fini_full_indexes(ctx);
--out:
--	z_erofs_write_mapheader(inode, metabuf);
--	return metabuf;
-+	DBG_BUGON(inode->z_extents && nexts != inode->z_extents);
-+	DBG_BUGON(metacur - metabuf != inode->extent_isize);
- }
- 
- void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+ void *erofs_bread(struct erofs_buf *buf, erofs_off_t offset, bool need_kmap)
  {
--	struct erofs_sb_info *sbi = inode->sbi;
--	const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
--	struct z_erofs_map_header *h = inode->compressmeta;
-+	struct z_erofs_metadata_ctx *ctx = inode->compressmeta;
-+	struct z_erofs_extent_item *ei;
- 
--	h->h_advise = cpu_to_le16(le16_to_cpu(h->h_advise) &
--				  ~Z_EROFS_ADVISE_INLINE_PCLUSTER);
--	DBG_BUGON(inode->idata_size != le16_to_cpu(h->h_idata_size));
--	h->h_idata_size = 0;
-+	inode->z_advise &= ~Z_EROFS_ADVISE_INLINE_PCLUSTER;
- 	if (!inode->eof_tailraw)
- 		return;
- 	DBG_BUGON(inode->idata_type == EROFS_IDATA_TYPE_RAW);
- 
--	/* patch the EOF lcluster to uncompressed type first */
--	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
--		struct z_erofs_lcluster_index *di =
--			(inode->compressmeta + inode->extent_isize) -
--			sizeof(struct z_erofs_lcluster_index);
--
--		di->di_advise = cpu_to_le16(type);
--	} else if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
--		/* handle the last compacted 4B/2B pack */
--		unsigned int lclusterbits = inode->z_lclusterbits;
--		unsigned int lobits, eofs, base, pos, v;
--		u8 *out;
--
--		lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
--
--		if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_DEFAULT) {
--			eofs = inode->extent_isize -
--				(4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
--			base = round_down(eofs, 8);
--			pos = 16 /* encodebits */ * ((eofs - base) / 4);
--			out = inode->compressmeta + base + pos / 8;
--		} else {
--			out = inode->compressmeta + inode->extent_isize -
--				sizeof(__le32) - sizeof(__le16);
--			lobits = 16 - 14 /* encodebits */ + lobits;
--		}
--
--		v = (get_unaligned_le16(out) & (BIT(lobits) - 1)) |
--			(type << lobits);
--		*out = v & 0xff;
--		*(out + 1) = v >> 8;
--	} else {
--		DBG_BUGON(1);
--		return;
--	}
-+	ei = list_last_entry(&ctx->extents, struct z_erofs_extent_item, list);
-+	DBG_BUGON(ei->e.raw);
-+	ei->e.raw = true;
- 	free(inode->idata);
- 	/* replace idata with prepared uncompressed data */
- 	inode->idata = inode->eof_tailraw;
-@@ -1348,8 +1337,7 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
- 	struct erofs_inode *inode = ictx->inode;
- 	const struct erofs_importer_params *params = ictx->im->params;
- 	struct erofs_sb_info *sbi = inode->sbi;
--	unsigned int legacymetasize, bbits = sbi->blkszbits;
--	u8 *compressmeta;
-+	unsigned int bbits = sbi->blkszbits;
- 	int ret;
- 
- 	if (inode->fragment_size) {
-@@ -1367,16 +1355,14 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
- 	DBG_BUGON(pstart < (!!inode->idata_size) << bbits);
- 	ptotal -= (u64)(!!inode->idata_size) << bbits;
- 
--	compressmeta = z_erofs_write_indexes(ictx);
--	if (!compressmeta) {
--		ret = -ENOMEM;
-+	ret = z_erofs_prepare_layout(inode, &ictx->extents, !ictx->dedupe,
-+				     params->no_zcompact);
-+	if (ret)
- 		goto err_free_idata;
--	}
- 
--	legacymetasize = ictx->metacur - compressmeta;
- 	/* estimate if data compression saves space or not */
- 	if (!inode->fragment_size && ptotal + inode->idata_size +
--	    legacymetasize >= inode->i_size) {
-+	    inode->extent_isize >= inode->i_size) {
- 		z_erofs_dedupe_ext_commit(true);
- 		z_erofs_dedupe_commit(true);
- 		ret = EROFS_RETVAL_FALLBACK;
-@@ -1388,16 +1374,6 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
- 	if (!ictx->fragemitted)
- 		sbi->saved_by_deduplication += inode->fragment_size;
- 
--	/* if the entire file is a fragment, a simplified form is used. */
--	if (inode->i_size <= inode->fragment_size) {
--		DBG_BUGON(inode->i_size < inode->fragment_size);
--		DBG_BUGON(inode->fragmentoff >> 63);
--		*(__le64 *)compressmeta =
--			cpu_to_le64(inode->fragmentoff | 1ULL << 63);
--		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
--		legacymetasize = Z_EROFS_LEGACY_MAP_HEADER_SIZE;
--	}
--
- 	if (ptotal)
- 		(void)erofs_bh_balloon(bh, ptotal);
- 	else if (!params->fragments && params->dedupe != EROFS_DEDUPE_FORCE_ON)
-@@ -1414,21 +1390,12 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
- 	}
- 
- 	inode->u.i_blocks = BLK_ROUND_UP(sbi, ptotal);
--
--	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
--		inode->extent_isize = legacymetasize;
--	} else {
--		ret = z_erofs_convert_to_compacted_format(inode, pstart,
--							  legacymetasize,
--							  compressmeta);
--		DBG_BUGON(ret);
--	}
--	inode->compressmeta = compressmeta;
- 	return 0;
- 
- err_free_meta:
--	free(compressmeta);
-+	free(inode->compressmeta);
- 	inode->compressmeta = NULL;
-+	inode->extent_isize = 0;
- err_free_idata:
- 	erofs_bdrop(bh, true);	/* revoke buffer */
- 	if (inode->idata) {
-@@ -1438,6 +1405,89 @@ err_free_idata:
- 	return ret;
- }
- 
-+char *z_erofs_write_metadata(struct erofs_inode *inode)
-+{
-+	struct erofs_sb_info *sbi = inode->sbi;
-+	struct z_erofs_metadata_ctx *mctx = inode->compressmeta;
-+	struct z_erofs_extent_item *ei, *n;
-+	struct z_erofs_index_writer ctx;
-+	unsigned int metasz =
-+		inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT ?
-+		EROFS_FULL_INDEXES_SZ(inode) : inode->extent_isize;
-+	erofs_off_t pstart;
-+	u8 *metabuf;
-+	int err = 0;
-+
-+	metabuf = malloc(metasz);
-+	if (!metabuf) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* if the entire file is a fragment, a simplified form is used. */
-+	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL &&
-+	    inode->i_size <= inode->fragment_size) {
-+		DBG_BUGON(inode->i_size < inode->fragment_size);
-+		DBG_BUGON(inode->fragmentoff >> 63);
-+		*(__le64 *)metabuf = cpu_to_le64(inode->fragmentoff | 1ULL << 63);
-+		goto out;
-+	}
-+
-+	if (__erofs_unlikely(!mctx)) {
-+		DBG_BUGON(1);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL &&
-+	    (inode->z_advise & Z_EROFS_ADVISE_EXTENTS)) {
-+		z_erofs_write_extents(inode, &mctx->extents, metabuf);
-+		z_erofs_write_mapheader(inode, metabuf);
-+		goto out;
-+	}
-+
-+	ctx = (struct z_erofs_index_writer) {
-+		.inode = inode,
-+		.metacur = metabuf + Z_EROFS_LEGACY_MAP_HEADER_SIZE,
-+	};
-+
-+	DBG_BUGON(list_empty(&mctx->extents));
-+	ei = list_first_entry(&mctx->extents, struct z_erofs_extent_item, list);
-+	pstart = ei->e.pstart;
-+
-+	list_for_each_entry_safe(ei, n, &mctx->extents, list) {
-+		DBG_BUGON(ei->list.next != &mctx->extents &&
-+			  ctx.clusterofs + ei->e.length < erofs_blksiz(sbi));
-+		z_erofs_write_full_indexes(&ctx, &ei->e);
-+
-+		list_del(&ei->list);
-+		free(ei);
-+	}
-+	z_erofs_fini_full_indexes(&ctx);
-+	DBG_BUGON(metasz != ctx.metacur - metabuf);
-+	z_erofs_write_mapheader(inode, metabuf);
-+
-+	if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
-+		err = z_erofs_convert_to_compact_format(inode, pstart,
-+							metasz, metabuf);
-+		if (err < 0) {
-+			DBG_BUGON(1);
-+			goto out;
-+		}
-+		metasz = err;
-+	}
-+	DBG_BUGON(metasz != inode->extent_isize);
-+out:
-+	if (mctx) {
-+		list_for_each_entry_safe(ei, n, &mctx->extents, list) {
-+			list_del(&ei->list);
-+			free(ei);
-+		}
-+		free(mctx);
-+	}
-+	inode->compressmeta = NULL;
-+	return err < 0 ? ERR_PTR(err) : metabuf;
-+}
-+
- static struct z_erofs_compress_ictx g_ictx;
- 
- #ifdef EROFS_MT_ENABLED
-@@ -2066,7 +2116,6 @@ int erofs_begin_compress_dir(struct erofs_importer *im,
- 
- int erofs_write_compress_dir(struct erofs_inode *inode, struct erofs_vfile *vf)
- {
--	void *compressmeta;
- 	int err;
- 
- 	if (inode->datalayout != EROFS_INODE_COMPRESSED_FULL ||
-@@ -2081,13 +2130,8 @@ int erofs_write_compress_dir(struct erofs_inode *inode, struct erofs_vfile *vf)
- 	err = erofs_fragment_commit(inode, ~0);
- 	if (err)
- 		return err;
--
--	compressmeta = calloc(1, Z_EROFS_LEGACY_MAP_HEADER_SIZE);
--	if (!compressmeta)
--		return -ENOMEM;
--	*(__le64 *)compressmeta =
--		cpu_to_le64(inode->fragmentoff | 1ULL << 63);
--	inode->compressmeta = compressmeta;
-+	DBG_BUGON(inode->fragment_size != inode->i_size);
-+	DBG_BUGON(inode->compressmeta);
- 	return 0;
- }
- 
+ 	struct erofs_sb_info *sbi = buf->sbi;
 diff --git a/lib/inode.c b/lib/inode.c
-index 2cd7bed..4f6b961 100644
+index 4f6b961..6fd92cd 100644
 --- a/lib/inode.c
 +++ b/lib/inode.c
-@@ -925,9 +925,15 @@ int erofs_iflush(struct erofs_inode *inode)
- 		if (inode->datalayout == EROFS_INODE_CHUNK_BASED) {
- 			ret = erofs_write_chunk_indexes(inode, ibmgr->vf, off);
- 		} else {	/* write compression metadata */
-+			char *metabuf;
-+
- 			off = roundup(off, 8);
--			ret = erofs_io_pwrite(ibmgr->vf, inode->compressmeta,
-+			metabuf = z_erofs_write_metadata(inode);
-+			if (IS_ERR(metabuf))
-+				return PTR_ERR(metabuf);
-+			ret = erofs_io_pwrite(ibmgr->vf, metabuf,
- 					      off, inode->extent_isize);
-+			free(metabuf);
- 		}
- 		if (ret != inode->extent_isize)
- 			return ret < 0 ? ret : -EIO;
-diff --git a/lib/liberofs_compress.h b/lib/liberofs_compress.h
-index da6eb1a..7ca1f86 100644
---- a/lib/liberofs_compress.h
-+++ b/lib/liberofs_compress.h
-@@ -19,6 +19,7 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
- 				    struct erofs_inode *inode);
- void erofs_bind_compressed_file_with_fd(struct z_erofs_compress_ictx *ictx,
- 					int fd, u64 fpos);
-+char *z_erofs_write_metadata(struct erofs_inode *inode);
- int erofs_begin_compressed_file(struct z_erofs_compress_ictx *ictx);
- int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx);
+@@ -511,7 +511,7 @@ static int erofs_rebuild_inode_fix_pnid(struct erofs_inode *parent,
  
+ 		if (!fixed)
+ 			continue;
+-		err = erofs_dev_write(dir.sbi, buf,
++		err = erofs_dev_write(dir.sbi, 0, buf,
+ 			(off + bsz > dir.i_size &&
+ 				dir.datalayout == EROFS_INODE_FLAT_INLINE ?
+ 				erofs_iloc(&dir) + isz : boff + off), count);
+@@ -2488,7 +2488,8 @@ int erofs_fixup_root_inode(struct erofs_inode *root)
+ 		return -ENOMEM;
+ 	err = erofs_dev_read(sbi, 0, ibuf, erofs_iloc(root), ondisk_size);
+ 	if (err >= 0)
+-		err = erofs_dev_write(sbi, ibuf, erofs_iloc(&oi), ondisk_size);
++		err = erofs_dev_write(sbi, 0, ibuf, erofs_iloc(&oi),
++				      ondisk_size);
+ 	free(ibuf);
+ 	return err;
+ }
+diff --git a/lib/super.c b/lib/super.c
+index 1358101..71b9f4f 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -270,7 +270,7 @@ int erofs_writesb(struct erofs_sb_info *sbi)
+ 	}
+ 	memcpy(buf + EROFS_SUPER_OFFSET, &sb, sbi->sb_size);
+ 
+-	ret = erofs_dev_write(sbi, buf, sb_bh ? erofs_btell(sb_bh, false) : 0,
++	ret = erofs_dev_write(sbi, 0, buf, sb_bh ? erofs_btell(sb_bh, false) : 0,
+ 			      EROFS_SUPER_OFFSET + sbi->sb_size);
+ 	free(buf);
+ 	if (sb_bh)
+@@ -352,7 +352,7 @@ int erofs_enable_sb_chksum(struct erofs_sb_info *sbi, u32 *crc)
+ 	/* set up checksum field to erofs_super_block */
+ 	sb->checksum = cpu_to_le32(*crc);
+ 
+-	ret = erofs_dev_write(sbi, buf, EROFS_SUPER_OFFSET, len);
++	ret = erofs_dev_write(sbi, 0, buf, EROFS_SUPER_OFFSET, len);
+ 	if (ret) {
+ 		erofs_err("failed to write checksummed superblock: %s",
+ 			  erofs_strerror(ret));
+@@ -460,7 +460,7 @@ int erofs_write_device_table(struct erofs_sb_info *sbi)
+ 		};
+ 
+ 		memcpy(dis.tag, di->tag, sizeof(dis.tag));
+-		ret = erofs_dev_write(sbi, &dis, pos, sizeof(dis));
++		ret = erofs_dev_write(sbi, 0, &dis, pos, sizeof(dis));
+ 		if (ret)
+ 			return ret;
+ 		pos += sizeof(dis);
+diff --git a/lib/tar.c b/lib/tar.c
+index f027532..f24ad95 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -705,7 +705,7 @@ static int tarerofs_write_uncompressed_file(struct erofs_inode *inode,
+ 				ret = -EIO;
+ 			break;
+ 		}
+-		if (erofs_dev_write(sbi, buf,
++		if (erofs_dev_write(sbi, 0, buf,
+ 				    erofs_pos(sbi, inode->u.i_blkaddr) + pos,
+ 				    ret)) {
+ 			ret = -EIO;
+diff --git a/lib/xattr.c b/lib/xattr.c
+index af45075..3cf8c79 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -1055,7 +1055,7 @@ int erofs_load_shared_xattrs_from_path(struct erofs_sb_info *sbi, const char *pa
+ 	xamgr->shared_xattrs = sorted_n[0];
+ 	free(sorted_n);
+ 	bh->op = &erofs_drop_directly_bhops;
+-	ret = erofs_dev_write(sbi, buf, erofs_btell(bh, false), shared_xattrs_size);
++	ret = erofs_dev_write(sbi, 0, buf, erofs_btell(bh, false), shared_xattrs_size);
+ 	free(buf);
+ 	erofs_bdrop(bh, false);
+ 	return ret;
 -- 
 2.47.3
 
