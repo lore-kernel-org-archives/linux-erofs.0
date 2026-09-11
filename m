@@ -1,93 +1,93 @@
-Return-Path: <linux-erofs+bounces-4537-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4538-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6286BC88E41
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Sep 2026 04:23:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1AE4C79FA1
+	for <linux-erofs@archiver.kernel.org>; Fri, 11 Sep 2026 04:33:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hh1cS0KVPz2ygK;
-	Fri, 11 Sep 2026 14:23:04 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1032" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789100584;
-	cv=pass; b=febiAbyjeeo10hK0c6HznZhx2bzi88M3zuqTiW8/HmRlx3WxPx43RVGSolxG1ic8Jr8G+ErV2eGQDjCHsLXXVfC8N2VxNRgiwnnJwPSKbN+UCwt5/f0s+cnQ9O1aDqwnV+yVZOPF04hurvUc4S+2esfvh90AlDU47JSU7/ggRoRO9o9gz7wbPdo8wQm45DxfoShaJJC5sg4a/ZH+vna28E6WATupS3exEs2cHBhH9fIEDFJRWGsAcRvxbdFu/0hT/bCJvNwAlizvHSxcg98OIq2BPpKufiEtC2Cmuok4UWFTXQ6CRc9da9Uw7Nltg5WTDNkvMdYIe+MrwBc/EOlZLw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hh1rw1Wbxz2yd7;
+	Fri, 11 Sep 2026 14:33:52 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:3b::10" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789101232;
+	cv=pass; b=VxwwwxfDpKF4ZtIV6KaK4a9etD9+z3V5EarsmHHzZHo7XsEMLwzUDD9DoCHq3n6fYrDOnOGByjxwkAf+USbFW+uERu57XE3d2/I0I/LZz7kHPR8SKinwDN6/TwqfHzWcMrjTIpbctdhKilyOuUDGyyw97BaQRBi7lYvtNaPoKuEEYXFN+kLvP5ecyGJQFcw4qIIzRl0JPLzLxVpYSEAuHsLSCU8V+N7xafuOleE8CDMbvKct3TDF1X0cGpQOtXCTJNNKoGqVPubEbakVfhVYJh1tSpWcOGiSBbstscCjX4/JpGZu+KGIeqB6eqvsD6/cJokKlzvNyZ/RvCAPkzMEeQ==
 ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789100584; c=relaxed/relaxed;
-	bh=Ggy3ISe8QzO8vHRv3PE5LfWMT0iuFdX620ARBjOXCwY=;
+	t=1789101232; c=relaxed/relaxed;
+	bh=dIWRR//ZGZfoOim50ZwGoG0z8YUpZDtxKvhcTftzbMI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=biMJv3YYhbp78V40kmB0l8q4pt7W5mnjnjwybuGX/45+NKdMyl5CW1Aws/KnvP3+/AwDF3gC+fIJoKFuYDrg9AdJ/TUWqCqQLVPcVWQIAoms3jCUdwpBiAu7F5tdiC7jxjvp7PP9N8M+QR8kXWcjN+Pjj6x5YKwSh5xxWtdeIO2MIzA+DY9pCrrzGSekB159h6hXCBGU+NLwSrznJ4thprzqETks8s3lTO8YsBkfzOHh99EjjdkMXQB731OKmS9O9XJLOzCG///yU4IMQgkQ1Aszz07Q3dFozfJScv7S5KZZPQF8IOi45Ow0lrFwUYxXhawqT1rs56ZRvSkQZ7FtUg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=egweUY9u; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 To:Content-Type; b=VT6I0cbm7NqmKqugQbzGuiRuHTQdgPD7j4FYPo07rBox9t97DAOg1ugQNGa0274WkY/E0OQ7UQj5uXQ4zbS/k32WFlEK0sbWpTXzcoOQ4RgA5tDSuVGMjpVzdbnIHQISlKbtkPR5TetAOaXCsZvLukwcOwGytjgUnOoApsGqz0W/SymMmFBWbBuYJN9ku4ZRcJWcGybhgJKlocv7uEaM6ZaRt0uMM0tSnLr2RQBt1hHUy3PSEmxTcOBDTQRKqYuTsIr6EETXWcO0FcEB7Y56cD7EGJywKnKj+TrYdAfQO6SWN0eNYd40PaWp7mR5ELJiImHM1Jq03ddwzAYCxGiiLw==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=E/7VJlnO; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:3b::10; helo=mail-pz2-x10.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=egweUY9u;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=E/7VJlnO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1032; helo=mail-pj1-x1032.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:3b::10; helo=mail-pz2-x10.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pz2-x10.google.com (mail-pz2-x10.google.com [IPv6:2607:f8b0:4864:3b::10])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hh1cR0mmGz2xRs
-	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 14:23:02 +1000 (AEST)
-Received: by mail-pj1-x1032.google.com with SMTP id 98e67ed59e1d1-3969e82ff8fso575519a91.0
-        for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 21:23:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789100580; cv=none;
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hh1rv1mNJz2yFj
+	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 14:33:49 +1000 (AEST)
+Received: by mail-pz2-x10.google.com with SMTP id 41be03b00d2f7-cc4ae61629fso398691a12.2
+        for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 21:33:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789101227; cv=none;
         d=google.com; s=arc-20260327;
-        b=Pt8QWud33XST7B/bSXRuCciAShZeOYJX5MeMa/n+quflfdMa1NrnGuIrZJu0rkspl5
-         wh7NuY5bRs8CNxbZstkjKVLS7Z5o0pUuk2XI0A8cMF2xbo+hpgyX02O3YABvnJ+EL5ca
-         8wGeJTmm9e5WQXGBUyKsLtL9uTSi0QADOMVxxwlFYjZT9X4BrDpKk/OuhfkZAiZY2iNS
-         FKJgg87WMQi+JRpqoegcbD2xePGp+6oBqETAKluWVu3oZ8l5SSIRMMbCC8v0zXQqeXew
-         3Vv/7Tf/d40CSR6I/N8uEx5xep/YHIODqv0ZNJu2NmVnnQzOHVtqzeNO9/SslRdyG/w/
-         WrAw==
+        b=bNUXLNM673cUConCKLErk3kp29MX9Xnpb8hxgrb8R/s2i/B5ZaJectj7zZWmigIpTg
+         q4+tWxvujYDG4RR+RbYOmYeogi2GsiYYZ/ZkhxHCIXYxD8jqhmn7SYHrVJvhyaaEf2gO
+         OFoZLwb/fSI0yYNVDcJ195gCRTp7yhs66U71grSN9zFBpFWhDTcr29SkRulkkBeLg4wQ
+         ZrEMrlf/gvNiA4IiGjOxo3apEBCC+zmT9yrDRJfa0Rsz7c0eFotywhKP4DB7A/bafcbi
+         xxzkZqefais4DpkvQF2uzcayLNDdHQKfdk8b5Ag5NqjM5Rda0/y16IlrqLl6NzL2bKlE
+         gx5Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=to:subject:message-id:date:from:in-reply-to:references:mime-version
          :dkim-signature;
-        bh=Ggy3ISe8QzO8vHRv3PE5LfWMT0iuFdX620ARBjOXCwY=;
-        fh=GF3rivrTcgf7HegGZns2OFhwg6vuGxzqIyZ+wGk97wQ=;
-        b=chDG+WdK7F3FHtI1dtQvAYct3/1DlSqeb/xN21jY3r6BWXCIkoQrS6VdwDaJ42Mohm
-         Q3Z5pjuATsLKplS6ha+FCEG/zxr2PCq80v0di28IMuTE7lM4rkuDtanGx9/OZztZ4rWq
-         x/6D34zbK2JElL0Mv3fkcX9i26zF8FW1iU2cFYvK/DYipMd4ZNYIt643d22xOyZdgokX
-         rtPJO034UN+w5bM4eoixuHdzkGN+uvyzdXLXOtjgPfKaB9AFLLhJzdY9eG31aOwa62Kh
-         3+BQuU9DBAWNORFOU9AwsYD0s0HzMMnK2uPKauPyxU2Ojrg5+0DUJZi9FcYPvPRbKBko
-         kuQA==;
+        bh=dIWRR//ZGZfoOim50ZwGoG0z8YUpZDtxKvhcTftzbMI=;
+        fh=FMqlO85htAUNPfP5vWwpNH5eSZmHP1R+0BGa/HNnkFw=;
+        b=naihOSt4oreSTNKsUPYFmt4u82gEnWx8INCr9w3+05/wjh1HlR2RjzYmY6I36EmsId
+         t+PxDHuSRuSjNSPP5we/Gdvr7NDe34vHyK9Hs0FEKwwXdilL3CnSvZ8Bd8jbMVjuHtiC
+         /RTVOwa1si/chMZacdLSnODkb3E/+OfZx7OIBxjQKV39NCUFQ8vf5PuXm/fg0xCzm/Y5
+         k4D48l3OT3sk2+dKWamwB952ZiKUyqkh51DBMI3u9vM/ebDbNkUqsUgkMfNn6BiiNgNj
+         74+NyOieZARvBxN0sujdd84agOlyqOjYwzFiolITNtgCwbqeJw05qHdT3bvC+3LB7WAy
+         smQw==;
         darn=lists.ozlabs.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789100580; x=1789705380; darn=lists.ozlabs.org;
+        d=gmail.com; s=20251104; t=1789101227; x=1789706027; darn=lists.ozlabs.org;
         h=content-type:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Ggy3ISe8QzO8vHRv3PE5LfWMT0iuFdX620ARBjOXCwY=;
-        b=egweUY9uK796R87DlpzEk//43IKa2DuPfVSj1xc3lDlB8EI/zQ2fRc5dCG7YrHtaUU
-         WufD2WUfzZCi6p2LddoxE5dWNijcQN5OwdeJe17WUipAXeUJZdt2q6OAsxngD3UnkEdp
-         5EuFn0qhAW931Y5dAsG8Re5DSh/74ShS40uiqVfvSoUFGgrjNNZOJ4iVp2RKaFdQ+TJC
-         knKj4BtC7i7Hf8vzl0gyLRhArL4OIQVBUWzBIA4SJVAqya8lbFbeivsP0sVheQsQA84z
-         RAD+6rOuQphqNO5zEWSy/5QZ30jYbyvwzv8rRGP6rqqXMgvJKJ7V6NMkBIKFLMDKxOlw
-         Y4rw==
+        bh=dIWRR//ZGZfoOim50ZwGoG0z8YUpZDtxKvhcTftzbMI=;
+        b=E/7VJlnOVntjLgVEPz/IlCYjeA/BmaaJqjx0Y22NqfSdtATRHAHlPHaPGwPpdEhL6I
+         KjAkqVR87lhsOL3/cmuYPLl1zxydlqZYtnJuQjajD05Eai6/g1GNHQ4rhRflZO9QmjNa
+         4M7pLBQHXKpSNMcn8El4kbur7OAsP9zVEyv2MzOI9MF0oBzhxQHj/S8WTxl6ZHA2yYlO
+         a4dv90Uwb77flgzF/eqnQEYukslKxgqLVDWQlCjU3Tp8BjjWIBbJ1jsJ6c+1CunkZVws
+         PiMvS4dZwZSA9hrf1bV6bLuz/JHu5a5WbO5eQ5ybnB26h6p0cq5qlOjoYuUE7ybvzBOC
+         6WHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789100580; x=1789705380;
+        d=1e100.net; s=20251104; t=1789101227; x=1789706027;
         h=content-type:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Ggy3ISe8QzO8vHRv3PE5LfWMT0iuFdX620ARBjOXCwY=;
-        b=SupXi7GwZo0epIxlwxkYU1fW98jTH0ua6YoD0AdV5B1CMZWjYmmC6GnsNjaviiRlra
-         OTJO7GXfmponHK1klrhtT2FdkE3v2jVtE0aecpckP8V+ZUU6TpAPWG9im7p4vQ9+ZCRl
-         k0klWQOPPJAoulnl0wb9RuOTR915IrpijPxDXvXhzP/uDEip1wOJXyoAfVea4KEEezlj
-         17oJNtvSCNf4/OdfQzGLRYLPzqfiRAV4I4hf65goL+LoA1j/CqjGw1rjLEwSTW4xLJu9
-         lTDDB2fU+TgKd5Pl3HISYbiQGPSbVLIiaGXgQzIkqBidiWNXgVAgOrqvd6Th/9xVe8nc
-         ZZtA==
-X-Forwarded-Encrypted: i=1; AKwUvBzGw0JfTbUOzEDljb5CesjcIgPGl/+qk+3KE2pQ1d1kyjpedcLiGVlW0NYra/hHbGgIOAIbLP9kFQXrEA==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++nz6JvcRNYhVQzlTERHU3WBr+IK/TNTw0dvsV1m5O/zEIbzz/po
-	UkbLjX+4DsofmJmSlNelf1qIKRqDQISLwskod/Wpfmsn/oUoOElPtD7e7tICca+9T5fEoZwLrzx
-	W+mIeCxHekQ0siRxx9rYL/NNp3hdlgvI=
-X-Gm-Gg: AYBFou25xEJPk2xwJwPUIAVt8QsGBnyQDwQqO+BgzlEPZwBGRcsVZFlL2AFJX2rzf5K
-	4PqeiUK3XcqCwac6oR2zZOT2AmO1Vt9rRymvu4TvynomfKcb2BTtNDYSgjtCYxmyyfqZUR31KLg
-	i8fD1JUXPpIPwcujVRkHECJ3aIM5ATbg1ppZJ+d83RFK9KI/AkmhRf/3ff0vk0BC5qJG5d358mt
-	MGZrdIhbIVPJ5K3+H90HihV8s6HeZrbm+RfdZXGgdMLtLzcqwq5ACp+fL9/lek9/5glP4NkTYoW
-	m8y3Ui0/z770QW6hOs1K6fbIqRdQPq+SEiebnbG1O703PS3H4I9hU6hr
-X-Received: by 2002:a17:90b:3f10:b0:398:cb56:e92 with SMTP id
- 98e67ed59e1d1-39d9bdaac2fmr3960807a91.11.1789100580475; Thu, 10 Sep 2026
- 21:23:00 -0700 (PDT)
+        bh=dIWRR//ZGZfoOim50ZwGoG0z8YUpZDtxKvhcTftzbMI=;
+        b=RRIYw1xijY0TidqSEQckGAIksr9qnFfurkxqH2wdwT7NLCQ77DCpBWAqLtnT0P2h5m
+         WVbrdvVam1VQMEDs1eVpr6RMba7Uq8PwQA9/dcpGbn1SMPIfLBtBhvnls4KVO7OsUtqw
+         DZs7GuDGOSTwKhu+aBnWVBc5i5UAUmaXxvi0gFl2RyNZeR4KTT3KNk4SmBzrs7xFfYwl
+         yJvy69NcW2VfRfUHK6OIu8hAJ5JsOTBEsdpqUvCTSH0QzRwLdbVuHZkR4Pd/Ppw58gdX
+         BNEEeJZqOf+riVE3V690uUAGEWW3KoW7pmp02qObbwsUsXbseH2w6anDvauN9V1zANs5
+         d3wA==
+X-Forwarded-Encrypted: i=1; AKwUvBxyGvot6iSwjoZhlJIXcPzdeVVGKuL6jzH3Y+gQfHRaRnVwQmwRVJAghkd6Zf6jopy2tthnQyr+v7rhTA==@lists.ozlabs.org
+X-Gm-Message-State: AFuF++m8+tBl95Nlp3tLWoEWhJBp+d9tgej8lcd8zP3XGasyStmlMGbY
+	D3DqoZ268haGxkYdbo79McNFuvE0XJuL9Hfo5kYH8cqvMrMOCQ2hkK6P2GflPI30NEp/B9t/X/F
+	OUByN1LpJ0OCMNRsPej/XAO8wDp0ipAo=
+X-Gm-Gg: AYBFou22ZqaGaAKaGA0/Z8g2DVw+C+YYU1KovPhydbELWyDrWAoERPPUcu32j6lDIJb
+	2KAEumYlNvb2N3UQGJucL6aWfQdAyOA/Lds8pqsZqcVZpwq+leDJUSkIjyVCSJs5SYIDetuY269
+	1ruvgy0+KJexO+sHdQr3LfLKInt2KdYydeXdrduFvtmq5knxtYnH2pO6OyFe9rq3XbBDGm9HA9j
+	G3qprSYyEJIUMP66fXLbw5kYEc82QUH6h1cQsyMRe8FAB8iApzFrzVGreUBrk1btQ3Z0jsL6/Mc
+	kc7jOylflaUect3ED4dqkd865Nx+Jj+YLmfKxioWBRt5ayLCWTQFy70=
+X-Received: by 2002:a05:6a21:6d8a:b0:3d3:adbf:777e with SMTP id
+ adf61e73a8af0-3daed49d798mr4458336637.19.1789101227001; Thu, 10 Sep 2026
+ 21:33:47 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -99,32 +99,33 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <CAJ3C4KxqO2--RDZN7jCvYKOjwe-XSUcEj8w74ETeHV2ZUq_1dw@mail.gmail.com>
- <aqOBLWQEkH7_3LSu@XiangdeMacBook-Pro.local>
-In-Reply-To: <aqOBLWQEkH7_3LSu@XiangdeMacBook-Pro.local>
+References: <CAJ3C4Kwms2my+y_T0Mx+XM_gb9gs7cVZ7w4v2GRAURF1rRFU0g@mail.gmail.com>
+ <aqOCEK8T209eXwnW@XiangdeMacBook-Pro.local>
+In-Reply-To: <aqOCEK8T209eXwnW@XiangdeMacBook-Pro.local>
 From: binglei wang <l3b2w1@gmail.com>
-Date: Fri, 11 Sep 2026 12:22:46 +0800
-X-Gm-Features: AcwNN1UEri1rSYm-5DjnhH21l0qSWjrlPNi4rK7mYz3QQfKA13WW0Kz0QncN_g8
-Message-ID: <CAJ3C4KxD+7KDwgX7aimq2L3Ua8x0kNpfu28=KytOCmBhfwx10w@mail.gmail.com>
+Date: Fri, 11 Sep 2026 12:33:33 +0800
+X-Gm-Features: AcwNN1W1AIpgKaGpweBB6AFAoXMuc1DVKBzixOJVGID7PmH3zvI9HfJEzERWX1M
+Message-ID: <CAJ3C4Ky_Gk=shyh+ZM=x9_xYbBk=tUS1kcMiBZEp+hXLMBO1pQ@mail.gmail.com>
 Subject: Re: [PATCH] erofs: fix unbalanced buf->off handling in erofs_bread()
 To: binglei wang <l3b2w1@gmail.com>, linux-erofs@lists.ozlabs.org, xiang@kernel.org, 
 	chao@kernel.org, shengyong1@xiaomi.com, zbestahu@gmail.com, 
 	jefflexu@linux.alibaba.com, dhavale@google.com, hongbohbli@tencent.com, 
 	guochunhai@vivo.com, wangshuai12@xiaomi.com, linux-kernel@vger.kernel.org
-Content-Type: multipart/alternative; boundary="000000000000911796065b2d70b1"
+Content-Type: multipart/alternative; boundary="0000000000001a512d065b2d97a6"
 
---000000000000911796065b2d70b1
+--0000000000001a512d065b2d97a6
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Thanks for the feedback!  I will check it.
+Thanks for the review. The code fix is unchanged. I've resent the patch in
+plain text with proper formatting. Sorry for the noise.
 
-Gao Xiang <xiang@kernel.org> =E4=BA=8E2026=E5=B9=B49=E6=9C=8811=E6=97=A5=E5=
-=91=A8=E4=BA=94 12:19=E5=86=99=E9=81=93=EF=BC=9A
+Gao Xiang <xiang@kernel.org> =E4=BA=8E 2026=E5=B9=B49=E6=9C=8811=E6=97=A5=
+=E5=91=A8=E4=BA=94 12:22=E5=86=99=E9=81=93=EF=BC=9A
 
-> Hi Binglei,
+> Hi,
 >
-> On Fri, Sep 11, 2026 at 12:01:48PM +0800, binglei wang wrote:
+> On Fri, Sep 11, 2026 at 12:16:56PM +0800, binglei wang wrote:
 > > erofs_bread() locates the target folio with
 > >
 > >  index =3D (buf->off + offset) >> PAGE_SHIFT;
@@ -172,95 +173,31 @@ t
 > > Cc: <stable@vger.kernel.org> # 6.16+
 > > Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
 >
-> The fix looks fine, but the patch format is broken:
-> Reviewed-by: Gao Xiang <xiang@kernel.org>
+> As I said, I applied a modified version:
+> https://lore.kernel.org/r/aqOBLWQEkH7_3LSu@XiangdeMacBook-Pro.local
 >
-> I applied the following version manually with an updated
-> patch subject.
+> I think if you have some email client issue, you could loop the patch to
+> your own email, download it from your mailbox and try to apply locally
+> for self-testing first.
 >
-> From 135d84c66f85426299db01a09d93a79a87af18ba Mon Sep 17 00:00:00 2001
-> From: Binglei Wang <l3b2w1@gmail.com>
-> Date: Fri, 11 Sep 2026 12:11:33 +0800
-> Subject: [PATCH] erofs: add missing buf->off in erofs_bread()
->
-> erofs_bread() locates the target folio with
->
->  index =3D (buf->off + offset) >> PAGE_SHIFT;
->
-> but computes the in-folio offset without taking buf->off into account:
->
->  return buf->base + (offset & ~PAGE_MASK);
->
-> If buf->off is not page-aligned, the returned pointer misses the in-page
-> component of buf->off, so callers end up fetching data from a wrong
-> offset.
->
-> buf->off is set to sbi->dif0.fsoff in erofs_init_metabuf(), and fsoff can
-> be specified via the "fsoffset=3D" mount option, which only requires
-> block-size alignment. Therefore, on an image with a sub-page block size
-> (e.g. 512 bytes), a non-page-aligned fsoff (e.g. 512) triggers the issue,
-> since 512 is a multiple of the block size but not of PAGE_SIZE.
->
-> It can be reproduced by mounting an image that is placed at a
-> non-page-aligned offset:
->
->  mkfs.erofs -b512 -zlz4hc sub.erofs src/
->  # prepend 512 bytes of padding to the image
->  mount -t erofs -o loop,fsoffset=3D512 padded.erofs /mnt
->
-> which fails with
->
->  erofs (device loop0): cannot find valid erofs superblock
->
-> because the on-disk superblock (at offset 1024 within the image, i.e.
-> 1536 within the padded file) is read from a wrong in-folio offset. With
-> this fixed, the very same image mounts successfully and its file contents
-> match those read from the unpadded image.
->
-> Fix it by including buf->off in the in-folio offset calculation, so that
-> it is consistent with the folio index calculation.
->
-> Fixes: c36ec00d7f67 ("erofs: add 'fsoffset' mount option to specify
-> filesystem offset")
-> Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
-> Reviewed-by: Gao Xiang <xiang@kernel.org>
-> Signed-off-by: Gao Xiang <xiang@kernel.org>
-> ---
->  fs/erofs/data.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> index 0885b1f2fc92..be63b89f0862 100644
-> --- a/fs/erofs/data.c
-> +++ b/fs/erofs/data.c
-> @@ -48,7 +48,7 @@ void *erofs_bread(struct erofs_buf *buf, erofs_off_t
-> offset, bool need_kmap)
->                 return NULL;
->         if (!buf->base)
->                 buf->base =3D kmap_local_page(buf->page);
-> -       return buf->base + (offset & ~PAGE_MASK);
-> +       return buf->base + ((buf->off + offset) & ~PAGE_MASK);
->  }
->
->  int erofs_init_metabuf(struct erofs_buf *buf, struct super_block *sb,
-> --
-> 2.47.3
->
+> Thanks,
+> Gao Xiang
 >
 
---000000000000911796065b2d70b1
+--0000000000001a512d065b2d97a6
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Thanks for the feedback!=C2=A0 I will check it.</div><br><=
-div class=3D"gmail_quote gmail_quote_container"><div dir=3D"ltr" class=3D"g=
-mail_attr">Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org">xiang@kernel.o=
-rg</a>&gt; =E4=BA=8E2026=E5=B9=B49=E6=9C=8811=E6=97=A5=E5=91=A8=E4=BA=94 12=
-:19=E5=86=99=E9=81=93=EF=BC=9A<br></div><blockquote class=3D"gmail_quote" s=
-tyle=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);pad=
-ding-left:1ex">Hi Binglei,<br>
+<div dir=3D"auto">Thanks for the review. The code fix is unchanged. I&#39;v=
+e resent the patch in plain text with proper formatting. Sorry for the nois=
+e.</div><br><div class=3D"gmail_quote gmail_quote_container"><div dir=3D"lt=
+r" class=3D"gmail_attr">Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org">x=
+iang@kernel.org</a>&gt; =E4=BA=8E 2026=E5=B9=B49=E6=9C=8811=E6=97=A5=E5=91=
+=A8=E4=BA=94 12:22=E5=86=99=E9=81=93=EF=BC=9A<br></div><blockquote class=3D=
+"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding=
+-left:1ex">Hi,<br>
 <br>
-On Fri, Sep 11, 2026 at 12:01:48PM +0800, binglei wang wrote:<br>
+On Fri, Sep 11, 2026 at 12:16:56PM +0800, binglei wang wrote:<br>
 &gt; erofs_bread() locates the target folio with<br>
 &gt; <br>
 &gt;=C2=A0 index =3D (buf-&gt;off + offset) &gt;&gt; PAGE_SHIFT;<br>
@@ -312,102 +249,24 @@ nts<br>
 &gt; Fixes: c36ec00d7f67 (&quot;erofs: add &#39;fsoffset&#39; mount option =
 to specify<br>
 &gt; filesystem offset&quot;)<br>
-&gt; Cc: &lt;<a href=3D"mailto:stable@vger.kernel.org" target=3D"_blank">st=
-able@vger.kernel.org</a>&gt; # 6.16+<br>
+&gt; Cc: &lt;<a href=3D"mailto:stable@vger.kernel.org" target=3D"_blank" re=
+l=3D"noreferrer">stable@vger.kernel.org</a>&gt; # 6.16+<br>
 &gt; Signed-off-by: Binglei Wang &lt;<a href=3D"mailto:l3b2w1@gmail.com" ta=
-rget=3D"_blank">l3b2w1@gmail.com</a>&gt;<br>
+rget=3D"_blank" rel=3D"noreferrer">l3b2w1@gmail.com</a>&gt;<br>
 <br>
-The fix looks fine, but the patch format is broken:<br>
-Reviewed-by: Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org" target=3D"_b=
-lank">xiang@kernel.org</a>&gt;<br>
+As I said, I applied a modified version:<br>
+<a href=3D"https://lore.kernel.org/r/aqOBLWQEkH7_3LSu@XiangdeMacBook-Pro.lo=
+cal" rel=3D"noreferrer noreferrer" target=3D"_blank">https://lore.kernel.or=
+g/r/aqOBLWQEkH7_3LSu@XiangdeMacBook-Pro.local</a><br>
 <br>
-I applied the following version manually with an updated<br>
-patch subject.<br>
+I think if you have some email client issue, you could loop the patch to<br=
+>
+your own email, download it from your mailbox and try to apply locally<br>
+for self-testing first.<br>
 <br>
-From 135d84c66f85426299db01a09d93a79a87af18ba Mon Sep 17 00:00:00 2001<br>
-From: Binglei Wang &lt;<a href=3D"mailto:l3b2w1@gmail.com" target=3D"_blank=
-">l3b2w1@gmail.com</a>&gt;<br>
-Date: Fri, 11 Sep 2026 12:11:33 +0800<br>
-Subject: [PATCH] erofs: add missing buf-&gt;off in erofs_bread()<br>
-<br>
-erofs_bread() locates the target folio with<br>
-<br>
-=C2=A0index =3D (buf-&gt;off + offset) &gt;&gt; PAGE_SHIFT;<br>
-<br>
-but computes the in-folio offset without taking buf-&gt;off into account:<b=
-r>
-<br>
-=C2=A0return buf-&gt;base + (offset &amp; ~PAGE_MASK);<br>
-<br>
-If buf-&gt;off is not page-aligned, the returned pointer misses the in-page=
-<br>
-component of buf-&gt;off, so callers end up fetching data from a wrong<br>
-offset.<br>
-<br>
-buf-&gt;off is set to sbi-&gt;dif0.fsoff in erofs_init_metabuf(), and fsoff=
- can<br>
-be specified via the &quot;fsoffset=3D&quot; mount option, which only requi=
-res<br>
-block-size alignment. Therefore, on an image with a sub-page block size<br>
-(e.g. 512 bytes), a non-page-aligned fsoff (e.g. 512) triggers the issue,<b=
-r>
-since 512 is a multiple of the block size but not of PAGE_SIZE.<br>
-<br>
-It can be reproduced by mounting an image that is placed at a<br>
-non-page-aligned offset:<br>
-<br>
-=C2=A0mkfs.erofs -b512 -zlz4hc sub.erofs src/<br>
-=C2=A0# prepend 512 bytes of padding to the image<br>
-=C2=A0mount -t erofs -o loop,fsoffset=3D512 padded.erofs /mnt<br>
-<br>
-which fails with<br>
-<br>
-=C2=A0erofs (device loop0): cannot find valid erofs superblock<br>
-<br>
-because the on-disk superblock (at offset 1024 within the image, i.e.<br>
-1536 within the padded file) is read from a wrong in-folio offset. With<br>
-this fixed, the very same image mounts successfully and its file contents<b=
-r>
-match those read from the unpadded image.<br>
-<br>
-Fix it by including buf-&gt;off in the in-folio offset calculation, so that=
-<br>
-it is consistent with the folio index calculation.<br>
-<br>
-Fixes: c36ec00d7f67 (&quot;erofs: add &#39;fsoffset&#39; mount option to sp=
-ecify filesystem offset&quot;)<br>
-Signed-off-by: Binglei Wang &lt;<a href=3D"mailto:l3b2w1@gmail.com" target=
-=3D"_blank">l3b2w1@gmail.com</a>&gt;<br>
-Reviewed-by: Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org" target=3D"_b=
-lank">xiang@kernel.org</a>&gt;<br>
-Signed-off-by: Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org" target=3D"=
-_blank">xiang@kernel.org</a>&gt;<br>
----<br>
-=C2=A0fs/erofs/data.c | 2 +-<br>
-=C2=A01 file changed, 1 insertion(+), 1 deletion(-)<br>
-<br>
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c<br>
-index 0885b1f2fc92..be63b89f0862 100644<br>
---- a/fs/erofs/data.c<br>
-+++ b/fs/erofs/data.c<br>
-@@ -48,7 +48,7 @@ void *erofs_bread(struct erofs_buf *buf, erofs_off_t offs=
-et, bool need_kmap)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return NULL;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!buf-&gt;base)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 buf-&gt;base =3D km=
-ap_local_page(buf-&gt;page);<br>
--=C2=A0 =C2=A0 =C2=A0 =C2=A0return buf-&gt;base + (offset &amp; ~PAGE_MASK)=
-;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0return buf-&gt;base + ((buf-&gt;off + offset) &=
-amp; ~PAGE_MASK);<br>
-=C2=A0}<br>
-<br>
-=C2=A0int erofs_init_metabuf(struct erofs_buf *buf, struct super_block *sb,=
-<br>
--- <br>
-2.47.3<br>
-<br>
+Thanks,<br>
+Gao Xiang<br>
 </blockquote></div>
 
---000000000000911796065b2d70b1--
+--0000000000001a512d065b2d97a6--
 
