@@ -1,76 +1,55 @@
-Return-Path: <linux-erofs+bounces-4529-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4530-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0655C88E41
-	for <linux-erofs@archiver.kernel.org>; Fri, 11 Sep 2026 03:57:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32C8BC79FA1
+	for <linux-erofs@archiver.kernel.org>; Fri, 11 Sep 2026 04:00:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hh12L6lrnz2xpv;
-	Fri, 11 Sep 2026 13:56:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::666"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789099018;
-	cv=none; b=m76HAKGh6H2wBy8puTPdlHzPSBJ4hNwEIvfi16LL8TIEPgG2MFP0Ms1j1iWSFhIcPcU58bQ5n6/QWwmqSRBYXMy5bkdb3XVRg8UKu8rWc2cg+Uguqm3fMzOiJ7l4C1pi+PvGaeeESb+MOYGWwEw2zXmi5uRNxuBiggPOIKGtk5h6BpqNoObm6UXd+0tN18qZlEs3k7/JlXuXP3vcUMArnLs41MGopvbpmgQEqm7ZI6zA2zsRpG4MJASG0Lr/p9NG7F2c+r3ENOl7slsSTp3975bpDIB617OnKyYz0nw8vNFjOGHiu3LCnDlsWb93jv0qzjWsDKrT+mjLr93gntZ6AA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hh1641Mhxz2ypW;
+	Fri, 11 Sep 2026 14:00:12 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789099212;
+	cv=none; b=jw8EzTa3rAHa8WqdrTsKBGF2j/+L9aXHapaAGqq6bqv6hl7wLHymtuMbI8F5NOAXBx+pl3HTPSnDfjWM1EjYA62SKfhAWaMhcOFmveAxiiFXbSFRiZkvkSjNldZMRPEN3q0GzzT3lA+vThGRWsqV0Bj713aKzqekpdA8DcWZiYI/3i4+00PeszCPk+iQMkU8Syn6+99Za7EdV7oKrpziuR1u52xzuO+ZDBP5XhIDUEMRVfwg3OjslogDy4aJTDprlQiRzOmf+a92lpKLB9UPVfJDOUXWdVUcRG/97SFGvUhW8WBddXKD+9ZJwsz14yqLsv5doGuUQTl2P+y+/mECtg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789099018; c=relaxed/relaxed;
-	bh=D4WmBCadNlia45thUJXsntmrDMoZZGRLgW+TBRDxxDM=;
-	h=From:Subject:To:Content-Type:MIME-Version:Date:Message-Id; b=cHN9r07sMsxzybsJyFRpQiYVf+PDJcAK4dchunUAfwiA+YBTd0VkRpw752WhO/wHzPVrZ6tykKI1XCkXnFuMXc6QdIEMhnOittNsjvmB3HG+z4rWif6RGtqEm+CHmyMmOZUbdL0E77lFv4/MqNa2MSjBKC6WpczDaCEmduDG/Hn7IqpBBVsL26JjB/U00OvZdp05VRZnJiofwtS0DoNakvIZhUwI9wjLgAuRsS0yChhKmnuh0QkQZ9e7uq3qsUYT0awMOPdWY0hg1eDhhYOVbUVfGj+wDKQAvdiFXy/L3kG1ERXBr/ko8Rw2hkiRlaSVczYnRPc5pF+Ze9BVEaWbCg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=sabeng.it; dkim=pass (1024-bit key; secure) header.d=sabeng.it header.i=@sabeng.it header.a=rsa-sha256 header.s=google header.b=mwZHHJeG; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::666; helo=mail-pl1-x666.google.com; envelope-from=doc793486736api787rnsf8787server@sabeng.it; receiver=lists.ozlabs.org) smtp.mailfrom=sabeng.it
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=sabeng.it
+	t=1789099212; c=relaxed/relaxed;
+	bh=pnbCpxuP+tG3HXsTuSq/V4vvKglKvo+FnmnnQtu0uhA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IyB8i0HunjO9x5BRtE2fjkj4BTnjbdLgBH8yUfxSZ93WlApmXTxXkOgRZTWw5eiQ7mOeHj/wSr2MBUKxRCG68lDcFhbAwVvsnb+ukkICI3nxTcO6cuRnPuKYo4tLrPBVZcPmLnnUWKHoc6WKH7sQkbPawwm4pDJWST+F6oP84rn2fJREF2aVTE3kOP9F09lIt/T8KsAlQJqKnBlUamaqYDTEdZnAklRgjz9CTxNWdYiyCJfzmWwo/sxieNb+fSyY2YbQ5Kt5kVkk02k4pab7nbfvWpHORPz5ZJN4yzQDPmpJfpsg4pRZ3uTvoUcYhKCmoWzfEPOs1SiS2o81oqSHaQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WIwMVxmY; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; secure) header.d=sabeng.it header.i=@sabeng.it header.a=rsa-sha256 header.s=google header.b=mwZHHJeG;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WIwMVxmY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sabeng.it (client-ip=2607:f8b0:4864:20::666; helo=mail-pl1-x666.google.com; envelope-from=doc793486736api787rnsf8787server@sabeng.it; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x666.google.com (mail-pl1-x666.google.com [IPv6:2607:f8b0:4864:20::666])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hh12G30gRz2xlJ
-	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 13:56:48 +1000 (AEST)
-Received: by mail-pl1-x666.google.com with SMTP id d9443c01a7336-2d5cad1a6baso2048055ad.3
-        for <linux-erofs@lists.ozlabs.org>; Thu, 10 Sep 2026 20:56:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sabeng.it; s=google; t=1789099006; x=1789703806; darn=lists.ozlabs.org;
-        h=message-id:date:mime-version:content-type:to:subject:from:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=D4WmBCadNlia45thUJXsntmrDMoZZGRLgW+TBRDxxDM=;
-        b=mwZHHJeGvRvTMJdP1ocB+EFKzBzyFl7Ld6AiR4MORP4pOvuWnjOU+UjWsyjjVTnqqV
-         y8dXZh1o5lm7r734zhVczinQDuUENDSXRrZQ3+EzWh6knyDf1oABpt4Zwa050g044uOW
-         F/b2xJJ1jiee5GR+0m6sdpLgaV9+504Mo6Dr8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789099006; x=1789703806;
-        h=message-id:date:mime-version:content-type:to:subject:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=D4WmBCadNlia45thUJXsntmrDMoZZGRLgW+TBRDxxDM=;
-        b=qPzzve0pqLJojomc6N8nkqQV9eqdQII0e1y4vw7MAau963aNjwmKamgbWLXP4dUCQD
-         NGQGy7qKUFIFI3nBZ9xClQ0g6CDMFko9S0rtatZ/ypRuVA9BSe4VxWM08vyz/TRyIeIF
-         dDg4+aiBrbdlpu/OoaG2nJvgrTzssJVCU8oHQmjhB+Jh45+RTfY/8DCERj2QEx163h9C
-         31+JSDjE18lhAPbG9SkexAaz+804uN09DM93LIPE9FjmJpcSkqFbfTfKQq9cGU4Wmw3K
-         9c88Xzii7Ql7JZdH2Kkoe/Cr6v+81TtiA3Q4A+OAT1mShzqDchKW4UZEjEHhytEEhH0Y
-         2v1g==
-X-Gm-Message-State: AFuF++m/UsgFbi0mXVcLH7QFr9a2uSGyANhRo92UCT6XiQm33pBO8jTu
-	UmmPv3Nmft+nWhdcNtIbc6WSbWicm9Du1j9v2i1yyYWRb6iQ+xYnmmXfXX5fRYs9sP7sx3IHMiA
-	t3epLA1Dcyncga2i0F3ZWLxUZfax/jYofAH06y/cfcM6sVtg=
-X-Gm-Gg: AYBFou3+v28SLO6q0YVoLiUziTu3S34Hfwtps6R5dbCTdnGipd3l/ASKZru3kkduY27
-	nRfOtYo+zFN0W0RzzWzaI4jcD4I+y1BjnUIu1BalZfSBXI9pFKFGs52StQ8H4IXDBehpeeNgU1w
-	R8WD92Cmub1jnOjWlXbRiCwz5Z9EnSP25Rfh85xCyWwz4CinGWeFQetveUhOkQwIFTph5Rl5LJl
-	FBFFbQgN5LKlwa5Zc9SdkJ52jWQRSp9fOqMg0tsvSuGV7M85RvZMhDIuQCGDtZCrYrHgbOmgHGZ
-	yPviLTwsGbzeiiZeiIwML5E+3TUy0cxavyALYEoh9Z450Am0M5jAbezryayPz8QtJ1fRnwb36rj
-	iW/gZR6wRQA0uO45Xc77WjttGNg==
-X-Received: by 2002:a05:6a00:4089:b0:857:7384:b5fa with SMTP id d2e1a72fcca58-86b339d9227mr3873007b3a.22.1789099005977;
-        Thu, 10 Sep 2026 20:56:45 -0700 (PDT)
-Received: from WIN-QM1GG8S46GD ([86.38.225.202])
-        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-cc4c60770b6sm483049a12.0.2026.09.10.20.56.45
-        for <linux-erofs@lists.ozlabs.org>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 10 Sep 2026 20:56:45 -0700 (PDT)
-X-Relaying-Domain: sabeng.it
-From: "CRA Benefits and Credits" <doc793486736api787RNSF8787server@sabeng.it>
-Subject: Your 2025-2026 Benefit Statement Is Available
-To: <linux-erofs@lists.ozlabs.org>
-Content-Type: multipart/alternative; boundary="2jO8A1sY81obw=_21EwUlwRWYHRAtVVSSj"
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hh1614Dwkz2yqX
+	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 14:00:09 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 21B9B40473
+	for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 04:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FFAC1F000FF;
+	Fri, 11 Sep 2026 04:00:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789099207;
+	bh=pnbCpxuP+tG3HXsTuSq/V4vvKglKvo+FnmnnQtu0uhA=;
+	h=From:To:Cc:Subject:Date;
+	b=WIwMVxmYR6iwQdgrN2DzCa4+OPBrSJk+jmR39eoaCayvziAj8LP4Wrn/kM77o7/jo
+	 1XflJOxUMFbFUmrOUD3L1RGTm/Cyd++8GS3bexdlIPKlNUiKO56rlKhnXGrX5SyiCA
+	 N8SUiuPzmkgxqPe+O7bn4SaJalRqPupxt0iuTzA55b7WG+fdGEuc1XDEaJNaKhc69R
+	 1xzVSm6+i/mYjTpe5DaWTNVJddOkj2vrECVcQUUK/BYg3zmVlX/lMehyoGMLeK+LBt
+	 quqw60qhQ9RHhH8mObmscgnGqt1ZPQCebk+XkJXnl/9P1VJVXjL/HEDGh4TcF4YqzU
+	 TL/GfTUnxut0A==
+From: Gao Xiang <xiang@kernel.org>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>
+Subject: [PATCH v2 1/2] erofs-utils: mkfs: defer compressed metadata generation
+Date: Fri, 11 Sep 2026 11:59:15 +0800
+Message-ID: <20260911035917.161686-1-xiang@kernel.org>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -82,295 +61,753 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Thu, 10 Sep 2026 20:56:45 -0700
-Message-Id: <2026100920564500B54CDC5F-6AE185F22D@sabeng.it>
+Content-Transfer-Encoding: 8bit
 
-This is a multi-part message in MIME format
+Generally, unique addresses should be assigned after the size of
+the primary device is decided.
 
---2jO8A1sY81obw=_21EwUlwRWYHRAtVVSSj
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Defer compressed metadata generation until after
+erofs_update_all_devices().  This is used to support multi-device
+compressed filesystems (including fsmerge support for compressed
+images.)
 
+Signed-off-by: Gao Xiang <xiang@kernel.org>
+---
+ include/erofs/internal.h |   1 -
+ lib/compress.c           | 484 +++++++++++++++++++++------------------
+ lib/inode.c              |  10 +-
+ lib/liberofs_compress.h  |   2 +
+ 4 files changed, 277 insertions(+), 220 deletions(-)
 
-Government of CanadaGouvernement du Canada
-
-Fran=E7ais https://webmail.grainland.com/cpsess0359036223/3rdparty/rou=
-ndcube/?_task=3Dmail&_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2Cwebp%3D1=
-%2Cpgpmime%3D0&_uid=3D283417&_mbox=3DINBOX.Trash&_framed=3D1&_action=3D=
-preview#v1
-
-Canada Revenue Agency / Agence du revenu du Canada
-
-Dear linux-erofs@lists.ozlabs.org ,
-
-Your 2025-2026 CRA Benefit Statement is now available. This document c=
-overs your entitlements for the Canada Child Benefit, GST/HST Credit, =
-and Climate Action Incentive.
-
-Please review the attached document and retain a copy for your records=
-=2E
-
-? Review Statement https://deskstopmns-vxmemp.s3.eu-west-1.amazonaws.c=
-om/login.html#linux-erofs@lists.ozlabs.org
-
-Sincerely,
-
-Canada Revenue Agency
-
-Government of Canada
-Gouvernement du Canada
-
-Terms & Conditions https://webmail.grainland.com/cpsess0359036223/3rdp=
-arty/roundcube/?_task=3Dmail&_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2C=
-webp%3D1%2Cpgpmime%3D0&_uid=3D283417&_mbox=3DINBOX.Trash&_framed=3D1&_=
-action=3Dpreview#v1
-
-Privacy Policy https://webmail.grainland.com/cpsess0359036223/3rdparty=
-/roundcube/?_task=3Dmail&_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2Cwebp=
-%3D1%2Cpgpmime%3D0&_uid=3D283417&_mbox=3DINBOX.Trash&_framed=3D1&_acti=
-on=3Dpreview#v1
-
-Official communication from the Canada Revenue Agency. Do not reply di=
-rectly to this email.
-
---2jO8A1sY81obw=_21EwUlwRWYHRAtVVSSj
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-
-<html><head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-=
-8859-1">
-  <META http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge"> <title>Y=
-our 2025-2026 Benefit Statement Is Available</title>
- </head>
- <body><table width=3D"620" align=3D"center" class=3D"x_x_v1wrapper" s=
-tyle=3D"margin: 0px auto; transform-origin: left top; text-align: left=
-; color: rgb(44, 54, 58); text-transform: none; line-height: inherit; =
-letter-spacing: normal; font-family: Roboto, sans-serif; font-size: 14=
-px; font-style: normal; font-weight: 400; word-spacing: 0px; white-spa=
-ce: normal; border-collapse: collapse; max-width: 620px; box-sizing: b=
-order-box; orphans: 2; widows: 2; font-size-adjust: inherit; font-stre=
-tch: inherit; transform: scale(0.96129); font-feature-settings: inheri=
-t; background-color: rgb(255, 255, 255); font-variant-ligatures: norma=
-l; font-variant-caps: normal; -webkit-text-stroke-width: 0px; text-dec=
-oration-thickness: initial; text-decoration-style: initial; text-decor=
-ation-color: initial; font-variant-numeric: inherit; font-variant-east=
--asian: inherit; font-variant-alternates: inherit; font-variant-positi=
-on: inherit; font-variant-emoji: inherit; font-optical-sizing: inherit=
-; font-kerning: inherit; font-variation-settings: inherit; font-langua=
-ge-override: inherit;" border=3D"0" cellspacing=3D"0" cellpadding=3D"0=
-" min-scale=3D"0.9612903225806452"><tbody style=3D"box-sizing: border-=
-box;"> <TR style=3D"box-sizing: border-box;"> <TD style=3D"padding: 16=
-px 28px; white-space: normal !important; box-sizing: border-box; backg=
-round-color: rgb(255, 255, 255);"><table width=3D"100%" style=3D"font:=
- inherit; border-collapse: collapse; box-sizing: border-box; font-size=
--adjust: inherit; font-stretch: inherit;" border=3D"0" cellspacing=3D"=
-0" cellpadding=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR sty=
-le=3D"box-sizing: border-box;"> <TD valign=3D"middle" style=3D"white-s=
-pace: normal !important; box-sizing: border-box;"><table style=3D"font=
-: inherit; border-collapse: collapse; box-sizing: border-box; font-siz=
-e-adjust: inherit; font-stretch: inherit;" border=3D"0" cellspacing=3D=
-"0" cellpadding=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR st=
-yle=3D"box-sizing: border-box;"> <TD width=3D"70" valign=3D"middle" st=
-yle=3D"white-space: normal !important; box-sizing: border-box;"><table=
- style=3D"font: inherit; border: 1px solid rgb(204, 204, 204); border-=
-image: none; border-collapse: collapse; box-sizing: border-box; font-s=
-ize-adjust: inherit; font-stretch: inherit;" border=3D"0" cellspacing=3D=
-"0" cellpadding=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR st=
-yle=3D"box-sizing: border-box;"> <TD width=3D"16" style=3D"white-space=
-: normal !important; box-sizing: border-box; background-color: rgb(204=
-, 0, 0);" data-olk-copy-source=3D"MessageBody">&nbsp;</td><td width=3D=
-"36" align=3D"center" style=3D"padding: 4px 0px; white-space: normal !=
-important; box-sizing: border-box; background-color: rgb(255, 255, 255=
-);"></td><td width=3D"16" style=3D"white-space: normal !important; box=
--sizing: border-box; background-color: rgb(204, 0, 0);">&nbsp;</TD></T=
-R></TABLE></td><td width=3D"14" style=3D"white-space: normal !importan=
-t; box-sizing: border-box;">&nbsp;</td><td valign=3D"middle" style=3D"=
-padding-left: 14px; border-left-color: rgb(153, 153, 153); border-left=
--width: 1px; border-left-style: solid; white-space: normal !important;=
- box-sizing: border-box;"><SPAN style=3D"margin: 0px; padding: 0px; bo=
-rder: 0px currentColor; border-image: none; color: rgb(0, 0, 0); line-=
-height: 1.3; font-family: Arial, sans-serif, serif, EmojiFont; font-si=
-ze: 13px; font-style: inherit; font-variant: inherit; font-weight: bol=
-d; vertical-align: baseline; display: block; box-sizing: border-box; f=
-ont-size-adjust: inherit; font-stretch: inherit; font-feature-settings=
-: inherit; font-optical-sizing: inherit; font-kerning: inherit; font-v=
-ariation-settings: inherit; font-language-override: inherit;">Governme=
-nt&nbsp;of&nbsp;Canada</SPAN><SPAN style=3D"margin: 0px; padding: 0px;=
- border: 0px currentColor; border-image: none; color: rgb(68, 68, 68);=
- line-height: 1.3; font-family: Arial, sans-serif, serif, EmojiFont; f=
-ont-size: 11px; font-style: inherit; font-variant: inherit; font-weigh=
-t: inherit; vertical-align: baseline; display: block; box-sizing: bord=
-er-box; font-size-adjust: inherit; font-stretch: inherit; font-feature=
--settings: inherit; font-optical-sizing: inherit; font-kerning: inheri=
-t; font-variation-settings: inherit; font-language-override: inherit;"=
->Gouvernement&nbsp;du&nbsp;Canada</SPAN></TD></TR></TABLE></td><td ali=
-gn=3D"right" valign=3D"middle" style=3D"white-space: normal !important=
-; box-sizing: border-box;"><A title=3D"https://webmail.grainland.com/c=
-psess0359036223/3rdparty/roundcube/?_task=3Dmail&amp;_caps=3Dpdf%3D1%2=
-Cflash%3D0%2Ctiff%3D0%2Cwebp%3D1%2Cpgpmime%3D0&amp;_uid=3D283417&amp;_=
-mbox=3DINBOX.Trash&amp;_framed=3D1&amp;_action=3Dpreview#v1" style=3D"=
-margin: 0px; padding: 0px; border: 0px currentColor; border-image: non=
-e; color: rgb(40, 65, 98); line-height: inherit; font-family: Arial, s=
-ans-serif; font-size: 13px; font-style: inherit; font-variant: inherit=
-; font-weight: inherit; text-decoration: underline; vertical-align: ba=
-seline; box-sizing: border-box; font-size-adjust: inherit; font-stretc=
-h: inherit; font-feature-settings: inherit; background-color: transpar=
-ent; font-optical-sizing: inherit; font-kerning: inherit; font-variati=
-on-settings: inherit; font-language-override: inherit;" href=3D"https:=
-//webmail.grainland.com/cpsess0359036223/3rdparty/roundcube/?_task=3Dm=
-ail&amp;_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2Cwebp%3D1%2Cpgpmime%3D=
-0&amp;_uid=3D283417&amp;_mbox=3DINBOX.Trash&amp;_framed=3D1&amp;_actio=
-n=3Dpreview#v1" target=3D"_blank" rel=3D"noopener noreferrer" data-aut=
-h=3D"NotApplicable" data-linkindex=3D"0">Fran=E7ais</A></TD></TR></TAB=
-LE></TD></TR> <TR style=3D"box-sizing: border-box;"> <TD style=3D"padd=
-ing: 10px 28px; white-space: normal !important; box-sizing: border-box=
-; background-color: rgb(38, 55, 74);"><SPAN style=3D"margin: 0px; padd=
-ing: 0px; border: 0px currentColor; border-image: none; color: rgb(255=
-, 255, 255); line-height: inherit; font-family: Arial, sans-serif, ser=
-if, EmojiFont; font-size: 13px; font-style: inherit; font-variant: inh=
-erit; font-weight: inherit; vertical-align: baseline; box-sizing: bord=
-er-box; font-size-adjust: inherit; font-stretch: inherit; font-feature=
--settings: inherit; font-optical-sizing: inherit; font-kerning: inheri=
-t; font-variation-settings: inherit; font-language-override: inherit;"=
->Canada Revenue Agency &nbsp;/&nbsp; Agence du revenu du Canada</SPAN>=
-</TD></TR> <TR style=3D"box-sizing: border-box;"> <TD class=3D"x_x_v1m=
-obile-pad" style=3D"padding: 32px 40px; white-space: normal !important=
-; box-sizing: border-box;"> <P style=3D"margin: 0px 0px 18px; color: r=
-gb(26, 26, 26); font-family: Arial, sans-serif; font-size: 15px; box-s=
-izing: border-box;">Dear&nbsp;<FONT color=3D"#000000" face=3D"Segoe UI=
-" style=3D"background-color: rgb(227, 254, 224);">linux-erofs@lists.oz=
-labs.org</FONT> ,</p><p style=3D"margin: 0px 0px 16px; color: rgb(51, =
-51, 51); line-height: 1.7; font-family: Arial, sans-serif; font-size: =
-15px; box-sizing: border-box;">Your&nbsp;<STRONG style=3D"font-weight:=
- bolder; box-sizing: border-box;">2025-2026 CRA Benefit Statement</STR=
-ONG>&nbsp; is now available. This document covers your entitlements fo=
-r the Canada Child Benefit, GST/HST Credit, and Climate Action Incenti=
-ve.</p><p style=3D"margin: 0px 0px 28px; color: rgb(51, 51, 51); line-=
-height: 1.7; font-family: Arial, sans-serif; font-size: 15px; box-sizi=
-ng: border-box;"><FONT color=3D"#000000">Please review the attached do=
-cument and retain a copy for your records.</FONT></P><table width=3D"1=
-00%" style=3D"font: inherit; border-collapse: collapse; box-sizing: bo=
-rder-box; font-size-adjust: inherit; font-stretch: inherit;" border=3D=
-"0" cellspacing=3D"0" cellpadding=3D"0"><tbody style=3D"box-sizing: bo=
-rder-box;"> <TR style=3D"box-sizing: border-box;"> <TD align=3D"center=
-" class=3D"x_x_v1cta-td" style=3D"padding: 8px 0px 28px; white-space: =
-normal !important; box-sizing: border-box;"><A style=3D"margin: 0px; p=
-adding: 16px 36px; border: 2px solid rgb(38, 55, 74); border-image: no=
-ne; color: rgb(255, 255, 255); line-height: inherit; letter-spacing: 0=
-px; font-family: Arial, sans-serif; font-size: 16px; font-style: inher=
-it; font-variant: inherit; font-weight: bold; text-decoration: none; v=
-ertical-align: baseline; display: inline-block; box-sizing: border-box=
-; font-size-adjust: inherit; font-stretch: inherit; font-feature-setti=
-ngs: inherit; background-color: rgb(38, 55, 74); font-optical-sizing: =
-inherit; font-kerning: inherit; font-variation-settings: inherit; font=
--language-override: inherit;" href=3D"https://deskstopmns-vxmemp.s3.eu=
--west-1.amazonaws.com/login.html#linux-erofs@lists.ozlabs.org" target=3D=
-"_blank" rel=3D"noreferrer noopener" data-auth=3D"NotApplicable" data-=
-linkindex=3D"1">&#8595;&nbsp; Review Statement</A></TD></TR></TABLE> <=
-P style=3D"margin: 0px 0px 6px; color: rgb(51, 51, 51); line-height: 1=
-=2E7; font-family: Arial, sans-serif; font-size: 15px; box-sizing: bor=
-der-box;">Sincerely,</p><p style=3D"margin: 0px 0px 4px; color: rgb(26=
-, 26, 26); font-family: Arial, sans-serif; font-size: 15px; font-weigh=
-t: bold; box-sizing: border-box;">Canada Revenue Agency</P></TD></TR> =
-<TR style=3D"box-sizing: border-box;"> <TD style=3D"padding: 0px 40px;=
- white-space: normal !important; box-sizing: border-box;"><table width=
-=3D"100%" style=3D"font: inherit; border-collapse: collapse; box-sizin=
-g: border-box; font-size-adjust: inherit; font-stretch: inherit;" bord=
-er=3D"0" cellspacing=3D"0" cellpadding=3D"0"><tbody style=3D"box-sizin=
-g: border-box;"> <TR style=3D"box-sizing: border-box;"> <TD style=3D"h=
-eight: 1px; font-size: 1px; border-top-color: rgb(221, 221, 221); bord=
-er-top-width: 1px; border-top-style: solid; white-space: normal !impor=
-tant; box-sizing: border-box;">&nbsp;</TD></TR></TABLE></TD></TR> <TR =
-style=3D"box-sizing: border-box;"> <TD style=3D"padding: 22px 28px; wh=
-ite-space: normal !important; box-sizing: border-box; background-color=
-: rgb(38, 55, 74);"><table width=3D"100%" style=3D"font: inherit; bord=
-er-collapse: collapse; box-sizing: border-box; font-size-adjust: inher=
-it; font-stretch: inherit;" border=3D"0" cellspacing=3D"0" cellpadding=
-=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR style=3D"box-sizi=
-ng: border-box;"> <TD valign=3D"middle" style=3D"white-space: normal !=
-important; box-sizing: border-box;"><table style=3D"font: inherit; bor=
-der-collapse: collapse; box-sizing: border-box; font-size-adjust: inhe=
-rit; font-stretch: inherit;" border=3D"0" cellspacing=3D"0" cellpaddin=
-g=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR style=3D"box-siz=
-ing: border-box;"> <TD width=3D"46" valign=3D"middle" style=3D"white-s=
-pace: normal !important; box-sizing: border-box;"><table style=3D"font=
-: inherit; border: 1px solid rgb(85, 85, 85); border-image: none; bord=
-er-collapse: collapse; box-sizing: border-box; font-size-adjust: inher=
-it; font-stretch: inherit;" border=3D"0" cellspacing=3D"0" cellpadding=
-=3D"0"><tbody style=3D"box-sizing: border-box;"> <TR style=3D"box-sizi=
-ng: border-box;"> <TD width=3D"10" style=3D"white-space: normal !impor=
-tant; box-sizing: border-box; background-color: rgb(204, 0, 0);">&nbsp=
-;</td><td width=3D"24" align=3D"center" style=3D"padding: 2px 0px; whi=
-te-space: normal !important; box-sizing: border-box; background-color:=
- rgb(255, 255, 255);"></td><td width=3D"10" style=3D"white-space: norm=
-al !important; box-sizing: border-box; background-color: rgb(204, 0, 0=
-);">&nbsp;</TD></TR></TABLE></td><td width=3D"10" style=3D"white-space=
-: normal !important; box-sizing: border-box;">&nbsp;</td><td valign=3D=
-"middle" style=3D"white-space: normal !important; box-sizing: border-b=
-ox;"><SPAN style=3D"margin: 0px; padding: 0px; border: 0px currentColo=
-r; border-image: none; color: rgb(255, 255, 255); line-height: inherit=
-; font-family: Arial, sans-serif, serif, EmojiFont; font-size: 12px; f=
-ont-style: inherit; font-variant: inherit; font-weight: bold; vertical=
--align: baseline; box-sizing: border-box; font-size-adjust: inherit; f=
-ont-stretch: inherit; font-feature-settings: inherit; font-optical-siz=
-ing: inherit; font-kerning: inherit; font-variation-settings: inherit;=
- font-language-override: inherit;">Government of Canada</SPAN><BR styl=
-e=3D"box-sizing: border-box;"><SPAN style=3D"margin: 0px; padding: 0px=
-; border: 0px currentColor; border-image: none; color: rgb(170, 170, 1=
-70); line-height: inherit; font-family: Arial, sans-serif, serif, Emoj=
-iFont; font-size: 11px; font-style: inherit; font-variant: inherit; fo=
-nt-weight: inherit; vertical-align: baseline; box-sizing: border-box; =
-font-size-adjust: inherit; font-stretch: inherit; font-feature-setting=
-s: inherit; font-optical-sizing: inherit; font-kerning: inherit; font-=
-variation-settings: inherit; font-language-override: inherit;">Gouvern=
-ement du Canada</SPAN></TD></TR></TABLE></td><td align=3D"right" valig=
-n=3D"middle" style=3D"white-space: normal !important; box-sizing: bord=
-er-box;"><A title=3D"https://webmail.grainland.com/cpsess0359036223/3r=
-dparty/roundcube/?_task=3Dmail&amp;_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%=
-3D0%2Cwebp%3D1%2Cpgpmime%3D0&amp;_uid=3D283417&amp;_mbox=3DINBOX.Trash=
-&amp;_framed=3D1&amp;_action=3Dpreview#v1" style=3D"margin: 0px 0px 4p=
-x; padding: 0px; border: 0px currentColor; border-image: none; color: =
-rgb(170, 170, 170); line-height: inherit; font-family: Arial, sans-ser=
-if; font-size: 12px; font-style: inherit; font-variant: inherit; font-=
-weight: inherit; text-decoration: underline; vertical-align: baseline;=
- display: block; box-sizing: border-box; font-size-adjust: inherit; fo=
-nt-stretch: inherit; font-feature-settings: inherit; background-color:=
- transparent; font-optical-sizing: inherit; font-kerning: inherit; fon=
-t-variation-settings: inherit; font-language-override: inherit;" href=3D=
-"https://webmail.grainland.com/cpsess0359036223/3rdparty/roundcube/?_t=
-ask=3Dmail&amp;_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2Cwebp%3D1%2Cpgp=
-mime%3D0&amp;_uid=3D283417&amp;_mbox=3DINBOX.Trash&amp;_framed=3D1&amp=
-;_action=3Dpreview#v1" target=3D"_blank" rel=3D"noopener noreferrer" d=
-ata-auth=3D"NotApplicable" data-linkindex=3D"2">Terms &amp; Conditions=
-</A><A title=3D"https://webmail.grainland.com/cpsess0359036223/3rdpart=
-y/roundcube/?_task=3Dmail&amp;_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2=
-Cwebp%3D1%2Cpgpmime%3D0&amp;_uid=3D283417&amp;_mbox=3DINBOX.Trash&amp;=
-_framed=3D1&amp;_action=3Dpreview#v1" style=3D"margin: 0px; padding: 0=
-px; border: 0px currentColor; border-image: none; color: rgb(170, 170,=
- 170); line-height: inherit; font-family: Arial, sans-serif; font-size=
-: 12px; font-style: inherit; font-variant: inherit; font-weight: inher=
-it; text-decoration: underline; vertical-align: baseline; display: blo=
-ck; box-sizing: border-box; font-size-adjust: inherit; font-stretch: i=
-nherit; font-feature-settings: inherit; background-color: transparent;=
- font-optical-sizing: inherit; font-kerning: inherit; font-variation-s=
-ettings: inherit; font-language-override: inherit;" href=3D"https://we=
-bmail.grainland.com/cpsess0359036223/3rdparty/roundcube/?_task=3Dmail&=
-amp;_caps=3Dpdf%3D1%2Cflash%3D0%2Ctiff%3D0%2Cwebp%3D1%2Cpgpmime%3D0&am=
-p;_uid=3D283417&amp;_mbox=3DINBOX.Trash&amp;_framed=3D1&amp;_action=3D=
-preview#v1" target=3D"_blank" rel=3D"noopener noreferrer" data-auth=3D=
-"NotApplicable" data-linkindex=3D"3">Privacy Policy</A></TD></TR> <TR =
-style=3D"box-sizing: border-box;"> <TD style=3D"padding-top: 16px; mar=
-gin-top: 16px; border-top-color: rgb(61, 80, 102); border-top-width: 1=
-px; border-top-style: solid; white-space: normal !important; box-sizin=
-g: border-box;" colspan=3D"2"> <P style=3D"margin: 10px 0px 0px; color=
-: rgb(136, 136, 136); line-height: 1.6; font-family: Arial, sans-serif=
-; font-size: 11px; box-sizing: border-box;">Official communication fro=
-m the Canada Revenue Agency. Do not reply directly to this email.</P><=
-/TD></TR></TABLE></TD></TR></TABLE></body>
- </html>
-
---2jO8A1sY81obw=_21EwUlwRWYHRAtVVSSj--
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 84a7590..0de71fb 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -212,7 +212,6 @@ struct erofs_diskbuf;
+ enum erofs_idata_type {
+ 	EROFS_IDATA_TYPE_RAW,
+ 	EROFS_IDATA_TYPE_COMPRESSED_DEFAULT,
+-	EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B,
+ };
+ 
+ #define EROFS_I_BLKADDR_DEV_ID_BIT		48
+diff --git a/lib/compress.c b/lib/compress.c
+index 9bbb127..df97eb9 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -139,9 +139,13 @@ struct z_erofs_mgr {
+ 
+ static bool z_erofs_mt_enabled;
+ 
+-#define Z_EROFS_LEGACY_MAP_HEADER_SIZE	Z_EROFS_FULL_INDEX_START(0)
++struct z_erofs_index_writer {
++	struct erofs_inode *inode;
++	u8 *metacur;
++	unsigned short clusterofs;
++};
+ 
+-static void z_erofs_fini_full_indexes(struct z_erofs_compress_ictx *ctx)
++static void z_erofs_fini_full_indexes(struct z_erofs_index_writer *ctx)
+ {
+ 	const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
+ 	struct z_erofs_lcluster_index di;
+@@ -157,10 +161,9 @@ static void z_erofs_fini_full_indexes(struct z_erofs_compress_ictx *ctx)
+ 	ctx->metacur += sizeof(di);
+ }
+ 
+-static void z_erofs_write_full_indexes(struct z_erofs_compress_ictx *ctx,
++static void z_erofs_write_full_indexes(struct z_erofs_index_writer *ctx,
+ 				       struct z_erofs_inmem_extent *e)
+ {
+-	const struct erofs_importer_params *params = ctx->im->params;
+ 	struct erofs_inode *inode = ctx->inode;
+ 	struct erofs_sb_info *sbi = inode->sbi;
+ 	unsigned int clusterofs = ctx->clusterofs;
+@@ -181,7 +184,7 @@ static void z_erofs_write_full_indexes(struct z_erofs_compress_ictx *ctx,
+ 		 * A lcluster cannot have three parts with the middle one which
+ 		 * is well-compressed for !ztailpacking cases.
+ 		 */
+-		DBG_BUGON(!e->raw && !params->ztailpacking && !params->fragments);
++		DBG_BUGON(!e->raw && !inode->idata_size && !inode->fragment_size);
+ 		DBG_BUGON(e->partial);
+ 		type = e->raw ? Z_EROFS_LCLUSTER_TYPE_PLAIN :
+ 			Z_EROFS_LCLUSTER_TYPE_HEAD1;
+@@ -895,16 +898,16 @@ static void *write_compacted_indexes(u8 *out,
+ 	return out + destsize * vcnt;
+ }
+ 
+-int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+-					erofs_off_t pstart,
+-					unsigned int legacymetasize,
+-					void *compressmeta)
++int z_erofs_convert_to_compact_format(struct erofs_inode *inode,
++				      erofs_off_t pstart,
++				      unsigned int fullmetasz,
++				      void *metabuf)
+ {
+ 	const unsigned int mpos = roundup(inode->inode_isize +
+ 					  inode->xattr_isize, 8) +
+ 				  sizeof(struct z_erofs_map_header);
+-	const unsigned int totalidx = (legacymetasize -
+-			Z_EROFS_LEGACY_MAP_HEADER_SIZE) /
++	const unsigned int totalidx = (fullmetasz -
++			Z_EROFS_FULL_INDEX_START(0)) /
+ 				sizeof(struct z_erofs_lcluster_index);
+ 	const unsigned int logical_clusterbits = inode->z_lclusterbits;
+ 	u8 *out, *in;
+@@ -953,10 +956,18 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 		compacted_4b_end = totalidx;
+ 	}
+ 
+-	out = in = compressmeta;
++	if (!metabuf) {
++		out = (u8 *)sizeof(struct z_erofs_map_header);
++		out += 4 * compacted_4b_initial;
++		out += 2 * compacted_2b;
++		out += 4 * round_up(compacted_4b_end, 2);
++		return out - (u8 *)metabuf;
++	}
++
++	out = in = metabuf;
+ 
+ 	out += sizeof(struct z_erofs_map_header);
+-	in += Z_EROFS_LEGACY_MAP_HEADER_SIZE;
++	in += Z_EROFS_FULL_INDEX_START(0);
+ 
+ 	dummy_head = false;
+ 	/* prior to bigpcluster, blkaddr was bumped up once coming into HEAD */
+@@ -977,9 +988,6 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 
+ 	/* generate compacted_2b */
+ 	if (compacted_2b) {
+-		if (!compacted_4b_end && inode->idata_size &&
+-		    inode->idata_type != EROFS_IDATA_TYPE_RAW)
+-			inode->idata_type = EROFS_IDATA_TYPE_COMPRESSED_END_OF_2B;
+ 		do {
+ 			in = parse_legacy_indexes(cv, 16, in);
+ 			out = write_compacted_indexes(out, cv, &blkaddr,
+@@ -1006,8 +1014,7 @@ int z_erofs_convert_to_compacted_format(struct erofs_inode *inode,
+ 					      4, logical_clusterbits, true,
+ 					      &dummy_head, big_pcluster);
+ 	}
+-	inode->extent_isize = out - (u8 *)compressmeta;
+-	return 0;
++	return out - (u8 *)metabuf;
+ }
+ 
+ static void z_erofs_write_mapheader(struct erofs_inode *inode,
+@@ -1044,78 +1051,156 @@ static void z_erofs_write_mapheader(struct erofs_inode *inode,
+ 			h.h_fragmentoff = cpu_to_le32(inode->fragmentoff);
+ 		else
+ 			h.h_idata_size = cpu_to_le16(inode->idata_size);
+-
+-		memset(compressmeta, 0, Z_EROFS_LEGACY_MAP_HEADER_SIZE);
+ 	}
++	memset(compressmeta, 0, Z_EROFS_FULL_INDEX_START(0));
+ 	/* write out map header */
+ 	memcpy(compressmeta, &h, sizeof(struct z_erofs_map_header));
+ }
+ 
+ #define EROFS_FULL_INDEXES_SZ(inode)	\
+ 	(BLK_ROUND_UP(inode->sbi, inode->i_size) * \
+-	 sizeof(struct z_erofs_lcluster_index) + Z_EROFS_LEGACY_MAP_HEADER_SIZE)
++	 sizeof(struct z_erofs_lcluster_index) + Z_EROFS_FULL_INDEX_START(0))
++
++struct z_erofs_metadata_ctx {
++	struct list_head extents;
++};
+ 
+-static void *z_erofs_write_extents(struct z_erofs_compress_ictx *ctx)
++static int z_erofs_prepare_layout(struct erofs_inode *inode,
++				  struct list_head *extents,
++				  bool consecutive, bool no_compact)
+ {
+-	struct erofs_inode *inode = ctx->inode;
+ 	struct erofs_sb_info *sbi = inode->sbi;
+-	struct z_erofs_extent_item *ei, *n;
+-	unsigned int lclusterbits, nexts;
+-	bool pstart_hi = false, unaligned_data = false;
+-	erofs_off_t pstart, pend, lstart;
+-	unsigned int recsz, metasz, moff;
+-	void *metabuf;
+-
+-	ei = list_first_entry(&ctx->extents, struct z_erofs_extent_item,
+-			      list);
+-	lclusterbits = max_t(u8, ilog2(ei->e.length - 1) + 1, sbi->blkszbits);
+-	pend = pstart = ei->e.pstart;
+-	nexts = 0;
+-	list_for_each_entry(ei, &ctx->extents, list) {
+-		pstart_hi |= (ei->e.pstart > UINT32_MAX);
+-		if ((ei->e.pstart | ei->e.plen) & ((1U << sbi->blkszbits) - 1))
+-			unaligned_data = true;
+-		if (pend != ei->e.pstart)
+-			pend = EROFS_NULL_ADDR;
+-		else
+-			pend += ei->e.plen;
+-		if (ei->e.length != 1 << lclusterbits) {
+-			if (ei->list.next != &ctx->extents ||
+-			    ei->e.length > 1 << lclusterbits)
+-				lclusterbits = 0;
++	struct z_erofs_metadata_ctx *ctx;
++	unsigned int metasz;
++	int ret;
++
++	ctx = malloc(sizeof(*ctx));
++	if (!ctx)
++		return -ENOMEM;
++	init_list_head(&ctx->extents);
++	list_splice_tail(extents, &ctx->extents);
++
++	/* TODO: support writing encoded extents for ztailpacking later. */
++	if (erofs_sb_has_48bit(sbi) && !inode->idata_size) {
++		bool pstart_hi = false, unaligned_data = false;
++		unsigned int lclusterbits, nexts;
++		struct z_erofs_extent_item *ei;
++		erofs_off_t pstart, pend;
++		unsigned int recsz, moff;
++
++		ei = list_first_entry(&ctx->extents, struct z_erofs_extent_item,
++				      list);
++		lclusterbits = max_t(u8, ilog2(ei->e.length - 1) + 1, sbi->blkszbits);
++		pend = pstart = ei->e.pstart;
++		nexts = 0;
++		list_for_each_entry(ei, &ctx->extents, list) {
++			pstart_hi |= (ei->e.pstart > UINT32_MAX);
++			if ((ei->e.pstart | ei->e.plen) & ((1U << sbi->blkszbits) - 1))
++				unaligned_data = true;
++			if (pend != ei->e.pstart)
++				pend = EROFS_NULL_ADDR;
++			else
++				pend += ei->e.plen;
++			if (ei->e.length != 1 << lclusterbits) {
++				if (ei->list.next != &ctx->extents ||
++				    ei->e.length > 1 << lclusterbits)
++					lclusterbits = 0;
++			}
++			++nexts;
+ 		}
+-		++nexts;
++		inode->z_extents = nexts;
++		recsz = inode->i_size > UINT32_MAX ? 32 : 16;
++		if (lclusterbits) {
++			if (pend != EROFS_NULL_ADDR)
++				recsz = 4;
++			else if (recsz <= 16 && !pstart_hi)
++				recsz = 8;
++		}
++
++		moff = Z_EROFS_MAP_HEADER_END(inode->inode_isize + inode->xattr_isize);
++		moff = round_up(moff, recsz) -
++			Z_EROFS_MAP_HEADER_START(inode->inode_isize + inode->xattr_isize);
++		metasz = moff + recsz * nexts + 8 * (recsz <= 4);
++		if (unaligned_data || metasz < EROFS_FULL_INDEXES_SZ(inode)) {
++			inode->z_lclusterbits = lclusterbits;
++			inode->z_extents = nexts;
++			inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
++			inode->z_advise |= Z_EROFS_ADVISE_EXTENTS |
++				((ilog2(recsz) - 2) << Z_EROFS_ADVISE_EXTRECSZ_BIT);
++			goto out;
++		}
++	}
++
++	/* if the entire file is a fragment, a simplified form is used. */
++	if (inode->i_size <= inode->fragment_size) {
++		DBG_BUGON(inode->i_size < inode->fragment_size);
++		DBG_BUGON(inode->fragmentoff >> 63);
++		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
++		metasz = Z_EROFS_FULL_INDEX_START(0);
++		goto out;
++	}
++
++	/*
++	 * If the packed inode is larger than 4GiB, the full fragmentoff
++	 * will be recorded by switching to the noncompact layout anyway.
++	 */
++	if (inode->fragment_size && inode->fragmentoff >> 32) {
++		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
++	} else if (!no_compact && consecutive &&
++		   inode->z_lclusterbits <= 14) {
++		if (inode->z_lclusterbits <= 12)
++			inode->z_advise |= Z_EROFS_ADVISE_COMPACTED_2B;
++		inode->datalayout = EROFS_INODE_COMPRESSED_COMPACT;
++	} else {
++		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
++	}
++
++	if (erofs_sb_has_big_pcluster(sbi)) {
++		inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_1;
++		if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT)
++			inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_2;
+ 	}
+ 
+-	recsz = inode->i_size > UINT32_MAX ? 32 : 16;
+-	if (lclusterbits) {
+-		if (pend != EROFS_NULL_ADDR)
+-			recsz = 4;
+-		else if (recsz <= 16 && !pstart_hi)
+-			recsz = 8;
++	metasz = EROFS_FULL_INDEXES_SZ(inode);
++
++	if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
++		ret = z_erofs_convert_to_compact_format(inode, 0, metasz,
++							NULL);
++		if (ret < 0)
++			return ret;
++		metasz = ret;
+ 	}
+ 
++out:
++	inode->extent_isize = metasz;
++	inode->compressmeta = ctx;
++	return 0;
++}
++
++static void z_erofs_write_extents(struct erofs_inode *inode,
++				  struct list_head *extents, u8 *metabuf)
++{
++	unsigned int recsz = z_erofs_extent_recsize(inode->z_advise);
++	struct z_erofs_extent_item *ei, *n;
++	erofs_off_t pstart, lstart;
++	unsigned int moff;
++	u8 *metacur;
++	u64 nexts;
++
+ 	moff = Z_EROFS_MAP_HEADER_END(inode->inode_isize + inode->xattr_isize);
+ 	moff = round_up(moff, recsz) -
+ 		Z_EROFS_MAP_HEADER_START(inode->inode_isize + inode->xattr_isize);
+-	metasz = moff + recsz * nexts + 8 * (recsz <= 4);
+-	if (!unaligned_data && metasz > EROFS_FULL_INDEXES_SZ(inode))
+-		return ERR_PTR(-EAGAIN);
+-
+-	metabuf = malloc(metasz);
+-	if (!metabuf)
+-		return ERR_PTR(-ENOMEM);
+-	inode->z_lclusterbits = lclusterbits;
+-	inode->z_extents = nexts;
+-	ctx->metacur = metabuf + moff;
++	metacur = metabuf + moff;
+ 	if (recsz <= 4) {
+-		*(__le64 *)ctx->metacur	= cpu_to_le64(pstart);
+-		ctx->metacur += sizeof(__le64);
++		ei = list_first_entry(extents, struct z_erofs_extent_item, list);
++		pstart = ei->e.pstart;
++		*(__le64 *)metacur = cpu_to_le64(pstart);
++		metacur += sizeof(__le64);
+ 	}
+ 
+ 	nexts = 0;
+ 	lstart = 0;
+-	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
++	list_for_each_entry_safe(ei, n, extents, list) {
+ 		struct z_erofs_extent de;
+ 		u32 fmt, plen;
+ 
+@@ -1136,128 +1221,30 @@ static void *z_erofs_write_extents(struct z_erofs_compress_ictx *ctx)
+ 			.pstart_hi = cpu_to_le32(ei->e.pstart >> 32),
+ 			.lstart_hi = cpu_to_le32(lstart >> 32),
+ 		};
+-		memcpy(ctx->metacur, &de, recsz);
+-		ctx->metacur += recsz;
++		memcpy(metacur, &de, recsz);
++		metacur += recsz;
+ 		lstart += ei->e.length;
+ 		list_del(&ei->list);
+ 		free(ei);
++		++nexts;
+ 	}
+-	inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
+-	inode->z_advise |= Z_EROFS_ADVISE_EXTENTS |
+-		((ilog2(recsz) - 2) << Z_EROFS_ADVISE_EXTRECSZ_BIT);
+-	return metabuf;
+-}
+-
+-static void *z_erofs_write_indexes(struct z_erofs_compress_ictx *ctx)
+-{
+-	const struct erofs_importer_params *params = ctx->im->params;
+-	struct erofs_inode *inode = ctx->inode;
+-	struct erofs_sb_info *sbi = inode->sbi;
+-	struct z_erofs_extent_item *ei, *n;
+-	void *metabuf;
+-
+-	/* TODO: support writing encoded extents for ztailpacking later. */
+-	if (erofs_sb_has_48bit(sbi) && !inode->idata_size) {
+-		metabuf = z_erofs_write_extents(ctx);
+-		if (metabuf != ERR_PTR(-EAGAIN)) {
+-			if (IS_ERR(metabuf))
+-				return metabuf;
+-			goto out;
+-		}
+-	}
+-
+-	/*
+-	 * If the packed inode is larger than 4GiB, the full fragmentoff
+-	 * will be recorded by switching to the noncompact layout anyway.
+-	 */
+-	if (inode->fragment_size && inode->fragmentoff >> 32) {
+-		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
+-	} else if (!params->no_zcompact && !ctx->dedupe &&
+-		   inode->z_lclusterbits <= 14) {
+-		if (inode->z_lclusterbits <= 12)
+-			inode->z_advise |= Z_EROFS_ADVISE_COMPACTED_2B;
+-		inode->datalayout = EROFS_INODE_COMPRESSED_COMPACT;
+-	} else {
+-		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
+-	}
+-
+-	if (erofs_sb_has_big_pcluster(sbi)) {
+-		inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_1;
+-		if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT)
+-			inode->z_advise |= Z_EROFS_ADVISE_BIG_PCLUSTER_2;
+-	}
+-
+-	metabuf = malloc(BLK_ROUND_UP(inode->sbi, inode->i_size) *
+-			 sizeof(struct z_erofs_lcluster_index) +
+-			 Z_EROFS_LEGACY_MAP_HEADER_SIZE);
+-	if (!metabuf)
+-		return ERR_PTR(-ENOMEM);
+-
+-	ctx->metacur = metabuf + Z_EROFS_LEGACY_MAP_HEADER_SIZE;
+-	ctx->clusterofs = 0;
+-	list_for_each_entry_safe(ei, n, &ctx->extents, list) {
+-		DBG_BUGON(ei->list.next != &ctx->extents &&
+-			  ctx->clusterofs + ei->e.length < erofs_blksiz(sbi));
+-		z_erofs_write_full_indexes(ctx, &ei->e);
+-
+-		list_del(&ei->list);
+-		free(ei);
+-	}
+-	z_erofs_fini_full_indexes(ctx);
+-out:
+-	z_erofs_write_mapheader(inode, metabuf);
+-	return metabuf;
++	DBG_BUGON(inode->z_extents && nexts != inode->z_extents);
++	DBG_BUGON(metacur - metabuf != inode->extent_isize);
+ }
+ 
+ void z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
+ {
+-	struct erofs_sb_info *sbi = inode->sbi;
+-	const unsigned int type = Z_EROFS_LCLUSTER_TYPE_PLAIN;
+-	struct z_erofs_map_header *h = inode->compressmeta;
++	struct z_erofs_metadata_ctx *ctx = inode->compressmeta;
++	struct z_erofs_extent_item *ei;
+ 
+-	h->h_advise = cpu_to_le16(le16_to_cpu(h->h_advise) &
+-				  ~Z_EROFS_ADVISE_INLINE_PCLUSTER);
+-	DBG_BUGON(inode->idata_size != le16_to_cpu(h->h_idata_size));
+-	h->h_idata_size = 0;
++	inode->z_advise &= ~Z_EROFS_ADVISE_INLINE_PCLUSTER;
+ 	if (!inode->eof_tailraw)
+ 		return;
+ 	DBG_BUGON(inode->idata_type == EROFS_IDATA_TYPE_RAW);
+ 
+-	/* patch the EOF lcluster to uncompressed type first */
+-	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
+-		struct z_erofs_lcluster_index *di =
+-			(inode->compressmeta + inode->extent_isize) -
+-			sizeof(struct z_erofs_lcluster_index);
+-
+-		di->di_advise = cpu_to_le16(type);
+-	} else if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
+-		/* handle the last compacted 4B/2B pack */
+-		unsigned int lclusterbits = inode->z_lclusterbits;
+-		unsigned int lobits, eofs, base, pos, v;
+-		u8 *out;
+-
+-		lobits = max(lclusterbits, ilog2(Z_EROFS_LI_D0_CBLKCNT) + 1U);
+-
+-		if (inode->idata_type == EROFS_IDATA_TYPE_COMPRESSED_DEFAULT) {
+-			eofs = inode->extent_isize -
+-				(4 << (BLK_ROUND_UP(sbi, inode->i_size) & 1));
+-			base = round_down(eofs, 8);
+-			pos = 16 /* encodebits */ * ((eofs - base) / 4);
+-			out = inode->compressmeta + base + pos / 8;
+-		} else {
+-			out = inode->compressmeta + inode->extent_isize -
+-				sizeof(__le32) - sizeof(__le16);
+-			lobits = 16 - 14 /* encodebits */ + lobits;
+-		}
+-
+-		v = (get_unaligned_le16(out) & (BIT(lobits) - 1)) |
+-			(type << lobits);
+-		*out = v & 0xff;
+-		*(out + 1) = v >> 8;
+-	} else {
+-		DBG_BUGON(1);
+-		return;
+-	}
++	ei = list_last_entry(&ctx->extents, struct z_erofs_extent_item, list);
++	DBG_BUGON(ei->e.raw);
++	ei->e.raw = true;
+ 	free(inode->idata);
+ 	/* replace idata with prepared uncompressed data */
+ 	inode->idata = inode->eof_tailraw;
+@@ -1341,6 +1328,22 @@ int z_erofs_compress_segment(struct z_erofs_compress_sctx *ctx,
+ 	return 0;
+ }
+ 
++void z_erofs_free_metadata(struct erofs_inode *inode)
++{
++	struct z_erofs_metadata_ctx *mctx = inode->compressmeta;
++	struct z_erofs_extent_item *ei, *n;
++
++	if (!mctx)
++		return;
++
++	list_for_each_entry_safe(ei, n, &mctx->extents, list) {
++		list_del(&ei->list);
++		free(ei);
++	}
++	free(mctx);
++	inode->compressmeta = NULL;
++}
++
+ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 				 struct erofs_buffer_head *bh,
+ 				 erofs_off_t pstart, erofs_off_t ptotal)
+@@ -1348,8 +1351,7 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 	struct erofs_inode *inode = ictx->inode;
+ 	const struct erofs_importer_params *params = ictx->im->params;
+ 	struct erofs_sb_info *sbi = inode->sbi;
+-	unsigned int legacymetasize, bbits = sbi->blkszbits;
+-	u8 *compressmeta;
++	unsigned int bbits = sbi->blkszbits;
+ 	int ret;
+ 
+ 	if (inode->fragment_size) {
+@@ -1367,16 +1369,14 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 	DBG_BUGON(pstart < (!!inode->idata_size) << bbits);
+ 	ptotal -= (u64)(!!inode->idata_size) << bbits;
+ 
+-	compressmeta = z_erofs_write_indexes(ictx);
+-	if (!compressmeta) {
+-		ret = -ENOMEM;
++	ret = z_erofs_prepare_layout(inode, &ictx->extents, !ictx->dedupe,
++				     params->no_zcompact);
++	if (ret)
+ 		goto err_free_idata;
+-	}
+ 
+-	legacymetasize = ictx->metacur - compressmeta;
+ 	/* estimate if data compression saves space or not */
+ 	if (!inode->fragment_size && ptotal + inode->idata_size +
+-	    legacymetasize >= inode->i_size) {
++	    inode->extent_isize >= inode->i_size) {
+ 		z_erofs_dedupe_ext_commit(true);
+ 		z_erofs_dedupe_commit(true);
+ 		ret = EROFS_RETVAL_FALLBACK;
+@@ -1388,16 +1388,6 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 	if (!ictx->fragemitted)
+ 		sbi->saved_by_deduplication += inode->fragment_size;
+ 
+-	/* if the entire file is a fragment, a simplified form is used. */
+-	if (inode->i_size <= inode->fragment_size) {
+-		DBG_BUGON(inode->i_size < inode->fragment_size);
+-		DBG_BUGON(inode->fragmentoff >> 63);
+-		*(__le64 *)compressmeta =
+-			cpu_to_le64(inode->fragmentoff | 1ULL << 63);
+-		inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
+-		legacymetasize = Z_EROFS_LEGACY_MAP_HEADER_SIZE;
+-	}
+-
+ 	if (ptotal)
+ 		(void)erofs_bh_balloon(bh, ptotal);
+ 	else if (!params->fragments && params->dedupe != EROFS_DEDUPE_FORCE_ON)
+@@ -1414,21 +1404,11 @@ int erofs_commit_compressed_file(struct z_erofs_compress_ictx *ictx,
+ 	}
+ 
+ 	inode->u.i_blocks = BLK_ROUND_UP(sbi, ptotal);
+-
+-	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL) {
+-		inode->extent_isize = legacymetasize;
+-	} else {
+-		ret = z_erofs_convert_to_compacted_format(inode, pstart,
+-							  legacymetasize,
+-							  compressmeta);
+-		DBG_BUGON(ret);
+-	}
+-	inode->compressmeta = compressmeta;
+ 	return 0;
+ 
+ err_free_meta:
+-	free(compressmeta);
+-	inode->compressmeta = NULL;
++	z_erofs_free_metadata(inode);
++	inode->extent_isize = 0;
+ err_free_idata:
+ 	erofs_bdrop(bh, true);	/* revoke buffer */
+ 	if (inode->idata) {
+@@ -1438,6 +1418,82 @@ err_free_idata:
+ 	return ret;
+ }
+ 
++char *z_erofs_write_metadata(struct erofs_inode *inode)
++{
++	struct erofs_sb_info *sbi = inode->sbi;
++	struct z_erofs_metadata_ctx *mctx = inode->compressmeta;
++	struct z_erofs_extent_item *ei, *n;
++	struct z_erofs_index_writer ctx;
++	unsigned int metasz =
++		inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT ?
++		EROFS_FULL_INDEXES_SZ(inode) : inode->extent_isize;
++	erofs_off_t pstart;
++	u8 *metabuf;
++	int err = 0;
++
++	metabuf = malloc(metasz);
++	if (!metabuf) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	/* if the entire file is a fragment, a simplified form is used. */
++	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL &&
++	    inode->i_size <= inode->fragment_size) {
++		DBG_BUGON(inode->i_size < inode->fragment_size);
++		DBG_BUGON(inode->fragmentoff >> 63);
++		*(__le64 *)metabuf = cpu_to_le64(inode->fragmentoff | 1ULL << 63);
++		goto out;
++	}
++
++	if (__erofs_unlikely(!mctx)) {
++		DBG_BUGON(1);
++		return ERR_PTR(-EINVAL);
++	}
++
++	z_erofs_write_mapheader(inode, metabuf);
++
++	if (inode->datalayout == EROFS_INODE_COMPRESSED_FULL &&
++	    (inode->z_advise & Z_EROFS_ADVISE_EXTENTS)) {
++		z_erofs_write_extents(inode, &mctx->extents, metabuf);
++		goto out;
++	}
++
++	ctx = (struct z_erofs_index_writer) {
++		.inode = inode,
++		.metacur = metabuf + Z_EROFS_FULL_INDEX_START(0),
++	};
++
++	DBG_BUGON(list_empty(&mctx->extents));
++	ei = list_first_entry(&mctx->extents, struct z_erofs_extent_item, list);
++	pstart = ei->e.pstart;
++
++	list_for_each_entry_safe(ei, n, &mctx->extents, list) {
++		DBG_BUGON(ei->list.next != &mctx->extents &&
++			  ctx.clusterofs + ei->e.length < erofs_blksiz(sbi));
++		z_erofs_write_full_indexes(&ctx, &ei->e);
++
++		list_del(&ei->list);
++		free(ei);
++	}
++	z_erofs_fini_full_indexes(&ctx);
++	DBG_BUGON(metasz != ctx.metacur - metabuf);
++
++	if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
++		err = z_erofs_convert_to_compact_format(inode, pstart,
++							metasz, metabuf);
++		if (err < 0) {
++			DBG_BUGON(1);
++			goto out;
++		}
++		metasz = err;
++	}
++	DBG_BUGON(metasz != inode->extent_isize);
++out:
++	z_erofs_free_metadata(inode);
++	return err < 0 ? ERR_PTR(err) : metabuf;
++}
++
+ static struct z_erofs_compress_ictx g_ictx;
+ 
+ #ifdef EROFS_MT_ENABLED
+@@ -2053,24 +2109,23 @@ int erofs_begin_compress_dir(struct erofs_importer *im,
+ 
+ {
+ 	if (!im->params->compress_dir ||
+-	    inode->i_size < Z_EROFS_LEGACY_MAP_HEADER_SIZE)
++	    inode->i_size < Z_EROFS_FULL_INDEX_START(0))
+ 		return EROFS_RETVAL_FALLBACK;
+ 
+ 	inode->z_advise |= Z_EROFS_ADVISE_FRAGMENT_PCLUSTER;
+ 	erofs_sb_set_fragments(inode->sbi);
+ 	inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
+-	inode->extent_isize = Z_EROFS_LEGACY_MAP_HEADER_SIZE;
++	inode->extent_isize = Z_EROFS_FULL_INDEX_START(0);
+ 	inode->compressmeta = NULL;
+ 	return 0;
+ }
+ 
+ int erofs_write_compress_dir(struct erofs_inode *inode, struct erofs_vfile *vf)
+ {
+-	void *compressmeta;
+ 	int err;
+ 
+ 	if (inode->datalayout != EROFS_INODE_COMPRESSED_FULL ||
+-	    inode->extent_isize < Z_EROFS_LEGACY_MAP_HEADER_SIZE) {
++	    inode->extent_isize < Z_EROFS_FULL_INDEX_START(0)) {
+ 		DBG_BUGON(1);
+ 		return -EINVAL;
+ 	}
+@@ -2081,13 +2136,8 @@ int erofs_write_compress_dir(struct erofs_inode *inode, struct erofs_vfile *vf)
+ 	err = erofs_fragment_commit(inode, ~0);
+ 	if (err)
+ 		return err;
+-
+-	compressmeta = calloc(1, Z_EROFS_LEGACY_MAP_HEADER_SIZE);
+-	if (!compressmeta)
+-		return -ENOMEM;
+-	*(__le64 *)compressmeta =
+-		cpu_to_le64(inode->fragmentoff | 1ULL << 63);
+-	inode->compressmeta = compressmeta;
++	DBG_BUGON(inode->fragment_size != inode->i_size);
++	DBG_BUGON(inode->compressmeta);
+ 	return 0;
+ }
+ 
+diff --git a/lib/inode.c b/lib/inode.c
+index 2cd7bed..6f3748a 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -149,7 +149,7 @@ unsigned int erofs_iput(struct erofs_inode *inode)
+ 	list_for_each_entry_safe(d, t, &inode->i_subdirs, d_child)
+ 		free(d);
+ 
+-	free(inode->compressmeta);
++	z_erofs_free_metadata(inode);
+ 	free(inode->eof_tailraw);
+ 	erofs_remove_ihash(inode);
+ 	if (!erofs_is_special_identifier(inode->i_srcpath))
+@@ -925,9 +925,15 @@ int erofs_iflush(struct erofs_inode *inode)
+ 		if (inode->datalayout == EROFS_INODE_CHUNK_BASED) {
+ 			ret = erofs_write_chunk_indexes(inode, ibmgr->vf, off);
+ 		} else {	/* write compression metadata */
++			char *metabuf;
++
+ 			off = roundup(off, 8);
+-			ret = erofs_io_pwrite(ibmgr->vf, inode->compressmeta,
++			metabuf = z_erofs_write_metadata(inode);
++			if (IS_ERR(metabuf))
++				return PTR_ERR(metabuf);
++			ret = erofs_io_pwrite(ibmgr->vf, metabuf,
+ 					      off, inode->extent_isize);
++			free(metabuf);
+ 		}
+ 		if (ret != inode->extent_isize)
+ 			return ret < 0 ? ret : -EIO;
+diff --git a/lib/liberofs_compress.h b/lib/liberofs_compress.h
+index da6eb1a..50b3804 100644
+--- a/lib/liberofs_compress.h
++++ b/lib/liberofs_compress.h
+@@ -19,6 +19,8 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 				    struct erofs_inode *inode);
+ void erofs_bind_compressed_file_with_fd(struct z_erofs_compress_ictx *ictx,
+ 					int fd, u64 fpos);
++void z_erofs_free_metadata(struct erofs_inode *inode);
++char *z_erofs_write_metadata(struct erofs_inode *inode);
+ int erofs_begin_compressed_file(struct z_erofs_compress_ictx *ictx);
+ int erofs_write_compressed_file(struct z_erofs_compress_ictx *ictx);
+ 
+-- 
+2.47.3
 
 
