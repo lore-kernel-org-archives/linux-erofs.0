@@ -1,86 +1,60 @@
-Return-Path: <linux-erofs+bounces-4547-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4548-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 833ACC88E45
-	for <linux-erofs@archiver.kernel.org>; Sat, 12 Sep 2026 02:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85471C79FB6
+	for <linux-erofs@archiver.kernel.org>; Sat, 12 Sep 2026 09:26:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hhbg83QQtz2xkr;
-	Sat, 12 Sep 2026 12:57:24 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:39::11"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789181844;
-	cv=none; b=MzmkAvkpl06rk+qliNQ6ekx9Np1l0Jq17NB3IEf94UxQkm4Pps8a640fLeAFMKXskGumktA1UOxys9vk4FNLN9RYF9ER8ksYiyQarwTSoVglTDCftQDdypCZhNQPCVsiNNT24yO3mGKpEBE2DadUORJUDcpJx7HavMvKTsvTCUHIkalvsbYFwUBLWTwKJRBdXvlCSmf1wDq+QOUXTAdKZaGrU4kA9kOm4LrTs91NrcWTyZvu1Zp60VWqQCmASyaMFCp4H41h/cU+Il+Hfi+n/G1h5TyEvdiWM20PvPF7qCPn3ds+5R4adW8QAHCD0K0m6z4pvgXmOivU4n6j38GeBg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hhmHg5wsBz2ynZ;
+	Sat, 12 Sep 2026 19:26:07 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789205167;
+	cv=none; b=Cq46jPVc/o3DENR8LKkvbna1MJWxkXG2CJQcnuX6Db1B8xYg4aVRmXfUsREiDaueEMDviQgmYpRltHIEjyi4YC7DNjAdvGVAAjmdNipsgEfEnm62CueVFgf5jD2vjJZH2Z6gA1UuBDoPW0pZe3Kng/WmUyCVqsxUMI0+t6di1LV6vLQjEKyE756RYitesCzfRFvkfx9ZE9iDlg8ZbNAe9kZ0i2xb8ClPXluCkgisPFrp7PoFl9T0Xdp+IUOZsBPJVQCECS+LwSmqva8bSTzpjubj+YgKepFo7SJLLTiwpAb97d3eRVe48dnccDsT2OmwkfuNLNHFGn0Qx6Zs3NzsEg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789181844; c=relaxed/relaxed;
-	bh=ZChHh/4B9HUVQ4ZUWlKc1VE04E7v5RYeUYSFt/vXmVc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T5bQ+e8K62ONFbHNYHP9JqV0dIxN2X3/5uX9rRFZXknmHPfs2Sp+zcxFpeipxAeylo80bi+Xsmb0xPzasSzvAXCAIB1mHCHeIcd153pNngFRiJxSnVGESo1UJLUipEytrFA80jOIZYDhiBHyxV6vKuyEf2tR82hz2KZPqiwCMBKZIi76jQV0N0Ux0jr4DHIv5lfjZgp7NohqgGftnTHocnWxhuW35oY5VdWAuWY4HuwRXPwYz3sDcN3YfMvjHwX7n33LeE7OCfMxucOmvFg9RJ0aR0e5xYmZrKAH9kHBQUjXHv9G00UmcS0rsJ8l+Rb2wfWaE58zDNKjceun/PU+Vg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=b4RDgfYL; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:39::11; helo=mail-pj2-x11.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1789205167; c=relaxed/relaxed;
+	bh=RcssxDcliU7vD3F+mu6uXNvjkcF5Kkz6UZoypW6r5jc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gk+2wxh9C9wPjYrPLjjKn8Il/szhSDR8N6eDH0K5V1e2qREkqIwkTVsxIFcWtfDkQ2UGp3tI9IS+8Umka41Gz9OpVfpD5wN1+LVJqxQ4X7k0S3cLnoIuHCh+DlUBEH6ykBPLMUU4FXhe/QqpFO3m+/V8DQ2jLsFVkuwYaanqj0V+ZrTYkZOkxuHgTzqIfuAlQi7/WP0PqdvtXVjwOueVR/b6d6W6Y7L4nWKSMeflyZkQGAoh6DjYWEbojmPe3oB/gVim1Qv99ZdhkVnjQiVKZBs0i1J0lANHqYlt8/pGn2FFxM6G+t/UJqFk/h6EfGk7MkvlJdrqqbD0k08brhcMRQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D+QIGsAK; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=b4RDgfYL;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D+QIGsAK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:39::11; helo=mail-pj2-x11.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pj2-x11.google.com (mail-pj2-x11.google.com [IPv6:2607:f8b0:4864:39::11])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hhbg641qMz2xdb
-	for <linux-erofs@lists.ozlabs.org>; Sat, 12 Sep 2026 12:57:21 +1000 (AEST)
-Received: by mail-pj2-x11.google.com with SMTP id 98e67ed59e1d1-39dbdfaef3cso158077a91.1
-        for <linux-erofs@lists.ozlabs.org>; Fri, 11 Sep 2026 19:57:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789181839; x=1789786639; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZChHh/4B9HUVQ4ZUWlKc1VE04E7v5RYeUYSFt/vXmVc=;
-        b=b4RDgfYLGxD2Rf/4mM86r6yyM7H1vGZgZ6QIo9YdOuLWrNEemhNFTex8JW6Nrk+Rp7
-         7ughPwZp0iq4rVX6Bs1+MbtDMjOAE/ag8pQXGQnK83Ai4sFwauM8k5oQc5DDsTzm23LE
-         DWvmVi7Qcq84l/3yB6uXSOKHCosStyd9ghYVqgplZST+SA79YQNohLgWcS+/hA2ERCgn
-         0EiqRUc/bvSxeWLiuYLnuPEmdoILpEbf9DaZaRGRlcBi1bsLLGUcb3WQGzpmaF6fABAM
-         zuOgb3twXNpMue/1u+28fVmfFyPAscpG0GYoVveyeTjnt53qCjG7JLRq4yXJkQm0Gnij
-         Ryhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789181839; x=1789786639;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZChHh/4B9HUVQ4ZUWlKc1VE04E7v5RYeUYSFt/vXmVc=;
-        b=XCrXHjhy5Rq2UfPmXCW+SmOL1YE2JVCiyoI9OFr/0wM3imgrc31uPnr1p9kLlWR9JW
-         NYaQBCFpKoqvXrb/dsxIu1ZmO5p8BX1ORGMdfPKRZ34fpUSV5uXoFLaBjjBKYY9LGhRG
-         fnncT7VLq05x30YKxyFUrWGPa3hQs2zYlqDn9bfUl4YmA9AE6DeiCd3lvxe5euS9AcLr
-         iD90G4AwM2SVPCNteZJ33ZrsS6CpBo7D2CnfMGW/A90IPsc/Cd+38VJP5eoRNyTLa9xS
-         HpZaklyVCXK6NAow5wcJpcA2gYu7IxrJPtGpQ/hZ5Ab1mTP2Y2VohXBjUqUi1zMUv5Py
-         ZJzQ==
-X-Gm-Message-State: AFuF++kZ4gSIupWTIfhuO5YdyFOhvW372zAKeZIE6QSqjZqErC4kG0bE
-	Te6H/tlfV3/FbxupkEJGbP3X0eSbJlBV+21ZFT3i1YsJVuN6F+sm5P1Wds/Xvqi+GCmyZg==
-X-Gm-Gg: AYBFou2WWGLvlpRyT2axEo7AsttBx2MiCPrzhysaG9mkkcCplFMUHgMn+EETBxEoMcl
-	oaFFTXuUgt8Z7yhLkBmJKZS4BN3jdGl56UzCoA1/iW1PxnUc0lNsDOm8ttTwJmFJK43UNTsbc3A
-	0hTqn9pU09GHT0ELwgmMAeUJ+VnL+NGA/fxEo6BqQbgbfKzDaph5xJrtQesL2/8RVWN403tQfE5
-	r1SLozPS+0m0qHeuC9t82RyK8EAuyT/+3Qh+5zj4ZPsrEqToCnzdKMIFsim01XF3istuj2LHQMX
-	ZtLoRWATee7y8wGRNwh/U6Au+FfMCSKXmQiyRDrDTfGscQueY/zZRK+YqsrFcp+lHBpD6BHtAb0
-	a6cPRRkzOsb/Yb9QtQBSn9PxhAYIK4ZFgp6+tbbV9kcbBx7IL8u508zHuvuNqmzvUpP1LnMvB+o
-	d7J/hMInFTBK8BWQoInOvU8IBXaoPawUKQJCgxkshWdHQTVV3IZjy0
-X-Received: by 2002:a17:90b:57ce:b0:396:b918:c2a with SMTP id 98e67ed59e1d1-39d9c1dbb3emr12783798a91.12.1789181838654;
-        Fri, 11 Sep 2026 19:57:18 -0700 (PDT)
-Received: from linux.. ([2409:8a28:a63:d170:c5de:2f75:4ae3:11de])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d9d554220sm2344737a91.2.2026.09.11.19.57.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 19:57:18 -0700 (PDT)
-From: Binglei Wang <l3b2w1@gmail.com>
-X-Google-Original-From: Binglei Wang
-To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	chao@kernel.org,
-	shengyong1@xiaomi.com,
-	linux-kernel@vger.kernel.org,
-	Binglei Wang <l3b2w1@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] erofs: fix unbalanced buf->off handling in erofs_bread()
-Date: Sat, 12 Sep 2026 10:57:09 +0800
-Message-ID: <20260912025709.25604-1-l3b2w1@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hhmHg1CF7z2yln
+	for <linux-erofs@lists.ozlabs.org>; Sat, 12 Sep 2026 19:26:07 +1000 (AEST)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by tor.source.kernel.org (Postfix) with ESMTP id 12B6E601F1;
+	Sat, 12 Sep 2026 09:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3F0A1F000FF;
+	Sat, 12 Sep 2026 09:26:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789205164;
+	bh=RcssxDcliU7vD3F+mu6uXNvjkcF5Kkz6UZoypW6r5jc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=D+QIGsAKeIU3e1n1EgW8EZSrtxXvyZFGHtxApR4t18y5GNG7qD5Mssh8ZLiPlJXNo
+	 Xmedjs6S5jVpggf/YrwhL+YwLRzQ5IwTVLsga46jrB9++SqS3JI2EPInYLXY4xSyse
+	 p0Iqkshow7wk6rpF+b8CUfbt0UMVFO7u1+ZkmwlAk55xQ9RTnvTnreIwX+BfjP/5qM
+	 HJhhNYGr3Molvixaeyb3rCyXlxQw3bftpUgfYRtyTJKh3KdY5UgSmTNLQiH5gX5yPf
+	 LrJsIW3rcCFDB+vfLn1ZCBHM1/I/+yWAtaQwjn5+SMOoShHNW2fodCegzj/JTFl5vT
+	 tLvQd+XSDLzyQ==
+Date: Sat, 12 Sep 2026 17:25:57 +0800
+From: Gao Xiang <xiang@kernel.org>
+To: Binglei Wang <l3b2w1@gmail.com>
+Cc: linux-erofs@lists.ozlabs.org, xiang@kernel.org, chao@kernel.org,
+	shengyong1@xiaomi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: fix unbalanced buf->off handling in erofs_bread()
+Message-ID: <aqUapQtNF7DK-A5J@XiangdeMacBook-Pro.local>
+Mail-Followup-To: Binglei Wang <l3b2w1@gmail.com>,
+	linux-erofs@lists.ozlabs.org, xiang@kernel.org, chao@kernel.org,
+	shengyong1@xiaomi.com, linux-kernel@vger.kernel.org
+References: <20260912025709.25604-1-l3b2w1@gmail.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -92,68 +66,57 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260912025709.25604-1-l3b2w1@gmail.com>
 
-From: Binglei Wang <l3b2w1@gmail.com>
+On Sat, Sep 12, 2026 at 10:57:09AM +0800, Binglei Wang wrote:
+> From: Binglei Wang <l3b2w1@gmail.com>
+> 
+> erofs_bread() locates the target folio with
+> 
+> 	index = (buf->off + offset) >> PAGE_SHIFT;
+> 
+> but computes the in-folio offset without taking buf->off into account:
+> 
+> 	return buf->base + (offset & ~PAGE_MASK);
+> 
+> If buf->off is not page-aligned, the returned pointer misses the in-page
+> component of buf->off, so callers end up fetching data from a wrong
+> offset.
+> 
+> buf->off is set to sbi->dif0.fsoff in erofs_init_metabuf(), and fsoff can
+> be specified via the "fsoffset=" mount option, which only requires
+> block-size alignment.  Therefore, on an image with a sub-page block size
+> (e.g. 512 bytes), a non-page-aligned fsoff (e.g. 512) triggers the issue,
+> since 512 is a multiple of the block size but not of PAGE_SIZE.
+> 
+> It can be reproduced by mounting an image that is placed at a
+> non-page-aligned offset:
+> 
+> 	mkfs.erofs -b512 -zlz4hc sub.erofs src/
+> 	# prepend 512 bytes of padding to the image
+> 	mount -t erofs -o loop,fsoffset=512 padded.erofs /mnt
+> 
+> which fails with
+> 
+> 	erofs (device loop0): cannot find valid erofs superblock
+> 
+> because the on-disk superblock (at offset 1024 within the image, i.e.
+> 1536 within the padded file) is read from a wrong in-folio offset.  With
+> this fixed, the very same image mounts successfully and its file contents
+> match those read from the unpadded image.
+> 
+> Fix it by including buf->off in the in-folio offset calculation, so that
+> it is consistent with the folio index calculation.
+> 
+> Fixes: c36ec00d7f67 ("erofs: add 'fsoffset' mount option to specify filesystem offset")
+> Cc: <stable@vger.kernel.org> # 6.16+
+> Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
 
-erofs_bread() locates the target folio with
+As I said, I aiready applied a version before, please don't
+send it again.
 
-	index = (buf->off + offset) >> PAGE_SHIFT;
-
-but computes the in-folio offset without taking buf->off into account:
-
-	return buf->base + (offset & ~PAGE_MASK);
-
-If buf->off is not page-aligned, the returned pointer misses the in-page
-component of buf->off, so callers end up fetching data from a wrong
-offset.
-
-buf->off is set to sbi->dif0.fsoff in erofs_init_metabuf(), and fsoff can
-be specified via the "fsoffset=" mount option, which only requires
-block-size alignment.  Therefore, on an image with a sub-page block size
-(e.g. 512 bytes), a non-page-aligned fsoff (e.g. 512) triggers the issue,
-since 512 is a multiple of the block size but not of PAGE_SIZE.
-
-It can be reproduced by mounting an image that is placed at a
-non-page-aligned offset:
-
-	mkfs.erofs -b512 -zlz4hc sub.erofs src/
-	# prepend 512 bytes of padding to the image
-	mount -t erofs -o loop,fsoffset=512 padded.erofs /mnt
-
-which fails with
-
-	erofs (device loop0): cannot find valid erofs superblock
-
-because the on-disk superblock (at offset 1024 within the image, i.e.
-1536 within the padded file) is read from a wrong in-folio offset.  With
-this fixed, the very same image mounts successfully and its file contents
-match those read from the unpadded image.
-
-Fix it by including buf->off in the in-folio offset calculation, so that
-it is consistent with the folio index calculation.
-
-Fixes: c36ec00d7f67 ("erofs: add 'fsoffset' mount option to specify filesystem offset")
-Cc: <stable@vger.kernel.org> # 6.16+
-Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
----
- fs/erofs/data.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 0885b1f2fc92..be63b89f0862 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -48,7 +48,7 @@ void *erofs_bread(struct erofs_buf *buf, erofs_off_t offset, bool need_kmap)
- 		return NULL;
- 	if (!buf->base)
- 		buf->base = kmap_local_page(buf->page);
--	return buf->base + (offset & ~PAGE_MASK);
-+	return buf->base + ((buf->off + offset) & ~PAGE_MASK);
- }
-
- int erofs_init_metabuf(struct erofs_buf *buf, struct super_block *sb,
---
-2.33.0
-
+Thanks,
+Gao Xiang
 
