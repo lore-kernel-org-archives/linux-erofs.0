@@ -1,59 +1,82 @@
-Return-Path: <linux-erofs+bounces-4570-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4571-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 45981C88E77
-	for <linux-erofs@archiver.kernel.org>; Wed, 16 Sep 2026 07:42:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD802C88E77
+	for <linux-erofs@archiver.kernel.org>; Wed, 16 Sep 2026 09:10:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hl9nn1yy0z2yYf;
-	Wed, 16 Sep 2026 17:42:05 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789544525;
-	cv=none; b=OcH90t5MQJ23Exc3azRKoJfpNzNI9g4qr4MKWtCmy1k+iSWqas0HL0Md/jh+02pqauzz/NvEpC0nxpYELws6kQxn8q57AHZY3wBzyZ9GWgw2bmeFgX3m4+/ntc/NEVUOdTZzWFlGtjhgew/ZZuM8Psy8dr7Q1uT7X6mbn/WgBNR9RxUkkzY634XrPnh8kzviPxyG4p9FrOCaykVmz6Xu9sFTWZREzXF1S0XbDzJ9SvhRlMQTkRaDX+x59oOnuZVxN+6IgSlpDk5lOp3YtpqwRV30KAxExYXZVAOsjpu7qeQKvw3qhS/6l+HiH7PsonTQfVJbeSPk7ML4i9UlmYgVdg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hlClV2zGkz2ySf;
+	Wed, 16 Sep 2026 19:10:14 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:3b::10"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789549814;
+	cv=none; b=NTI8IDGlanWRl78whbGjI55RlACzkNGJDnSVLNi+Lpgw5TJqbcleUdh6g9LDcWU66yDOS0vV52Y4zbH6L0wxzgTmt9pnb+vS0svbgVORpAUBrFYod9ZcZFB3/i9UzCa8UGvxfPiu7uiE1tnx4x2Wi/iS73SE9XqpvvbC/oXFAYHC38iwllNaQvXOywpZFO5TLYOHONE8ezRapguS+IlIRrRRheawmj8fTbJ9kmfGUTM3rUMb/D9/2A5T7xkfZzca45wSFUqMR/c67UWY+OiPTDDY6MLGH3Bvnp22RNJ9QfWF0+knQWrymNuLQ1+Smji0z0nmziNpW4kR+TaCbSnK+w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789544525; c=relaxed/relaxed;
-	bh=O6magiiDyzXVUiBbUPIkeZp+NDraoVTTdGuqEpgfVL8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZGcYc7Qg3PovCnfcxMwbUJoKEaGKOmAZVm/tcwpyYKOxAz4yqsO8ZvA+T0dSj0hhd/wHoWfNaiUPp9XGgc4qFQe4Ae6/v+3xxnOqoTGJMbpxaiJbkw+rGZisMvn8EFL625ooDCPwyz8WjfU4Tj+d1OMKKxZIr1KNhBhx8j+nEVY0m3gNCO64jx7waJQMfvpdhmn3slHmOMuIa2RzEuaYt5mh7GzOhO2PLoibHwvikSjfE6Hf1VD5/TdYSOOMRhmbq+Xu1npnKgaQ7YmEvvo4+ohXYNjehuQp3VEXVjdW9fLzavY66SdMhV04DL2UKdWOhyUZ6KuWUwEZXMfODiVAEw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RYgy6T7T; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1789549814; c=relaxed/relaxed;
+	bh=E81YfdQ0AJYTPkXmtqlOODcUxV3/SbP3WLhNFzqHVfo=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=YW+e1CUrGi/kU73OCOZ6rOg0C2hi0snN33tR5Ed6j2JKUXCwOo29hYrp5ebJ/AX2q6grYZvxalmURm5mO2VJ0xSSkGtfsKZuWMCnFMZjWTU3f3f58tjp4jeOVbWdbKlCADMUhL4/HbwMwi7yDz+zV8d1EL/SPoSe120W5bnbhAXerd6/z1gXgxjF+zHBNbj4H0owvWp1F+D6FwlBI7abL+fqVXnzWPzG5Iuzk44Bqjbu7FRWTtn4XehDF5v/FyMTUXueK3XkWLniYN2xFex/rVzvNfSG9tiJc6X+9HtVjsojmzVed1xR1o0NLbyD4hTpKo1obynqA7ORrV1G6G7yhw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Kenpnuyu; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:3b::10; helo=mail-pz2-x10.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RYgy6T7T;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Kenpnuyu;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:3b::10; helo=mail-pz2-x10.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pz2-x10.google.com (mail-pz2-x10.google.com [IPv6:2607:f8b0:4864:3b::10])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hl9nm2KCtz2xlY
-	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Sep 2026 17:42:04 +1000 (AEST)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 7B4FF42AFE;
-	Wed, 16 Sep 2026 07:42:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF2D1F0089B;
-	Wed, 16 Sep 2026 07:42:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789544522;
-	bh=O6magiiDyzXVUiBbUPIkeZp+NDraoVTTdGuqEpgfVL8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=RYgy6T7TT1ZN6P+aBDI9mSMcCm1yb7q4aW4ZoysCQoARuIRzcolm70k9+AHFXTzV8
-	 zG6XrFvtnQfBPpOc9g3mpVQZ0fo9aW1MVZ3jE5vhTt6JIqqi+8OIlxXmmc6TN7TGNx
-	 uUusuT+3aa71tWGkCz6rGaF9fPWLUxDRaJmo54VDg4LGBDMSQN9oOJ8HSVizdYU/x0
-	 RMpMHAnCOpM4SaQW9Imanoo9/yVHIa0+j/aw+RWVmcGR07o6dNnIiPFWc91JyDZouw
-	 Qcl90MvBBH22xqfjVSYytSaL1hOUQ2edPznFl/Z29b3ET5P1XOHE33/x3Kem50l/Sf
-	 LbPbrqMeUBQtQ==
-From: Gao Xiang <xiang@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hlClS1XkYz2xlY
+	for <linux-erofs@lists.ozlabs.org>; Wed, 16 Sep 2026 19:10:10 +1000 (AEST)
+Received: by mail-pz2-x10.google.com with SMTP id 41be03b00d2f7-cc1cebad4afso663202a12.0
+        for <linux-erofs@lists.ozlabs.org>; Wed, 16 Sep 2026 02:10:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789549808; x=1790154608; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=E81YfdQ0AJYTPkXmtqlOODcUxV3/SbP3WLhNFzqHVfo=;
+        b=Kenpnuyuu6FoqUm5QfroHq7VeQuqJC85TdhnGWeYMDTUcE1BSnWPrYaH/mFchJPsEt
+         BnnqOfOlVsDXfk+zw8w3+3mBMzmiITmCeLa8Wlz9rY8iEQjEuuA5K+c+Zk7vxFBjM5nM
+         6LkcDsmFZ+RJ7cSarti7bA2vLuzOzY+LieVyiqcP4QHMLanQN7QTdnZ1vfxwXoYjgjwT
+         KQUTE9TC5KdQU66jM/kblemq02d8Bpge4htFP7fEp6FA+LmUDmo1Ikp7ErT6fMbA2Uz2
+         MtEOxHREB5c+j1rgIwesoND0Q4ndPg3BxWwk1fpNv7qAIpNa98ANbdQtBoZO5X4vXZ97
+         oVuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789549808; x=1790154608;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=E81YfdQ0AJYTPkXmtqlOODcUxV3/SbP3WLhNFzqHVfo=;
+        b=mR+LWF2Pig6jj4+wByWdumVv3NpqJeK844PZkFAqg02E4hu7OZOOC86aumzveSoKoF
+         vFfq+iUeG2uzXjXS3ZRCeiC72Ftx8xLKSbTa2fmCEsQcddwkh6WodkCU01hLjkxbvTma
+         454k/e8PmvTCead+7rbaywTNi7ERijYxaUCsk2js8fDgqW690D/GksUIAVbAbThI+8XB
+         U8ns9SwiuShu8yhAG9nZ7Dyij6J2tu4DDRNYsncauteQvJmMfLOfVKuGCIQ7VAsYUolZ
+         bivcY8PXDrLBi1er/y4nFWZd79+Pf0olFkGxeAKLY5T01URJiuK36ILDclgCDpmn6rHE
+         nFlQ==
+X-Gm-Message-State: AFuF++nbi+tt4OXblrfxEelT/UraTRN+P7zLWCf/YHrsmkIs8Y5tJRDc
+	eQWQHccwoALQgy6lDhKAbA6y/vcdAbB1ZIy+3OLoTlYXw19ltY9dmBo1YKwVrCUO
+X-Gm-Gg: AYBFou3IdiCIHVwGaWUlA7eU6SLhCCR+ATGEYr3n22qF1QR3PmjiMtOnXOyvUI8oE2B
+	ixg7XE5gGik3kFHfIUSaWrDkBkHmM42VMNxCB5tF9rJeZ026lPd9SLPOS3sJ6OisG1o0JzsSm/g
+	cw+BOq9ta0kTRMda4a2u5I5DQXOu3nwwsZ9uHD6ka334GXsnk+4YpCKg9uysO0OzLBCJdnxhf78
+	jLxFCno3+Rj3i+mLTBlCV+1L9xr61dfxsmTeBB5PSs76G0weT9QCufbPSNWkdp9NGobq40728ui
+	e9oDDLYazz85OeOWoz2BVJcBwF4EHYLlYFqb/WGPneIi++UPle9UZRmGa1KRDPBEmYpAPJRYDs1
+	OgbJanT6zD24u2lybM5/tL8JXQqHeAI+fjZmfAMgSZV7jxD8z3PehXCukwkTYBLrzwJlfddGJsp
+	6qd+ze6zm0GyvBCmvTNHw1kD3fJe+DHx6KTcAna1cm8Ho+4op+SW22JQWf5N4lFHwTt5OGDDMnX
+	xzm4r3PluCTRBkXP8NiUI4RJN9hQCb8HgjGxG3NQ7Jo2XzEj/WMQrjaGO6y
+X-Received: by 2002:a05:6a20:729d:b0:3da:421e:40f3 with SMTP id adf61e73a8af0-3dd5f5c78e7mr4556263637.17.1789549808213;
+        Wed, 16 Sep 2026 02:10:08 -0700 (PDT)
+Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.58])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc50ab50d67sm1215277a12.6.2026.09.16.02.10.06
+        for <linux-erofs@lists.ozlabs.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 02:10:07 -0700 (PDT)
+From: Yifan Zhao <stopire@gmail.com>
+X-Google-Original-From: Yifan Zhao <yifan.yfzhao@foxmail.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <xiang@kernel.org>,
-	Jonathan Calmels <jcalmels@nvidia.com>
-Subject: [PATCH v3 4/4] erofs-utils: mkfs: support rebuild mode for compressed inodes
-Date: Wed, 16 Sep 2026 15:41:01 +0800
-Message-ID: <20260916074101.66357-4-xiang@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260916074101.66357-1-xiang@kernel.org>
-References: <20260916074101.66357-1-xiang@kernel.org>
+Subject: [PATCH RFC 0/2] erofs-utils: add dm-persistent file delta support
+Date: Wed, 16 Sep 2026 17:10:01 +0800
+Message-ID: <cover.1789545930.git.stopire@gmail.com>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -67,303 +90,54 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add support for generating a meta-only multidev manifest image with
-an overlayfs-like merged tree from multiple compressed EROFS images:
+This series adds a file-delta framework and a dm-persistent backend to
+mkfs.erofs.  Unchanged data is referenced from the parent image; changed
+nonzero data is stored in the new image.
 
- $ mkfs.erofs -zlz4 -Enoinline_data layerA.erofs layerA/
- $ mkfs.erofs -zlz4 -Enoinline_data layerB.erofs layerB/
- $ mkfs.erofs -zlz4 fsmeta.erofs layerA.erofs layerB.erofs
- # mount -t erofs \
-	-odevice=layerA.erofs,device=layerB.erofs
-	fsmeta.erofs mnt/
+Example: rootfs/disk.img is the baseline file, and epoch1.cow is a sealed
+dm-persistent v1 snapshot exception store for that file, using 4096-byte
+(8-sector) chunks.
 
-Note that `-Efragments` is not yet supported: it needs further
-userspace development.
+  # Create the parent image containing /disk.img.
+  mkfs.erofs -Eforce-chunk-indexes --chunksize=4096 \
+    parent.erofs rootfs/
 
-Cc: Jonathan Calmels <jcalmels@nvidia.com>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
----
- lib/compress.c | 145 ++++++++++++++++++++++++++++++++++++++++++++++++-
- lib/inode.c    |  18 ++++--
- lib/rebuild.c  |  29 +++++++++-
- 3 files changed, 186 insertions(+), 6 deletions(-)
+  # Apply epoch1.cow to /disk.img and write next.erofs.
+  mkfs.erofs -Eforce-chunk-indexes --chunksize=4096 \
+    --file-delta=dm-persistent:/disk.img:epoch1.cow \
+    next.erofs parent.erofs
 
-diff --git a/lib/compress.c b/lib/compress.c
-index cda138f..8305543 100644
---- a/lib/compress.c
-+++ b/lib/compress.c
-@@ -1269,11 +1269,36 @@ int z_erofs_drop_inline_pcluster(struct erofs_inode *inode)
- 	int err;
- 
- 	inode->z_advise &= ~Z_EROFS_ADVISE_INLINE_PCLUSTER;
-+	ei = list_last_entry(&ctx->extents, struct z_erofs_extent_item, list);
-+	if (!inode->bh_data) {
-+		struct erofs_buffer_head *bh;
-+
-+		bh = erofs_balloc(sbi->bmgr, DATA, 0, 0);
-+		if (IS_ERR(bh))
-+			return PTR_ERR(bh);
-+
-+		bh->op = &erofs_skip_write_bhops;
-+		inode->bh_data = bh;
-+		err = erofs_mapbh(NULL, bh->block);
-+		if (err < 0) {
-+			DBG_BUGON(1);
-+			return err;
-+		}
-+		inode->lazy_tailblock = false;
-+		inode->bh_data = bh;
-+		ei->e.device_id = 0;
-+		ei->e.pstart = erofs_btell(bh, false);
-+		if (inode->datalayout == EROFS_INODE_COMPRESSED_COMPACT) {
-+			inode->datalayout = EROFS_INODE_COMPRESSED_FULL;
-+			inode->z_advise &= ~Z_EROFS_ADVISE_COMPACTED_2B;
-+			inode->extent_isize = EROFS_FULL_INDEXES_SZ(inode);
-+		}
-+	}
-+
- 	if (inode->idata_type == EROFS_IDATA_TYPE_RAW ||
- 	    (inode->z_advise & Z_EROFS_ADVISE_INTERLACED_PCLUSTER))
- 		return 0;
- 
--	ei = list_last_entry(&ctx->extents, struct z_erofs_extent_item, list);
- 	DBG_BUGON(ei->e.raw);
- 
- 	rawsz = ei->e.length;
-@@ -2455,3 +2480,121 @@ int z_erofs_compress_exit(struct erofs_sb_info *sbi)
- 	free(sbi->zmgr);
- 	return 0;
- }
-+
-+int z_erofs_rebuild_load_metadata(struct erofs_sb_info *dst_sbi,
-+				  struct erofs_inode *inode)
-+{
-+	struct erofs_sb_info *sbi = inode->sbi;
-+	struct erofs_map_blocks map = {
-+		.buf = __EROFS_BUF_INITIALIZER,
-+		.m_la = 0,
-+	};
-+	struct z_erofs_extent_item *ei, *n;
-+	erofs_off_t pend = EROFS_NULL_ADDR;
-+	bool consecutive = true;
-+	LIST_HEAD(extents);
-+	int err, device_id = -1;
-+
-+	if (sbi->blkszbits != dst_sbi->blkszbits) {
-+		erofs_err("filesystem block size mismatch: %d for image %d, target %d",
-+			  erofs_blksiz(sbi), sbi->dev, erofs_blksiz(dst_sbi));
-+		return -EOPNOTSUPP;
-+	}
-+
-+	while (map.m_la < inode->i_size) {
-+		struct erofs_map_dev mdev;
-+		bool raw;
-+
-+		err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_FIEMAP);
-+		if (err)
-+			goto err_out;
-+
-+		mdev = (struct erofs_map_dev) {
-+			.m_deviceid = map.m_deviceid,
-+			.m_pa = map.m_pa,
-+		};
-+		err = erofs_map_dev(sbi, &mdev);
-+		if (err)
-+			goto err_out;
-+
-+		raw = (map.m_algorithmformat >= Z_EROFS_COMPRESSION_MAX);
-+
-+		ei = malloc(sizeof(*ei));
-+		if (!ei) {
-+			err = -ENOMEM;
-+			goto err_out;
-+		}
-+
-+		if (map.m_flags & __EROFS_MAP_FRAGMENT) {
-+			DBG_BUGON(!(inode->z_advise &
-+					Z_EROFS_ADVISE_FRAGMENT_PCLUSTER));
-+			err = -EOPNOTSUPP;
-+			goto err_free_ei;
-+//			inode->fragment_size = map.m_llen;
-+//			DBG_BUGON(inode->fragmentoff != map.m_pa);
-+		} else if (map.m_flags & EROFS_MAP_META) {
-+			DBG_BUGON(inode->idata_size != map.m_plen);
-+			inode->idata = malloc(inode->idata_size);
-+			if (!inode->idata) {
-+				err = -ENOMEM;
-+				goto err_free_ei;
-+			}
-+			err = erofs_dev_read(sbi, 0, inode->idata, mdev.m_pa,
-+					     inode->idata_size);
-+			if (err)
-+				goto err_free_ei;
-+			ei->e = (struct z_erofs_inmem_extent) {
-+				.length = map.m_llen,
-+				.plen = erofs_blksiz(sbi),
-+				.pstart = (pend != EROFS_NULL_ADDR ? pend : 0),
-+				.device_id = inode->dev,	/* FIXME! */
-+				.raw = raw,
-+				.inlined = true,
-+			};
-+
-+			inode->idata_type = (raw ? EROFS_IDATA_TYPE_RAW :
-+				EROFS_IDATA_TYPE_COMPRESSED_DEFAULT);
-+			DBG_BUGON(map.m_la + map.m_llen != inode->i_size);
-+		} else {
-+			ei->e = (struct z_erofs_inmem_extent) {
-+				.length = map.m_llen,
-+				.plen = map.m_plen,
-+				.pstart = mdev.m_pa,
-+				.device_id = inode->dev,	/* FIXME! */
-+				.partial = map.m_flags & EROFS_MAP_PARTIAL_REF,
-+				.raw = raw,
-+				.inlined = false,
-+			};
-+			if (pend != EROFS_NULL_ADDR && (pend != ei->e.pstart ||
-+						device_id != ei->e.device_id))
-+				consecutive = false;
-+			pend = ei->e.pstart + ei->e.plen;
-+			device_id = ei->e.device_id;
-+		}
-+
-+		if (!raw) {
-+			ei->e.algofmt = map.m_algorithmformat;
-+			if (!(dst_sbi->available_compr_algs & (1 << ei->e.algofmt))) {
-+				err = -EOPNOTSUPP;
-+				goto err_free_ei;
-+			}
-+		}
-+		init_list_head(&ei->list);
-+		list_add_tail(&ei->list, &extents);
-+		map.m_la += map.m_llen;
-+	}
-+	inode->z_lclusterbits = sbi->blkszbits;
-+	err = z_erofs_prepare_layout(inode, &extents, consecutive, false);
-+	if (err)
-+		goto err_out;
-+	return 0;
-+
-+err_free_ei:
-+	free(ei);
-+err_out:
-+	list_for_each_entry_safe(ei, n, &extents, list) {
-+		list_del(&ei->list);
-+		free(ei);
-+	}
-+	return err;
-+}
-diff --git a/lib/inode.c b/lib/inode.c
-index 1e497a0..ec96556 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -998,6 +998,16 @@ static bool erofs_inode_need_48bit(struct erofs_inode *inode)
- 	return false;
- }
- 
-+static unsigned int erofs_inode_meta_size(struct erofs_inode *inode)
-+{
-+	unsigned int inodesize;
-+
-+	inodesize = inode->inode_isize + inode->xattr_isize;
-+	if (inode->extent_isize)
-+		inodesize = roundup(inodesize, 8) + inode->extent_isize;
-+	return inodesize;
-+}
-+
- static int erofs_prepare_inode_buffer(struct erofs_importer *im,
- 				      struct erofs_inode *inode)
- {
-@@ -1017,9 +1027,7 @@ static int erofs_prepare_inode_buffer(struct erofs_importer *im,
- 			inode->inode_isize =
- 				sizeof(struct erofs_inode_extended);
- 	}
--	inodesize = inode->inode_isize + inode->xattr_isize;
--	if (inode->extent_isize)
--		inodesize = roundup(inodesize, 8) + inode->extent_isize;
-+	inodesize = erofs_inode_meta_size(inode);
- 
- 	if (!erofs_is_special_identifier(inode->i_srcpath) && sbi->mxgr)
- 		inode->in_metabox = true;
-@@ -1053,6 +1061,7 @@ static int erofs_prepare_inode_buffer(struct erofs_importer *im,
- 			ret = z_erofs_drop_inline_pcluster(inode);
- 			if (ret)
- 				return ret;
-+			inodesize = erofs_inode_meta_size(inode);
- 		} else {
- 			inode->datalayout = EROFS_INODE_FLAT_PLAIN;
- 		}
-@@ -1069,7 +1078,8 @@ noinline:
- 		return PTR_ERR(bh);
- 	} else if (inode->idata_size) {
- 		if (is_inode_layout_compression(inode)) {
--			DBG_BUGON(!params->ztailpacking);
-+			DBG_BUGON(!erofs_sb_has_ztailpacking(sbi) &&
-+				  !params->ztailpacking);
- 			erofs_dbg("Inline %scompressed data (%u bytes) to %s",
- 				  inode->idata_type == EROFS_IDATA_TYPE_RAW ? "un": "",
- 				  inode->idata_size, inode->i_srcpath);
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index 38ced3c..ebac1c5 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -152,7 +152,7 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
- 	return d;
- }
- 
--static int erofs_rebuild_write_blob_index(struct erofs_sb_info *dst_sb,
-+static int erofs_rebuild_load_chunk_index(struct erofs_sb_info *dst_sb,
- 					  struct erofs_inode *inode)
- {
- 	int ret;
-@@ -222,6 +222,17 @@ err:
- 	return ret;
- }
- 
-+static int erofs_rebuild_write_blob_index(struct erofs_sb_info *dst_sb,
-+					  struct erofs_inode *inode)
-+{
-+	int z_erofs_rebuild_load_metadata(struct erofs_sb_info *dst_sb,
-+					  struct erofs_inode *inode);
-+
-+	if (is_inode_layout_compression(inode))
-+		return z_erofs_rebuild_load_metadata(dst_sb, inode);
-+	return erofs_rebuild_load_chunk_index(dst_sb, inode);
-+}
-+
- static int erofs_rebuild_write_full_data(struct erofs_inode *inode)
- {
- 	struct erofs_sb_info *src_sbi = inode->sbi;
-@@ -497,6 +508,7 @@ out:
- int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
- 			    enum erofs_rebuild_datamode mode)
- {
-+	struct erofs_sb_info *dst_sbi = root->sbi;
- 	struct erofs_inode inode = {};
- 	struct erofs_rebuild_dir_context ctx;
- 	char uuid_str[37];
-@@ -514,6 +526,21 @@ int erofs_rebuild_load_tree(struct erofs_inode *root, struct erofs_sb_info *sbi,
- 		return ret;
- 	}
- 
-+	if (mode == EROFS_REBUILD_DATA_BLOB_INDEX) {
-+		if (erofs_sb_has_ztailpacking(sbi))
-+			erofs_sb_set_ztailpacking(dst_sbi);
-+		if (erofs_sb_has_dedupe(sbi))
-+			erofs_sb_set_dedupe(dst_sbi);
-+		if (erofs_sb_has_big_pcluster(sbi) &&
-+		    !erofs_sb_has_big_pcluster(dst_sbi)) {
-+			erofs_err("failed to load tree from image %d with big pclusters",
-+				  sbi->dev);
-+			return -EOPNOTSUPP;
-+		}
-+		if (erofs_sb_has_48bit(sbi))
-+			erofs_sb_set_48bit(dst_sbi);
-+	}
-+
- 	inode.nid = sbi->root_nid;
- 	inode.sbi = sbi;
- 	ret = erofs_read_inode_from_disk(&inode);
+  # Check the new image using the parent as its external data device.
+  fsck.erofs --device=parent.erofs next.erofs
+
+The update --chunksize must match the exception store's chunk size.
+
+Yifan Zhao (2):
+  erofs-utils: mkfs: add file-delta framework
+  erofs-utils: mkfs: support dm-persistent file deltas
+
+ include/erofs/internal.h     |   2 +
+ lib/Makefile.am              |   5 +-
+ lib/blobchunk.c              |  25 +++
+ lib/dm_persistent.c          | 396 +++++++++++++++++++++++++++++++++++
+ lib/file_delta.c             | 214 +++++++++++++++++++
+ lib/file_delta_chunk.c       | 203 ++++++++++++++++++
+ lib/liberofs_chunk.h         |   2 +
+ lib/liberofs_dm_persistent.h |   9 +
+ lib/liberofs_file_delta.h    |  81 +++++++
+ lib/rebuild.c                |  34 ++-
+ man/mkfs.erofs.1             |  71 +++++++
+ mkfs/main.c                  | 113 +++++++++-
+ 12 files changed, 1148 insertions(+), 7 deletions(-)
+ create mode 100644 lib/dm_persistent.c
+ create mode 100644 lib/file_delta.c
+ create mode 100644 lib/file_delta_chunk.c
+ create mode 100644 lib/liberofs_dm_persistent.h
+ create mode 100644 lib/liberofs_file_delta.h
+
+
+base-commit: 2429baa75a5278ddaf8221740a6a65dd390acb08
 -- 
-2.47.3
+2.55.0
 
 
