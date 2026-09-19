@@ -1,86 +1,84 @@
-Return-Path: <linux-erofs+bounces-4577-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4578-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CFDCAC982C1
-	for <linux-erofs@archiver.kernel.org>; Thu, 17 Sep 2026 03:54:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C9C2C982D8
+	for <linux-erofs@archiver.kernel.org>; Sat, 19 Sep 2026 15:15:02 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hlhhK0j6Pz2y2Q;
-	Thu, 17 Sep 2026 13:54:09 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:39::11"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789617249;
-	cv=none; b=NBTXwwE1he3aUrfGoVBPLDy5bU7tWYvfhke1eFqIWTPtEePfiUp73ZZwRlkKvwGZja6BpQOEJ8x3yQeLhL2RMZULjTF9ZamLRGgTwcW9VbhonQ6xTcmdswRSbpekNzDQ7UIFDER20WkOpBaVDrQH2c61EwVSUjMA4/cOXyQLcqngpVE2BRZLYs9oq9BB3NfvHDB/Pp4JmNF1MOM6OnIlfxsz99vAC/sN6laxgHIpFDBiMW8zArYdBYxjFMm2U9522ZQJelbr7Im3UIR8OUkXiRe/vLaVyE+4cAyCl8ocUrqGu9Sy5XljQ+D+HJzrNcc0lwnuDpeqVQnjstIVyzzxfg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hnCj03sMZz2xYg;
+	Sun, 20 Sep 2026 01:15:00 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:3b::1f"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789830900;
+	cv=none; b=VZIr8aCgT/DF/ijE84H9F8HjPsu1YZG7vqStPwpocFfE0a7umGkUwmqjr+/YhCrJ2WpqgGnr4SBfKvkn/ndRuNkO2hQsiqhjXH95tFbLdW7J44J9Pe/PQ3ZO+cUnGGJRDafqylFnwzsW5TUkVXHOZbPaobKlBsZrtyiKbzp+VDwnOdxofEtwcZ4jc8QsnP3lwbw5s9yaoeMn4ecTm5dAvkyx+JgUVXMtVyDODji74ig3e7jTXuTvJr7xD8XsJVzlt5cqRDuozPmFPff3Ct5ei+V3TByf6cJBgRI3Exma1tnPczpOjrCPjQcVGZDTyCiWZ4KM2bTd4VpkWFFjQqrORw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789617249; c=relaxed/relaxed;
-	bh=56n5R0GrQJhbXHHcUt7ZnsAvcKCxPIYmPw3vuxy+98s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XZpIVV5wPI8Upoooh5PCRNkN6mScK07g+4EVM5S+JvyMXNvoiwOWWMDlzZfOICbhuYLiQwaRFM2WX9MBABqnCVxyHW5Zu0+mGNeZqeW+z8JHaVnZG0wAC1wwkLP9OgQliM224Avr5OUMrgVbo0fQyJudaPIwhsWxFN8yM3vECoeLbFxObIFFdnp/kjsxpkY7QuDxECQP/z/hMYqiS9q7SzlrGKJ7Wg6cNrfCP62jJsyFMsX/+ldEg1hurwCZQmvakUmwg9j2UjGjKQxnr0qDy+iLFf7wTpsp3B6IS0fsHmpxwK3WzDuxkmvbIQkcfWgD60m9QPrtxntfFE4K8iIHVA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mH2+03H9; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:39::11; helo=mail-pj2-x11.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	t=1789830900; c=relaxed/relaxed;
+	bh=l7wwrg+eXCNK47Bi+NO1MlnjVe1Dzuy3rU549mNY9sc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DoWS5ReZvU5fP1Zg+HC1DN9XtSUjfP5roJIjYCpD/9tsapdLPgOat3U3PL16etYqHaTckHyhXF1XiyKk/iIx7jzrqq/jD2RGxthzTzKufzllDMhf3GlEClGHGAAxVKQZDoyghAnTQZVdQS+MJ/+U3Jq2cw+4F+CexjEmlEe+sRRNa69zBBU3qrNTg42bUUllq9tUKMjxLsHyaVggBQuCpNGdEyTXYdvjaBSTTcJEVRPD1lcN4dMSE+h4HQMfaK6pmGE0niUrmZGuBaUImeHUD1W+viU8Cc8Ft8RJoupqxi+KllwpJgbHo2cYm7+s3vdU+v0JvJDwbrdxXi7cNvyXAw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=DIdYn56I; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:3b::1f; helo=mail-pz2-x1f.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=mH2+03H9;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=DIdYn56I;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:39::11; helo=mail-pj2-x11.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pj2-x11.google.com (mail-pj2-x11.google.com [IPv6:2607:f8b0:4864:39::11])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:3b::1f; helo=mail-pz2-x1f.google.com; envelope-from=nithurshen.dev@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pz2-x1f.google.com (mail-pz2-x1f.google.com [IPv6:2607:f8b0:4864:3b::1f])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hlhhJ3PRCz2xbQ
-	for <linux-erofs@lists.ozlabs.org>; Thu, 17 Sep 2026 13:54:08 +1000 (AEST)
-Received: by mail-pj2-x11.google.com with SMTP id d9443c01a7336-2d91ede8035so4488695ad.3
-        for <linux-erofs@lists.ozlabs.org>; Wed, 16 Sep 2026 20:54:08 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hnChy4qDrz2xSg
+	for <linux-erofs@lists.ozlabs.org>; Sun, 20 Sep 2026 01:14:57 +1000 (AEST)
+Received: by mail-pz2-x1f.google.com with SMTP id 41be03b00d2f7-cc1cea50dc3so1170368a12.3
+        for <linux-erofs@lists.ozlabs.org>; Sat, 19 Sep 2026 08:14:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789617246; x=1790222046; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=56n5R0GrQJhbXHHcUt7ZnsAvcKCxPIYmPw3vuxy+98s=;
-        b=mH2+03H96brsXfm7nTerpprXzodPL315J6LnMNuaJr+aVJGON5AZoLyzHEktHNb5tN
-         wnoJiam3/7ZMfsVrwDc4MxbASCIBEVRW2Dk1q0Ffu8mdudnPOuJjvHPLkefr84nioNNa
-         R2jjai7ZYxmcOnjkmW07sfnjxDydibcz8ZCqusI2rwRml8gj/nDyMPtdmJ88XqIcwqht
-         icmTIUcHKJTRj6nRKcThAtFEQR/1+1jQTI4FJZ+iNbybDyLoYPGGvxYlXgu9O0huG2LM
-         rVFqcFxD1qSE9V4tWhxlaDq4LdD/cK7Cjx/rLAsSghvGjRz9iCqerBVl9Dk648xYd8FY
-         PNzQ==
+        d=gmail.com; s=20251104; t=1789830895; x=1790435695; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=l7wwrg+eXCNK47Bi+NO1MlnjVe1Dzuy3rU549mNY9sc=;
+        b=DIdYn56IBSfeyxDxjUfAdvbzvCcWldjSnctn6E1/yy3a3wqCnJeCM6pdpN2JWHe/bi
+         OucT2ufhpyIwOJyYC+KugfbJ1L1QADdLnFc5hH77KsdPNJpaDD8czhyqihoVu9GM5tXv
+         +gVndufyQJRPDHGLAVf+PSdhTgkeGHwa0+MrHHjQYKHGREezkyHq2A0xQqDzCNH8s1Ow
+         ViwSBil6nW3+FcY9WZLsHlH0TA1iX1/3dBCaZZg41y2k4rqjxHZKRi7lCzZmSKFaM7q5
+         HBcYp6cBnVqLh5W5x2nbrqI2uQl6XmLcSkFMaz5qUcW0w902l0bCR4a3ly9HxwEco0h7
+         yWBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789617246; x=1790222046;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=56n5R0GrQJhbXHHcUt7ZnsAvcKCxPIYmPw3vuxy+98s=;
-        b=iq00MBc/pQOtmDVpyxfWUN9d7bLhYK5CLPhxNQA+UTx3Ku18/XJmoqNwjeU/2txscU
-         xHq507TX7WuUyle90VcG+u3m/ncce2G6KdXhxc7aiGLIbktYJvCcmSWxgmznQIG6DU6F
-         EiihJdvMtnkTc+Cp4G/fdFMvK7TyEaQWSky95FroQkjCpB8XOcXaCQdOmtvnA3vNqbdz
-         XbSHl7oL70SEuUm+ynI3+w3GZgECtpFhKZD8hQXQlFf35b6cS7ldF6dLS2ZoZUNsLNzW
-         HZy98Mejwt0TrjSaWAsQcczEhEFN03cDGG5I1k9916qzDaWBvvSvcv5naPZTMENM4OX1
-         aztA==
-X-Gm-Message-State: AFuF++mCQy9fnCQy0kME1ZMJXE3nsNyhH0jjPEVmmQ8xbQHnvvKWwvAK
-	DZwnM6JU9yzkbmr94C5rhecm+K6yyA6CpDleB/9+KYYYoSUxRhzxVHkdHQO0FJ6dcnY=
-X-Gm-Gg: AYBFou1QU/Bs106jRk+BgXcqoE0AzLgykNHZPQteYj18Pwjip+F8X5FZVbsONepEQOx
-	+BSxx/xo7hR9IlBNkec6Y9H61M8jdWFMp+kbJMs2iDr2ElFja46HU6V6deo8N4WRC2TxExqIlf4
-	LOdBCExSgB6pT2Oz7TaP15qqM7rRMDZG86JouCeyliRTRn7EV/iqij01TiRQSyVkWOI5PpjrvXv
-	ctcuWZ4ojG+b8zptfLf63jGMAKcWkLWOstTHNT0qNUS8xA62CPuJDtm/zoe/rpXm+8nELF78LPX
-	AiNahLhqyZtClbw6HR8I1IvDx50nofDfmNBEL173+SPTrVRvvPT0ZpkY5ftRyUy1ZC99vYEHsdR
-	B2urLl4hTJPsVV+wR9Ff9iM0e1BXOfr5TDaLBv/g+cwN8gTv2kLgB9nRI7VLMRPut714cCipCKc
-	8gbMROumVO3fYooEH72vam/v8ifw6/T21arfyk0Yh1N6rQPrt6XYO16t2DtILVWAURxtbpjerEm
-	1b+tjLKj9T7VQekfvEaepij8xFmZOWx5wf+xy9QfUEQXkyebw==
-X-Received: by 2002:a17:902:ce89:b0:2d9:484:861d with SMTP id d9443c01a7336-2dd8e51dc3fmr107063865ad.10.1789617246516;
-        Wed, 16 Sep 2026 20:54:06 -0700 (PDT)
-Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.58])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd89ee3557sm19423245ad.52.2026.09.16.20.54.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 20:54:06 -0700 (PDT)
-From: Yifan Zhao <stopire@gmail.com>
+        d=1e100.net; s=20260707; t=1789830895; x=1790435695;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=l7wwrg+eXCNK47Bi+NO1MlnjVe1Dzuy3rU549mNY9sc=;
+        b=LQhC/yemhBGCNSmrCfgYtgzZyTr8bcx98EQEaIF39z1U1ti9zynUD1j9d2TYxBO2hJ
+         ST2ba7848IsOx1U4n8V1ekqS+uzGWoiZGvUz+4uMKM11gjVgcXhKPy4uCFZhjfqGMqrr
+         PdWmDNF6SM/NekDw8uFMsG2kMYEHZlxn4NlRyeXKAVtsIpQGkhUgw7rE8hckrG0Y/p8k
+         i44lTvngsHw/eMEWVCvwqhTUpbSYxHVoRacNg0BbVWuww7s0HZOdeXmvrwQVdeMBBwKB
+         qvsV4fBTgDVOsDa8SyaTnHEy/L7lp1PxAvVLGOWAzg/syaBm3S+um65VTvoF7FnpEoKN
+         b8hg==
+X-Gm-Message-State: AFuF++nf7wy2prwS9xDQH4+qWN/T2tutRc2pDsANpJ9/qvtv5Nqh6HGL
+	BKhrJBtP9WYU0Ylp0KjgOx+iXZ0r6UToh7+uuxr/nzRXimFhCYazELVOfbh62g==
+X-Gm-Gg: AYBFou1o8d5nBHmGjufbw1B4WkvBaQO/MuP6ZG4XlFqzzGWJB/zIRzSAMWSool0Jeto
+	fwDaiKu5pJwW0fIp9Kp9Vcz9qQ8HSRftWlojcxIOzA5JtaEapSzXDbsBHXGd2fM02gi7zmsbq0V
+	s7kfHoqJnqdk6Ktagss7Ok7vCSG4AEHyzmt7NiTmpRLRykyKIi2nq6PIvg+c65+l3OwUxV+mVrn
+	wxI9HW19eg7bLp89cMdjlYZZW+Znp/PqZZ3SojWVA8R8dOjQqOC+ArkI6iILNQbAtFgBkK2L0dW
+	Dt899kQTzKIsG2Pgn5XDkDl1lT7O5k70DwJovobJtGv1tz/RgfGSy60shwPOjky2bJXNA6dk74a
+	xWkyPW3jCnk9wV7Zf2KhZ4ir/JoB0SaNKel/7UGxbW5Rxv6o4GtgBvZkZJMBqjUKaAEb+MXkX+5
+	LtgLD50jhPC1Y3eCxPUCV3wncdfx0IXxd5eiShmV9yVXVC3RVb4WO/+z5Z4Q7GQ5+wet1BZil64
+	I3RVla1qGDfMhNNHXoxuj6qPiAp2HQ29Q==
+X-Received: by 2002:a05:6a21:6083:b0:3cd:9f99:3381 with SMTP id adf61e73a8af0-3dd8c1eeb19mr10346590637.0.1789830894534;
+        Sat, 19 Sep 2026 08:14:54 -0700 (PDT)
+Received: from localhost.localdomain ([103.27.167.84])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc72aee368asm1039661a12.26.2026.09.19.08.14.51
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 19 Sep 2026 08:14:53 -0700 (PDT)
+From: Nithurshen <nithurshen.dev@gmail.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: xiang@kernel.org,
-	Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH 4/4] erofs-utils: fsck: avoid truncating lseek() return values
-Date: Thu, 17 Sep 2026 11:53:49 +0800
-Message-ID: <20260917035349.1339521-4-stopire@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260917035349.1339521-1-stopire@gmail.com>
-References: <20260917035349.1339521-1-stopire@gmail.com>
+	hsiangkao@linux.alibaba.com,
+	hsiangkao@gmx.com,
+	Nithurshen <nithurshen.dev@gmail.com>
+Subject: [PATCH 0/2] fsck.erofs: implement concurrent extraction and decompression
+Date: Sat, 19 Sep 2026 20:44:41 +0530
+Message-ID: <20260919151443.29012-1-nithurshen.dev@gmail.com>
+X-Mailer: git-send-email 2.52.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -94,31 +92,96 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Check lseek() directly to avoid truncating its return value to int,
-which can turn successful seeks beyond INT_MAX into extraction failures.
+fsck.erofs currently traverses the filesystem and verifies inodes
+synchronously. While data decompression can be offloaded, large
+CPU-intensive workloads block the main thread, bottlenecking the
+I/O-heavy directory walk. 
 
-Fixes: b063ea316aa9 ("erofs-utils: fsck: extract chunk-based file with hole correctly")
-Assisted-by: Codex:gpt-6-astra
-Signed-off-by: Yifan Zhao <stopire@gmail.com>
----
- fsck/main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+This series resolves thread starvation by decoupling traversal
+producers from decompression consumers.
 
-diff --git a/fsck/main.c b/fsck/main.c
-index 55da9ea..e54c523 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -571,8 +571,7 @@ static int erofs_verify_inode_data(struct erofs_inode *inode, int outfd,
- 				}
- 			}
- 			if (outfd >= 0) {
--				ret = lseek(outfd, map.m_llen, SEEK_CUR);
--				if (ret < 0) {
-+				if (lseek(outfd, map.m_llen, SEEK_CUR) < 0) {
- 					ret = -errno;
- 					goto out;
- 				}
+Key Changes:
+  1/2 Localizes shared global states (fsckcfg.extract_path,
+      fsckcfg.dirstack) into task payloads and dispatches them to
+      a dedicated traversal worker pool.
+
+  2/2 Introduces a per-CPU worker pool and asynchronous reading
+      context to batch and offload decompression of files >128KB,
+      utilizing pwrite() for concurrent out-of-order output.
+
+Benchmark setup:
+  - Test hosts: Acer Nitro 5 (WSL), Raspberry Pi 4, Mac Book Pro M4 Pro
+  - Formats: lz4hc, zstd, lzma; cluster sizes [4096, 8192, 16384, 32768, 65536]
+  - 10 runs per configuration
+
+Results (best of 10 runs; ST Base = current master, MT Trav = 1/2,
+MT Comb = 1/2 + 2/2; ImpP1 = improvement from 1/2 alone,
+ImpP2 = additional improvement from 2/2, ImpAll = total vs master):
+
+Minimum Execution Times (Best of 10 runs)
+|Alg  |Clust|ST Base|MT Trav|MT Comb|ImpP1|ImpP2|ImpAll|
+|-----|-----|-------|-------|-------|-----|-----|------|
+|lz4hc| 4096|  3.80s|  2.75s|  2.74s|27.6%| 0.4%| 27.9%|
+|lz4hc| 8192|  3.55s|  2.68s|  2.60s|24.5%| 3.0%| 26.8%|
+|lz4hc|16384|  3.43s|  2.59s|  2.58s|24.5%| 0.4%| 24.8%|
+|lz4hc|32768|  3.52s|  2.57s|  2.44s|27.0%| 5.1%| 30.7%|
+|lz4hc|65536|  3.37s|  2.33s|  2.33s|30.9%| 0.0%| 30.9%|
+|zstd | 4096|  4.33s|  3.00s|  2.86s|30.7%| 4.7%| 33.9%|
+|zstd | 8192|  4.21s|  2.88s|  2.84s|31.6%| 1.4%| 32.5%|
+|zstd |16384|  4.00s|  2.75s|  2.69s|31.2%| 2.2%| 32.8%|
+|zstd |32768|  3.98s|  2.61s|  2.58s|34.4%| 1.1%| 35.2%|
+|zstd |65536|  3.89s|  2.59s|  2.56s|33.4%| 1.2%| 34.2%|
+|lzma | 4096| 51.44s| 33.39s| 14.23s|35.1%|57.4%| 72.3%|
+|lzma | 8192| 61.08s| 42.71s| 15.11s|30.1%|64.6%| 75.3%|
+|lzma |16384| 65.37s| 47.38s| 15.77s|27.5%|66.7%| 75.9%|
+|lzma |32768| 70.51s| 52.73s| 16.44s|25.2%|68.8%| 76.7%|
+|lzma |65536| 76.19s| 58.38s| 17.83s|23.4%|69.5%| 76.6%|
+
+Mean +/- Standard Deviation (10 runs)
+|Alg  |Clust| ST Base  | MT Trav  | MT Comb  |ImpP1|ImpP2|ImpAll|
+|-----|-----|----------|----------|----------|-----|-----|------|
+|lz4hc| 4096|5.37+/-6.98s|4.21+/-0.99s|3.30+/-0.85s|21.6%|21.6%| 38.5%|
+|lz4hc| 8192|7.42+/-13.7s|3.98+/-0.51s|3.14+/-0.77s|46.4%|21.1%| 57.7%|
+|lz4hc|16384|4.06+/-0.95s|3.27+/-0.86s|3.02+/-0.77s|19.5%| 7.6%| 25.6%|
+|lz4hc|32768|5.33+/-3.29s|2.88+/-0.47s|2.76+/-0.28s|46.0%| 4.2%| 48.2%|
+|lz4hc|65536|4.40+/-2.11s|3.11+/-1.19s|2.65+/-0.56s|29.4%|14.7%| 39.8%|
+|zstd | 4096|5.96+/-3.65s|4.01+/-1.97s|3.08+/-0.36s|32.7%|23.2%| 48.3%|
+|zstd | 8192|4.99+/-2.23s|3.08+/-0.33s|3.03+/-0.16s|38.4%| 1.7%| 39.4%|
+|zstd |16384|5.42+/-4.06s|3.13+/-0.53s|3.03+/-0.46s|42.2%| 3.1%| 44.0%|
+|zstd |32768|5.34+/-3.90s|3.96+/-3.19s|3.05+/-0.52s|25.8%|23.0%| 42.9%|
+|zstd |65536|6.08+/-4.36s|3.86+/-3.24s|2.87+/-0.39s|36.5%|25.6%| 52.8%|
+|lzma | 4096|52.16+/-0.6s|34.38+/-2.1s|16.06+/-3.1s|34.1%|53.3%| 69.2%|
+|lzma | 8192|61.45+/-0.4s|43.34+/-0.9s|15.85+/-0.6s|29.5%|63.4%| 74.2%|
+|lzma |16384|65.69+/-0.5s|47.78+/-0.4s|16.30+/-0.4s|27.3%|65.9%| 75.2%|
+|lzma |32768|70.79+/-0.3s|53.02+/-0.3s|17.15+/-0.4s|25.1%|67.6%| 75.8%|
+|lzma |65536|76.50+/-0.4s|58.71+/-0.3s|18.10+/-0.2s|23.3%|69.2%| 76.3%|
+
+Summary of Improvements:
+Patch 1/2 alone provides a reliable 24-35% reduction in minimum
+execution times across all tested formats and cluster sizes simply by
+parallelizing the traversal walk. 
+
+Patch 2/2 targets CPU-heavy decompression, delivering a massive
+secondary impact for LZMA. LZMA extraction drops by a further
+57-69% on top of patch 1/2, resulting in a 72-76% total execution
+time reduction compared to the current master. Lz4hc and zstd are
+fast enough to bypass the background worker pool, so their ImpP2
+remains negligible, as intended.
+
+Nithurshen (2):
+  fsck.erofs: implement concurrent directory traversal
+  fsck.erofs: add multi-threaded decompression
+
+ fsck/main.c              | 580 +++++++++++++++++++++++++++++----------
+ include/erofs/cond.h     |  31 +++
+ include/erofs/internal.h |  16 +-
+ include/erofs/lock.h     |   2 +
+ lib/data.c               | 377 +++++++++++++++++++++++--
+ lib/global.c             |  12 +-
+ 6 files changed, 848 insertions(+), 170 deletions(-)
+ create mode 100644 include/erofs/cond.h
+
 -- 
-2.55.0
+2.52.0
 
 
