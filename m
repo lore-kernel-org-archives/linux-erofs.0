@@ -1,87 +1,133 @@
-Return-Path: <linux-erofs+bounces-4581-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4582-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AF982C982CC
-	for <linux-erofs@archiver.kernel.org>; Sun, 20 Sep 2026 07:59:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9774C982DA
+	for <linux-erofs@archiver.kernel.org>; Mon, 21 Sep 2026 02:29:00 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hnf015lpMz2y8c;
-	Sun, 20 Sep 2026 17:59:29 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::431"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789891169;
-	cv=none; b=LDHvwp+mdqPqd11aU/YPQt1+wlKxIxjI7jmqwwiuKMxh52BBErW1mIETDPyY1E1pkkEV26+j038YEvA6BjsiSboelDO80p3p8h0ASwYECCjndTA2IuUczEejInSTOSLkHFLcQNi27M2aif0xXXBjkaazIMJXUd1NJrVoTM2dwwunwal+CbCZNcrI+oHzSNUraBefVBYeRRV2NswUlb2C+vOongVZHies/pSewb6t/0nAIktR3f9vQhYj2huNkE2BCcUMRe2V37fBLiJenZjTeBkwOQVOsdcEJNM2p2aEfCFaPbqS6xIiI3h2uqYFSvUbH/vAiy7d9HFpQQp9h61V7g==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1789891169; c=relaxed/relaxed;
-	bh=0c78Z2vKrdMRWU65XsyDjEBSPDNGNHPw7EgjwZGly+g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nvp+8pnql3mlAkMNI3lDPgdt7ROHqthN9F8JMB2udorkyPN3EsbF91ndOGZDqTWZSaTHdX9Mz7IF5otPVaMSFi02qcz8inCVBzapdqZXTqaHYGwOfJl3Xc+43W2rdpXnCZBuucT553/pig7Bwq6hxV/G0Rn1VqQG36jedsHA9mhDwlqiuiEj7Atq/sR2oweK70BVRTFzgtmfp1LrGEeQQsdtf/qrlFcPrJ2TwuizYj84FdAADhf9v8EnNr27EZIzhT1Vs5P2xpvj7cLfP3s4y7PzSsl7IpmkB1IQA9soFZaCpt3GeAmqBp3Vx/P6N+K9KaHYHMyb1qW+h0tLMJWHuA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=CIqlBlvn; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::431; helo=mail-wr1-x431.google.com; envelope-from=mike.malyshev@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hp6cB4lS8z2yDc;
+	Mon, 21 Sep 2026 12:28:58 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a01:111:f403:c10d::3" arc.chain=microsoft.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1789957738;
+	cv=pass; b=IB68r5948HHer7CfuYiuapX3A0YZ5CqEgmkHesgr0isQ/iNFy3beqBi6TJNpLImtpJhQNsNtP7UWHBUPvzLUJADWlezxPbjdvtpbMe/OmZGta9xQfhpNqpO2dK5rS+kpQMPJ71gDrGf8jz4ptlxS/tlzhHMrbkJPQph9HVL4WHUcg8b4CUG0SnsWg1otUzoaqU+CFgL5ewbBRCxmnNLDYMEvlwt5zJj5EY0p4+G2r1u5emuBQI/oKmQACgXt6pQq8UlN9ZUMEhF3m5nH0q32nbP+LaWTcwc7QCvyLbAA0R16mqFW2BDNKCiwmGwYMP8/JpJwlqB19jS7GlmwuQsjXw==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1789957738; c=relaxed/relaxed;
+	bh=CTl7/MYdyvkpIqnqDSwOLFKKPNvDoeCHW7e7oy+63k0=;
+	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=DNkJnLX1DEE7jKAcwfuc8m6L4mIzDO0v0B3WpreWQlVW8lI2t0VnyvdzPuJnDOlQ0p6XkedKOmoeD5sH1X46azsavs4XWyxC7zk+MxmIikJEywKMnwMrTE/CVrzxPXY0PDz8jLQnZGHytAiT7biNr5lWP4Lfsc7qnvdiUfy8mcp+reVCTuWVFHC4Y/38O3SPILvvrpc48ti3041AvVk4W7WNy7khSW65l93TkPCKs1+Gqd98QplrjJWGTY8uy3wbJYTDqA8ruH1RZSI6HvxeFlC2VaRjIz/iOfUa+6kfCmDqfE79EyDdarwa+Ec5Py2d/wAnSN/TYSigTaJTpSBmRg==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=fEXTqQxI; dkim-atps=neutral; spf=pass (client-ip=2a01:111:f403:c10d::3; helo=sn4pr0501cu005.outbound.protection.outlook.com; envelope-from=ziy@nvidia.com; receiver=lists.ozlabs.org) smtp.mailfrom=nvidia.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=CIqlBlvn;
+	dkim=pass (2048-bit key; unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=fEXTqQxI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:20::431; helo=mail-wr1-x431.google.com; envelope-from=mike.malyshev@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=nvidia.com (client-ip=2a01:111:f403:c10d::3; helo=sn4pr0501cu005.outbound.protection.outlook.com; envelope-from=ziy@nvidia.com; receiver=lists.ozlabs.org)
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazlp170110003.outbound.protection.outlook.com [IPv6:2a01:111:f403:c10d::3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange secp256r1 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hnf0029Wbz2xqM
-	for <linux-erofs@lists.ozlabs.org>; Sun, 20 Sep 2026 17:59:27 +1000 (AEST)
-Received: by mail-wr1-x431.google.com with SMTP id ffacd0b85a97d-48586861639so777303f8f.0
-        for <linux-erofs@lists.ozlabs.org>; Sun, 20 Sep 2026 00:59:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789891164; x=1790495964; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0c78Z2vKrdMRWU65XsyDjEBSPDNGNHPw7EgjwZGly+g=;
-        b=CIqlBlvn+h1qWnfXNVAcZo/SVKQI2maUNihb8ScUiu9scpi8pHH+pjaY/ImlgnPzEA
-         SnwEDK5yNtPg34Xnm8Y5Z+5XbXFTufhjFH+s7QJtJ1msnuJuIWVSvXLZSEQQKw0U3wT3
-         BttlRo/4wUEDoRVQEW9RVXIfKh0TvhbarhQbbQ7JTSZzGaO5mepjPRiuPrHxXV/wVZ2k
-         aReDfoeOcQpjNBG06YWXZC9PvGqsK6osAflVJ6bOySunGdr/SWvKhnhdoyWnBSzJG75h
-         Ip+da/fKlkujuC9FpnpwMmm+3mMQ5NFQHDkKQHpUM6jrh58VnZtkxJ+cWusxanUXS8Q6
-         MTKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789891164; x=1790495964;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0c78Z2vKrdMRWU65XsyDjEBSPDNGNHPw7EgjwZGly+g=;
-        b=MrzHVXwQxi6v7/CQ9OfJMPU0jnBg6MB879Be08Vg6EN+PlW2Ywc1UvhW+Szg5MIzcd
-         5fmd9F8+H7cuRCYTBtj8RifRGkWcojhnolCi/+XY3wj8Z/0nPsxYYvf7iDuOpMdGnsNw
-         4qQdH7VYN+R+NZv5DMLS7MY0TgzhQyqAHHb9Ax1X63ufGG6fb0bLvFO16dHS/nxHcDin
-         lXWrlweOio2tJHt8wJsqq15xji06AE0gvJCjr/jHUKo+bvK0NPeJc4Ip9hHYQ+LM/pc5
-         j+EYolFdS0dWrX5O0xQqTdBKUlU4guBZpwRtAX0eoby8od0J3c5Zm3SEeMguApDs+EXn
-         HZJA==
-X-Forwarded-Encrypted: i=1; AKwUvBzwpYMuAgUaWprZ/rQlONnQJRp3ZiZEpyqn49fdX0EHbYefTID6IMQ53+TTbpOetQoSmImBzd17DCM5Zg==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++lQthpfdUYEk0YALlUk0poQL44gRpoekATRF0nO3LL1d6of8YNa
-	AK8AdvSJhoSoNWZGEgXi0swJSup9OZe0U+0LMKFEim8jwnVs5c1pEmKcnqhv2pNs
-X-Gm-Gg: AYBFou3qOrm1+DZnu8S4vGVQWo0m2f1C5zEO+LG81kVs71bIxxOrz/rzQb0+NpsIrJl
-	6sF65sGyBKuQTvoDzRz0h0sJV2Atm+xbXQjqWKyCmBe7p16f/8OAPAPrLx+0gS7Ajg++ciTZAtm
-	CtCjsbKYV0Ny5OXKyYZFUh6+6BTJ+fY3h2Lv7DSChe7fBkWk+NyfooDF9hmptAt2rPDXF1dh3NH
-	8bvkh+jBgDmFiULKLQeOC+TioIrXifuER7qC7r64/2HuMfmxH6UW0B6FTcSgHrUUr/hyUUebM0D
-	RBXxVu5KBmoJJckyk1t/7mxym9RGzd+n3FDnXuaq0+Chr7rmvJZkSh1D2wSsu+HHfWAH8pcI32k
-	o3O/oIK8go+bTMTwKlW7FIP9YeQ5Rjh0N5wHF5jEr+6vOUVsHDTncJkTltWciFspgVXMvoET/9M
-	kZBV/3+G/mLll7Aft8VcEwZwMKCVjBz4AK/4E0p44svM1vCbc+jEzws/4xwMmKQQwcQVyYx5wKF
-	VoV
-X-Received: by 2002:a05:6000:643:b0:487:955:e6c3 with SMTP id ffacd0b85a97d-48713a887ccmr17910040f8f.0.1789891163771;
-        Sun, 20 Sep 2026 00:59:23 -0700 (PDT)
-Received: from build-server.. ([62.96.37.222])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4872459c3e9sm11905622f8f.32.2026.09.20.00.59.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 00:59:23 -0700 (PDT)
-From: mike.malyshev@gmail.com
-To: Gao Xiang <xiang@kernel.org>
-Cc: Mikhail Malyshev <mike.malyshev@gmail.com>,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2] erofs-utils: lib: follow symlinks on intermediate tar path components
-Date: Sun, 20 Sep 2026 07:59:22 +0000
-Message-ID: <20260920075922.3495867-1-mike.malyshev@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <apBrWmPu9hMDcZHS@192.168.5.19>
-References: <apBrWmPu9hMDcZHS@192.168.5.19>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hp6c84FPFz2xk7
+	for <linux-erofs@lists.ozlabs.org>; Mon, 21 Sep 2026 12:28:55 +1000 (AEST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=RRFY7uye0kx9GQjjkISBpRHpDPL29B8yQ8lXNXezss2d2gGhkyEutGGa453W1maOcE5lOC0c87pJYQSpAovCTeVp79gCbcGzIb1UsGjMcEkg6D7MwCpdDlVlVV64xw/2hfSWrKZ+SSEKkb92rUy2RuT1uPDh0D26tF1YqL0Ii6SAoNeZbcf6UGGOB8Cjxc7LkJ46mn16Qo2DbtAaHvqdi200cHvnlPNSPKi1AQ9JNz/U9PCYDi6j9gB2V2wfxR78nSAq7MrEsu7e20E+bbhKT0llTFJRt22gtee/mIbq4YYaUQwPmTQjBgkQQZBvXGPy8J/wMOTso6+IukkamcdsZw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CTl7/MYdyvkpIqnqDSwOLFKKPNvDoeCHW7e7oy+63k0=;
+ b=C4tE/dxsYHZQAyzC2DHfdVYqYy6Byc+yhITkYPh+yeVAmZJldjQuSs1hcIMiS9tHypL7L7UsSL5kASM8SXhAAa6ZXtRXCRE6wssr8zCstro7lTgF+RYkma/KGDucTovMozlA1dD3O/L7ZTqandjqyjNP/AWQbqxiEDj6Havc3M7kDYSNdgLyW0Bp7UA+UbK7zLx7xNqT+CNh4IgyQx4jUCdUTRp/MneciXqrB7gt9ucSbri5bbULTtdf2w1tV9i2dHX5+zqsasXbq9olvlUVQBDSogo4z+v2r8TR8Zmk024RYV0RjwxIotJoU1ipBUV4/1wPuYECVSZkDv4hmEIfBQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CTl7/MYdyvkpIqnqDSwOLFKKPNvDoeCHW7e7oy+63k0=;
+ b=fEXTqQxIw31L8b/z2am/tbWCoSGLWor9huaABv/x7xO/ux5Vo7KYzrKY0kLSbPSsVlIWvou7Cidj/Ich23k2IsLy0eViq/qPUwVYgWStZgMSFCf5K2OeSVfKb/zUn1YeuUql3/xMHIwHA+2U4sUTKe43+NwjTxEfNPKqY1TxKW4++6qxXGCXv2ORuACN4FESbTm7chTOCAB1KQTHvtIyYdapyNsELsFXg3k6KBHYTJ6misbEwJSVUf0IfSbN1YgJAIXjww+rlfKmtfdqE7nqZHyBhhEua/pP4J85O6YSeSRsIRKSXo+2XC0Hg7/qsOXLAtaDI/t4eXjNVE9C0LJoCA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from IA0PR12MB8374.namprd12.prod.outlook.com (2603:10b6:208:40e::7)
+ by DM4PR12MB7719.namprd12.prod.outlook.com (2603:10b6:8:101::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.16; Mon, 21 Sep
+ 2026 02:28:20 +0000
+Received: from IA0PR12MB8374.namprd12.prod.outlook.com
+ ([fe80::d85f:4c87:ae84:3f16]) by IA0PR12MB8374.namprd12.prod.outlook.com
+ ([fe80::d85f:4c87:ae84:3f16%6]) with mapi id 15.21.0428.014; Mon, 21 Sep 2026
+ 02:28:20 +0000
+From: Zi Yan <ziy@nvidia.com>
+Subject: [PATCH v5 00/17] Remove PG_private by using page/folio->private
+ checks instead
+Date: Sun, 20 Sep 2026 22:27:56 -0400
+Message-Id: <20260920-remove-pg_private-v5-0-bb68b6a21869@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23OzWrDMAzA8VcpPs/Dlr932nuUUjxHbnVoEpxiW
+ krevU4YdKM5/gX6SQ82YSGc2NfuwQpWmmjoW5iPHUvn2J+QU9eagQArHHhe8DJU5OPpOBaq8Yo
+ 8ZQxgk8teJdb2xoKZbqu5P7Q+03Qdyn09UeUy/dWU3NCq5IJLDSm4n6iMhe++UkfxMw0XtnAVX
+ oTfJqARylovTUhdQP9GqBcRhNsiVCNsRIAcugDu/Qv9h5Bqi9CN8NobI7IzTuM/Yp7nJ2Wbryl
+ 8AQAA
+X-Change-ID: 20260728-remove-pg_private-cfe926c7f83c
+To: David Hildenbrand <david@kernel.org>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Muchun Song <muchun.song@linux.dev>, Lorenzo Stoakes <ljs@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, 
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+ Gregory Price <gourry@gourry.net>, 
+ Ying Huang <ying.huang@linux.alibaba.com>, 
+ Alistair Popple <apopple@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+ Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+ Kairui Song <kasong@tencent.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ Zi Yan <ziy@nvidia.com>, Minchan Kim <minchan@kernel.org>, 
+ Sergey Senozhatsky <senozhatsky@chromium.org>, 
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, Mark Rutland <mark.rutland@arm.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+ Adrian Hunter <adrian.hunter@intel.com>, 
+ James Clark <james.clark@linaro.org>, "H. Peter Anvin" <hpa@zytor.com>, 
+ linux-perf-users@vger.kernel.org, Juergen Gross <jgross@suse.com>, 
+ Stefano Stabellini <sstabellini@kernel.org>, 
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+ xen-devel@lists.xenproject.org, Eric Biggers <ebiggers@kernel.org>, 
+ "Theodore Y. Ts'o" <tytso@mit.edu>, Jaegeuk Kim <jaegeuk@kernel.org>, 
+ linux-fscrypt@vger.kernel.org, Oscar Salvador <osalvador@suse.de>, 
+ Chao Yu <chao@kernel.org>, linux-f2fs-devel@lists.sourceforge.net, 
+ Tal Zussman <tz2294@columbia.edu>, Gao Xiang <xiang@kernel.org>, 
+ Jan Kara <jack@suse.cz>, Yue Hu <zbestahu@gmail.com>, 
+ Jeffle Xu <jefflexu@linux.alibaba.com>, 
+ Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>, 
+ Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+ linux-fsdevel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Matthew Brost <matthew.brost@intel.com>, 
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
+ Byungchul Park <byungchul@sk.com>, 
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+ Wei Xu <weixugc@google.com>, linux-trace-kernel@vger.kernel.org, 
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
+ linux-nfs@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>, 
+ Alex Markuze <amarkuze@redhat.com>, Viacheslav Dubeyko <slava@dubeyko.com>, 
+ ceph-devel@vger.kernel.org, Richard Weinberger <richard@nod.at>, 
+ Zhihao Cheng <chengzhihao1@huawei.com>, linux-mtd@lists.infradead.org, 
+ Baoquan He <baoquan.he@linux.dev>, 
+ Pasha Tatashin <pasha.tatashin@soleen.com>, 
+ Pratyush Yadav <pratyush@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+ Dave Young <ruirui.yang@linux.dev>, Shuah Khan <skhan@linuxfoundation.org>, 
+ kexec@lists.infradead.org, linux-doc@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-ClientProxiedBy: YQZPR01CA0096.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:c01:84::29) To IA0PR12MB8374.namprd12.prod.outlook.com
+ (2603:10b6:208:40e::7)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -93,166 +139,337 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: IA0PR12MB8374:EE_|DM4PR12MB7719:EE_
+X-MS-Office365-Filtering-Correlation-Id: cd7bc866-ada1-4775-a366-08df1788007e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|7416014|23010399003|366016|921020|3023799007|6133799003|10067099003|56012099006|5023799004|11063799006|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	jVeqbV/tHFeiMu+SHY69AVMUwlHgvJsFntwh78c0mOcyBYkE8gAjYMbep7rFh8vHMGgr8l7yUZE0wDAJUPHvuknsIrb4O+8a8CBU5khXkWuMT+npJhPIuSRVZKqAXkS6AUfSBuwwxl7f3QNiNU+g4Qk/Qz5PmSRNx55YKYEiDYSb55PzugiK3ZDls1OYDO3v7MpXnErGtt8oYnSGtUru5y3fimvQH+lf0rZLZm2+oXMLQNsu83LlHdG99VtP6Njhe6MJbXuqX8q5F1rD/jCXNX2wYn8PLKDDdgZykqjyL1BvD6H14oNNo+G/QudzvRY77JbHnOJfhGWnIp1dSLfxa+OjBX1b80BYxzKQd0bAchUIwnQFMIHAezbWzJ08R1jRMcq/11N0FReMEhWF1GPfKuMEh04duME2n6TloQln/Qc99yjLw0DDTr0X5vL3NJ+tlN/aSUtrzclqW5fsIDUHFOW6X4ryYk8GRDzm3ohrdzu2gWRCEg90EEJqKp6rzqFAuUndZvP/69JkVVw0lhJSQaPElhG/kpxVTut8iWtLi3QBhQpc2G+2oWMnQmTrxW20F4aQlX5gRFsRrHp4w+zciUct2j0VVdvsbZ8trJDLj+mGNgdE1I25ddAnyDjmbr8eeckeeGIqtfjL1uI3WeoeM99Xa9VuytHz5wAtj5HVOXJq3cDZ4gqbt9qr5aDkOV+74+B9ckF4Zxx/OgvbcR51ZA==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR12MB8374.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(23010399003)(366016)(921020)(3023799007)(6133799003)(10067099003)(56012099006)(5023799004)(11063799006)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?eWpRa1g4TTBZTnQ2bnRZS3h1WFA4c1gzWm4xSFB3Z3JNZFZJcGk1cm5aVGF0?=
+ =?utf-8?B?dnhIY3hJdDBSaWxZTnVHR3BrTGRGUGZScHI3MVFrbTcxbEJ6d3dBN3NRcy9T?=
+ =?utf-8?B?RlZ6STN1Yi9VMnlOSTJodjA3M0dqK0Z3TG5KNnI0M2VNUGh4NVU1SFk3Vmk5?=
+ =?utf-8?B?ekZmTXpEUnZveFdHdFpMMkRmdjBtT3JNV2l6L29NUmdYZjFHZWpSMVE0V2ln?=
+ =?utf-8?B?bDNWZktoRjZEbGRtUHBxSmp3OGdZc2hBeFVvUyt6ajVQMkE2OXNqbHFJS2Vu?=
+ =?utf-8?B?ekduYlJVZkI0ek44NXdvMW5KUW55aXdRR0JPd3lPeE53Y0ZuZjJOb2VkMTYx?=
+ =?utf-8?B?c1cvSHh0S3RCNWxQT3J5cTJBazg2WVc3dUdXeUxkQ0FnMHZhM3ppdWY5TFhl?=
+ =?utf-8?B?djhIcHdTNlFtZEswcHZCUkZyKzlwMVRjS1VkejhESlZFa1U0d1hmVXFzcDZw?=
+ =?utf-8?B?V0VUcktpRmNCZTNWaXNuR0dQVTNueThqQzFidFJxOTA2YU5hOTdoYmZGNllx?=
+ =?utf-8?B?eUl0K1RLU2V2QmZzWnErVk8vSmhOYkVFQk9YRFdwdXJ1WWNxQk9vc3NWTE9B?=
+ =?utf-8?B?TEdYdUNQUHRUS1crNjA0T2hJUUtySSsya3czK2dDbUJGMTNPbDJyWEVYNk5q?=
+ =?utf-8?B?K3Azc2hTWUNKdnNIalZiMjdhVzJ0OThLWkg4ckU2ZkRnTzFzUjdKRGZSRXpr?=
+ =?utf-8?B?cGl1dGo0bTRqRzdQSldDQWM0bnpXdWxqNG9rdDh2TklqR0VaelNVYkVPTkVB?=
+ =?utf-8?B?YzhBN3ljUFkzeUxvOUloZndyNjY5Z3FSL0FDeHIreXBsZWplL1I5TmhQREw5?=
+ =?utf-8?B?dm1TTm9wdldrc1ZIK2RUWHJVZnEvbjlPMTVKSGhoSXdLc0tPK0pjSnJmWHY1?=
+ =?utf-8?B?NStheFlWUExNS3RLLzAvYmhSVmk2S3V0bS94Q2ZySlJtYUYxQlkrZkRhU0Zh?=
+ =?utf-8?B?YjdnQkZua05CS29Ua2pxUWUzNjRuRHltQnhRWVIxVFBQN0pDSWhSOWZuNDhE?=
+ =?utf-8?B?M21oR0ZLL2ZSaUdnWThwb3NtQmtrZmc1dkpSMmxPMU05VWppWlJYVFZUVHlz?=
+ =?utf-8?B?MW50Qm5TVE1zbElPMWVURFhNdG5VbjVzdnNvZW1wTE85Sm4raEh6ZW4rVFBC?=
+ =?utf-8?B?RExVc0s0M2R3QkNMK2J0Z2RxM1NVMW5OU05XS3h1M09YQlZWMTNqMFZTVXM4?=
+ =?utf-8?B?dVJjdUdvR1Ird3lBekVGd1ZWVndnWEFNbTU3ME50dzh0L0l4WUhDb2tVcmUx?=
+ =?utf-8?B?aTJiNG9pS3NhN0xJU2hxMU1xSEFYNDA0UVpCSy9nSFhuV3RaZkxpcmdFZ2x0?=
+ =?utf-8?B?Z205cTB0WG5USUdJeGJHOEF0R3hJay9aZUVnVUhCc1JudVFGL0g1alFyeG9C?=
+ =?utf-8?B?UHUybldqS3BvRGx6MDc0bnpwS1VOYkNmRnVEdE1qQ2l0Mm9NODBqdVV1UEtZ?=
+ =?utf-8?B?Zm9pZWF6K2hSVFg3M0l4K3FDNko3Sy9vQ3UwdWNad3ZyQ1FOeHpGNlc5aytt?=
+ =?utf-8?B?cXZRQUl2T0xUTkRoWno1TFZZV3NDMXZEWk9uNk1Nc1VYM2VBNEprVVd3cTkz?=
+ =?utf-8?B?S3lrTkZLRjJDNWpqdWtENkcrN3pMbjV0RUt5UlVodzRFZGtRWkhTdndBMncx?=
+ =?utf-8?B?Zk5Wd2d4NTdTb3BNaDNlSndvV1RaUXM1QXB4SGNVKzlWRVBEYlRaRk5idmRr?=
+ =?utf-8?B?UTM3cDJsQlMxczBjaW90R29ickJTME02UXRDME0yM0NBMGV0cVB2c3BHVEVQ?=
+ =?utf-8?B?RktwK1MyT3kzMXlzbStCazF5YTJCMitHbWRra2ErWXRXYmE3aGU3bFRGSnZW?=
+ =?utf-8?B?VkhqUXhjZ0NaQU0zUjFJNHBiTWMxUUR1cmxBN1BwZFp4RGNYRlFpTjJSTlZn?=
+ =?utf-8?B?dGRDdGR3OHpiem1nbGl6cHdlWWtGdlZ2Vnp3aG04bUJBNFd3c2l1Rlh5MG54?=
+ =?utf-8?B?dGM0NW9MbFhucmFOMG1FSmVxQXh2MG5SM0xQNnc0MklWMFgzQ1V2NTF2a3h1?=
+ =?utf-8?B?OGRvcCtxcWRVcTdwMVlzWW94aGhsd0dMVFZZaWhQejRjeGdMZ1hyOG5wTGJ4?=
+ =?utf-8?B?cFRlQm9UTlp1ZU44MW9kVWNoSnh0TlpsZ2gwaWNFRG5DMG9xMVVOTWtuOUZv?=
+ =?utf-8?B?RDZVSHZaaWtaZmpNTzI3Z0h4OWlGd3o4YmxmRFhlT0U2YmRxaEVEaGNZWU1u?=
+ =?utf-8?B?UUdoUWw3dUg3TVZLS3p2VTZmUEZZTU5JZnRPWXR5VW5QMzkwKzZlRUFUVU0y?=
+ =?utf-8?B?TE9xTFllTWRMTjFwRWxKd2tmU1hUaXlRSHJTbjRuOGdSclhTa284U28vQ1FT?=
+ =?utf-8?Q?F1TFjtIkGgWhFLH9mx?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cd7bc866-ada1-4775-a366-08df1788007e
+X-MS-Exchange-CrossTenant-AuthSource: IA0PR12MB8374.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Sep 2026 02:28:20.2879
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vyBX7Kyzqii8eJcu8TMIvK1/ygKw2l6cNqXR5BHUUQfr5ne4lK/kybDBlk0qcMdP
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7719
 
-From: Mikhail Malyshev <mike.malyshev@gmail.com>
+Hi all,
 
-mkfs.erofs --tar fails to convert layers that store files underneath a
-symlinked directory, a common "usr-merge" layout in RHEL/UBI/Fedora based
-OCI images.  For example a base layer contains:
+This patchset removes PG_private to make space for upcoming PG_folio for
+identifying pages from a folio (more details in Note below). Instead of
+checking PG_private, all code is changed to check page/folio->private !=
+NULL instead.
 
-    lib64 -> usr/lib64        (symlink)
-    usr/lib64/                (directory)
-    lib64/libc.so.6           (regular file, recorded under the symlink)
+MM people are cc'd on all patches and subsystem people are cc'd on the
+cover letter and corresponding patches.
 
-These paths are not hand-crafted.  The glibc RPM ships its dynamic loader
-and core libraries under /lib64 (and /lib) rather than /usr/lib64, so on a
-usr-merged base image (where /lib64 is a symlink to usr/lib64) the packaged
-files are recorded under the symlinked component.  In the cdi-operator
-layer above all 19 glibc objects (ld-linux-x86-64.so.2, libc.so.6, ...)
-appear only under lib64/, with no usr/lib64/ counterpart, so correct
-placement depends on resolving the symlink.
+This patchset is on top of commit ef0ea92854987 ("mm: zswap: return -ENOENT
+when the swap device is gone") from mm-new, which is the same base as V4 of
+this patchset and no conflict is found during the rebase. I also tried to
+cherry pick the remaining patches from mm-everything on top of this
+patchset and find no conflict.
 
-erofs_rebuild_get_dentry() walks the path component by component and, when
-it reaches "lib64", finds an existing dentry that is a symlink rather than
-a directory.  As there are still components left to resolve it bails out
-with -ENOTDIR, which surfaces as a bogus ~2 TiB image and "Could not format
-the device", making the whole layer unconvertible although the tar is fine.
+Patch 10 and Patch 13 are the only two patches without any Ack or Rb tag.
 
-Extraction tools resolve such a path by following the symlink to its
-target: GNU tar (1.35) and busybox tar (1.37) both write the file to
-usr/lib64/libc.so.6 and keep lib64 a symlink.  (bsdtar/libarchive instead
-refuses with "Cannot extract through symlink" under its default
-ARCHIVE_EXTRACT_SECURE_SYMLINKS anti-symlink-attack policy, i.e. an
-explicit opt-out of normal resolution rather than different semantics.)
-It is standard POSIX pathname resolution: a symlink in a non-final
-component is followed.  containerd's walking differ, which applies these
-same layers, does the same -- it resolves each entry's parent with
-fs.RootPath ("evaluating and bounding any symlink to the root directory").
+Overview
+===
+Most code uses folio_attach/detach/change_private() functions, so folio
+refcount is increased and decreased when folio->private is set and reset,
+respectively. There is no need to change them.
 
-Do the same during tar rebuild: when an intermediate path component
-resolves to a symlink, follow it to the target directory (relative targets
-from the containing directory, absolute targets from the tree root),
-chasing chained symlinks up to a bounded depth to avoid loops.  As the
-rebuild operates on an in-memory tree with absolute links re-rooted,
-following cannot escape the image.
+Changes are needed for exceptional users:
+1. zsmalloc uses PG_private to indicate first component zpdesc page and
+   page->private is used to store zspage in zpdesc. To remove PG_private,
+   is_first_zpdesc() is replaced by pointer comparison.
 
-Signed-off-by: Mikhail Malyshev <mike.malyshev@gmail.com>
+2. kernel/events/ring_buffer.c stores page order in page->private.
+   Replacing PG_private with page->private != NULL works.
+
+3. drivers/xen/grant-table.c stores xen_page_foreign in page->private,
+   where on 32-bit, a pointer to xen_page_foreign is stored; on 64-bit,
+   page->private is used as xen_page_foreign. PG_private check is replaced
+   by page->private != NULL on 32-bit for xen_page_foreign deallocation.
+   On 64-bit, page->private is cleared unconditionally since {domid=0,
+   gref=0} (xen_page_foreign can be 0) is valid.
+
+4. fs/crypto/crypto.c stores a folio pointer in page->private, PG_private
+   checks are replaced by page->private != NULL.
+
+5. fs/erofs has two different uses:
+
+    5a. folio->private is used to form a reversed list of
+    the outputs of readahead_folio(). readahead_folio_last() is added to
+    output folios in reversed order, so that ->private is no longer needed.
+
+    5b. folio->private is used as an in-flight I/O counter. Convert the
+    code to use folio_attach/detach/get_private() and add bias==1 to the
+    counter to avoid folio->private being zero.
+
+6. fs/nfs/write.c: folio refcount maintenance is in a bigger scope than
+   folio->private. So folio_attach/detach/get_private() is not used.
+   Nothing to change.
+
+7. fs/f2fs uses attach_page_private() to first reset folio->private then
+   immediately sets PAGE_PRIVATE_NOT_POINTER bit on it. Change it to use
+   attach_page_private() to set PAGE_PRIVATE_NOT_POINTER bit directly to
+   avoid folio->private == NULL gap inside set_page_private_##name().
+
+8. hugetlb uses folio_change_private(folio, NULL) without folio refcount
+   maintenance. Change it to folio->private = NULL.
+
+After the above changes, PG_private ops are converted to
+page/folio->private ops.
+
+folio_has_attached_private() is added to check filesystem-only private data
+by excluding swapcache and hugetlb folios, because swapcache folios overlap
+swp_entry_t swap with ->private and hugetlb sets its own flags in
+->private.
+
+Note
+===
+1. KPF_PRIVATE is removed after PG_private is removed.
+
+2. Documentation/mm/hugetlbfs_reserv.rst is outdated, so I did not remove
+   PG_private related text. It should be rewritten.
+
+3. PG_folio is planned to be set on every page from a folio in
+   page_rmappable_folio(), so folios with any order (currently
+   PG_large_rmappable is used to identify >0 order folios, but not order-0
+   folios) can be identified. Then vm_insert_*() can correctly reject all
+   folios and rmap code will only see folios. Eventually, page_folio()
+   will return NULL for non-folio pages by checking PG_folio, but before
+   that all existing users that treat compound pages as folios will need
+   to be converted.
+
+Tests
+===
+1. allmodconfig build passed.
+
+2. zsmalloc is tested using ext4 on a 1GB lz4 zram:
+    2a. zram load + zsmalloc compaction;
+    2b. concurrent zspage migration via memory compaction;
+    2c. confirmed that multi-page zspages actually formed.
+
+    Details: https://github.com/x-y-z/linux-dev/blob/b4/remove-pg_private/test_zsmalloc.md
+
+3. erofs is tested on images created with -C4096 and lz4hc, lzma,
+   deflate, and zstd algorithms:
+   3a. cold read of all files, verify checksums match source;
+   3b. readahead + reclaim/migration race.
+
+   Details: https://github.com/x-y-z/linux-dev/blob/b4/remove-pg_private/test_erofs.md
+
+4. fscrypt is tested on software-encrypted ext4 with writes to exercise
+   bounce pages.
+
+   Details: https://github.com/x-y-z/linux-dev/blob/b4/remove-pg_private/test_fscrypt.md
+
+5. f2fs is tested on an image with inline_data,compress_algorithm=lz4:
+    5a. INLINE_INODE — lots of tiny files;
+    5b. REF_RESOURCE + general writeback — buffered write churn with fsync;
+    5c. ONGOING_MIGRATION — force GC / page migration;
+    5d. ATOMIC_WRITE — atomic-write ioctl path.
+
+    Details: https://github.com/x-y-z/linux-dev/blob/b4/remove-pg_private/test_f2fs.md
+    (I did not run xfstests)
+
+6. MM selftests passed.
+
+LLM use
+===
+Claude was used to form a concrete plan on what code needs to be changed
+and how to change them. The plan was reviewed by Codex until no issue was
+spotted.
+
+Plan is at: https://github.com/x-y-z/linux-dev/blob/b4/remove-pg_private/plan.md
+
+I then followed the plan to make code changes. I did bounce ideas with
+Claude how to change fs/erofs, since I did not like the original idea.
+After each change, I asked Claude to review my code and git commit message.
+I also asked Claude to give me test plans (see above).
+
+At last, Codex was used to review all patches.
+
+Comments and suggestions are welcome. Thanks.
+
+Assisted-by: LLM
+Signed-off-by: Zi Yan <ziy@nvidia.com>
 ---
+Changes in v5:
+1. replaced md patches (patch 13 and 14 in v4) with Matthew Wilcox's
+   version (see Matthew's replies to v4).
+2. used data_race() inside folio_test_private() and PagePrivate(), so that
+   the new versions can be used without KCSAN warnings while not holding
+   folio lock like before.
+3. moved folio_has_attached_private() implementation detail comment next to
+   the code.
+- Link to v4: https://patch.msgid.link/20260913-remove-pg_private-v4-0-848550f7574e@nvidia.com
 
-Changes since v1 (https://lore.kernel.org/linux-erofs/20260725150920.1900298-1-mike.malyshev@gmail.com/):
-- commit message: explain how these tars are generated (glibc RPM under
-  usr-merge) and summarize tar behaviors (GNU/busybox follow, bsdtar's
-  secure-symlinks refusal) plus the POSIX / containerd references, per review.
-- drop the explanatory block comment; keep the code self-describing.
-- resolve the symlink target into an on-stack buffer instead of strdup().
-- follow chained symlinks with a loop rather than recursion.
-- rebased onto current dev.
+Changes in v4:
+1. dropped set_page_private(0) in balloon_retrieve(), since page->private
+   is cleared at that point.
+2. simplified the comment in add_hugetlb_folio().
+3. additional cleanup for f2fs to remove fio->page uses and convert
+   PAGE_PRIVATE_* flags and helper to folio-only.
+4. added a comment for __readahead_advance().
+5. added core-mm split/migration interaction information on newly added
+   folio_attach/detach_private() for erofs.
+6. renamed folio_test_fs_private() to folio_has_attached_private() and
+   merged the commit introducing folio_test_fs_private() into its prior
+   commit.
+7. adjusted the patch subject: "treewide: remove folio_set/clear_private()
+   *usage*"
+8. split "treewide: replace PagePrivate() with page_private()" into three.
+9. moved some comments in "treewide: remove PagePrivate() and PG_private
+   from comments and docs" to prior patches along with code changes.
+10. used PG_folio instead of __PG_folio to avoid additional
+    code change in __def_pageflag_names().
+- Link to v3: https://patch.msgid.link/20260907-remove-pg_private-v3-0-6ae22f9d9272@nvidia.com
 
- lib/rebuild.c | 68 +++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 66 insertions(+), 2 deletions(-)
+Changes in v3:
+1. changed folio_test_fs_private() to check PG_swapbacked instead of
+   PG_swapcache for excluding swapcache folios. Because folio->private and
+   PG_swapcache are not set as a whole, making folio_test_fs_private() give
+   false positive, whereas PG_swapbacked is always set for swapcache
+   folios.
+2. added __DEF_PAGEFLAG_NAME() to show __PG_folio instead of open code.
+3. f2fs change is picked up at
+   https://git.kernel.org/jaegeuk/f2fs/c/5ad9409a9533, mm-new currently
+   does not have it, so the patch is sent for MM testing purpose.
+- Link to v2: https://patch.msgid.link/20260831-remove-pg_private-v2-0-3668159cd9e8@nvidia.com
 
-diff --git a/lib/rebuild.c b/lib/rebuild.c
-index ebac1c5..3ac62c6 100644
---- a/lib/rebuild.c
-+++ b/lib/rebuild.c
-@@ -3,6 +3,7 @@
- #include <unistd.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <limits.h>
- #include <sys/stat.h>
- #include <config.h>
- #if defined(HAVE_SYS_SYSMACROS_H)
-@@ -82,8 +83,54 @@ struct erofs_dentry *erofs_d_lookup(struct erofs_inode *dir, const char *name)
- 	return NULL;
- }
- 
--struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
--		char *path, bool aufs, bool *whout, bool *opq, bool to_head)
-+/* Bound symlink chains during path resolution, like the kernel's MAXSYMLINKS. */
-+#define EROFS_REBUILD_SYMLINK_DEPTH	40
-+
-+static struct erofs_dentry *__erofs_rebuild_get_dentry(struct erofs_inode *root,
-+		struct erofs_inode *pwd, char *path, bool aufs,
-+		bool *whout, bool *opq, bool to_head, unsigned int depth);
-+
-+static struct erofs_inode *erofs_rebuild_follow_link(struct erofs_inode *root,
-+		struct erofs_inode *pwd, struct erofs_inode *link,
-+		unsigned int depth)
-+{
-+	char target[PATH_MAX + 1];
-+	bool dumb_wh, dumb_opq;
-+
-+	for (;;) {
-+		struct erofs_dentry *d;
-+		struct erofs_inode *base;
-+
-+		if (depth++ >= EROFS_REBUILD_SYMLINK_DEPTH)
-+			return ERR_PTR(-ELOOP);
-+		if (!link->i_link)
-+			return ERR_PTR(-ENOENT);
-+		if (strlen(link->i_link) > PATH_MAX)
-+			return ERR_PTR(-ENAMETOOLONG);
-+		strcpy(target, link->i_link);
-+
-+		/* absolute targets are resolved from the tree root */
-+		base = target[0] == '/' ? root : pwd;
-+		d = __erofs_rebuild_get_dentry(root, base, target, false,
-+					       &dumb_wh, &dumb_opq, false, depth);
-+		if (IS_ERR(d))
-+			return ERR_CAST(d);
-+		/* target referred to the root or base directory itself ("/", ".") */
-+		if (!d)
-+			return base;
-+		if (d->type == EROFS_FT_DIR)
-+			return d->inode;
-+		if (d->type != EROFS_FT_SYMLINK)
-+			return ERR_PTR(-ENOTDIR);
-+		/* the target is itself a symlink: keep following the chain */
-+		pwd = d->inode->i_parent;
-+		link = d->inode;
-+	}
-+}
-+
-+static struct erofs_dentry *__erofs_rebuild_get_dentry(struct erofs_inode *root,
-+		struct erofs_inode *pwd, char *path, bool aufs,
-+		bool *whout, bool *opq, bool to_head, unsigned int depth)
- {
- 	struct erofs_dentry *d = NULL;
- 	char *s = path;
-@@ -121,6 +168,16 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
- 			}
- 
- 			d = erofs_d_lookup(pwd, s);
-+			/* follow a symlinked intermediate component like a real fs */
-+			if (d && slash && d->type == EROFS_FT_SYMLINK) {
-+				pwd = erofs_rebuild_follow_link(root, pwd,
-+							d->inode, depth);
-+				if (IS_ERR(pwd))
-+					return ERR_CAST(pwd);
-+				*slash = '/';
-+				s = slash + 1;
-+				continue;
-+			}
- 			if (d) {
- 				if (d->type != EROFS_FT_DIR) {
- 					if (slash)
-@@ -152,6 +209,13 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
- 	return d;
- }
- 
-+struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
-+		char *path, bool aufs, bool *whout, bool *opq, bool to_head)
-+{
-+	return __erofs_rebuild_get_dentry(pwd, pwd, path, aufs, whout, opq,
-+					  to_head, 0);
-+}
-+
- static int erofs_rebuild_load_chunk_index(struct erofs_sb_info *dst_sb,
- 					  struct erofs_inode *inode)
- {
--- 
-2.43.0
+Changes in v2:
+1. removed is_first_zpdesc() in patch 1 and open coded the checks.
+2. fixed wording in patch 2's commit message and clarified page_private()
+   also works when ring buffer's AUX page order is 0.
+3. removed the empty loop in 64-bit gnttab_pages_set_private().
+4. clarified folio->private will be reset to NULL by
+   fscrypt_free_bounce_page() in the commit message.
+5. clarified why hugetlb needs to restore hugetlb_vmemmap_optimized.
+6. renamed readahead_folio_reverse() readahead_folio_last() and
+   reimplemented readahead_folio_last() by adding a new readahead_control
+   private member, _forward, and a new helper __readahead_advance().
+7. added a bias, 1, to erofs I/O counter, so that folio->private stays non
+   NULL between folio_attach_private() and folio_detach_private().
+8. converted more call sites to use folio_test_fs_private().
+- Link to v1: https://lore.kernel.org/r/20260731-remove-pg_private-v1-0-142c97ba3562@nvidia.com
+
+---
+Matthew Wilcox (Oracle) (3):
+      md: Use folio_alloc_buffers()
+      md: Use folio APIs in free_page()
+      md: Remove the last use of page_buffers()
+
+Zi Yan (14):
+      mm/zsmalloc: replace PG_private with pointer comparison
+      perf/ring_buffer: stop using PG_private as AUX page high-order marker
+      xen/grant-table: stop setting PG_private on pages for grant mapping
+      fscrypt: stop setting PG_private on bounce page
+      mm/hugetlb: use direct assignment instead of folio_change_private()
+      f2fs: stop using PG_private
+      f2fs: convert the ->private flag helpers to folio-only
+      erofs: mm/pagemap: add readahead_folio_last() to avoid folio->private
+      erofs: use folio_attach/detach_private() instead of direct assignment
+      mm/page-flags: check page/folio->private instead of PG_private
+      treewide: remove folio_set/clear_private() usage
+      ceph: replace PagePrivate() with page_private()
+      treewide: remove PagePrivate() and PG_private from comments and docs
+      mm/page-flags: remove PG_private
+
+ Documentation/admin-guide/kdump/vmcoreinfo.rst |  2 +-
+ Documentation/filesystems/vfs.rst              |  6 +-
+ arch/x86/events/intel/bts.c                    |  3 -
+ arch/x86/events/intel/pt.c                     |  6 +-
+ drivers/md/md-bitmap.c                         | 18 +++--
+ drivers/xen/grant-table.c                      | 11 ++-
+ fs/buffer.c                                    |  8 ---
+ fs/ceph/addr.c                                 |  8 +--
+ fs/crypto/crypto.c                             |  2 -
+ fs/erofs/data.c                                | 16 +++--
+ fs/erofs/zdata.c                               | 13 +---
+ fs/f2fs/compress.c                             | 35 +++++----
+ fs/f2fs/data.c                                 |  2 +-
+ fs/f2fs/f2fs.h                                 | 99 ++++++++++----------------
+ fs/f2fs/segment.c                              |  2 +-
+ fs/nfs/file.c                                  |  4 +-
+ fs/nfs/write.c                                 |  2 -
+ fs/proc/page.c                                 |  1 -
+ fs/ubifs/file.c                                |  8 +--
+ include/linux/buffer_head.h                    |  8 +--
+ include/linux/kernel-page-flags.h              |  1 -
+ include/linux/mm.h                             | 34 +++++----
+ include/linux/mm_types.h                       |  4 +-
+ include/linux/page-flags.h                     | 51 ++++++++++---
+ include/linux/pagemap.h                        | 64 ++++++++++++++---
+ include/trace/events/mmflags.h                 |  2 +-
+ include/trace/events/pagemap.h                 |  2 +-
+ kernel/events/ring_buffer.c                    |  7 +-
+ kernel/vmcore_info.c                           |  1 -
+ mm/huge_memory.c                               |  2 +-
+ mm/hugetlb.c                                   |  7 +-
+ mm/migrate.c                                   |  3 +-
+ mm/page-writeback.c                            |  2 +-
+ mm/vmscan.c                                    |  2 +-
+ mm/zpdesc.h                                    |  2 +-
+ mm/zsmalloc.c                                  | 24 ++-----
+ tools/mm/page-types.c                          |  2 -
+ 37 files changed, 238 insertions(+), 226 deletions(-)
+---
+base-commit: ef0ea92854987c1e61cd72e100c8b61b485955d8
+change-id: 20260728-remove-pg_private-cfe926c7f83c
+
+Best regards,
+--  
+Yan, Zi
 
 
