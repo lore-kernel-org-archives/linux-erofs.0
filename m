@@ -1,76 +1,76 @@
-Return-Path: <linux-erofs+bounces-4620-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4621-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEDBDC98328
-	for <linux-erofs@archiver.kernel.org>; Mon, 28 Sep 2026 04:12:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A0B4DC9832F
+	for <linux-erofs@archiver.kernel.org>; Mon, 28 Sep 2026 04:17:08 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4htSZY4kn0z2yQH;
-	Mon, 28 Sep 2026 14:12:37 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:3b::2b"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790568757;
-	cv=none; b=TaXtemJo/NAt7YkBp4ZdQgoyMe/eSlCiIBdhE0ToSY1IKnutDqvw14WdSN3X8l7d9CyfU4gu9JILuMHz9+gBtHzF8oa95MkhUli5FizSWg0j/GbQegv8eRT32iUaMHv2L1Vt3kjEBDLn9RZyeKP2+V9GyGllmu2ginila2nuLs2ZVPiNAD3oClxpjLeJAWtb03EyOglhsMLo1jxsKC2c+lS3baSlpRRog4caFE54OXqIPJEIhV5dYnn5BMqjMTTXxGpiuHA2WBxgkiaz6xkBaVMrcb3OQvc5337TXKgRj+H9rC3OmfAbrCV4tnK+GU9srYNtDv+LGCMVIRnDQ9mxDA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4htSgk6wJ5z2y32;
+	Mon, 28 Sep 2026 14:17:06 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:39::e"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790569026;
+	cv=none; b=ZMm2lFXqyhAxC2VwSK66o2iyumI7p7pum2ec7JknBSsIlJOLOeSb3jmV7ICgAPdrpxv1Khg0wkdmpt7Gc2DytwQbtMaBd4xPohccx5btC3+XYg0sxcf0B5uIouZRsMjWjzKOnlf6MYIo1eHo5WEqztpm+uzSwybNXjoA5DgNhm8RRFHuxbWh2RC01mBeceqXBWDx9KiBluSQYdqiAbu/nP6JK98Ub/A5JDREmtsmS5Osc9K66vXsYh0jdDiX0+1SpnyGVk/d97IgingVf/Uy9W/laDPQRTcIc80GEvxQ7ik5SywvuBGepEM+JJ8+pgh3437de6vl5zlwvxYYcmz79A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1790568757; c=relaxed/relaxed;
-	bh=bXDScwdKbt28kFhjEDV73RhbSo3l7UPBxj8GidcV6Ck=;
+	t=1790569026; c=relaxed/relaxed;
+	bh=j3LIx4OT6RdJGRg4qDatJ4q0rZ8i4sT2AGqSbaU6cDI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=joi948Dfq5zI7PvTCyLFw5uMX5JB/w1gQfpjmMNkHQoDCBrxTnmynlAqmrT/0Qc6xuIkoDMU7kH85EMfE/umvyekoiS4f+pnQF0NQ1lZWKx/ftgPpEPPA3EGGBDJzTlk//nuTU4v5vjSuyyZ24b2ilBxKvRaxBgB3l1llWYp/CTFoeIL9Dm7cJzQSWaU4JZvS5fyayBL29uP66GbRTByUp/IOFvhtYX7mvGdJxmpXLKW0hoeS8H+ZGfT1xyMnMgdEhHvK9NVaNvytKXDBSjtYdGKitAGvzFoejVMdwG9Zxgfzzvo0Dsdn74f8FX64VGT/MbhUmCagFUUzHBMgnC5KA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=cP1yWsnt; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:3b::2b; helo=mail-pz2-x2b.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=d7hh4rHvZzGBT0k3MtRcVUBXIWJERXybhES3u/CJopUWbHa3BAm48dSoLYrbfxF0Vu0MoMToXIqDKr52OKDSvcuWb905vqyW21kMe5TaQowhHyYX6gnJdoHsWOqNsGI50XAWXN67u/8D2BT6RAm+KL6S+IJNa/cAUj+POONUbg6un6lFW4atkiWII8J+r1nFCku9vXMDgMfvmHcrL74HRUm2gv0kC5CPJXMvG8+vxk/FT/Ho4ZxnlxpOv4Ow2QzNUxjzHpKhgXxNqWOWjHX2TAomTW6N5W/EsjjGg1tvfk15iz8UXhnIrrWU8PYu0z1zBP6//qznH3qru79Bv4kvoQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=UqZyEZtK; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:39::e; helo=mail-pj2-x0e.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=cP1yWsnt;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=UqZyEZtK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:3b::2b; helo=mail-pz2-x2b.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org)
-Received: from mail-pz2-x2b.google.com (mail-pz2-x2b.google.com [IPv6:2607:f8b0:4864:3b::2b])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:39::e; helo=mail-pj2-x0e.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org)
+Received: from mail-pj2-x0e.google.com (mail-pj2-x0e.google.com [IPv6:2607:f8b0:4864:39::e])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4htSZX3rn6z2xnn
-	for <linux-erofs@lists.ozlabs.org>; Mon, 28 Sep 2026 14:12:35 +1000 (AEST)
-Received: by mail-pz2-x2b.google.com with SMTP id 41be03b00d2f7-cc7979d1deaso482476a12.1
-        for <linux-erofs@lists.ozlabs.org>; Sun, 27 Sep 2026 21:12:35 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4htSgk1v28z2xnn
+	for <linux-erofs@lists.ozlabs.org>; Mon, 28 Sep 2026 14:17:06 +1000 (AEST)
+Received: by mail-pj2-x0e.google.com with SMTP id d9443c01a7336-2ddaa08c890so10354045ad.0
+        for <linux-erofs@lists.ozlabs.org>; Sun, 27 Sep 2026 21:17:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1790568753; x=1791173553; darn=lists.ozlabs.org;
+        d=chromium.org; s=google; t=1790569024; x=1791173824; darn=lists.ozlabs.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=bXDScwdKbt28kFhjEDV73RhbSo3l7UPBxj8GidcV6Ck=;
-        b=cP1yWsnt5a7aUqWlVbpK3WynculITMgOS8Qhp52YEix6kY3365DYWTBwMbYf/2kmx1
-         kTuMlbPlsvUeizIBqVKhBTAL9FUuCK0cD0Inn1Zov78L7aoF103b7XI0W0ljvbLOzD07
-         sVIDPRFE1PSnKUlSs/wJeAIracqpgik4GZI5w=
+        bh=j3LIx4OT6RdJGRg4qDatJ4q0rZ8i4sT2AGqSbaU6cDI=;
+        b=UqZyEZtKJ8QO9512HXMWwXOP2GDXMCCB5UKXH2bNd6Enu1NtNXZdzXifPWFcorSUcD
+         FS8bxZdMwGqdhhc3m1mYGQt4FwWVzkul6hPIXMWyCm15OkXJBHUPlfoFMOi0ax6aZjO6
+         fD5vOt+MzJb6AccCz8rARyibs6twZ3xQelv2E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790568753; x=1791173553;
+        d=1e100.net; s=20260707; t=1790569024; x=1791173824;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=bXDScwdKbt28kFhjEDV73RhbSo3l7UPBxj8GidcV6Ck=;
-        b=AmpMvQz9PVn0W0+UtZLhfQzVBKvBnnC864UPPMY1JEkaiK8DxYpEJ76j7Nd5G9rKvp
-         A3UTOTqBvyDXQzsG4d6LCN+rbV5nx+tiP5AWXekW/GbxIu3wNqQSyG4h2XE81iHViQ1T
-         TbIniKPVK27gaYApWmwg+/si2Y3dy9fG8RpQdn0urz9Lr3vs6T8LiGAWP0QculD4ygvV
-         9tClW+y44UVP+ZmDVlwIZjN5jrVuPC/b39l1lfD8rFnpzLBbf2dD3+WbYvnSDF11EyJ7
-         PumFob/fnd4mLCO/WtrOC8/RhGSvN05mN/IIA/JVy8ikzG5LT8VM+MH+GQFSwa96JGb1
-         h1cA==
-X-Forwarded-Encrypted: i=1; AKwUvBy7J1JN0GAE/wpkuep9WGThTVcV4nld++pCwyCNgNqQrAy180fFmod5W/61KA6SjiCFn9fQCaaSRP1HGg==@lists.ozlabs.org
-X-Gm-Message-State: AFq9FYLz2VydXi31LAKIo+8VPUNLXhIuHKdI79wi3B8cwE1lqCeeFzDg
-	9yNnPzkd+RjQ3ozXON+hm0fBq28A2d4ZYLaVWIiGXazWMec0ZH7Oe0q9yNse2KH0zw==
-X-Gm-Gg: AYBFou2e5vVpjbnyt2YyyKyz8RbRGyGD/ksvT/5faF6E8RF7MhRgKkw1R09EyEUicXL
-	6Uq13dgkJ3dtdKwlurgLxReCdxfZyrbfEvrZOCU8i1397V+DukR/PD+ZzMMlbWEDnKqBePBi2Ja
-	KwvA/plnXzbQ1R6YUZt0cm8ylcDoDmh4yOylNEF4HILYVfmgQqVug85L4Q5ZAa6NziJihSMVVnX
-	zqRVOj6RfREcZg6iWpT5+I2d4Zl8kl/QC+gbot0Fc8HSLEeHFaK8ViimeYxGRmYziwfGAm9IKUo
-	HYip4XesjfgcXjvDOMr5ZhKivewPkS3qbTgmQb35gfgEAX/gQIwdNQh+/b7oz1nNScxSnUN2OFi
-	9lVtr6kaK7yjQz+sVqe/pDWqGqo18eH2QjDfkdHLjGGTCmWjnSSsNGfAmzEa2nvVKMTWZXyN8AH
-	4kEi6mNC8cql/JLau4KoqKH4VF9ZkOneOggIfHJZBNZWZAc7akbQT3FKmF+ViyfjzkYXLrWzjdK
-	P/wi0TIic+62tZtpXz1dnDXKnyRExJMqAHcJUA=
-X-Received: by 2002:a17:90b:1c82:b0:3a0:7d97:37c1 with SMTP id 98e67ed59e1d1-3a098aaba1dmr10891588a91.59.1790568752817;
-        Sun, 27 Sep 2026 21:12:32 -0700 (PDT)
+        bh=j3LIx4OT6RdJGRg4qDatJ4q0rZ8i4sT2AGqSbaU6cDI=;
+        b=xc4hikv8Inld7Os2tRPzAEg1ng6Ae+Xi4/CHUTyJgZZxx92N1nQnz8lj0U/Hxi/kgE
+         McTtbbzJ+dV37JpdgZhY284/I7KWNBfZyZGPy8PYHV+elj9RoctX3IoYBanw30DF3ZdD
+         aLQ4/dbsvE1feVt0E+Y+oENVBg63G2xt0r/gXs5EOo/qLEmOdl1ec0SbYrZ+fKBOC26R
+         8HFeoopdbcr0K8X7fYW9GcoULrTbWXQAbE7JX6JVKzWGyz/DH40vLFEW4qLHLt5xGmO3
+         u5naqaE3GFk38l0KwslvcfWzoiQcbrHnIAAGs/Z4lawscn3ozpw3FymanJtZA8MDmb9o
+         Lyeg==
+X-Forwarded-Encrypted: i=1; AKwUvByXAjleqJW5cqC1G5tsTYtnBbsTBFcPeZobKvTSfj3WmJveJCzNnbiUK00wSVC3H0v7B0nCRsixgsPNoA==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYIkfFw//cm/Umv9qGfl9AhODUjDT6LmEC/T7UMIutgggOXeq0cM
+	4Ex9KM2W0toZ4cYzsdyRNau+2jXXM+eZbYkWnIQo1HDPYcbA0lGWQoxR7r47XdJdhw==
+X-Gm-Gg: AYBFou3vB27kIX1aKkZ2YrGC7q9XP4jzZyv1q1q+8/QvQbwsRCYkDZ8UC6R8hJaLnYQ
+	R9DSX4hQ6bRcz1piZ8troG3u1y7ReufoarJGAz0Y/nrm3iaSwfJvPVdcq39zB0idkWBxJnU/Nmg
+	JouICAUrmpQxdKJEP78t4HJ8xjXlCDP+d2A8oyiEqATGtP/le78xo22zKzbbRa63YMTy7AbLqVX
+	HbtipxLuEphUVg2qTI/RbjSlgRtwxrsMDFQRcT3Y7Tzok00rQAgeqPjH5AbE2s2fRTZZIVfSQPH
+	QFR2bwdb4DK6E727eALp0dl+MwmB4XC/zhR4z/4miFWBgv6CBrBJ+iK9e4ZTFNJq9VJ9X1mCUq0
+	/ggDDDNpK+tgLfUikGmBoL2x9o1HJogAcOKqJxZct7Sy+O1asPNk+eW4SISPmZwXhXPI9LbDqEt
+	0XpRYVpG8DueX1W73IYTV27N6KUFqlnIc7fF9Qp+q/G4h0OeVVSZvJXlRR+4mu8l9pZh2z8JH+3
+	Es1kj3Ws/kaGKzcEdwrTRB3bCF7lvdOSnN19Qo=
+X-Received: by 2002:a17:902:d98d:b0:2dd:c100:7cc3 with SMTP id d9443c01a7336-2df7dd72aa3mr103163935ad.63.1790569024011;
+        Sun, 27 Sep 2026 21:17:04 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2031:6:fdbe:318b:98fe:bd96])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0bec30aaasm17381254a91.15.2026.09.27.21.12.26
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df913e23ecsm35034075ad.18.2026.09.27.21.16.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 21:12:32 -0700 (PDT)
-Date: Mon, 28 Sep 2026 13:12:24 +0900
+        Sun, 27 Sep 2026 21:17:03 -0700 (PDT)
+Date: Mon, 28 Sep 2026 13:16:54 +0900
 From: Sergey Senozhatsky <senozhatsky@chromium.org>
 To: Michal Wilczynski <m.wilczynski@samsung.com>
 Cc: Nathan Chancellor <nathan@kernel.org>, 
@@ -93,11 +93,12 @@ Cc: Nathan Chancellor <nathan@kernel.org>,
 	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
 	linux-erofs@lists.ozlabs.org, linux-f2fs-devel@lists.sourceforge.net, 
 	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH RFC 1/9] lib/lz4: import upstream LZ4 sources verbatim
-Message-ID: <arnosKlQYVIdmTR7@google.com>
+Subject: Re: [PATCH RFC 7/9] lib/lz4: switch the decompressor to the vendored
+ sources
+Message-ID: <arnpj53cgDErAQEz@google.com>
 References: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
- <CGME20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a@eucas1p1.samsung.com>
- <20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
+ <CGME20260925113504eucas1p25e50de59c02681fc1385220be8acd184@eucas1p2.samsung.com>
+ <20260925-lz4-vendor-upstream-v1-7-1c7ffbe21c4b@samsung.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -111,26 +112,22 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
+In-Reply-To: <20260925-lz4-vendor-upstream-v1-7-1c7ffbe21c4b@samsung.com>
 
 On (26/09/25 13:27), Michal Wilczynski wrote:
 [..]
-> +#ifndef LZ4_FAST_DEC_LOOP
-> +#  if defined __i386__ || defined _M_IX86 || defined __x86_64__ || defined _M_X64
-> +#    define LZ4_FAST_DEC_LOOP 1
-> +#  elif defined(__aarch64__) && defined(__APPLE__)
-> +#    define LZ4_FAST_DEC_LOOP 1
-> +#  elif defined(__aarch64__) && !defined(__clang__)
-> +     /* On non-Apple aarch64, we disable this optimization for clang because
-> +      * on certain mobile chipsets, performance is reduced with clang. For
-> +      * more information refer to https://github.com/lz4/lz4/pull/707 */
-> +#    define LZ4_FAST_DEC_LOOP 1
-> +#  else
-> +#    define LZ4_FAST_DEC_LOOP 0
-> +#  endif
-> +#endif
+> -static FORCE_INLINE int LZ4_decompress_generic(
+[..]
+> -			/* Necessarily EOF when !partialDecoding.
+> -			 * When partialDecoding, it is EOF if we've either
+> -			 * filled the output buffer or
+> -			 * can't proceed with reading an offset for following match.
+> -			 */
+> -			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
+> -				break;
 
-I just checked https://github.com/lz4/lz4/pull/707 and it seems that
-LZ4_FAST_DEC_LOOP is enabled on aarch64 now, but we still disable it.
-Am I missing something?
+Worth noting, these lines are downstream commit eafc0a02391b
+(lz4: fix LZ4_decompress_safe_partial read out of bound).
+
+Is this intended or are we "loosing" some of the downstream fixes?
 
