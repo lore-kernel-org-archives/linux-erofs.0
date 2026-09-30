@@ -1,69 +1,69 @@
-Return-Path: <linux-erofs+bounces-4632-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4634-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0A95DCA5FA5
-	for <linux-erofs@archiver.kernel.org>; Wed, 30 Sep 2026 01:19:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A22E3CA5FA5
+	for <linux-erofs@archiver.kernel.org>; Wed, 30 Sep 2026 01:19:45 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hvcf22cL5z2ylm;
-	Wed, 30 Sep 2026 11:19:38 +1000 (AEST)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hvcf30Nyjz2y8p;
+	Wed, 30 Sep 2026 11:19:39 +1000 (AEST)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1346"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790731178;
-	cv=none; b=kpBetkFGDTdpwt/PWSLfF0Q5ZnpGOMRGoFoV9H78ElGnKMmqCa8hd9n51upngiItUi6lAzlI8Qe7fZXYEXWJxcqEesdiPI/k7W1VkHC76nXAEoLsiYM8ca+hfs9ueIEKUWRsNSrST4NctQLt0zppRpiknvNaQNHJmsPZXZQg/XVXHclY77guZavt4Hq+Ml50nB/74/8lpL0lvG+jw1lwXwi3GHDUh6mDK+Goi+KVmkN/B4hFoVIUkjFSl8sQq0yHQtq61KPk5GwYjDDhfD0PZRATY92eHRefGk4y4iIAymzdJg4upoZgsritSTJ4cUTBYuYoZKoeT8K969eEh0Zxug==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790731179;
+	cv=none; b=VBlPkJ53XSvM5Hn387TbPjekQAcJSXvR3iI+hNYXzxJ4Pa0kr/zFHj4C3ss4BUVqxuVe+xLDLIEmqkO1yuop0j3i0hpd4wYlW1HitgobtR8Hi7JzUhYKDAvkFe1zeOXjbq0wflzPAM95VVF+RlYodqyMT9i+85mWeJxgAfOg6x3FyfjSNM4IDL2mBr4QdwKcHIXC5JJN4dT82couRBrIOiaLS7psYczPkBkz5fB0d1aHXumtQy5PlQN00PbNt9QhJerb0gd+04Z7/+GmJC0eCleG76FqhM6oKiBrpXSIAyhebSFgRVaVUJMJO0zJQMdbNLya+gRgFlh8Do/B0AYS5A==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1790731178; c=relaxed/relaxed;
-	bh=dHwk2OQQ4Zl9lDHyUY4iPD2cM/pNo2Pz0tvm4qnKYmM=;
+	t=1790731179; c=relaxed/relaxed;
+	bh=VApuM5lufQKhv2Z8CNJsSepO+dLFr7rZjSeOJOWL1Og=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=d28qifLs99DfFsejSYQ5QMlD7zHamqnTtrjpSwqH7sOdYLXUT/UyCpUUCJhhuCeU5rb+tKSSExWEGQjyTmwtTeaQQzX+K73CBPPmF9onCNjmAw40TQ8uqHKuYEjQrYz6aDoM8raZ5aPe8Nb1DVP8gTfiabY0XkfHFofZvkwSS4ZQB9wthBXPo2LAcljm2c9cS3L+1nqmOW9OmWpECRoneDm0IMY81DV8hxA3lQlImH1GddhIbd4EdMU7hMyfvKky+ia+RSiTsD0y1ELlbSb5p1XHPskA0FrnKvfRrnqIwJe4bORMbi4u4KfkDOcauq4tGMfvufE6cfy43MqqJtrl4Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com; dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=gZM71AdU; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3pgo8ag4kc7krzqsgzjjtjqdshfnnfkd.bnlkhmtw-dqnerkhrsr.nykzar.nqf@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com
+	 To:Cc:Content-Type; b=Ni+QXqeX1e2FU3fkPuJn7PBuEPddg+w1x2F8+YK87Z+AJi7RKKbccMJ/k5jp12cVYU0b8Vh66UWHAz4UnPt3jDOPFBmwMDt3XI8qZbb1+1ZxHHoXqI4AAV5bUWXhOVjraAP/WmNoPKP5Ub9CYirvZ1UXkza7RpyA6P/DspD9qPbHuwvVjzm22LWXVEB0MPnpisrJGpd1btCpINjwr+KDlcdeWuUufzKvW5hU0YhKBU4bjHtzFjzUmfGg1zY3wYeSNItCsR3muTuMSUdE3gP0VHL/Uc3y6cCk3SY19rrsA/wS6xsULaCeiSuC4MpvfC+xxlcZ0HFq10Y4dufhjB87sA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com; dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=JdvOIUJm; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3p2o8ag4kc7wuctvjcmmwmtgvkiqqing.eqonkpwz-gtqhunkuvu.q1ncdu.qti@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=gZM71AdU;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=JdvOIUJm;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3pgo8ag4kc7krzqsgzjjtjqdshfnnfkd.bnlkhmtw-dqnerkhrsr.nykzar.nqf@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3p2o8ag4kc7wuctvjcmmwmtgvkiqqing.eqonkpwz-gtqhunkuvu.q1ncdu.qti@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org)
 Received: from mail-dy1-x1346.google.com (mail-dy1-x1346.google.com [IPv6:2607:f8b0:4864:20::1346])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hvcf00YLxz2yYd
-	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 11:19:35 +1000 (AEST)
-Received: by mail-dy1-x1346.google.com with SMTP id 5a478bee46e88-3282d5302ffso2492531eec.1
-        for <linux-erofs@lists.ozlabs.org>; Tue, 29 Sep 2026 18:19:35 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hvcf21jNDz2ydN
+	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 11:19:38 +1000 (AEST)
+Received: by mail-dy1-x1346.google.com with SMTP id 5a478bee46e88-34bbf2e3c5cso3491769eec.0
+        for <linux-erofs@lists.ozlabs.org>; Tue, 29 Sep 2026 18:19:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790731173; x=1791335973; darn=lists.ozlabs.org;
+        d=google.com; s=20251104; t=1790731175; x=1791335975; darn=lists.ozlabs.org;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=dHwk2OQQ4Zl9lDHyUY4iPD2cM/pNo2Pz0tvm4qnKYmM=;
-        b=gZM71AdUHVtXQrWkwpJTxF5z9AfwB/2F4BcCUUzYTh4+nDXhUCULqFsgy7mpGfV3CN
-         +Y8YXIFv5a3BYXOparPGORru5sjd5MZqY2OWsnxpkZKuSj0xKTl+M3Lm0DXgs6njRjKk
-         OxWh2yZhNuhHkME3eaEvES0cFqCLZ20LgAP+1L1g+wj6uDb3oko1rTKfgV6QBf5MO32H
-         nGEMSHGzHIos/iqtsZS4z2kNOXadbJvXkYz+Q1DfA2HxNDzllVxJ7g4Mdk1P0lLDEb7K
-         R9DBWA68X+IIhloJ/7rkh0kOySbBKeJdzaLfI7Qb4NFhhRBN9eAEdaVys9pcWDC0ixEf
-         KDPA==
+        bh=VApuM5lufQKhv2Z8CNJsSepO+dLFr7rZjSeOJOWL1Og=;
+        b=JdvOIUJmlrvuVzQ1JdBhQKpL+68YORxij1oR4GhAWoYz9V65PPTcRJ7t5a8lem+Sif
+         4OXPV4K1zck73TTXMJ9WJrmLLEJeQ5NIrsT0LB/HYeCDnNAA+hE59kFd+5Oe5O8jwlv0
+         6my0VwwSWB/Kdp9erHC/5XDX7GyzqVqznyEKsXl0sSaToXNGyvG4SIsmdf1MKjEq1xdk
+         KyrermoJr9p17mLi0ixRk9kYfZfkd9hOxwdu96d5WTSJNSchwmgdDvHVI3O0ZTpIfydk
+         kfVZCDeizM1M4IjjL3ibPtglj591iKfUvw4ETxya7SC/puK3IgqMxWcOqEDfyAlAXEWR
+         /R3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790731173; x=1791335973;
+        d=1e100.net; s=20260707; t=1790731175; x=1791335975;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=dHwk2OQQ4Zl9lDHyUY4iPD2cM/pNo2Pz0tvm4qnKYmM=;
-        b=g3uO90i0DfhqkO100DVqpKJYiz0NhqRZaf9CoRASlFzrr/n8FpR9AS4wQufJ5ffKFG
-         rz0JdpEgwNTpOs7u6AaYu9NV2tPXEP8RSL54NvG42GvuW+b6XvQ+idaPJpT0+4AEevhv
-         jrv3RVGaTUljcL7MmihDXIZOpdpHslDmiL3/IiOip4VsfStXs99j73qbQhI4iuTw4HJP
-         WJ7SGJGJAlYRqzNJIJTXhIiyLvycU5MWYsqJo9n5RMlAUzr3Gt/V9j56BmShKTnmPJX6
-         CwvssA6FdJU0OJHL5eMCl0S6TJ2jCX/NaxpJjQriColvzZmRO0YF51mJTulFkrnHfJGV
-         +mwQ==
-X-Forwarded-Encrypted: i=1; AKwUvByArVpOdOKKE8EKkJ85oeSdcUYFmBaOXiYv8sK9OcUb4moDpvkzFaF3x3cab+pMDwyo0r2+bKZTKzW/oA==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++lhoW1IAiuBhFYwq+faMaht6RDIrioxxfiYKaApl1vWa2quiYgd
-	tmz+P13K23znJzKpO0m0WBat5794wUEgsA1n9+/WQ+jOGTbmmNztBDSpHR3qTJR2JwIURduj3EI
-	ZokYctd3iy7x2lpfJcYSLFx4VWdLX0KvJDMvLLA==
-X-Received: from dybhe38.prod.google.com ([2002:a05:7300:e1a6:b0:34c:489e:103b])
+        bh=VApuM5lufQKhv2Z8CNJsSepO+dLFr7rZjSeOJOWL1Og=;
+        b=uBIIWmBRlZRFvTPYY5JJb16F1BpQI1uMI5MHbytGQIIk9xRJTxu7gHq6Ukp/o/2oC8
+         Xqm6DReJOdUVshM7d8p23gMeNGMT8UowXDJYGOsEHujRhX3YHbRWxmRscTbnyZ7IEZuK
+         AMLEeVANh+u7pPYp5nM32yJHN3D0YkmdKn8H8s2SdGu/ZWi079jrWcjHbusWRSf3Qkny
+         VsFXhSgOLmiraaH+9WcIxCtX8hw3SZL94TN1XUAzbPPM6o2f9rJhP6rcY7GV6GjQOO9P
+         BZjpYcNqu8nOB1fGKQLHBIC7VNgXeItZmrVY2xuDhe/sK3f9S+onp4bS29/BnR6+WPrX
+         XkVg==
+X-Forwarded-Encrypted: i=1; AKwUvBx5CSOnP/s22oR6rS7gDD/W2yxHEzMfVhyNPQFYGIrakQWA4hQ7duDOLUL5vRWvfmqR1FEHY2UObD8jjA==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYKCjyBIL3AoFLDviehTh2k/DadSi76mgdsADG98GbnwDzEvGTLO
+	0rQj8xYfsZqndRYxBXJxVKzx2jK2FJHmwQIMzJ9FUPbT+Bcl6T6KWEmpdT6cmmVFi2hCDWJYyeC
+	R4hKYPGeBlGjgC27hYvcZbMx15oROzTBgbDu8qA==
+X-Received: from dyblf37.prod.google.com ([2002:a05:7301:a25:b0:33e:6278:c3de])
  (user=sarthakkukreti job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:693c:88c3:20b0:33e:5e42:e0f9 with SMTP id 5a478bee46e88-34cdc2ca4f9mr14476eec.6.1790731172919;
- Tue, 29 Sep 2026 18:19:32 -0700 (PDT)
-Date: Tue, 29 Sep 2026 18:19:19 -0700
+ 2002:a05:7300:aa6:b0:342:94b:aa28 with SMTP id 5a478bee46e88-34c64cb8e45mr1319141eec.27.1790731175148;
+ Tue, 29 Sep 2026 18:19:35 -0700 (PDT)
+Date: Tue, 29 Sep 2026 18:19:20 -0700
 In-Reply-To: <20260930011921.1188150-1-sarthakkukreti@google.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
@@ -78,111 +78,122 @@ Precedence: list
 Mime-Version: 1.0
 References: <20260930011921.1188150-1-sarthakkukreti@google.com>
 X-Mailer: git-send-email 2.56.0.rc1.315.gc6ed9934b7-goog
-Message-ID: <20260930011921.1188150-2-sarthakkukreti@google.com>
-Subject: [PATCH 1/3] erofs: avoid redundant page copy for aligned
- shifted/plain pclusters
+Message-ID: <20260930011921.1188150-3-sarthakkukreti@google.com>
+Subject: [PATCH 2/3] erofs: bypass managed_pslots xarray when compressed cache
+ and dedupe are disabled
 From: Sarthak Kukreti <sarthakkukreti@google.com>
 To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
 Cc: Sandeep Dhavale <dhavale@google.com>, linux-erofs@lists.ozlabs.org, 
 	linux-kernel@vger.kernel.org, Sarthak Kukreti <sarthakkukreti@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-When a Z_EROFS_COMPRESSION_SHIFTED pcluster is read in-place into its
-target page cache folio(s) with page-aligned input and output offsets
-(pageofs_in == 0 && pageofs_out == 0), z_erofs_transform_plain() still
-maps each page via kmap_local_page() and calls memmove(kin + po,
-kin + rq->pageofs_in + pi, cnt) where dst == src. On x86_64,
-arch/x86/lib/memmove_64.S does not early-exit when dst == src, executing
-rep movsb over the entire 4 KiB page and dirtying all 64 cachelines.
+When EROFS is mounted with cache_strategy=disabled and without global
+compressed data deduplication (!erofs_sb_has_dedupe(sbi)), every
+pcluster still:
+1. Performs an RCU xa_load(&sbi->managed_pslots, map->m_pa) lookup in
+   z_erofs_pcluster_begin().
+2. Acquires the superblock-wide xa_lock(&sbi->managed_pslots) spinlock
+   to insert the pcluster via __xa_cmpxchg() in
+   z_erofs_register_pcluster().
+3. Scans all pcluster pages in z_erofs_bind_cache() calling
+   filemap_get_folio() on an empty MNGD_MAPPING.
+4. Acquires xa_trylock(&sbi->managed_pslots) on completion in
+   z_erofs_put_pcluster() to __xa_erase() the pcluster and defer freeing
+   via call_rcu().
 
-Furthermore, z_erofs_attach_page() restricts uncompressed pclusters to
-a single inplace I/O page (fe->icur <= 1), forcing multi-page aligned
-Z_EROFS_COMPRESSION_SHIFTED extents to allocate temporary shortlived
-pages and copy every page beyond the first via memcpy_to_page().
+Under multi-threaded random read workloads with cache_strategy=disabled,
+the superblock-wide managed_pslots XArray spinlock and RCU callback
+queue become a contention bottleneck despite no managed cache folios or
+shared pclusters ever being retained.
 
-1. Allow multi-page inplace I/O in z_erofs_attach_page() when the
-   pcluster uses Z_EROFS_COMPRESSION_SHIFTED with page-aligned input
-   and output offsets (!pcl->pageofs_in && !pcl->pageofs_out) and full
-   page bvecs.
-2. In z_erofs_transform_plain(), return immediately when a page-aligned
-   Z_EROFS_COMPRESSION_SHIFTED request has identical input and output
-   page pointers (rq->in[ni] == rq->out[ni]), and skip memmove() when
-   po == rq->pageofs_in + pi.
+Record whether a pcluster is unregistered (pcl->anon, fitting in existing
+struct padding alongside pcl->from_meta) at allocation time when
+cache_strategy <= EROFS_ZIP_CACHE_DISABLED and !erofs_sb_has_dedupe(sbi).
+Skip managed_pslots lookup, insertion, and cache binding for anonymous
+pclusters, and free them directly via z_erofs_free_pcluster() upon
+decompression completion just like inline metadata pclusters. Recording
+pcl->anon per pcluster also avoids races if sbi->opt.cache_strategy is
+changed via remount while pclusters are in flight.
 
 Signed-off-by: Sarthak Kukreti <sarthakkukreti@google.com>
 ---
- fs/erofs/decompressor.c | 24 ++++++++++++++++++++----
- fs/erofs/zdata.c        | 14 ++++++++++++--
- 2 files changed, 32 insertions(+), 6 deletions(-)
+ fs/erofs/zdata.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index d387b27c4ee2..0f6517f329ee 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -283,6 +283,21 @@ static const char *z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
- 		rq->outputsize -= cur;
- 	}
- 
-+	if (rq->alg == Z_EROFS_COMPRESSION_SHIFTED && !rq->pageofs_in &&
-+	    !rq->pageofs_out && nrpages_in == nrpages_out) {
-+		bool same = true;
-+
-+		for (ni = 0; ni < nrpages_in; ++ni) {
-+			if (!rq->in[ni] || rq->in[ni] != rq->out[ni]) {
-+				same = false;
-+				break;
-+			}
-+		}
-+		if (same)
-+			return NULL;
-+		ni = 0;
-+	}
-+
- 	for (; rq->outputsize; rq->pageofs_in = 0, cur += insz, ni++) {
- 		insz = min(PAGE_SIZE - rq->pageofs_in, rq->outputsize);
- 		rq->outputsize -= insz;
-@@ -295,10 +310,11 @@ static const char *z_erofs_transform_plain(struct z_erofs_decompress_req *rq,
- 			po = (rq->pageofs_out + cur + pi) & ~PAGE_MASK;
- 			DBG_BUGON(no >= nrpages_out);
- 			cnt = min(insz - pi, PAGE_SIZE - po);
--			if (rq->out[no] == rq->in[ni])
--				memmove(kin + po,
--					kin + rq->pageofs_in + pi, cnt);
--			else if (rq->out[no])
-+			if (rq->out[no] == rq->in[ni]) {
-+				if (po != rq->pageofs_in + pi)
-+					memmove(kin + po,
-+						kin + rq->pageofs_in + pi, cnt);
-+			} else if (rq->out[no])
- 				memcpy_to_page(rq->out[no], po,
- 					       kin + rq->pageofs_in + pi, cnt);
- 			pi += cnt;
 diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 6b07e73ee2aa..0517caf61959 100644
+index 0517caf61959..cd0411695a02 100644
 --- a/fs/erofs/zdata.c
 +++ b/fs/erofs/zdata.c
-@@ -698,9 +698,19 @@ static int z_erofs_attach_page(struct z_erofs_frontend *fe,
- 	int ret;
+@@ -77,6 +77,9 @@ struct z_erofs_pcluster {
+ 	/* I: whether compressed data is in-lined or not */
+ 	bool from_meta;
  
- 	if (exclusive) {
--		/* Inplace I/O is limited to one page for uncompressed data */
-+		/*
-+		 * Allow multi-page inplace I/O for page-aligned SHIFTED
-+		 * pclusters so that uncompressed multi-block extents read
-+		 * directly into the target page cache folios without allocating
-+		 * intermediate shortlived pages or copying in
-+		 * z_erofs_transform_plain().
-+		 */
- 		if (pcl->algorithmformat < Z_EROFS_COMPRESSION_MAX ||
--		    fe->icur <= 1) {
-+		    fe->icur <= 1 ||
-+		    (pcl->algorithmformat == Z_EROFS_COMPRESSION_SHIFTED &&
-+		     !pcl->pageofs_in && !pcl->pageofs_out &&
-+		     !(bvec->offset & ~PAGE_MASK) &&
-+		     bvec->end == PAGE_SIZE)) {
- 			/* Try to prioritize inplace I/O here */
- 			spin_lock(&pcl->lockref.lock);
- 			while (fe->icur > 0) {
++	/* I: whether pcluster is not registered in managed_pslots */
++	bool anon;
++
+ 	/* L: whether partial decompression or not */
+ 	bool partial;
+ 
+@@ -775,6 +778,9 @@ static int z_erofs_register_pcluster(struct z_erofs_frontend *fe)
+ 	pcl->pageofs_in = pageofs_in;
+ 	pcl->pageofs_out = map->m_la & ~PAGE_MASK;
+ 	pcl->from_meta = map->m_flags & EROFS_MAP_META;
++	pcl->anon = pcl->from_meta ||
++		(READ_ONCE(sbi->opt.cache_strategy) <= EROFS_ZIP_CACHE_DISABLED &&
++		 !erofs_sb_has_dedupe(sbi));
+ 	fe->mode = Z_EROFS_PCLUSTER_FOLLOWED;
+ 
+ 	/*
+@@ -784,7 +790,7 @@ static int z_erofs_register_pcluster(struct z_erofs_frontend *fe)
+ 	mutex_init(&pcl->lock);
+ 	DBG_BUGON(!mutex_trylock(&pcl->lock));
+ 
+-	if (!pcl->from_meta) {
++	if (!pcl->anon) {
+ 		while (1) {
+ 			xa_lock(&sbi->managed_pslots);
+ 			pre = __xa_cmpxchg(&sbi->managed_pslots, pcl->pos,
+@@ -819,6 +825,7 @@ static int z_erofs_pcluster_begin(struct z_erofs_frontend *fe)
+ {
+ 	struct erofs_map_blocks *map = &fe->map;
+ 	struct super_block *sb = fe->inode->i_sb;
++	struct erofs_sb_info *sbi = EROFS_SB(sb);
+ 	struct z_erofs_pcluster *pcl = NULL;
+ 	void *ptr = NULL;
+ 	bool needretry;
+@@ -840,10 +847,11 @@ static int z_erofs_pcluster_begin(struct z_erofs_frontend *fe)
+ 			return PTR_ERR(ptr);
+ 		}
+ 		ptr = map->buf.page;
+-	} else {
++	} else if (READ_ONCE(sbi->opt.cache_strategy) > EROFS_ZIP_CACHE_DISABLED ||
++		   erofs_sb_has_dedupe(sbi)) {
+ 		do {
+ 			rcu_read_lock();
+-			pcl = xa_load(&EROFS_SB(sb)->managed_pslots, map->m_pa);
++			pcl = xa_load(&sbi->managed_pslots, map->m_pa);
+ 			needretry = pcl && !z_erofs_get_pcluster(pcl);
+ 			rcu_read_unlock();
+ 		} while (needretry);
+@@ -875,7 +883,8 @@ static int z_erofs_pcluster_begin(struct z_erofs_frontend *fe)
+ 				Z_EROFS_INLINE_BVECS, fe->pcl->vcnt);
+ 	if (!fe->pcl->from_meta) {
+ 		/* bind cache first when cached decompression is preferred */
+-		z_erofs_bind_cache(fe);
++		if (!fe->pcl->anon)
++			z_erofs_bind_cache(fe);
+ 	} else {
+ 		folio_get(page_folio((struct page *)ptr));
+ 		WRITE_ONCE(fe->pcl->compressed_bvecs[0].page, ptr);
+@@ -1383,7 +1392,7 @@ static int z_erofs_decompress_pcluster(struct z_erofs_backend *be, bool eio)
+ 	WRITE_ONCE(pcl->next, NULL);
+ 	mutex_unlock(&pcl->lock);
+ 
+-	if (pcl->from_meta)
++	if (pcl->anon)
+ 		z_erofs_free_pcluster(pcl);
+ 	else
+ 		z_erofs_put_pcluster(sbi, pcl, try_free);
 -- 
 2.56.0.rc1.315.gc6ed9934b7-goog
 
