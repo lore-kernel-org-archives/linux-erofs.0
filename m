@@ -1,93 +1,83 @@
-Return-Path: <linux-erofs+bounces-4640-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4641-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93012CA5FBA
-	for <linux-erofs@archiver.kernel.org>; Wed, 30 Sep 2026 11:30:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FE89CA5FC7
+	for <linux-erofs@archiver.kernel.org>; Wed, 30 Sep 2026 17:17:14 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hvtBG6KLQz2yqT;
-	Wed, 30 Sep 2026 21:29:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1230" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790767798;
-	cv=pass; b=jsr7CiP6E+KrvnuXRWNSUs/nFcbktZ01KTbaCGONLQ2INh2ywkgBuzoBPEe/BR5L+4l0lC062BovGevtSUc+nNLVsmBQeEGIX2/r9hTs47CHo9HiQynOYnOKBdgjvOuUlc6kKBKp5Tkbc9AxhSC/VAo8m3ZxuArSicUxy5f5PWqBHRYr+ITdDQ7lC7lNs1T+bS2R7qmse9omdiJzL4OLK3P53xgLLzMnKfqnfSdPjaJvCJAQ1R/SD8ZfHxIRMdeOGWm4XudoSZMzwiuin+8+/gzDWuCWqnvUef6q4CFDmOUPY2eurfjS1/IKHGUL3rgJz2xhuiKYjzz6tmnCe5CXtw==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1790767798; c=relaxed/relaxed;
-	bh=VI9FMfHBO8Xce1RC42SkpR8mv4d8IZMnoN931y6mJ7k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=lm20hFjtOHmxofbZk93mdVCkvZIL5kuA+IKEgxxwzNEYlfiJrZwycqHV7IuKhrX3BDJXVHF+9QNfyy6CsFQD0digQAA5FpMgZOroYOwvCsgTTJoaJ4Qf1XiDWKorbRbItF8be+oQP5fYgaPcaV5qi0OkYjHRuX3FGpGqSdw+jGwBUSo7OQzPDjcjTgX6yKrrRt9fX/JHN+U2Xa9SpziFKJGiTRjI1k/gqnM+Knjxhj/nuWxB9iWg63b5W1e2muAySCqy6sVShYKR3doLGAe3/3vFI/xb0NUKpypZL9hw6ryJ+OkLcSRIJhsFLqu8OyW5QqyDGXwGmErNpbzwZQQLRw==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=eUovcwGB; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1230; helo=mail-dl1-x1230.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hw1tw480sz2xwP;
+	Thu, 01 Oct 2026 03:17:12 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:31::11"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790788632;
+	cv=none; b=fLXbTtkvthjPG2FbVNrNhRgzpqc4x3ooN6GQ67oHXVWoM6UzS9X52lB+w5NyIU4p0iJGjizkFSSo71R20m6xWRa5xtNQyHRZihuHpvuLz5xvJZy/R4lxdKod410LS52m4seMatNzggKCTZNMVI3zNizzwruL7B8Y6nUo/FXSsCVieiUBgmDV2UlqdDqz8FNwwUYO9tS5TIemj/B1W1TDV1/jF+/JVkrlx6c7HA9nFw0kYQKEZ0pP4b4CH5ol22ILfYpj/zTY3Itb604OxLf7SCYJoP2Jap9AzlZO78AoDx6zNk8wGf5cG/RsHxPMunX19q7MiXdyalCKdQGrMcfkbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1790788632; c=relaxed/relaxed;
+	bh=mtMmr2wzAd0zXxoQ7ML9THyD1gRCp94/C+agW6L6QPQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I6A0HYQG+hha+HASoPApLvJzUHcylj/tbyxS0nDDr295k28MLDAyJCXTBXx+cGOnS5UQBAX11JTsAr2pZPar7/2R4FNB0IQNz4UPHZJ2NLKt7XXeKZj1HkOX1esR+WRzh+0bF7NUQ/eUxTwXMGQq3tk/PAE3YeWl5feSJOTs9ozFpWFYII9XiELOQe856x6t/AwzW/9zC5o/ZrjCrjZPAvsGY+4SiGdbBYQIq5rA7gXL36oxi0g7wbtwidwyffNnA077x6XuE5GLMlVJ3dN4xF2cH6Yt/bkkdyhJBDA+Wdo/p0M0hS2NqPgX5WJNT6q9cSpCJ19SRZTr5rVm83+dmA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=looF4dt9; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:31::11; helo=mail-wm2-x11.google.com; envelope-from=yaroslav.752@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=eUovcwGB;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=looF4dt9;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1230; helo=mail-dl1-x1230.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-dl1-x1230.google.com (mail-dl1-x1230.google.com [IPv6:2607:f8b0:4864:20::1230])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2a00:1450:4864:31::11; helo=mail-wm2-x11.google.com; envelope-from=yaroslav.752@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-wm2-x11.google.com (mail-wm2-x11.google.com [IPv6:2a00:1450:4864:31::11])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hvtBF5D8pz2xmh
-	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 21:29:56 +1000 (AEST)
-Received: by mail-dl1-x1230.google.com with SMTP id a92af1059eb24-144f79153f5so732236c88.0
-        for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 04:29:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790767793; cv=none;
-        d=google.com; s=arc-20260327;
-        b=GIAJgObYWIfpamHKCZm4RHYlUMREkqj0qEEJZIDVovufGazYuIKX4v9AHYJlNAn3HG
-         BPw1TCXPvVhAc5ESvs+Mj/qHAI0+J6LYkizZ9CnOMRAvv224ZKCZ+PVBoMsc+4zOqoSt
-         M1Ai8rtnTx+F+/YHX4OqOjWuDUOPK4uuqP2TIseSTkafpLf4s6iOWd+b24zO8wz3YQMC
-         rP2Wey/c73I2Q/Y6WzemL4fxjSvph/dhsw/9MnAxOzblOsqlh5QnGS9rQSEZHwO0JQNo
-         mekf1jIzEiofqkfRRD3Oq4/Ah7rJ85x0/g1l6Ulr6za8jN40ReegfxlyyVNhfZ+WiC2q
-         Xsvw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=VI9FMfHBO8Xce1RC42SkpR8mv4d8IZMnoN931y6mJ7k=;
-        fh=remeewZxP07cSQ1yBMbYdglnWgzlTASU110VTFc62q8=;
-        b=mNI46LZE6qzTp3+NhENv8FSgizcOeoDNRNHelHYKmhBGMAoQPDbJqM88XrXbzbWYWS
-         rqgC1OMvLlRkgp7qQcJbRqe/PONYaXdrsov6/TdeNb5BleHZPSs23F/tWhoK7Kz7bJwo
-         kdQWfcQe6jPeBXLCItmljjDxnN4v7M92dL9iP04QJ+yimc2Kc5CqMGa7XEG6wmB0Kxhy
-         CTlPWoUz65efs2fTo7wOtFsmQ1adEgWIdDoISKuPz0cvyxzjKAfDXkD4boow0fHXmwpy
-         aF1umF659VP9ZtQX7HkXzx3DgPoRnjgeYMHWU2R49G3/GfUFUTZy6xKozmCoyLzWEpPT
-         4CzA==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hw1tt3plmz2xfP
+	for <linux-erofs@lists.ozlabs.org>; Thu, 01 Oct 2026 03:17:09 +1000 (AEST)
+Received: by mail-wm2-x11.google.com with SMTP id 5b1f17b1804b1-49e8185e037so32512505e9.3
+        for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 10:17:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790767793; x=1791372593; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=VI9FMfHBO8Xce1RC42SkpR8mv4d8IZMnoN931y6mJ7k=;
-        b=eUovcwGBTOXpk/xMK0wtWQx5eNz5SafGePCUDGlAU+8CPzhrfio6tEiNAjLjCIGhSu
-         s9kSfgcYkAxCg60SB6ajpZ72bng3YdH+B2Z+8WpOIF2pKZkPeOBC1Dn7OQiE2K6Pvy+N
-         OXnDwit0ikhHCt0+wm4MXcCgAVwjvZoA8t5lotiOr3fFtPfRxaTOih70/RKggHCd14Te
-         UAlxwfEXSw7wPjkiMBtfZ/XBDpfzXaPuO+cikbCt8fReN/dXti0czfM1V8qMWxCzZGWJ
-         tYuNbr7NDSBubNiVfDZxvIHr5S6R3SSLI0vbLpD91fSe/qtCs584FZx9xszQMynAVOEL
-         VYdw==
+        d=gmail.com; s=20251104; t=1790788625; x=1791393425; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=mtMmr2wzAd0zXxoQ7ML9THyD1gRCp94/C+agW6L6QPQ=;
+        b=looF4dt9YCKlKV+HzUjT/k6dGT8I26IYALTCi+GsFC4eiiizTtt/DZfMAVT+J+gi8+
+         A6KshXxhaGIFDJs1RqABPQuZZl3nBm5R4XCkrwjudMnrOAT4EIVEhEwa+B/r/6MFDkR/
+         r/VQ4EzaFFHsswHO8EiFQfgDPOX9lDV/AiQuM0GBahsP06nDiT42FOpM88wO9rbIcqR1
+         ns52B/2M/N8o0nuRNvy6O8zCHSIFWPKVk79RO/2hP6CrWFL57hC9hjhdmp+RhTKmMTRl
+         EHgcwkWVp1vJUPQrCIcJkdihFw/Q4W6y4OrGFFee+XDHnJCRq1zyQZdGEHbAeNC7t4Kr
+         3wrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790767793; x=1791372593;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=VI9FMfHBO8Xce1RC42SkpR8mv4d8IZMnoN931y6mJ7k=;
-        b=pwHPLpzTN3uF/7+Jl4dTSf0x8s3zCIpumLvNnwyCsnKnKmn5v1bp8n/nGMRArlx5Cx
-         Esop4Iz4+TdtDJ45Pdj7vCuxOTMmOm7m8m2y5VELmVcHmjTd4vbiZaPDViJ92s/CZlFF
-         186VTJ2vkYOWA/KjDYUXTacUETHEOB+Uq3sRGBtME3WdzCNmPSnY4IvFdxbBqPr+F5RY
-         fxcPPvYke2/EUq0Y62hSuza9ItAK/6kx/awOjS2H8NigsdRUSdIzkirRIByy8F/T16rb
-         1ptrHjNr07PPsnFdtwye8HDLikUt6iLkXnH693R4p/IDOs3wRruchn9+xezw4PIGR9Pi
-         axZQ==
-X-Forwarded-Encrypted: i=1; AKwUvByxa2r589LYYRiWDBJZxrPR76zPcykqqJjMKgqBVPj7qP7Pypug5ilcc7uh4sk3b9TyQq1POSrCu6L5ng==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++kKHUjSLIVtYR5sS/OkEj9Mv0pCem7tKf2j8C0cGxOWoS0/AQLN
-	3J0F67MLGeoNeRjqIg48YUPpzIm0Qu97x1YtcWURmYUEHgbhOU569k0NVZ07rV5jVn4giZr+vgb
-	6MjLuU3Gpw3LEjnhUonM6QRlofgeBFCY=
-X-Gm-Gg: AYBFou2+/W2fTsulSMj9YTHlIUknlYLlahs2yyeQEVz4oBRPIzzK+x9aIViFWJqtibr
-	DTpwC5lKxQ3nYtEkCb5MbN1YVB1lgIacW2vfNwDJ4BnMmylnKKvsbOoFSM+OAB6pH9MGZKR8kda
-	3Ss22r/s6mTgh+0UGvVCOGoZ/oRvnojpBclkWpbUWwDD7ettsxvNwFe4uFDTt4UeMktHoUwGxPH
-	76fpGJTgRlBTDg0297LzhypufbX1kDTHZhNoboLy0qQ6xgXy5yOxD5hBRTDe+oQgmNt76a/7Pcv
-	RsNMc6zF1MZ4ab6SRMofpD1JtPWk75tUhIcJtgbZdWnpSU3FNjqhrjzB
-X-Received: by 2002:a05:7022:ed02:b0:143:1bb1:32ff with SMTP id
- a92af1059eb24-14d34ad85fbmr972307c88.16.1790767793097; Wed, 30 Sep 2026
- 04:29:53 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790788625; x=1791393425;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mtMmr2wzAd0zXxoQ7ML9THyD1gRCp94/C+agW6L6QPQ=;
+        b=qfY8jrsIpvlaUxI/S37YZD7ZmiOZ98HMlhhNZamOJkt0vqiijb6lEIzg+WGg0Wf04m
+         jKiOx/uN4y7uSiWOrQ2rmGUNHjMlwEoKP6T+NiZsB5JzTCujKMEnOLbGL1sj2Eua3wvT
+         YdJJz7mvWT7QugQ2OefBJu/2tg3aKuprW0VtGbUEEWNh4fV3JPNbfE7NJy3uNVw0soLR
+         G0yoJhW/GRdFyd8WMLqriKZ17cCzmdFKwqS3zp42QJgLxohakwzHEYX6DY2jOypc1jMj
+         Sca69Ar7dwcq4/5ZHq8p27FfKdfe4C+rSG/g5haLgRAknJaZiCk8JVdqsTnt61zIxK2+
+         f9kg==
+X-Gm-Message-State: AFuF++m1i4qhuRm2rt8spgla+U92kcx7Oixy0/shKqWYihTCn6tUlIMt
+	yEog/qNp17R36EPK8fzwS07R0klVqIH4kF7trjqXBnpPpYEwYcboBGJ7rvKaWgJc
+X-Gm-Gg: AYBFou0S/QaWPdZMq86OnOGkuXiRoGF6Fmp0uyPQBCz67sVyXGKf7/FPmVcVlif0wT9
+	stQ4ST51x2ct9yWi2eSRBXc2qFif9HZnE2kzb3yOfSAwuEOeXwzalZDhnTwRIdfocCu90tB+EOz
+	78YOKuXBBZp9om4UIhN/ZPFlDeIidOjTVpAfeowmTSEmrdbIZt7gyNuafMlsszSThDRCLnCGFbJ
+	nVKSTqImtXQLa37MKFte2ysahEEQLwmdMi/k2dcJ7Gx4y9HE/+3YRnSUD5pqiSRfmKeWcQ+SOoX
+	F3uXsx/aZ5oGm5HR3nBaNSleAVYqslONSChoTTH+6UDk4RGlLzyC5dwng+fFhqHHllWdM7i0vCE
+	83hKj+MnaKbhomHjbWJo8A7hfy2xqsn1WuR271HSpqbFFOS6iqM0H6lUQ2MUkPj0CG9MWWWTD6h
+	0VwqHhPPvVSTpbC1u2CTfrqAcD2hbCHL7ZhPhx9/RfnddL2MsFkVLVDuNdq0isHzndFaI+SnYrg
+	oO/esMPTlfZyoLGL/kexYNHaWCBFhU4xFoP6h9OMEhAac/N1R8aKooxW+2qqKlECQFLWbB/Y1Yq
+	x2TqEdrjqZw2ONgrZCovgpNXGQ==
+X-Received: by 2002:a05:600c:3486:b0:4a0:4c3:1da9 with SMTP id 5b1f17b1804b1-4a01b003c1amr26089885e9.19.1790788625278;
+        Wed, 30 Sep 2026 10:17:05 -0700 (PDT)
+Received: from lenovo-legion5 (pppoe-77.220.52.232.ttel.ru. [77.220.52.232])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01eba0ed0sm5936655e9.8.2026.09.30.10.17.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Sep 2026 10:17:04 -0700 (PDT)
+From: Yaroslav Borbat <yaroslav.752@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang@kernel.org>,
+	Yaroslav Borbat <yaroslav.752@gmail.com>
+Subject: [PATCH] erofs-utils: lib: follow symlinked directories in tar entry paths
+Date: Wed, 30 Sep 2026 20:16:54 +0300
+Message-ID: <20260930171654.2786771-1-yaroslav.752@gmail.com>
+X-Mailer: git-send-email 2.55.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -99,104 +89,100 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <CAJ3C4KySUqKevOBn=CROzsWkaLdK_X241oLFXO26FKBVq73QJg@mail.gmail.com>
- <ary_wjlpYNWbqaHU@MacBookPro>
-In-Reply-To: <ary_wjlpYNWbqaHU@MacBookPro>
-From: binglei wang <l3b2w1@gmail.com>
-Date: Wed, 30 Sep 2026 19:29:41 +0800
-X-Gm-Features: AclHuK-p_Xk2V1xVIcpsl-hSdtHJfx0KgIA3_98DoxwM1xsRTEU7UjoPuOvA3hI
-Message-ID: <CAJ3C4KwGis=rhUp7GPXMCTAn0Tf3mLbf0DgSGhOsd6mvzwRbPA@mail.gmail.com>
-Subject: Re: [PATCH] erofs: fix folio reuse from a different address_space in erofs_bread()
-To: binglei wang <l3b2w1@gmail.com>, xiang@kernel.org, chao@kernel.org, 
-	linux-erofs@lists.ozlabs.org, zbestahu@gmail.com, jefflexu@linux.alibaba.com, 
-	dhavale@google.com, hongbohbli@tencent.com, guochunhai@vivo.com, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Sorry, my webbrowser email client configs with something wrong. Thanks
-for your reply.
+From: Yaroslav Borbat <yaroslav.752@gmail.com>
 
-I re-sent the patch from my Linux shell. I believe it's OK this time.
+Some OCI layers store entries under a symlinked directory, e.g.
+`./lib64/foo` with `./lib64 -> usr/lib64`.  erofs_rebuild_get_dentry()
+fails with -ENOTDIR on them, so containerd's erofs differ cannot
+unpack such layers.
 
+Fix it by resolving the rest of the path against the symlink target,
+as tar extraction does.
 
-Gao Xiang <xiang@kernel.org> =E4=BA=8E2026=E5=B9=B49=E6=9C=8830=E6=97=A5=E5=
-=91=A8=E4=B8=89 15:52=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Wed, Sep 30, 2026 at 11:37:53AM +0800, binglei wang wrote:
-> > erofs_bread() caches the last folio in struct erofs_buf and reuses it w=
-hen
-> > the next request lands on the same folio, but the reuse predicate only
-> > compares the page index; it never checks that the cached folio still
-> > belongs to buf->mapping.  Correctness therefore relies on an invariant
-> > that is nowhere enforced.
-> >
-> > fs/erofs/xattr.c already breaks it: erofs_xattr_iter_inline() and
-> > erofs_xattr_iter_shared() call erofs_init_metabuf() on the same buffer
-> > with no intervening erofs_put_metabuf(), and their in_metabox arguments
-> > come from different sources (per-inode vs per-fs).  When the two differ=
-,
-> > buf->mapping is switched while buf->page still holds a folio of the
-> > previous address_space, so the next erofs_bread() can return data from
-> > the wrong one.
-> >
-> > This is observable with METABOX enabled, where shared xattrs silently
-> > disappear on the mounted fs, while the same tree built without METABOX
-> > reports them fine.
-> >
-> > Fix it by validating the address_space in the reuse predicate too: if t=
-he
-> > cached folio belongs to another mapping, drop it so that the existing
-> > slow path re-reads from buf->mapping.  Reading folio->mapping is safe
-> > here because a reference on the cached folio is still held; if the foli=
-o
-> > was already truncated, folio->mapping is NULL and the slow path is take=
-n,
-> > which is the safe direction.
-> >
-> > Fixes: 414091322c63 ("erofs: implement metadata compression")
-> > Cc: Bo Liu (OpenAnolis) <liubo03@inspur.com>
-> > Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
->
-> Thanks for the patch.
->
->  1) The patch format is still broken as your previous patch, please
->     check your email client again before sending out a new patch
->     (as I said, you could send a patch to yourself and try to apply
->      the patch and see if it works);
->
->  2) the commit message of this patch is too over long (mostly
-> in the LLM-generated style), I think you could simplify a bit since
-> it's more friendly to human developers.
->
-> > ---
-> >  fs/erofs/data.c | 7 ++++++-
-> >  1 file changed, 6 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-> > index be63b89f0862..d8b6523bc218 100644
-> > --- a/fs/erofs/data.c
-> > +++ b/fs/erofs/data.c
-> > @@ -33,8 +33,13 @@ void *erofs_bread(struct erofs_buf *buf,
-> > erofs_off_t offset, bool need_kmap)
-> >
-> >   if (buf->page) {
-> >   folio =3D page_folio(buf->page);
-> > - if (folio_file_page(folio, index) !=3D buf->page)
-> > + if (folio->mapping !=3D buf->mapping) {
-> > + /* the cached folio belongs to another address_space */
-> > + erofs_put_metabuf(buf);
-> > + folio =3D NULL;
->
->      `folio =3D NULL` is enough?
->
-> Thanks,
-> Gao Xiang
->
-> > + } else if (folio_file_page(folio, index) !=3D buf->page) {
-> >   erofs_unmap_metabuf(buf);
-> > + }
-> >   }
-> >   if (!folio || !folio_contains(folio, index)) {
-> >   erofs_put_metabuf(buf);
+Link: https://github.com/erofs/erofs-utils/issues/55
+Signed-off-by: Yaroslav Borbat <yaroslav.752@gmail.com>
+---
+ lib/rebuild.c | 55 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index ebac1c5..7030e67 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -82,8 +82,58 @@ struct erofs_dentry *erofs_d_lookup(struct erofs_inode *dir, const char *name)
+ 	return NULL;
+ }
+ 
++/* the same limit as MAXSYMLINKS in the kernel */
++#define EROFS_REBUILD_MAXSYMLINKS	40
++
++static struct erofs_dentry *__erofs_rebuild_get_dentry(struct erofs_inode *pwd,
++		char *path, bool aufs, bool *whout, bool *opq, bool to_head,
++		unsigned int nlinks);
++
++/*
++ * Some OCI image layers store entries under a symlinked directory, e.g.
++ * `lib64/libfoo.so` with `lib64 -> usr/lib64`.  Tar extraction follows such
++ * symlinks, so resolve the rest of the path against the symlink target in
++ * the same way.  Absolute targets are resolved against the root of the tree
++ * and `..` never goes above it; symlink loops end up with -ELOOP.
++ */
++static struct erofs_dentry *erofs_rebuild_follow_link(struct erofs_inode *dir,
++		const char *link, char *slash, bool aufs, bool *whout,
++		bool *opq, bool to_head, unsigned int nlinks)
++{
++	const char *rest = slash + 1;
++	struct erofs_dentry *d;
++	char *path;
++
++	*slash = '/';
++	while (*rest == '/')
++		++rest;
++	if (!*rest)
++		return ERR_PTR(-ENOTDIR);
++	if (nlinks >= EROFS_REBUILD_MAXSYMLINKS)
++		return ERR_PTR(-ELOOP);
++
++	if (*link == '/')
++		while (dir->i_parent && dir->i_parent != dir)
++			dir = dir->i_parent;
++
++	if (asprintf(&path, "%s/%s", link, rest) < 0)
++		return ERR_PTR(-ENOMEM);
++	d = __erofs_rebuild_get_dentry(dir, path, aufs, whout, opq, to_head,
++				       nlinks + 1);
++	free(path);
++	return d;
++}
++
+ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+ 		char *path, bool aufs, bool *whout, bool *opq, bool to_head)
++{
++	return __erofs_rebuild_get_dentry(pwd, path, aufs, whout, opq,
++					  to_head, 0);
++}
++
++static struct erofs_dentry *__erofs_rebuild_get_dentry(struct erofs_inode *pwd,
++		char *path, bool aufs, bool *whout, bool *opq, bool to_head,
++		unsigned int nlinks)
+ {
+ 	struct erofs_dentry *d = NULL;
+ 	char *s = path;
+@@ -123,6 +173,11 @@ struct erofs_dentry *erofs_rebuild_get_dentry(struct erofs_inode *pwd,
+ 			d = erofs_d_lookup(pwd, s);
+ 			if (d) {
+ 				if (d->type != EROFS_FT_DIR) {
++					if (slash && d->type == EROFS_FT_SYMLINK &&
++					    d->inode && d->inode->i_link)
++						return erofs_rebuild_follow_link(pwd,
++							d->inode->i_link, slash, aufs,
++							whout, opq, to_head, nlinks);
+ 					if (slash)
+ 						return ERR_PTR(-ENOTDIR);
+ 				} else if (to_head) {
+-- 
+2.55.0
+
 
