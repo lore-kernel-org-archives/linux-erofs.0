@@ -1,93 +1,67 @@
-Return-Path: <linux-erofs+bounces-4631-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4633-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 89137CA5FA5
-	for <linux-erofs@archiver.kernel.org>; Tue, 29 Sep 2026 18:20:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A04D5CA5FAD
+	for <linux-erofs@archiver.kernel.org>; Wed, 30 Sep 2026 01:19:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hvRKp5XRTz30W9;
-	Wed, 30 Sep 2026 04:19:58 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:34::c" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790705998;
-	cv=pass; b=evcV0XjvK300cnLK+gHrsKA31Af0o60dcl5gwGb7HQRIdcysqnXp4urTvFuqZuk4qufrVgETGyIulPWZLbEyT77IiI97hG4WeUZjHOIvmrRVB14YXywP2QHm0Vvq/w3MwNeOuenXBp49rOZVUz5pyWQR8K5l87IPL9v546rbeHXrmAp+T5kFbfcvgcYAb68fdV0oRHyQBOpJ/T7Hdhp9keYR3W8GBGvC/N+F7mEip3JS8tFLcUx9qW5HgRvSUQsHerpnJwtVpwU+3vTQwendQrcsGi1WJbP5/0Jpfz2lAm8aBdNzIzaMrUQ1AR0XQ7kj3ywSO+me2O6LPOqF2MGW4A==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1790705998; c=relaxed/relaxed;
-	bh=x3wem9nqccewK142oYO2K5XOMZpE6GeyF4bYVcJ1KOA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=ZEylnUCP5GxXuFyb0hmhbeAIdlCZ/ueyAi/fME/5QUC+uXlTZHlZwkviGNyRbzcRuBO9rAnc6h+6fEq96GT2fEYDXgRWRN8JUxNsDZU3mtY0BQAJuOqe8nyNrwp5TWFP48MaDyG165AL0Ix5+zBZhe0kI4+Q2E9W9woUEuMGsznekkp52u6C3i0SVUWktM+URanone5uH0y2+fGVZeqEpEuD7Qa/koAzKOaiMBJgyk0/2/iPpJCC28Mffhr9VxFpa7ub8cC14kDaETtGUJloKqeVBJGcCEu3ybK5q0fex/V4sWCJcu0xb8FI7lLDCQmx8Q0jIx9tBaFxnNCaEgFfgg==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=JOwzU/nD; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:34::c; helo=mail-qk2-x0c.google.com; envelope-from=garvkumar1502@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hvcf22Ygpz2yjw;
+	Wed, 30 Sep 2026 11:19:38 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1346"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790731178;
+	cv=none; b=fDPj9NXb6Kpb0ls7Rbty5Ol0U9Y1+lWL2zX03n8NfdtAumrg5QQ+Mavfwr7QFRGEXblQXMXYF4C7quKBccIxXDHbiP2RAgQdlDnaGFAOX72Qxeb52veTTOFmHHe+LSCCJanxhkFuJTVh9UM9XjmlPdBLjKm5sXXYdEaTTeyOoECDSo1jkawTQcX9N+0k3ZgMP8B5G3sfsK3qnzuLNE+O41GHVusZWuH+8rfzoRMnrGCXErjVpc2BjvYp7K5/LBuWJmJOmBnmXGkWMAKrKSSr+6WpBpFsBcYu4RGLzUQFQ1JW95Q3mMc4TAEgcGgTPiPLuZmkcGvdPK53iVIMHfUDSA==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1790731178; c=relaxed/relaxed;
+	bh=Mw5rpolKjdxKa0DwTFTSUtjCYjZdhi+yaqdpG3z0Heg=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=eHSnp35MdTvZNmOyoFy5dHnFy4uXAXvB9izA4EsFAv6pikh9r/OvSSxXZJJBttRFZEKlKoBqmYwlygKq+2A48neAeqOXzm+sC6A5b33XFFiKuwshbtzmxIKy7t1BHp7st+A6lPPujoUTRqlE8u8t2KobihiYaA//ISn4KiaQ/ySGFBZCkWGrjWJdBqUciz3iUsXlMP4ASb9U9evxPRRgCM9I7D0SeDFVhYq+JTPXi7ThvlNVkvPenrOa9VvAmhJRyQBXA+xHHVy6U8ghZmMvIwNpQe1zuXbKSZ9ffFBdX2pNJ1niDniJuGATldXjCxqlw67IqiOT8xuEFQI8RxCzgA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com; dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=sRwP8Esv; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3omo8ag4kc7cpxoqexhhrhobqfdlldib.zljifkru-bolcpifpqp.lwixyp.lod@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=JOwzU/nD;
+	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=sRwP8Esv;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:34::c; helo=mail-qk2-x0c.google.com; envelope-from=garvkumar1502@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-qk2-x0c.google.com (mail-qk2-x0c.google.com [IPv6:2607:f8b0:4864:34::c])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--sarthakkukreti.bounces.google.com (client-ip=2607:f8b0:4864:20::1346; helo=mail-dy1-x1346.google.com; envelope-from=3omo8ag4kc7cpxoqexhhrhobqfdlldib.zljifkru-bolcpifpqp.lwixyp.lod@flex--sarthakkukreti.bounces.google.com; receiver=lists.ozlabs.org)
+Received: from mail-dy1-x1346.google.com (mail-dy1-x1346.google.com [IPv6:2607:f8b0:4864:20::1346])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hvRKn5Vjnz30Vs
-	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 04:19:57 +1000 (AEST)
-Received: by mail-qk2-x0c.google.com with SMTP id d75a77b69052e-5332a80a731so37590571cf.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 29 Sep 2026 11:19:57 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790705995; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ZUpTUvhKfWXNPrHM7q7KygKQ+q02h1+dF5MfQokuWP9diAdVQ84MK3MaJZAfWHeOCR
-         4qY2dQRN65tbUb8p9/DfJ2jBa5MLh90s3A1TXECJi7hbxPN7d0xuFtry3zbFB0UUfPEl
-         7EMuOr+YbBdqxNVy5LvWEOTN1Sl/zSJ/0bW1RAy3NZnqwospdoI0bngsE2KgdACJLstV
-         qIR/qPKhiMXS6L2nRKFQPH5Rx0DLivxgefomNvksV5BioCZL6tI7/CdWKWGvFR99NLzL
-         iKogL3DS+2BrCEg0isQYP1ieJSb9GY28F6phuJvWAgSa5TwqCw4wLth+cuxLgHthd7kt
-         TrpQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :dkim-signature;
-        bh=x3wem9nqccewK142oYO2K5XOMZpE6GeyF4bYVcJ1KOA=;
-        fh=xt26YkgZnyJHX3aZNhpt1oizGoJ7oBGjA5260Xbfth4=;
-        b=bcoIEZvIjEpH/QjZy9U2paFIILyDm8TjsndVRMgaMY0nN7tXUG8HOUl/SL3Q37cdLt
-         gBBQEJbarf7MCjuAJAqWby5Zd5H6VBp30wvCMb7MvHqT+tbb9gmkCxVRcUbBFBeGfuCf
-         iuIv3yMjCVm0o2AroFzr4Whso8aciEB9Y6OoEcd84dotNB6tSU4EJ8f3b2LKARZwO5Yd
-         nPrWxdegxa6OtHnmU+/OgU/MqJhTRD/uD08CGZaWIH+JlT0AHu4Fmcd9f+Q8G61Nlmpl
-         fh/mTEivJudEgX/RzoEXmqLcQtK5R2EleVWE8ix+abzoYuhSo8uiJhh43zyJ9yXHM1Xd
-         b6IQ==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hvcdz3mFhz2y8p
+	for <linux-erofs@lists.ozlabs.org>; Wed, 30 Sep 2026 11:19:34 +1000 (AEST)
+Received: by mail-dy1-x1346.google.com with SMTP id 5a478bee46e88-33c35f5ca6cso1689768eec.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 29 Sep 2026 18:19:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790705995; x=1791310795; darn=lists.ozlabs.org;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=x3wem9nqccewK142oYO2K5XOMZpE6GeyF4bYVcJ1KOA=;
-        b=JOwzU/nDp0kNNTwNmKzg/ouQAZje7QVMJAt1kh4n7Zn1mpYb9BvHeArjeHN1Zx5EO+
-         kR9Q+oS5Wwf+QtmnV4yV9wIkAy3QkTMitd73L+meOkQxfpYFj1zFZVEV7T5ZAk3RHm5b
-         thlg2/0bgqjDLomhXyofCSXM1D59ooPwnFGMFb9YOf7emHfsipi7FXvIVYwXd2+irQpo
-         IJfuVLvId2789EGhMNxEz3Hu6o8Oc+J/HBRIkVXUbKrrc/jhGyavBP7W3yhXFmKHVgH2
-         lb7VNwKpJ3B+6GeW8z1WPU86e4DlIxRqqTo4UHT25W850vvPOac7g9e7qtElAkh/5GeG
-         //OA==
+        d=google.com; s=20251104; t=1790731171; x=1791335971; darn=lists.ozlabs.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Mw5rpolKjdxKa0DwTFTSUtjCYjZdhi+yaqdpG3z0Heg=;
+        b=sRwP8EsvaJr9vpRk7q0QNShb0jVvXq0hAytymgryttE6Vue4ahNanWfcgLg/xIxXVm
+         CdQIwGCxvvpyEPuVlPGYdJevORzVPds8kJxhAByYP/HKzIMlS2KK02WBfwgBVc+d0UfW
+         +T1O1lWA35MkALgNE8Ci+FQMRlrV2Wc5SH1+zv2VUaJ1UT8EuZTmRHOVbVHgcz+j7wix
+         d3dhBdYBE+2U/TlyBJnaA16k6+DnlXc6AZB6W5M6HNj3KGyV7LKF1QxpLuGoaOqjogto
+         BTAtC/FaTfj62/d/ogPeF4ZH8r4ubfxxwfFQPm2VXccgkIgbcV6+jlNoMNmlU8DhOPsF
+         Fitg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790705995; x=1791310795;
-        h=content-type:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=x3wem9nqccewK142oYO2K5XOMZpE6GeyF4bYVcJ1KOA=;
-        b=zbIMV4/Aprbm7wp7wC7Xmy6PuvecdosoOsDg7L6kqxaz3yy4oogtx5DnV1yI+iflzv
-         SIobV3/KOK+MMnZjnGnVSUWv7Sn+S8QiPbWKuzo+G3oI9r/vE/HhXEkoH92Y7qEU8gv9
-         xLqMXa09yjdwWZTeD84iIYjfP9KicuK8yb3ky8xpukhHEmU5/Js1JkiC4f63vGc9SkZz
-         N8/pLSefJ4i59It+qlwvLIVR1mWVIZR93+wLQY5lkGtz96wLlXUvuydlqA7lqaRjwr9r
-         8Qd+jPuJTfoiu8BPBNp7gYf4obflpssxuxIQ4KgZxrmKOQq1eMRT0h4zTbjS/53NOT1t
-         GtQA==
-X-Forwarded-Encrypted: i=1; AKwUvBzVnsV/+tKtngokw+tPky+UQjbdR7UAuzfADGTiXiYTCpBkexQgmYNCgr84bSyEVOpguMxNU1bYHdy34Q==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++kW1f7JPp3PLAyuLgyPW1N1Nb5osj7riTv3+ZIChSJYfsZgFjO6
-	i91pSCb+s8x7Xx6FNZc8N/6dyPqyku6idlFud1CMDwEEf9X2koGvW+H4zjcBPXK94TXq7RxJK4S
-	5W8AnkCv8xbcjQJqV6AB0TbKpk9R4qTU=
-X-Gm-Gg: AYBFou0+sliVvB+WgK9ZbD4HG2vUqxZlE5cUo/FVoRlFAgX8gWhpoQ/O7IxvxtRORxw
-	+hARxD0xdbd9calgox0CQ8gv4QaJ2NTe8phmUJCHU1XeYOggdohMVjV4QLzwFMAYC8xzwW66LGX
-	H9kDX1gnJh95faOLh2vDZrPkJB7TjEPyyLcjXJFI47LZx9I7VJwYfcD2ArVkGau6a3OTrz4CASb
-	PxbmzQ+NIk24EJ7KVH2b2EMl52wrICkaGRBmCv5shRNb0tWPiFOfsEi13uhYPjY5jPBHgHk86Gq
-	q348w2GbOzGVoML9mUzUd3Y4EPJjUUyVEPyQ3t1shInVGQT0OY5h5wVsBg==
-X-Received: by 2002:a05:622a:5793:b0:533:2262:f710 with SMTP id
- d75a77b69052e-5336a33c6a3mr1505291cf.11.1790705994734; Tue, 29 Sep 2026
- 11:19:54 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790731171; x=1791335971;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Mw5rpolKjdxKa0DwTFTSUtjCYjZdhi+yaqdpG3z0Heg=;
+        b=rPdMvIN2CP/6iwldpZpV1nAZHXHf8OCirbhcRRjBvLG0tF1ZNLKaKFfpKFVkeIs7cG
+         nrimOdrSqJc/lq6KI5Uhym04LZok+hHVevLwC2VSffPjumJuonQhtt4aSBNp27hF7zjf
+         19I5yPBL6UO3ty2zv6A1Mw9g/pqq75gzz+DXQlU3T4uHHNyasl0q2rbDzutWxPR0eDF1
+         XIZoWd8aMFLxmgM0IZiaZ4bxBLrSk6dxJAeJVX4tF2cObtiaFT+Y+byCRFx7wN1fIhet
+         UpoMQhIKkp90AVEtPyZtWgqCJpJ9ROPVBSWUnost0UpzrwJQk+kDNHoYfauI2h129xEG
+         ECGw==
+X-Forwarded-Encrypted: i=1; AKwUvBxGc8t4s4DaWsv2knIQkYs0/iy076LjiQw2ZsNrlDk4HqBH1AgPHtYUQvAvSyxFBoAHGUyWg5A4opMszg==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYLv78jiSL45/Zhc197kVbKK+yxw3dtmpY/BNhaH/z65L3x+2Xf4
+	AUeOgDQWCtZnZbUFJM/kEJw8DpH4XKlkLUiBg7NAzxHtrSOLeSbYb4XrxM2VEmWXw7TC7fzqK3T
+	QtQfgl3qOOqnwvDYcp7LL+MwcsOFzq3EODg+GJw==
+X-Received: from dybpl11.prod.google.com ([2002:a05:7301:430b:b0:340:e357:7634])
+ (user=sarthakkukreti job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:693c:66d2:10b0:343:8685:d8f5 with SMTP id 5a478bee46e88-34cdcabe7c6mr11525eec.29.1790731170721;
+ Tue, 29 Sep 2026 18:19:30 -0700 (PDT)
+Date: Tue, 29 Sep 2026 18:19:18 -0700
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -98,142 +72,158 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20260929133917.14100-1-garvkumar1502@gmail.com> <arvAQh9Uz9cDG2KN@XiangdeMacBook-Pro.local>
-In-Reply-To: <arvAQh9Uz9cDG2KN@XiangdeMacBook-Pro.local>
-From: Garv Kumar <garvkumar1502@gmail.com>
-Date: Tue, 29 Sep 2026 23:49:43 +0530
-X-Gm-Features: AclHuK-4x4j52tBss8h_Mpl0KRodCG3bEKISa74MrCj955DLTYNpcRnWJt1DQCg
-Message-ID: <CANpLH_GhuiTL01qYyVvwTOqd+PyTzTDGgU9JpH77adKi_Bk15g@mail.gmail.com>
-Subject: Re: [PATCH] erofs-utils: zero directory writer buffer
-To: Garv <garvkumar1502@gmail.com>, linux-erofs@lists.ozlabs.org
-Content-Type: multipart/alternative; boundary="000000000000b6a50a065ca33a7f"
-
---000000000000b6a50a065ca33a7f
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.rc1.315.gc6ed9934b7-goog
+Message-ID: <20260930011921.1188150-1-sarthakkukreti@google.com>
+Subject: [PATCH 0/3] erofs: optimizations for 48-bit extents, shifted
+ pclusters, and cache-disabled mounts
+From: Sarthak Kukreti <sarthakkukreti@google.com>
+To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
+Cc: Sandeep Dhavale <dhavale@google.com>, linux-erofs@lists.ozlabs.org, 
+	linux-kernel@vger.kernel.org, Sarthak Kukreti <sarthakkukreti@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Gao,
+This series contains three optimizations for EROFS:
 
-Thanks for asking. I traced the directory writer path again, and I agree
-that my original explanation was incomplete. fill_dirblock() already clears
-the unused portion of the generated directory block, so I shouldn=E2=80=99t=
- have
-described the change simply as fixing uninitialized directory-block spare
-space.
+1. Patch 1 ("erofs: avoid redundant page copy for aligned shifted/plain
+   pclusters"):
+   - In z_erofs_transform_plain(), when an uncompressed
+     Z_EROFS_COMPRESSION_SHIFTED page is attached in-place (rq->out[no] ==
+     rq->in[ni]) at aligned offsets (po == rq->pageofs_in + pi == 0),
+     kmap_local_page() and memmove(kin, kin, PAGE_SIZE) are currently invoked.
+     On x86_64, arch/x86/lib/memmove_64.S does not early-exit when dst == src,
+     executing rep movsb over all 4,096 bytes and dirtying all 64 cachelines.
+     Skip kmap_local_page() and memmove() when input and output pages and
+     offsets are identical.
+   - In z_erofs_attach_page(), allow multi-page inplace I/O for page-aligned
+     Z_EROFS_COMPRESSION_SHIFTED pclusters so multi-block plain extents read
+     directly into target page cache folios without temporary shortlived page
+     allocation or memcpy_to_page().
 
-The reproducer I used preserves non-zero contents in the output file by
-bypassing the normal truncation path, and the calloc() change makes the
-generated image deterministic in that test. However, I have not yet
-established that dwv->dirdata is the source of those stale bytes, so I
-don=E2=80=99t want to claim that this is the correct fix without further
-verification.
+2. Patch 2 ("erofs: bypass managed_pslots xarray when compressed cache and
+   dedupe are disabled"):
+   - When mounted with cache_strategy=disabled and without global compressed
+     data deduplication (!erofs_sb_has_dedupe(sbi)), mark allocated pclusters
+     as unregistered (pcl->anon) and bypass the superblock-wide managed_pslots
+     XArray lookup (xa_load), insertion (xa_lock + __xa_cmpxchg), empty
+     MNGD_MAPPING scan (z_erofs_bind_cache), and RCU teardown (__xa_erase +
+     call_rcu), freeing anonymous pclusters directly via z_erofs_free_pcluster()
+     upon decompression completion just like inline metadata pclusters.
 
-I=E2=80=99ll investigate the exact data path and send a revised patch if ne=
-cessary.
+3. Patch 3 ("erofs: optimize 48-bit encoded extent lookup with O(1) hint,
+   interpolation, and in-page search"):
+   - In z_erofs_map_blocks_ext(), optimize variable-length 48-bit extent table
+     lookups (recsz >= 16) via:
+     (a) O(1) sequential continuation hint (z_extent_hint / z_extent_hint_lend)
+         checking map->m_la == hint_lend on step 0,
+     (b) step-0 linear interpolation div64_u64(map->m_la * (r - l), lend) for
+         random reads, and
+     (c) in-page binary search across all extent records [blk_first, blk_last]
+         residing within the currently mapped metadata block (256 records per
+         4 KiB page for 16-byte extents) before calling erofs_read_metabuf()
+         again.
 
-Thanks,
-Garv
+Benchmark Setup (Linux v7.3-rc5, kvm-xfstests, 4 vCPUs, 4 GiB RAM, fio-3.42)
+============================================================================
+Test image built with `mkfs.erofs -E 48bit -zdeflate,level=1 -C 32768`
+containing two primary benchmark files:
 
-On Tue, 29 Sept 2026 at 19:12, Gao Xiang <xiang@kernel.org> wrote:
+1. `/shifted_mixed.bin` (64 MiB, EROFS_INODE_COMPRESSED_FULL,
+   Z_EROFS_ADVISE_EXTENTS, recsz = 16, 7,237 extents):
+   When a compressed inode contains both compressible and incompressible
+   regions (e.g., embedded media, pre-compressed assets, or high-entropy
+   sections within a container file), mkfs.erofs emits compressed pclusters
+   for the compressible regions and uncompressed Z_EROFS_COMPRESSION_SHIFTED
+   extents (fmt = 0) for the incompressible blocks.
+   - Bytes [0 .. 28 MiB) contain incompressible data encoded by mkfs.erofs as
+     7,168 contiguous 4 KiB page-aligned Z_EROFS_COMPRESSION_SHIFTED extents.
+   - Bytes [28 MiB .. 64 MiB) contain compressible data encoded as 69 32 KiB
+     deflate pclusters (which causes mkfs.erofs to assign the inode
+     EROFS_INODE_COMPRESSED_FULL layout rather than EROFS_INODE_FLAT_PLAIN).
 
-> On Tue, Sep 29, 2026 at 07:09:17PM +0530, Garv wrote:
-> > Signed-off-by: Garv <garvkumar1502@gmail.com>
->
-> Can you explain a bit more why we need that?
->
-> Thanks,
-> Gao Xiang
->
-> > ---
-> >  lib/inode.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/lib/inode.c b/lib/inode.c
-> > index ec96556..e7d07e0 100644
-> > --- a/lib/inode.c
-> > +++ b/lib/inode.c
-> > @@ -597,7 +597,7 @@ static struct erofs_vfile
-> *erofs_dirwriter_open(struct erofs_inode *dir)
-> >  {
-> >       struct erofs_dirwriter_vf *dwv;
-> >
-> > -     dwv =3D malloc(sizeof(*dwv) + erofs_blksiz(dir->sbi));
-> > +     dwv =3D calloc(1, sizeof(*dwv) + erofs_blksiz(dir->sbi));
-> >       if (!dwv)
-> >               return ERR_PTR(-ENOMEM);
-> >       dwv->vf.ops =3D &erofs_dirwriter_vfops;
-> > --
-> > 2.53.0
-> >
-> >
->
+2. `/large_48bit.bin` (256 MiB, EROFS_INODE_COMPRESSED_FULL,
+   Z_EROFS_ADVISE_EXTENTS, recsz = 16, 3,901 extents):
+   A 256 MiB file compressed with deflate (32 KiB max pcluster size) into
+   3,901 variable-length 48-bit extents (average logical extent length ~67 KiB,
+   spanning 16 4 KiB metadata blocks).
 
---000000000000b6a50a065ca33a7f
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Workload Definitions & Exercised Code Paths
+===========================================
+Before every iteration, the filesystem is unmounted and page/buffer caches are
+flushed (`umount /mnt/erofs && echo 3 > /proc/sys/vm/drop_caches`), then
+remounted with `-o ro,cache_strategy=disabled`:
 
-<div dir=3D"ltr"><p class=3D"gmail-p1" style=3D"color:rgb(0,0,0);font-size:=
-medium">Hi Gao,</p><p class=3D"gmail-p1" style=3D"color:rgb(0,0,0);font-siz=
-e:medium">Thanks for asking. I traced the directory writer path again, and =
-I agree that my original explanation was incomplete.<span class=3D"gmail-Ap=
-ple-converted-space">=C2=A0</span><code>fill_dirblock()</code><span class=
-=3D"gmail-Apple-converted-space">=C2=A0</span>already clears the unused por=
-tion of the generated directory block, so I shouldn=E2=80=99t have describe=
-d the change simply as fixing uninitialized directory-block spare space.</p=
-><p class=3D"gmail-p1" style=3D"color:rgb(0,0,0);font-size:medium">The repr=
-oducer I used preserves non-zero contents in the output file by bypassing t=
-he normal truncation path, and the<span class=3D"gmail-Apple-converted-spac=
-e">=C2=A0</span><code>calloc()</code><span class=3D"gmail-Apple-converted-s=
-pace">=C2=A0</span>change makes the generated image deterministic in that t=
-est. However, I have not yet established that<span class=3D"gmail-Apple-con=
-verted-space">=C2=A0</span><code>dwv-&gt;dirdata</code><span class=3D"gmail=
--Apple-converted-space">=C2=A0</span>is the source of those stale bytes, so=
- I don=E2=80=99t want to claim that this is the correct fix without further=
- verification.</p><p class=3D"gmail-p1" style=3D"color:rgb(0,0,0);font-size=
-:medium">I=E2=80=99ll investigate the exact data path and send a revised pa=
-tch if necessary.</p><p class=3D"gmail-p2" style=3D"color:rgb(0,0,0);font-s=
-ize:medium">Thanks,<br>Garv</p></div><br><div class=3D"gmail_quote gmail_qu=
-ote_container"><div dir=3D"ltr" class=3D"gmail_attr">On Tue, 29 Sept 2026 a=
-t 19:12, Gao Xiang &lt;<a href=3D"mailto:xiang@kernel.org">xiang@kernel.org=
-</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:=
-0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">=
-On Tue, Sep 29, 2026 at 07:09:17PM +0530, Garv wrote:<br>
-&gt; Signed-off-by: Garv &lt;<a href=3D"mailto:garvkumar1502@gmail.com" tar=
-get=3D"_blank">garvkumar1502@gmail.com</a>&gt;<br>
-<br>
-Can you explain a bit more why we need that?<br>
-<br>
-Thanks,<br>
-Gao Xiang<br>
-<br>
-&gt; ---<br>
-&gt;=C2=A0 lib/inode.c | 2 +-<br>
-&gt;=C2=A0 1 file changed, 1 insertion(+), 1 deletion(-)<br>
-&gt; <br>
-&gt; diff --git a/lib/inode.c b/lib/inode.c<br>
-&gt; index ec96556..e7d07e0 100644<br>
-&gt; --- a/lib/inode.c<br>
-&gt; +++ b/lib/inode.c<br>
-&gt; @@ -597,7 +597,7 @@ static struct erofs_vfile *erofs_dirwriter_open(st=
-ruct erofs_inode *dir)<br>
-&gt;=C2=A0 {<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0struct erofs_dirwriter_vf *dwv;<br>
-&gt;=C2=A0 <br>
-&gt; -=C2=A0 =C2=A0 =C2=A0dwv =3D malloc(sizeof(*dwv) + erofs_blksiz(dir-&g=
-t;sbi));<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0dwv =3D calloc(1, sizeof(*dwv) + erofs_blksiz(dir=
--&gt;sbi));<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!dwv)<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return ERR_PTR(-=
-ENOMEM);<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0dwv-&gt;vf.ops =3D &amp;erofs_dirwriter_vfop=
-s;<br>
-&gt; -- <br>
-&gt; 2.53.0<br>
-&gt; <br>
-&gt; <br>
-</blockquote></div>
+- `seq_shifted_1j`:
+  `fio --rw=read --bs=4k --ioengine=psync --numjobs=1 --offset=0 --size=28m`
+  on `/shifted_mixed.bin`.
+  Sequential 4 KiB reads across 7,168 Z_EROFS_COMPRESSION_SHIFTED extents.
+  Exercises Patch 1 (skips kmap_local_page + self-memmove on aligned in-place
+  shifted pages), Patch 2 (bypasses managed_pslots XArray), and Patch 3 (O(1)
+  `map->m_la == hint_lend` sequential extent hint, replacing a 13-step binary
+  search per 4 KiB read with a single probe).
 
---000000000000b6a50a065ca33a7f--
+- `rand4k_shifted_1j` / `rand4k_shifted_4j`:
+  `fio --rw=randread --bs=4k --ioengine=psync --numjobs={1,4} --offset=0
+   --size=28m --io_size=28m --norandommap=1 --randrepeat=1`
+  on `/shifted_mixed.bin`.
+  Random 4 KiB reads across 7,168 Z_EROFS_COMPRESSION_SHIFTED extents (1 job
+  and 4 concurrent jobs). Exercises Patch 1 (skips self-memmove), Patch 2
+  (eliminates superblock-wide managed_pslots XArray spinlock contention and RCU
+  callbacks across 1 and 4 threads), and Patch 3 (step-0 linear interpolation +
+  in-page binary search across 256 16-byte extent records per metadata page).
+
+- `rand4k_48bit_1j` / `rand4k_48bit_4j`:
+  `fio --rw=randread --bs=4k --ioengine=psync --numjobs={1,4}
+   --io_size={64m,32m} --norandommap=1 --randrepeat=1`
+  on `/large_48bit.bin`.
+  Random 4 KiB reads across 3,901 variable-length deflate-compressed 48-bit
+  extents (each random 4 KiB read decompresses a 32 KiB deflate pcluster).
+  Exercises Patch 3 (step-0 interpolation + in-page binary search, reducing
+  erofs_read_metabuf() calls per random lookup from ~12 to 1) and Patch 2
+  (managed_pslots bypass).
+
+- `seq_48bit_cold`:
+  `fio --rw=read --bs=128k --ioengine=psync --numjobs=1`
+  across all 256 MiB of `/large_48bit.bin`.
+  Cold sequential read across 3,901 variable-length deflate-compressed 48-bit
+  extents. Exercises Patch 3 (O(1) sequential continuation hint) and Patch 2
+  (managed_pslots bypass).
+
+Benchmark Results
+=================
+1) RAM-backed block device (`/dev/loop0` over `/dev/shm`, 5 iterations):
+
+| Workload                        | v7.3-rc5     | Patched      | Delta   |
+| ------------------------------- | ------------ | ------------ | ------- |
+| seq_shifted_1j (4K read, 1J)    | 438,161 IOPS | 545,870 IOPS | +24.6%  |
+| rand4k_shifted_4j (4K rand, 4J) | 474,261 IOPS | 539,127 IOPS | +13.7%  |
+| rand4k_shifted_1j (4K rand, 1J) |  87,097 IOPS |  97,203 IOPS | +11.6%  |
+| rand4k_48bit_1j (4K rand, 1J)   |  21,671 IOPS |  22,946 IOPS |  +5.9%  |
+| rand4k_48bit_4j (4K rand, 4J)   | 119,018 IOPS | 124,459 IOPS |  +4.6%  |
+| seq_48bit_cold (128K read, 1J)  | 439.9 MiB/s  | 443.7 MiB/s  |  +0.9%  |
+
+2) virtio-blk (`/dev/vdb`, `cache=none,aio=native`, 3 iterations):
+
+| Workload                        | v7.3-rc5     | Patched      | Delta   |
+| ------------------------------- | ------------ | ------------ | ------- |
+| seq_48bit_cold (128K read, 1J)  | 551.7 MiB/s  | 600.9 MiB/s  |  +8.9%  |
+| rand4k_shifted_1j (4K rand, 1J) |  13,096 IOPS |  13,636 IOPS |  +4.1%  |
+| rand4k_shifted_4j (4K rand, 4J) |  69,715 IOPS |  71,685 IOPS |  +2.8%  |
+| rand4k_48bit_4j (4K rand, 4J)   |  28,578 IOPS |  28,999 IOPS |  +1.5%  |
+
+Sarthak Kukreti (3):
+  erofs: avoid redundant page copy for aligned shifted/plain pclusters
+  erofs: bypass managed_pslots xarray when compressed cache and dedupe
+    are disabled
+  erofs: optimize 48-bit encoded extent lookup with O(1) hint,
+    interpolation, and in-page search
+
+ fs/erofs/decompressor.c | 24 +++++++++--
+ fs/erofs/internal.h     |  2 +
+ fs/erofs/zdata.c        | 33 ++++++++++++---
+ fs/erofs/zmap.c         | 94 ++++++++++++++++++++++++++++++++---------
+ 4 files changed, 121 insertions(+), 32 deletions(-)
+
+-- 
+2.56.0.rc1.315.gc6ed9934b7-goog
 
