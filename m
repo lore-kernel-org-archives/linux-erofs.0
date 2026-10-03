@@ -1,94 +1,54 @@
-Return-Path: <linux-erofs+bounces-4651-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4652-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBD66CA5FE3
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Oct 2026 10:30:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58942CA5FDD
+	for <linux-erofs@archiver.kernel.org>; Sat,  3 Oct 2026 22:45:28 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hxhk42zLWz2xr2;
-	Sat, 03 Oct 2026 20:30:20 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1236" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791023420;
-	cv=pass; b=GXVPFFvGFnI5J7aB/CgYpi5fekyBF+hupd3DN6O5vslDxh9164hGKtqU5CJJ3j8vcVCKlZVYrLL7PQV6Qx2TmWOHdQNzJ2+h8nOsQCXWvLpUYQPgTnttcA0KDKEq/5Y7mUDxuWY5UakRpNjJRurtxFY0bWiwRUBjDZFWPNM84HYm7jhyvtDCng42A5A0TAJNTmS0aEyGC4EphRk7Q9fV7YWaCe6s9QQdpcEPnBVEa1tyDH0oVKimMzlMNkQ3ZYjSUU0jhxYuA/TsOn8a5yxwhmGs0kiVYSRRKLJ/gbl2SOWDCQFf1Uk9HfxRPnUfVpgOkHzjj/UfGiFH+ctBEbVbyw==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791023420; c=relaxed/relaxed;
-	bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=E31Bi7O4zD2NSLbJpwUZb6sE+wSEZGwcMGFu2jjsiiRhbCVf98JHp+A4JSPjr+Gwb50i2uFt0ZDCKnRjXdbhxOernc04hwWQLqgsMlpXBnHDO85QLfDp9y5dcHbu+sJugtfAYyU7ErZudAjQuTNWK7vlwviycu3s4QKzbf5InEfds9TQpzywXieZbLzNry7fmOhwg2QFTVlUtVsBi/Iluambxpk5RxrdFe+x4tbNoAq6WMMTDECpp21gJtXqEu0N9+7puuNHKFNIrKPIeKSHCTgvIi7+F+8u1Umu9F5qCBceF7Zs17F9LDd2tzXikBqcG+AiilRQkKFmq2dgp45R+g==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Rk6RaWhE; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1236; helo=mail-dl1-x1236.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hy12G2XjMz2ylj;
+	Sun, 04 Oct 2026 09:45:26 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.12
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791067526;
+	cv=none; b=cGnhG1CZ+OoEiES3RD6snzWB9WeGVnGLkI77TcRXErvObSYy8iKwHC6daDrzhM9LKZYNiUX6E+bhAGGTvVvxtZec/dEJ/bPQLlNLeFyQohB7m7UoJQnPGkvAdsURKYGIu1F6uJo5+2VHwXZuWOjDew5aCU9sl7P68gtLmp1nakn5LAeE0JWaDfjlxxlapWkUKWiaPBY/xtz0JGidtEaP4M9EIpkz/cMk8iN43W59bu0ZdPShzviRDCV05QCZv8LzkMM+Vt32W750vP2d89ZAFShPoLuLMojD4k3jUxa4KB+NTw6sj9zkYtt8lJEOKvBFTvO9J3twL/PG0RnMGnbctg==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1791067526; c=relaxed/relaxed;
+	bh=vFhGMCg6Ji/JXdFQ3B6wXXIZQgQ9xvpb3HvqRmvxgSk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=Gd5wXG9k11tIsEi/4McdFqGYtz7jodbRvhiUx9Uqtgng+UrLPRALQ2v03R8c2JOmtHZeoDjR4tUSEopMqSTF/bFz0Gh/6PT6SfJravl3oWnRHXG5WMjfQy6xXzNq6kqhzrcwQq3xy6qszW31jl4MMpkzoPZjZKJ+KWVoMqjUKpgv8ELDdpdWlT249EZ4XIhdLOpdiz//gDqYoOzyUzDd0O8a4bZ7i/WZWHGbLtWf3UG8Cag2EnP0jgTSI3NEdA7DshhwfZAW/rAavljnSAzqU2C3a7bfcjHVkAgyhYDtgsBxgJK9dMn23oFnXkxQMtWnS7uPBibJnV0v+FUed24YaA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=RLbFDHwu; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Rk6RaWhE;
+	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=RLbFDHwu;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1236; helo=mail-dl1-x1236.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-dl1-x1236.google.com (mail-dl1-x1236.google.com [IPv6:2607:f8b0:4864:20::1236])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hxhk33nmCz2xlw
-	for <linux-erofs@lists.ozlabs.org>; Sat, 03 Oct 2026 20:30:19 +1000 (AEST)
-Received: by mail-dl1-x1236.google.com with SMTP id a92af1059eb24-1419d3416ceso739189c88.0
-        for <linux-erofs@lists.ozlabs.org>; Sat, 03 Oct 2026 03:30:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791023417; cv=none;
-        d=google.com; s=arc-20260327;
-        b=c9AuHE//TuXB/k2P2DVIp/QZZO/7ZRpa4gcg6AZa7hFdOBszFA/yltRQaoa85Q8aPP
-         zhB4LonBl0V+HaMjIYj/0VJfnkJ/gkSDK/LbXr6cAmKQq0wpfOLQFOWIcEQIlmRGKYC6
-         CYDkRXkNwOx6cq0nYIAZjRENlA9RqjJzFxZB6PRKaBTQkbdruLkgpReDP1KWSZ34KNCn
-         CbFAavcQezAszAxDvnEOefZWbF5KbZYTcTnj4HZGeWF6mqBK2MVfz/YCP6rTDw22Rp8v
-         G+G+OBFYeM6f1FsH8SNB36Art7Xdx0mJuuvGRQcl3bt8oKWqXoBWbmKNuqVt+jhTjeZu
-         pQ5Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
-        fh=HhiHY+hYAbWtNyZEry1wiUckwkhQAlXU46DrJ2xIPMo=;
-        b=SIdtybm8Nnn0X9w1t8JF5zFlOI3cdg3ZTIGp5Z66Gkea83L43BagkqQsZAGa11urgU
-         G/9lUPtKHcSQ3+ZbuGj8883SFkSX/si04uKPB2/rLpfsp/gQ9BARpzR9zS3fv7Qm37sL
-         fpp6N72TWetghfvwY5MtOLGzYkGTAo2wOprZJ6K6RjuNpFOSeP3VTgkONOe73oHaAm0N
-         wqO6cmPASgGYKuqF4OwECWyYa28vzWKlrQJ+wimU35LNpWEJI8VNK1pUbfEesE4codl2
-         ctPkqbyc+NuR7RJWgTokJHM9XlVssMbrYjcFtEJrualVpB1x0DSse3GSVC1lh6U8NqB4
-         cxmg==;
-        darn=lists.ozlabs.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791023417; x=1791628217; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
-        b=Rk6RaWhEjgYtGjZB32fLLkxwDTR5j3isFMI2rglWMi66844qSQrufd5JoE0NrSWv8b
-         2FWO8YlDaHI5tfYR0Iv0T86YMR3WTtaao/3He0rjaJ4ZW627uvnJ/WAG7nWCB8EK+1KR
-         Xr0QuIIvugflsLFhsORz6WZzZO4/AJ4yPxRpgldHxLJD5W0dU8o6d+BURjwCeqESmnI0
-         VcMTAWwGr2d68de5Xm6X1CLbeXvKKDidkrVXA9FLPRy/NqfhT61X6Xh1CL+K8kK+nkUD
-         kHFqa/MWY+hHfU+lYotQAHZ3+ZxtUU5RjrRUTiwLbcWfxRKKJMEro5arNi0qTVjPWIIV
-         lj9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791023417; x=1791628217;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
-        b=rz/bK1aKJ1TYrG+KzfJRlw8xez6pt9z6mPh4tBC5OBauVbs+c+EK/NHkD8iHK9HZOO
-         QCmXnrgXPdMbXaKxToOAAKJ5eG4V/81OHiSJ5Rni1G+Sg30GUNIzVzajqlqRvo0nBmoe
-         AVFJuXwLStiXXtDRAlIUAbsonPmMrjZZ/Iy4IcuraPvyBeyb9S6MoquRW45sCkItY75k
-         TgkCDZItERfUitO2RtCIwV2JeA8PdOZv8sZxliAbW59ATbuP9MoJ5dkp/4ZKSgo8G5IE
-         eDXV/WPQU5sgYaptLmJhRafCJzVmX/SnV0oKGHb/v1Cl99EgcPCmQ8VLt6pvPUgPRlx7
-         L5fw==
-X-Forwarded-Encrypted: i=1; AKwUvBzrO6e1cQXg/C+1Qg0YOEj6jGOqwOlTMAWaYipIpvkwlsbMk5Ri0bGsjnZz+t7GJMLAA7s4sf/ghq2qKA==@lists.ozlabs.org
-X-Gm-Message-State: AFuF++kN/a1A+Z1jcbHUWgO1ptz6eYB0abSuso0X+oYQRnrEv4hoj2zV
-	kvAgiqeWWw9m1BaWUpKsGMPScn+Uf4eew8YcaRNlWH/eyHNxj0dXF4D543xNNASM2y26oNpq2m1
-	BWU/F26+nDHfsER/n7lDZo9M+QqNo5/c=
-X-Gm-Gg: AYBFou1fRrysyOQ9G8XDAG6GzoV47I1o/3pQaL3LTp+xX5PAUbDRAhuGEli1trQWczV
-	6m8txsjhWDnHNvJ/RFOku8chvt4JkO1jBbhh6vDY4ezKp7w31R5nzB1UO6WuRMN+dvAILl35fla
-	ziRn6/VcQHEjxaP/uJFlYrzg20+8rhGpETqYB1e/nJluGrlTeXvpEpzRQ4Nq69amjk7nJskhz/C
-	vrhN7eaBnzZ0U9K6Tj6P+Esit8WG35qsRlChu1tvgYWKyDFfhag0WEvK91iaX15JenkSSrzmFZt
-	BXxaPereg9iwJf5YbCj3tAYuGNGkUxc39PxlbUjBs6ogFhz1f6oS+zLdKfZgicNrWqwrv+C/7eC
-	uZO+rvq4wLLV+
-X-Received: by 2002:a05:701b:2506:b0:14d:ef19:246f with SMTP id
- a92af1059eb24-151c425f5e8mr2955545c88.45.1791023416729; Sat, 03 Oct 2026
- 03:30:16 -0700 (PDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hy12B5BgLz2xfq
+	for <linux-erofs@lists.ozlabs.org>; Sun, 04 Oct 2026 09:45:21 +1100 (AEDT)
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261003224508euoutp02c41c30b489eaee9363e860f2478d6027~bJmji_WXc2979329793euoutp02u;
+	Sat,  3 Oct 2026 22:45:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261003224508euoutp02c41c30b489eaee9363e860f2478d6027~bJmji_WXc2979329793euoutp02u
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1791067508;
+	bh=vFhGMCg6Ji/JXdFQ3B6wXXIZQgQ9xvpb3HvqRmvxgSk=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=RLbFDHwuh3NRChlB5DbAnpf5fbQ/9VI4LqGu4llTjFUiXPQ562rniZUJozx7F6f0C
+	 O998yLIejmOOpMfO2undeRdQGMIbbwvHHW6qvrglXgdLXRekz3Vq8zAZ0mrAGgSxG4
+	 yLsO68CPN7a6ZuBi2t//4zMj/AdCV8fhYFGTexlA=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20261003224507eucas1p200ece20a05f4aac2eeb0180f041df0fe~bJmigAu1f3080530805eucas1p2D;
+	Sat,  3 Oct 2026 22:45:07 +0000 (GMT)
+Received: from [192.168.1.44] (unknown [106.210.136.40]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20261003224505eusmtip1f6ac4f841c43fd74cce4c31cdfba487f~bJmg3wbbL2072920729eusmtip1D;
+	Sat,  3 Oct 2026 22:45:05 +0000 (GMT)
+Message-ID: <9c5913c0-11c8-4db8-844b-ea2ef29bf5db@samsung.com>
+Date: Sun, 4 Oct 2026 00:45:05 +0200
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -100,52 +60,92 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <ar1xOV3x9ZMGx9XY@MacBookPro> <20261001060131.51103-1-l3b2w1@gmail.com>
- <ar_VWGhC1O6-4w0a@XiangdeMacBook-Pro.local>
-In-Reply-To: <ar_VWGhC1O6-4w0a@XiangdeMacBook-Pro.local>
-From: binglei wang <l3b2w1@gmail.com>
-Date: Sat, 3 Oct 2026 18:30:04 +0800
-X-Gm-Features: AclHuK_LxsbsKKpjJ7YEr_1aJWjHRX_PDMRNTW2QY9TLuY_nPhyJ5ArgFbn6088
-Message-ID: <CAJ3C4KxhLQd+pOupWY+kbGerBpZM8nndKnZDGfv5oHw4Hw-1Aw@mail.gmail.com>
-Subject: Re: [PATCH v2] erofs: fix folio reuse from a different address_space
- in erofs_bread()
-To: Binglei Wang <l3b2w1@gmail.com>, xiang@kernel.org, chao@kernel.org, 
-	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
-	"Bo Liu (OpenAnolis)" <liubo03@inspur.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 9/9] MAINTAINERS: add an entry for the LZ4
+ compression library
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
+	<ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
+	<justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, Thomas
+	Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
+	<James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Heiko
+	Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+	Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+	Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>, Sergey
+	Senozhatsky <senozhatsky@chromium.org>, Jens Axboe <axboe@kernel.dk>, Andrew
+	Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org,
+	llvm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-block@vger.kernel.org, Yann Collet
+	<yann.collet.73@gmail.com>, Nick Terrell <terrelln@meta.com>, Gao Xiang
+	<xiang@kernel.org>, Chao Yu <chao@kernel.org>, Jaegeuk Kim
+	<jaegeuk@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Phillip
+	Lougher <phillip@squashfs.org.uk>, Sungguk <sungguk.na@samsung.com>, Jaehoon
+	Chung <jh80.chung@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+	linux-erofs@lists.ozlabs.org, linux-f2fs-devel@lists.sourceforge.net,
+	linux-crypto@vger.kernel.org
+Content-Language: en-US
+From: Michal Wilczynski <m.wilczynski@samsung.com>
+In-Reply-To: <20260925213926.GA1903@quark>
+Content-Transfer-Encoding: 7bit
+X-CMS-MailID: 20261003224507eucas1p200ece20a05f4aac2eeb0180f041df0fe
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20260925113507eucas1p2ddb94f2077b679426aa86dd1d492eaf3
+X-EPHeader: CA
+X-CMS-RootMailID: 20260925113507eucas1p2ddb94f2077b679426aa86dd1d492eaf3
+References: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
+	<CGME20260925113507eucas1p2ddb94f2077b679426aa86dd1d492eaf3@eucas1p2.samsung.com>
+	<20260925-lz4-vendor-upstream-v1-9-1c7ffbe21c4b@samsung.com>
+	<20260925213926.GA1903@quark>
 
-Thanks, happy National Day.
-
-Gao Xiang <xiang@kernel.org> =E4=BA=8E2026=E5=B9=B410=E6=9C=883=E6=97=A5=E5=
-=91=A8=E5=85=AD 00:01=E5=86=99=E9=81=93=EF=BC=9A
 
 
->
-> On Thu, Oct 01, 2026 at 02:01:31PM +0800, Binglei Wang wrote:
-> > erofs_bread() reuses a cached folio on page index match without
-> > checking folio->mapping.
-> >
-> > xattr.c calls erofs_init_metabuf() twice on the same buffer without
-> > erofs_put_metabuf(); the two in_metabox sources differ, so buf->mapping
-> > can switch while buf->page still belongs to the old address_space.
-> > The next erofs_bread() then reads the wrong mapping, dropping shared
-> > xattrs with METABOX.
-> >
-> > We require folio->mapping =3D=3D buf->mapping in the reuse check; other=
-wise
-> > drop the cached folio and re-read via the slow path.
-> >
-> > Fixes: 414091322c63 ("erofs: implement metadata compression")
-> > Cc: Bo Liu (OpenAnolis) <liubo03@inspur.com>
-> > Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
->
-> I applied this patch with the updated subject:
->
-> erofs: fix xattrs handling when metadata compression is used
->
-> Reviewed-by: Gao Xiang <xiang@kernel.org>
->
-> Thanks,
-> Gao Xiang
+On 9/25/26 23:39, Eric Biggers wrote:
+> On Fri, Sep 25, 2026 at 01:27:39PM +0200, Michal Wilczynski wrote:
+>> lib/lz4/ has never had one: get_maintainer.pl returns only the LKML
+>> fallback for every file in it, including include/linux/lz4.h, which eight
+>> subsystems build against.
+>>
+>> This matters more now than it did. With the previous patches lib/lz4 is
+>> vendored upstream sources, and someone has to bump them to new upstream
+>> releases and decide what the kernel-side glue may do. I am willing to do
+>> that, so add myself as its maintainer.
+>>
+>> Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
+>> ---
+>>  MAINTAINERS | 6 ++++++
+>>  1 file changed, 6 insertions(+)
+>>
+>> diff --git a/MAINTAINERS b/MAINTAINERS
+>> index cc3cae2e378b34aeb705cef654c720ca9f2ba223..989e1b5fab21432dd7042d1e60c4bbad85beb925 100644
+>> --- a/MAINTAINERS
+>> +++ b/MAINTAINERS
+>> @@ -15606,6 +15606,12 @@ S:	Supported
+>>  F:	drivers/net/pcs/pcs-lynx.c
+>>  F:	include/linux/pcs-lynx.h
+>>  
+>> +LZ4 COMPRESSION LIBRARY
+>> +M:	Michal Wilczynski <m.wilczynski@samsung.com>
+>> +S:	Maintained
+>> +F:	include/linux/lz4.h
+>> +F:	lib/lz4/
+>> +
+> 
+> Should this entry cover lib/decompress_unlz4.c and
+> include/linux/decompress/unlz4.h as well?
+
+Yes I'll add both in v2.
+Thanks a lot for looking at the series as a whole.
+
+> 
+> - Eric
+> 
+
+Best regards,
+-- 
+Michal Wilczynski <m.wilczynski@samsung.com>
 
