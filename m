@@ -1,120 +1,94 @@
-Return-Path: <linux-erofs+bounces-4650-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4651-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11B14CA5FC4
-	for <linux-erofs@archiver.kernel.org>; Fri,  2 Oct 2026 16:41:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBD66CA5FE3
+	for <linux-erofs@archiver.kernel.org>; Sat,  3 Oct 2026 10:30:21 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hxF0s6k3Zz30MY;
-	Sat, 03 Oct 2026 02:41:33 +1000 (AEST)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=202.12.124.145
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1790959293;
-	cv=none; b=KK+fu3MIzjfTLWVV9IE1WgrWXLYFr30AxZXC3xctUJZ714f21cWq8ZXzg7RsgTocHTNjsnbLz8f/k8Eb18i0F7CS9nBo1yiFshV8ub+zRIuZdVGkd/9v/jr0m7ku7vh8Pa3XFHg2cieVNt/eSe6p8mHjgoZGF7V/eg9jFBOKcJCXh4F3Tdh2N5ZLH8wKQJh64Xlzgw/wOg9xHASj4jJpOwxoRfnrtzjAbSjqBhZAbXLzW/LOqOmsuGlZ3xQ0Um2QboODCL6HA0FYw9i9xPoSg9yHEAk3t5/lkZImnE9h2dNWzi9SWsdURyykCKDvnRzKHTOHVQpxsplZesZ4QISRkw==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1790959293; c=relaxed/relaxed;
-	bh=8vp//EYtL+iFtkFUXaNxAHh7uSWfdznnpRMjVFiTc+M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZEF6DtXIvwiphxEwyKH40rt7uTLybIImO6i1p8bFaPQUH4vn8fpW8pFwdbpm8kK4LTmHfAH7oSPi1XNeUIS4VtBC8jCl4zN9dohJo1g/rjaTAKKdVPCgGVLTwuVF35xzuQssZW26wNm3xqYzM8jQvkz3PXJQhGu1dB6AYWMooA9eeihQm5NfhMA49lz2ipRoFsErD92QmDFtWV1Rm3fXuqTM5uR1EJjC+JqhRlCMjmyMVtSA4Jb4vFL1k50sGoj5J5vqLyq/pPJ1++G7eryQA14cLwklNEq/FI+5i17G22ErQ/Z2H7S7+mcTJj/6FUqa3JLgTFn5VQBckRP/Brh8Mw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=scrivano.org; dkim=pass (2048-bit key; unprotected) header.d=scrivano.org header.i=@scrivano.org header.a=rsa-sha256 header.s=fm2 header.b=PD/beOeM; dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm1 header.b=k00m7no3; dkim-atps=neutral; spf=pass (client-ip=202.12.124.145; helo=fout-b2-smtp.messagingengine.com; envelope-from=giuseppe@scrivano.org; receiver=lists.ozlabs.org) smtp.mailfrom=scrivano.org
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=scrivano.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hxhk42zLWz2xr2;
+	Sat, 03 Oct 2026 20:30:20 +1000 (AEST)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::1236" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791023420;
+	cv=pass; b=GXVPFFvGFnI5J7aB/CgYpi5fekyBF+hupd3DN6O5vslDxh9164hGKtqU5CJJ3j8vcVCKlZVYrLL7PQV6Qx2TmWOHdQNzJ2+h8nOsQCXWvLpUYQPgTnttcA0KDKEq/5Y7mUDxuWY5UakRpNjJRurtxFY0bWiwRUBjDZFWPNM84HYm7jhyvtDCng42A5A0TAJNTmS0aEyGC4EphRk7Q9fV7YWaCe6s9QQdpcEPnBVEa1tyDH0oVKimMzlMNkQ3ZYjSUU0jhxYuA/TsOn8a5yxwhmGs0kiVYSRRKLJ/gbl2SOWDCQFf1Uk9HfxRPnUfVpgOkHzjj/UfGiFH+ctBEbVbyw==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1791023420; c=relaxed/relaxed;
+	bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=E31Bi7O4zD2NSLbJpwUZb6sE+wSEZGwcMGFu2jjsiiRhbCVf98JHp+A4JSPjr+Gwb50i2uFt0ZDCKnRjXdbhxOernc04hwWQLqgsMlpXBnHDO85QLfDp9y5dcHbu+sJugtfAYyU7ErZudAjQuTNWK7vlwviycu3s4QKzbf5InEfds9TQpzywXieZbLzNry7fmOhwg2QFTVlUtVsBi/Iluambxpk5RxrdFe+x4tbNoAq6WMMTDECpp21gJtXqEu0N9+7puuNHKFNIrKPIeKSHCTgvIi7+F+8u1Umu9F5qCBceF7Zs17F9LDd2tzXikBqcG+AiilRQkKFmq2dgp45R+g==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Rk6RaWhE; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1236; helo=mail-dl1-x1236.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=scrivano.org header.i=@scrivano.org header.a=rsa-sha256 header.s=fm2 header.b=PD/beOeM;
-	dkim=pass (2048-bit key; unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm1 header.b=k00m7no3;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Rk6RaWhE;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=scrivano.org (client-ip=202.12.124.145; helo=fout-b2-smtp.messagingengine.com; envelope-from=giuseppe@scrivano.org; receiver=lists.ozlabs.org)
-Received: from fout-b2-smtp.messagingengine.com (fout-b2-smtp.messagingengine.com [202.12.124.145])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1236; helo=mail-dl1-x1236.google.com; envelope-from=l3b2w1@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-dl1-x1236.google.com (mail-dl1-x1236.google.com [IPv6:2607:f8b0:4864:20::1236])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hxF0p1xX1z30DK
-	for <linux-erofs@lists.ozlabs.org>; Sat, 03 Oct 2026 02:41:30 +1000 (AEST)
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.stl.internal (Postfix) with ESMTP id 6E5531D00082
-	for <linux-erofs@lists.ozlabs.org>; Fri,  2 Oct 2026 12:32:43 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Fri, 02 Oct 2026 12:32:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=scrivano.org; h=
-	cc:cc:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm2; t=1790958763; x=
-	1791045163; bh=8vp//EYtL+iFtkFUXaNxAHh7uSWfdznnpRMjVFiTc+M=; b=P
-	D/beOeMJd3dCiiqwdkv2QjKfJczKKQJ9TUfOIYiTcPDlG5MX2on7f3D90k5N7z4/
-	pkTPz3XKoq5R4J54SXXNyDGIFbU2l9MmQOEXPCciblnse4G9mBjM7PzTSeQv4TEU
-	iPHUtIsL2IMOtoAoJnW2aSbOxg3YC347ko64t2nUzaiIfgrYyMJWMpXpoKEePM3D
-	Kq2ef3NGMRu13MHY1z69h4DH0Sq3Mbu3l0e/BHuNEyJKEYO5BnnT0lCbk9hDAK8C
-	fTGkN1wTa+HjOYUqpW2Uoy6o3DOifbS4YWjai6CpvkuaPQMrv+P8SZVZ8St1b8r2
-	hRMxqHyMqyEyOk58FEeTQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
-	:x-me-sender:x-sasl-enc; s=fm1; t=1790958763; x=1791045163; bh=8
-	vp//EYtL+iFtkFUXaNxAHh7uSWfdznnpRMjVFiTc+M=; b=k00m7no3wczKOklBQ
-	wtJ5UQoAMksWLntrzvdAjeLmOGtmjniJD5159LNWxIQH07MZxh8pPBf6UR2fLY07
-	ephOWKjgGJX320jjEsPLNyVk8wi9ONawTjcH0CWR3rzU34FOdbW1Mkmx2KzRYsTy
-	5sCBs3D1LVSRttvJ7odDGu61V6QU6hY+NXyj9cwzbksPgYSO68b8YBxrZALRxjFK
-	xKjA9s31RLS47XrzCLIXvJiZnPKugs/ZYsD/C12gjWTbemxTSdoSFYhezbJoVAO6
-	Cs4hVX6ubGQSiQxSvln0SlRj62PYSre3bQdp3Vb+kozWrtbmzogbnfEzd8G/yY9Q
-	JqdNA==
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-09-30; sw=lmtpprox;
-	action=sign d=scrivano.org a=rsa-sha256;
-DKIM2-Signature: i=1; m=1; t=1790958763; d=scrivano.org;
-	mf=PGdpdXNlcHBlQHNjcml2YW5vLm9yZz4=;
-	rt=PGxpbnV4LWVyb2ZzQGxpc3RzLm96bGFicy5vcmc+;
-	s=fm2:rsa-sha256:NkYh62gnTZu/iXChFxyy8mWn4MILBKKqqJhwbYfbjtHTciS
-	GcGyOi2aEn1otKoI/+G6K7cBEHt5V4AKWA8pjfz5JlFq0tbcH9ItYB1QXUDQNk3Q
-	BAhJnll9uKnfDcICcmY+mIp1uRBbxj+n3TTZujsip9TPAotqOMF6uKskxUEBWxvl
-	/41KGeAiozqaTaqOChNVC2fLyoxr/fhyjsEmvMH+8Jy3yFcvFlTsYeeaS5doJDK6
-	5XcSWwtIqA/gKUg+XjomRRHKfZfixED66X5YqykC78K8gYvtbtXB0v5dS14UVV0a
-	jMwBvauHs9o2c+ANp1CZMQ8247BP6dwi0GBTqWA==;
-X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
-	repo=github.com/dkim2wg/interop; date=2026-09-30; sw=lmtpprox;
-	action=mi-m=1; hc=11;
-	hn=cc,content-transfer-encoding,date,feedback-id,from,
-	in-reply-to,message-id,mime-version,references,subject,to;
-Message-Instance: m=1; h=sha256:9SqiUAun+oEWwrPyv8hamiqiDlKwuzhtXBzBd701il0=:lQpivocvX8TwoIn/ANFvEtXWnmS+qxxoOfVIvbKujMo=;
-X-ME-Sender: <xms:qty_au6K39f3Bcac8Vk7_S1oZCdYZkBbgeFYwBLImAvexE-n5VayhA>
-    <xme:qty_ajk0Dqzb02baS4xPgUYDxiQl7AR2MDv7q5UoB812B0P6s_16POiWnxYUF67IX
-    AUjlUYYXB_R56K_SuCgHJBAkLh6MI1f__a773IKaj2pQwEYoMfkbGDk>
-X-ME-Received: <xmr:qty_ap5z-MdqNGRW_fsqvINv7ifjfMiBG4QPOvaZUbzDXmX6SzUuuEQdj2mtZz8AMNnQORIlB1hb55-o4ptbPNFcSIIn>
-X-ME-Proxy-Cause: dmFkZTGyqCDolNR0R7DZGwMzWNDpoJILu2jykM68ma+dDc4C112fFIur3VtfzrPwrSoPe/
-    w73eKAXEp2+IXQktv6IQ+UxhEt9Szb57K8oXMVhPBJouBdWFZMV69AeCfZpfq5QRP7dsZC
-    Uj/MuGmyIWY1s1nDAm8d2XRJylXM9trGrNPh0aSg/b8LjXeZoqLsS7aaLe+OzyV9npE+1x
-    D7hm62C3NjWWnwp0e+o1GO5DbRrr1ZQ6z4FcBPpuMPK6lEvbImxnP1QSsEy1Lu1JbSi1a2
-    aVMZfF3IUsevuSme/8yTAwynuSJhBaQHK25L0mqWcuPbJzTeUSB/HrvfyAcWZP3qYhYWBp
-    DmLc7E1KpMUJxQoxXq+Ec7O7XLWPU0wxRyUjGsykn+yq2GSiETnFyhLlKXEM/Zx4YyokAf
-    4t8sDHYiApsD9e5ssT+gHWSa+KRpcOsdsqUrFOn78xTgo0/Gn4/0b3NO5zXlw/lVBm5C5U
-    QzSXqqPnTQ/yQtBTM/5u5ysimXsH/nb52IkPrIGXOTuizTXrVisU251rWrJTdVosYAhF8s
-    XhIxZ5nxm/BGatnHAuWh6VMDJKU5FjiQ/0+XFI/WtbSTNqn+psmNWjlX+WvHaa7FrqTAIU
-    +y1JSUwGaZqQBd35fXzJoIrJBfTESGIicHO2Mf9n6NMxe0ThlDD0HfkFB+Iw
-X-ME-Proxy: <xmx:q9y_akQGb1LV0YLSAQ7W30i_vgUqAhplBwG7AjYcByJU30_f5AhgOA>
-    <xmx:q9y_anw6mXDAFGB_x3cG5fIeEHcNrnmWY2DUoMQgjCBsOBGHUG73sw>
-    <xmx:q9y_asq32aFvacRkzGWtk5z6iFVTMjEy1kMMJlyjnFy0UsNuSI-L7w>
-    <xmx:q9y_aq3NfOGKUv0gOzrLgN9xa6VDNtWoN_B0OqhiXMfB44RXEtuYwA>
-    <xmx:q9y_aqTcK8AH4RB0P571VOe6uEK_NpPT3Pfo-IRRqdLCuBhPRjquPzg->
-Feedback-ID: i8e6e4897:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 2 Oct 2026 12:32:42 -0400 (EDT)
-From: Giuseppe Scrivano <giuseppe@scrivano.org>
-To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	amir73il@gmail.com,
-	giuseppe@scrivano.org,
-	brauner@kernel.org,
-	viro@zeniv.linux.org.uk,
-	jack@suse.cz,
-	hch@infradead.org
-Subject: [PATCH v7 1/2] fs: rename vfs_get_super() to get_tree_super() and export it
-Date: Fri,  2 Oct 2026 18:31:43 +0200
-Message-ID: <20261002163225.1258203-2-giuseppe@scrivano.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261002163225.1258203-1-giuseppe@scrivano.org>
-References: <20261002163225.1258203-1-giuseppe@scrivano.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hxhk33nmCz2xlw
+	for <linux-erofs@lists.ozlabs.org>; Sat, 03 Oct 2026 20:30:19 +1000 (AEST)
+Received: by mail-dl1-x1236.google.com with SMTP id a92af1059eb24-1419d3416ceso739189c88.0
+        for <linux-erofs@lists.ozlabs.org>; Sat, 03 Oct 2026 03:30:19 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791023417; cv=none;
+        d=google.com; s=arc-20260327;
+        b=c9AuHE//TuXB/k2P2DVIp/QZZO/7ZRpa4gcg6AZa7hFdOBszFA/yltRQaoa85Q8aPP
+         zhB4LonBl0V+HaMjIYj/0VJfnkJ/gkSDK/LbXr6cAmKQq0wpfOLQFOWIcEQIlmRGKYC6
+         CYDkRXkNwOx6cq0nYIAZjRENlA9RqjJzFxZB6PRKaBTQkbdruLkgpReDP1KWSZ34KNCn
+         CbFAavcQezAszAxDvnEOefZWbF5KbZYTcTnj4HZGeWF6mqBK2MVfz/YCP6rTDw22Rp8v
+         G+G+OBFYeM6f1FsH8SNB36Art7Xdx0mJuuvGRQcl3bt8oKWqXoBWbmKNuqVt+jhTjeZu
+         pQ5Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
+        fh=HhiHY+hYAbWtNyZEry1wiUckwkhQAlXU46DrJ2xIPMo=;
+        b=SIdtybm8Nnn0X9w1t8JF5zFlOI3cdg3ZTIGp5Z66Gkea83L43BagkqQsZAGa11urgU
+         G/9lUPtKHcSQ3+ZbuGj8883SFkSX/si04uKPB2/rLpfsp/gQ9BARpzR9zS3fv7Qm37sL
+         fpp6N72TWetghfvwY5MtOLGzYkGTAo2wOprZJ6K6RjuNpFOSeP3VTgkONOe73oHaAm0N
+         wqO6cmPASgGYKuqF4OwECWyYa28vzWKlrQJ+wimU35LNpWEJI8VNK1pUbfEesE4codl2
+         ctPkqbyc+NuR7RJWgTokJHM9XlVssMbrYjcFtEJrualVpB1x0DSse3GSVC1lh6U8NqB4
+         cxmg==;
+        darn=lists.ozlabs.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791023417; x=1791628217; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
+        b=Rk6RaWhEjgYtGjZB32fLLkxwDTR5j3isFMI2rglWMi66844qSQrufd5JoE0NrSWv8b
+         2FWO8YlDaHI5tfYR0Iv0T86YMR3WTtaao/3He0rjaJ4ZW627uvnJ/WAG7nWCB8EK+1KR
+         Xr0QuIIvugflsLFhsORz6WZzZO4/AJ4yPxRpgldHxLJD5W0dU8o6d+BURjwCeqESmnI0
+         VcMTAWwGr2d68de5Xm6X1CLbeXvKKDidkrVXA9FLPRy/NqfhT61X6Xh1CL+K8kK+nkUD
+         kHFqa/MWY+hHfU+lYotQAHZ3+ZxtUU5RjrRUTiwLbcWfxRKKJMEro5arNi0qTVjPWIIV
+         lj9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791023417; x=1791628217;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fZx9lUdvWiwCkwZGkDZExytCPtdO6wfT6mLSmqlL+Go=;
+        b=rz/bK1aKJ1TYrG+KzfJRlw8xez6pt9z6mPh4tBC5OBauVbs+c+EK/NHkD8iHK9HZOO
+         QCmXnrgXPdMbXaKxToOAAKJ5eG4V/81OHiSJ5Rni1G+Sg30GUNIzVzajqlqRvo0nBmoe
+         AVFJuXwLStiXXtDRAlIUAbsonPmMrjZZ/Iy4IcuraPvyBeyb9S6MoquRW45sCkItY75k
+         TgkCDZItERfUitO2RtCIwV2JeA8PdOZv8sZxliAbW59ATbuP9MoJ5dkp/4ZKSgo8G5IE
+         eDXV/WPQU5sgYaptLmJhRafCJzVmX/SnV0oKGHb/v1Cl99EgcPCmQ8VLt6pvPUgPRlx7
+         L5fw==
+X-Forwarded-Encrypted: i=1; AKwUvBzrO6e1cQXg/C+1Qg0YOEj6jGOqwOlTMAWaYipIpvkwlsbMk5Ri0bGsjnZz+t7GJMLAA7s4sf/ghq2qKA==@lists.ozlabs.org
+X-Gm-Message-State: AFuF++kN/a1A+Z1jcbHUWgO1ptz6eYB0abSuso0X+oYQRnrEv4hoj2zV
+	kvAgiqeWWw9m1BaWUpKsGMPScn+Uf4eew8YcaRNlWH/eyHNxj0dXF4D543xNNASM2y26oNpq2m1
+	BWU/F26+nDHfsER/n7lDZo9M+QqNo5/c=
+X-Gm-Gg: AYBFou1fRrysyOQ9G8XDAG6GzoV47I1o/3pQaL3LTp+xX5PAUbDRAhuGEli1trQWczV
+	6m8txsjhWDnHNvJ/RFOku8chvt4JkO1jBbhh6vDY4ezKp7w31R5nzB1UO6WuRMN+dvAILl35fla
+	ziRn6/VcQHEjxaP/uJFlYrzg20+8rhGpETqYB1e/nJluGrlTeXvpEpzRQ4Nq69amjk7nJskhz/C
+	vrhN7eaBnzZ0U9K6Tj6P+Esit8WG35qsRlChu1tvgYWKyDFfhag0WEvK91iaX15JenkSSrzmFZt
+	BXxaPereg9iwJf5YbCj3tAYuGNGkUxc39PxlbUjBs6ogFhz1f6oS+zLdKfZgicNrWqwrv+C/7eC
+	uZO+rvq4wLLV+
+X-Received: by 2002:a05:701b:2506:b0:14d:ef19:246f with SMTP id
+ a92af1059eb24-151c425f5e8mr2955545c88.45.1791023416729; Sat, 03 Oct 2026
+ 03:30:16 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -126,92 +100,52 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <ar1xOV3x9ZMGx9XY@MacBookPro> <20261001060131.51103-1-l3b2w1@gmail.com>
+ <ar_VWGhC1O6-4w0a@XiangdeMacBook-Pro.local>
+In-Reply-To: <ar_VWGhC1O6-4w0a@XiangdeMacBook-Pro.local>
+From: binglei wang <l3b2w1@gmail.com>
+Date: Sat, 3 Oct 2026 18:30:04 +0800
+X-Gm-Features: AclHuK_LxsbsKKpjJ7YEr_1aJWjHRX_PDMRNTW2QY9TLuY_nPhyJ5ArgFbn6088
+Message-ID: <CAJ3C4KxhLQd+pOupWY+kbGerBpZM8nndKnZDGfv5oHw4Hw-1Aw@mail.gmail.com>
+Subject: Re: [PATCH v2] erofs: fix folio reuse from a different address_space
+ in erofs_bread()
+To: Binglei Wang <l3b2w1@gmail.com>, xiang@kernel.org, chao@kernel.org, 
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
+	"Bo Liu (OpenAnolis)" <liubo03@inspur.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Rename and export it so filesystems that need a custom superblock
-matching policy can reuse it directly instead of open-coding sget_fc()
-+ fill_super().  No functional change.
+Thanks, happy National Day.
 
-This is a preparatory fix for the next patch.
+Gao Xiang <xiang@kernel.org> =E4=BA=8E2026=E5=B9=B410=E6=9C=883=E6=97=A5=E5=
+=91=A8=E5=85=AD 00:01=E5=86=99=E9=81=93=EF=BC=9A
 
-Signed-off-by: Giuseppe Scrivano <giuseppe@scrivano.org>
----
- fs/super.c                 | 19 +++++++++++++++----
- include/linux/fs_context.h |  4 ++++
- 2 files changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 1d5ccf540a9b..a1dc4de1b657 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1374,7 +1374,17 @@ static int test_single_super(struct super_block *s, struct fs_context *fc)
- 	return 1;
- }
- 
--static int vfs_get_super(struct fs_context *fc,
-+/**
-+ * get_tree_super - Get a superblock, optionally sharing an existing one
-+ * @fc: The filesystem context holding the parameters
-+ * @test: Comparison function to find a matching existing superblock, or NULL
-+ * @fill_super: Helper to initialise a new superblock
-+ *
-+ * If @test is non-NULL and matches an existing superblock, that superblock is
-+ * reused; otherwise a new anonymous superblock is created and initialised with
-+ * @fill_super.  Passing NULL for @test always creates a new superblock.
-+ */
-+int get_tree_super(struct fs_context *fc,
- 		int (*test)(struct super_block *, struct fs_context *),
- 		int (*fill_super)(struct super_block *sb,
- 				  struct fs_context *fc))
-@@ -1401,12 +1411,13 @@ static int vfs_get_super(struct fs_context *fc,
- 	deactivate_locked_super(sb);
- 	return err;
- }
-+EXPORT_SYMBOL_GPL(get_tree_super);
- 
- int get_tree_nodev(struct fs_context *fc,
- 		  int (*fill_super)(struct super_block *sb,
- 				    struct fs_context *fc))
- {
--	return vfs_get_super(fc, NULL, fill_super);
-+	return get_tree_super(fc, NULL, fill_super);
- }
- EXPORT_SYMBOL(get_tree_nodev);
- 
-@@ -1414,7 +1425,7 @@ int get_tree_single(struct fs_context *fc,
- 		  int (*fill_super)(struct super_block *sb,
- 				    struct fs_context *fc))
- {
--	return vfs_get_super(fc, test_single_super, fill_super);
-+	return get_tree_super(fc, test_single_super, fill_super);
- }
- EXPORT_SYMBOL(get_tree_single);
- 
-@@ -1424,7 +1435,7 @@ int get_tree_keyed(struct fs_context *fc,
- 		void *key)
- {
- 	fc->s_fs_info = key;
--	return vfs_get_super(fc, test_keyed_super, fill_super);
-+	return get_tree_super(fc, test_keyed_super, fill_super);
- }
- EXPORT_SYMBOL(get_tree_keyed);
- 
-diff --git a/include/linux/fs_context.h b/include/linux/fs_context.h
-index 0d6c8a6d7be2..d1727dffecc5 100644
---- a/include/linux/fs_context.h
-+++ b/include/linux/fs_context.h
-@@ -150,6 +150,10 @@ extern int vfs_parse_fs_param_source(struct fs_context *fc,
- 				     struct fs_parameter *param);
- extern void fc_drop_locked(struct fs_context *fc);
- 
-+int get_tree_super(struct fs_context *fc,
-+		   int (*test)(struct super_block *, struct fs_context *),
-+		   int (*fill_super)(struct super_block *sb,
-+				     struct fs_context *fc));
- extern int get_tree_nodev(struct fs_context *fc,
- 			 int (*fill_super)(struct super_block *sb,
- 					   struct fs_context *fc));
--- 
-2.55.0
-
+>
+> On Thu, Oct 01, 2026 at 02:01:31PM +0800, Binglei Wang wrote:
+> > erofs_bread() reuses a cached folio on page index match without
+> > checking folio->mapping.
+> >
+> > xattr.c calls erofs_init_metabuf() twice on the same buffer without
+> > erofs_put_metabuf(); the two in_metabox sources differ, so buf->mapping
+> > can switch while buf->page still belongs to the old address_space.
+> > The next erofs_bread() then reads the wrong mapping, dropping shared
+> > xattrs with METABOX.
+> >
+> > We require folio->mapping =3D=3D buf->mapping in the reuse check; other=
+wise
+> > drop the cached folio and re-read via the slow path.
+> >
+> > Fixes: 414091322c63 ("erofs: implement metadata compression")
+> > Cc: Bo Liu (OpenAnolis) <liubo03@inspur.com>
+> > Signed-off-by: Binglei Wang <l3b2w1@gmail.com>
+>
+> I applied this patch with the updated subject:
+>
+> erofs: fix xattrs handling when metadata compression is used
+>
+> Reviewed-by: Gao Xiang <xiang@kernel.org>
+>
+> Thanks,
+> Gao Xiang
 
