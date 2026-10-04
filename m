@@ -1,54 +1,54 @@
-Return-Path: <linux-erofs+bounces-4656-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4657-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70278CA5FEF
-	for <linux-erofs@archiver.kernel.org>; Sat,  3 Oct 2026 23:52:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2959CA5FE4
+	for <linux-erofs@archiver.kernel.org>; Sun,  4 Oct 2026 00:05:25 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4hy2Wk6jNBz2yql;
-	Sun, 04 Oct 2026 10:52:34 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4hy2pX3MmSz2yqw;
+	Sun, 04 Oct 2026 11:05:24 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.11
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791071554;
-	cv=none; b=KL1ND7DxgrKblNKSsnP6RftXJFb5vioFXDHrb/w6uWPIt8ZkYKHB1JrNC1dSAnlNbrQU8v7wQ7hon5ivhZoePr+8HrQh3OCOkdLOOtxP71xIpvpmdKIn18rBiIvlETGF3rlJZ1t36lb8+M6bnibQGv4OcBbg7zfXJ3ZWtR1rPld9tJRbS7lhETAqZO4JF4y4oTkYtK5iWbgBPAFJeveTHBQUhjb/rMVtquR13NLw4hOlUCp4u8RbHqthoyUBB8XebGyKnV4RY66XzqQ73vPjnOVyNB2iy8W2vBKGvZZ19Gipr2QVNYgrPrjFIL7b8a6aqeBrVZ+bl7UryDbn2VE5lw==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791072324;
+	cv=none; b=fziYMjZGuw0+0VW2/bTsISDrefl8Rzj3OyIc3xpCJn9JxjQq+P8tG3wWSNEJq6IAVjOEYmhR0RhgR1JeRsAXnsL4vL4/IT7Ufe71PzmnxYEKK6L3Gc/rM3tonWuAxfYJmubGwyc8GsYZMpfOOLK9cXGJrAu+4mXNYWBvPLMxPbOSISLuv6RduhxhYwVSbw9nXXgu5X5UxOjBfwPDPiuctDFBfBJc+qThOuztvPR8T8RU5aLbB2dymP7fJV2gjHKGhki2yrEVeebVvz/RWPYwlApOI8wEvLHLqRjgqJu3H0GCtsz0Owh/XWhv6OXduU8nHYd6vJn63dC6PghriMlLww==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791071554; c=relaxed/relaxed;
-	bh=YeQG0aX9+npnHOTaEcmH5NapglKt88z5G6eNYrYY23s=;
+	t=1791072324; c=relaxed/relaxed;
+	bh=ZJZTrL5SQnYa6gvVNuN2LjMawlbBBC4EWuE7TxWcKx8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=Oh1wERGbxFTfn8R/Sberb0OIoXC9jt1eItxYOSxDYeOxAEUQ30lXw/ZisHb+KyJ3N5hHMdXntH/HiLUNS7i2/P8CV0HlDAmp8DtXNGM3S7mPxxXEe5NAABwLIH55ulLCvZGZWVbKND2f+cGDN2TnGBBAZCjzEEFFMWD6+ZRUqTObYP4Y1Ixgc2GPO07Wgfol/yeXqsVj2PgNCaCYWjgHUdOlufQm72dqPRMdgY5pRUkoXMekkEHQK8Ie1zpTmYvpY18NsFE0ru8njAI6Phmn5ROWFoew6W85S59cwifpFiuvsdu9Bt+G4cDZYtKNrqADiKbsgzpWxBa9Uk8+DC+kgw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=jDX+SDoP; dkim-atps=neutral; spf=pass (client-ip=210.118.77.11; helo=mailout1.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
+	 Content-Type:References; b=YDNdQ7bAhsYZcSWUbjKUsVj4HaIe7IHjShNIDBqqpczKHUorzafXL/Nbeb/tNc1Q9y7bO9SIaVK+kfBEkX3Wtp3LOvHX0WLc/QuoXXV3yWdLKC7W0uyeB7U5SAPEd3NXcGB6mXdpE/kxHUwi/pqhbF4uoc3B09/wB+UJ4nN2vRQI261q15rUSCX6yaIwWQ2LtPQA/yw0Ygu5icUPWWnD8L5dLitums/VNOuSKlyeB2MSDnrpMft/gBvZ/NknruheaA3Px2XLSSJUq8wyVyxeTFo6AvqEtCwpeRI6Osk5Fg0aczO1T21SECv205v4yheAUVSmJ2f75HkXi0Fx8Oy7Jg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=KFP5LNkz; dkim-atps=neutral; spf=pass (client-ip=210.118.77.11; helo=mailout1.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=jDX+SDoP;
+	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=KFP5LNkz;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.11; helo=mailout1.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
 Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4hy2Wj2mHRz2yjp
-	for <linux-erofs@lists.ozlabs.org>; Sun, 04 Oct 2026 10:52:33 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4hy2pT5c9gz2yjp
+	for <linux-erofs@lists.ozlabs.org>; Sun, 04 Oct 2026 11:05:20 +1100 (AEDT)
 Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261003235223euoutp015f6ea317b7d01367963d56f0330b92c0~bKhRbuz8P1130611306euoutp01G;
-	Sat,  3 Oct 2026 23:52:23 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261003235223euoutp015f6ea317b7d01367963d56f0330b92c0~bKhRbuz8P1130611306euoutp01G
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261004000510euoutp013ee4f267ec7b07e822726f0b5d88d0fa~bKsbKQ__B2163921639euoutp01V;
+	Sun,  4 Oct 2026 00:05:10 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261004000510euoutp013ee4f267ec7b07e822726f0b5d88d0fa~bKsbKQ__B2163921639euoutp01V
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1791071543;
-	bh=YeQG0aX9+npnHOTaEcmH5NapglKt88z5G6eNYrYY23s=;
+	s=mail20170921; t=1791072310;
+	bh=ZJZTrL5SQnYa6gvVNuN2LjMawlbBBC4EWuE7TxWcKx8=;
 	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=jDX+SDoPeqthUbyezzmLfesvArpjYDdQ4hJeBkfnkqoS34/xmNDT1vDXi0Aa4KDGp
-	 B1WE786E3+ww5NxOcqsxNS41E3neVhoX3HlbfJiHz3MCsh2ZIeBpoGDHWMKEorIE1G
-	 sTeUWeJvYHBG/84vAj6zcIQLBKS8ZZfwYDdcLoZY=
-Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20261003235222eucas1p242b448a9a62dbc7c349b9311eb8f9076~bKhQnPtml0031100311eucas1p2q;
-	Sat,  3 Oct 2026 23:52:22 +0000 (GMT)
+	b=KFP5LNkza8OoBtj5HTuawzDRYYYBZ/WrfFMAfjXatZRd5ZwpmRtkrpGNteNnFAcFW
+	 a+pvo77kefjxlg+J0Kbo3aGXfUJFkeO4mBIkzt4cVg0+G6B7j2sqT1cGqS4uI3Kd2H
+	 +7VeWQwlvnZ97NOV2yx7DRYeXvD3SKk6JpL6yeyc=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20261004000509eucas1p12b906a44a576ad1b1bf6f8099f081cdd~bKsaNgMf72285022850eucas1p1h;
+	Sun,  4 Oct 2026 00:05:09 +0000 (GMT)
 Received: from [192.168.1.44] (unknown [106.210.136.40]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20261003235220eusmtip1b9a9db4570335d897d7c2b7512376bca~bKhOxuwOT1826618266eusmtip18;
-	Sat,  3 Oct 2026 23:52:20 +0000 (GMT)
-Message-ID: <b0df8c61-0feb-40cb-8bb9-5d4874309944@samsung.com>
-Date: Sun, 4 Oct 2026 01:52:20 +0200
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20261004000507eusmtip2934e51491ae1d0ccbd9db1e873d1df61~bKsYgse7o0742707427eusmtip2n;
+	Sun,  4 Oct 2026 00:05:07 +0000 (GMT)
+Message-ID: <ff30763b-d39b-450f-82ef-cba10d221ae6@samsung.com>
+Date: Sun, 4 Oct 2026 02:05:06 +0200
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,8 @@ List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 1/9] lib/lz4: import upstream LZ4 sources verbatim
+Subject: Re: [PATCH RFC 3/9] lib/lz4: add the build environment for the
+ vendored sources
 To: Sergey Senozhatsky <senozhatsky@chromium.org>
 Cc: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
 	<ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt
@@ -87,68 +88,40 @@ Cc: Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers
 	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
 Content-Language: en-US
 From: Michal Wilczynski <m.wilczynski@samsung.com>
-In-Reply-To: <aryehUJml8fTy0o-@google.com>
+In-Reply-To: <arn9tK5MxxxfH7OW@google.com>
 Content-Transfer-Encoding: 7bit
-X-CMS-MailID: 20261003235222eucas1p242b448a9a62dbc7c349b9311eb8f9076
+X-CMS-MailID: 20261004000509eucas1p12b906a44a576ad1b1bf6f8099f081cdd
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a
+X-RootMTR: 20260925113456eucas1p136c3cd1f08be7201ad6b3f7b0e8ff02d
 X-EPHeader: CA
-X-CMS-RootMailID: 20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a
+X-CMS-RootMailID: 20260925113456eucas1p136c3cd1f08be7201ad6b3f7b0e8ff02d
 References: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
-	<CGME20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a@eucas1p1.samsung.com>
-	<20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
-	<aryehUJml8fTy0o-@google.com>
+	<CGME20260925113456eucas1p136c3cd1f08be7201ad6b3f7b0e8ff02d@eucas1p1.samsung.com>
+	<20260925-lz4-vendor-upstream-v1-3-1c7ffbe21c4b@samsung.com>
+	<arn9tK5MxxxfH7OW@google.com>
 
 
 
-On 9/30/26 08:07, Sergey Senozhatsky wrote:
+On 9/28/26 07:48, Sergey Senozhatsky wrote:
 > On (26/09/25 13:27), Michal Wilczynski wrote:
 > [..]
-> 
->> +void LZ4_resetStream_fast(LZ4_stream_t* ctx) {
->> +    LZ4_prepareTable(&(ctx->internal_donotuse), 0, byU32);
->> +}
-> 
-> [..]
-> 
->> +void LZ4_attach_dictionary(LZ4_stream_t* workingStream, const LZ4_stream_t* dictionaryStream)
->> +{
->> +    const LZ4_stream_t_internal* dictCtx = (dictionaryStream == NULL) ? NULL :
->> +        &(dictionaryStream->internal_donotuse);
 >> +
->> +    DEBUGLOG(4, "LZ4_attach_dictionary (%p, %p, size %u)",
->> +             workingStream, dictionaryStream,
->> +             dictCtx != NULL ? dictCtx->dictSize : 0);
->> +
->> +    if (dictCtx != NULL) {
->> +        /* If the current offset is zero, we will never look in the
->> +         * external dictionary context, since there is no value a table
->> +         * entry can take that indicate a miss. In that case, we need
->> +         * to bump the offset to something non-zero.
->> +         */
->> +        if (workingStream->internal_donotuse.currentOffset == 0) {
->> +            workingStream->internal_donotuse.currentOffset = 64 KB;
->> +        }
->> +
->> +        /* Don't actually attach an empty dictionary.
->> +         */
->> +        if (dictCtx->dictSize == 0) {
->> +            dictCtx = NULL;
->> +        }
->> +    }
->> +    workingStream->internal_donotuse.dictCtx = dictCtx;
->> +}
+>> +/* LZ4_decompress_fast() and LZ4_resetStream() are still kernel API. */
+>> +#define LZ4_DISABLE_DEPRECATE_WARNINGS 1
 > 
-> Just a side note,
-> there is a bunch of new helpful API added in this release.  Currently,
-> we do some memcpy hacks to avoid re-init of lz4 C/D-dict in zram, but
-> once this series lands I'll be happy to send some trivial EXPORT_SYMBOL
-> patches so that zram (and other lz4 users) can use standard lz4 dict
-> API instead of hacks.
+> Is this upstream code?  As far as I understand it, LZ4_decompress_fast*()
+> deprecated upstream and are strongly discouraged.  Do we want to suppress
+> deprecation warnings?
 > 
 
-Sounds great, thank you !
+It's ours lz4_deps.h but upstream's lz4.c sets the same switch for
+itself lz4.c, since its own code calls deprecated functions. We
+include lz4.h before lz4.c, so we have to set it first.
+
+I agree on the direction. The only in-tree _fast() user is the pre boot
+path of lib/decompress_unlz4.c, so as a follow-up I'd move it to
+LZ4_decompress_safe_partial() and drop the three _fast exports.
 
 Best regards,
 -- 
