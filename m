@@ -1,55 +1,61 @@
-Return-Path: <linux-erofs+bounces-4674-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4675-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24A70CA6002
-	for <linux-erofs@archiver.kernel.org>; Wed,  7 Oct 2026 19:50:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20BA8CA6002
+	for <linux-erofs@archiver.kernel.org>; Wed,  7 Oct 2026 20:15:53 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j0Nxy35QKz30NF;
-	Thu, 08 Oct 2026 06:49:58 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791402598;
-	cv=none; b=B9ieaQJEB/Ux71y6I7lAFU9R/5rhv0GgxxqTB1NU0zxyUrNQPJSTDfhxbRISvmUq90WrrZpv4hPf9StkOaxfU4Vjcf9NdVL0bc/PQEHT0AFPl4/lv7XEfMILDExDg6pEfrh5YVKeHpyMJbkwS5HTqrMsNCbE2UuX+Z0akwgaGiBjU0yieWvzoZKVtNnuMXFm8anPe3UYYVLo6CMr+pb/b3qTngZVIZ5M6rSTVbZKf/31qX4Dt+/kmiMfIKFdfZR2xnW9hbJ9e3KBuYsYCoFBta71vIiJSf/sSb5X8TRQC0apaW6h4Z4O47BjbqIXrhWI5/M3wG8OXAlKahgIoSL2mw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j0PWq3Jl6z30Tf;
+	Thu, 08 Oct 2026 07:15:51 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791404151;
+	cv=none; b=DLWpJ6pU5A/YKJYMiIwJMFK5bRTc3moOxB4XlkwQHiiYTi7lluYb+pYF0JI8mXL91Z5YvSU7wnbF6iZhLuFNOB+vmTXy+5dymjvE8Yio9mQ+qM7O6a0+RlZMgd/cMBejpCarUpicozOI3jrE0zHLznBnzn9scAnmjfMk7B50ILzCbLTusEzbK1oUSwRgtT+i8yT6YRNVY8+L9mLXitlfVG5j2oCQ3rx33hq1gZB/dTIefiy2x3hNCHFeI3cfHE2pvY41qZmsrTMlulF4Vw/t1QDNZaDTVZUNRR7n14rmY4WxuPNREemxxB87K02fA8o+QTGahPeVUEgi1Ujed7oG6g==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791402598; c=relaxed/relaxed;
-	bh=UG1hir3hATNaNbJqvgxVznpDe8jY0ODpgOQz7Wvf3Mw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=S4wgDQkIOfjBH3rnwy/GAh6XTtuD6743JjE5FwRct+/KaVUpGn/AsUJc9JOv81jxwIkyKlUX6MCo/2VRPkHTFIHTYai0kVHiFaCXxu5w0IrvZfYoYDYeWYa+4p4WryPgEI1ynSZ6oIpqc+5jFPmm+iKtn79rsN1c2AsxerPtLZBipJz3E6UDYLZdWHgWNSKu7s4rAk2EDZa7Octki05iDGq+uKO6fHpJxIQwOAmV+KsEYT36EH8YGF8zeBggxBM0uR6oZgdjkCR1ZrKqkQwUW7wPlC+QH1L4KBe9oYG0mtGklHQ7HkfMFr/osnfY6U7Z58USJ+h67TX6ZLRT2t0Bfg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JMZNwvlm; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1791404151; c=relaxed/relaxed;
+	bh=qKs64xtmOKP8DA86oeWCetpjtn9GhO1kQ50FOWAwO/M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KeW3oV2QMgzYWM5E5nKF9ZYUFrvMrocrWX+vimQXHvFYqMNGMC5NQEYjNs2ji4ifem5VJHjwG5Uflx0uBO7naQ2BcgxPZcJVF7qtRrZbBgB97C7elP3d8kF5f1W7kLAP7rjHDuJNYew1L2Obf96zDKAAVq2ZKNjVWX8jwPKs7xEEgNYfljq7XrVhYE2Vb03UT7206F5DrS9SvKDilgx7N/QVMbLfyzo9+umVOZymxsS1zoavJWMRYmakN79PTj35M2kGWH87qV26xXH0Qok7bhKr+b0ojXg1FIAcPT/1jgC21h9TPoKkFf9ae/JMl6YORk23Y5Zi/9E8seD7YgUPcw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wo+xrLLY; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JMZNwvlm;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wo+xrLLY;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0Nxw5Mbtz30Bd
-	for <linux-erofs@lists.ozlabs.org>; Thu, 08 Oct 2026 06:49:56 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0PWp3xmsz30Nl
+	for <linux-erofs@lists.ozlabs.org>; Thu, 08 Oct 2026 07:15:50 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id C7C16447D6
-	for <linux-erofs@lists.ozlabs.org>; Wed,  7 Oct 2026 19:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D42951F00893;
-	Wed,  7 Oct 2026 19:49:53 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 8BE0C60A90;
+	Wed,  7 Oct 2026 20:15:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DBD61F000FF;
+	Wed,  7 Oct 2026 20:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791402594;
-	bh=UG1hir3hATNaNbJqvgxVznpDe8jY0ODpgOQz7Wvf3Mw=;
-	h=From:To:Cc:Subject:Date;
-	b=JMZNwvlmFeMjrkQ3qrL37+bcAhvToLvc4pFC2c20hVmO70YNVnghM+DZ+dujDtdLw
-	 tCEUr+VpQt3Mez2mGpkBA2iJmKkWiyWtgOsu3ES8eeFIAo4oHymfjXjjJ/tLk43MyD
-	 9uDakmlg/Pk5z7vvtpUBADDUN+Vb0v8LqKwQEFe32brIWDgU79WPcqrbLvtxVLaYYR
-	 AnxkmvX3P1qmS+Zq5CC3YGhrds7YDVtrpK4njpKSBRCAtF2lIF/jPIFPz/p8U0nwWD
-	 ycfz0dG2UM2Wgkn7ra06vGXFRNWfy+5COUy0UHeOyR5D1wDTz8LPqxL1wCXXqQTxwW
-	 w8xTgFwx5d2TQ==
+	s=k20260515; t=1791404147;
+	bh=qKs64xtmOKP8DA86oeWCetpjtn9GhO1kQ50FOWAwO/M=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Wo+xrLLYZiD/JLP0RxoSl+JsNEDRdlFCVDcLquG+7DOEV8RHZ2V+3yA5pQAKV9P+U
+	 yC5aOUiRiK5PGUnQlpE2uv1SU26agrCqmARhU3iE7GhTTpWJTZoM67RtEYNoT4AZZx
+	 eMwCSbv2/odg/9jXhPgTvFpPZC7nw7PteU15+WuDEsIjxkEc2rR03XLSVCmKD5pHlw
+	 EVwp5UF10Y25LSLmj/yDrB3ofEfw5ft+dgPjZBZUB4yoJYVEgHF2OmnCPY1d08bnTo
+	 CTt6BdYWtctwM1FAbcc0wpxPjsVtFyY0WRLs6fjjibtJk6LGIn82yOF65AhNWXohwa
+	 0um1ehOqrHhUQ==
+Date: Wed, 7 Oct 2026 22:15:40 +0200
 From: Gao Xiang <xiang@kernel.org>
-To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <xiang@kernel.org>
-Subject: [PATCH] erofs-utils: avoid unsigned long if possible (incomplete)
-Date: Wed,  7 Oct 2026 21:49:49 +0200
-Message-ID: <20261007194949.15224-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.50.1
+To: sadmanf@meta.com
+Cc: linux-erofs@lists.ozlabs.org, Gao Xiang <xiang@kernel.org>,
+	Chao Yu <chao@kernel.org>
+Subject: Re: [PATCH v2] erofs-utils: lib: fail instead of hanging on short
+ reads in erofs_io_xcopy()
+Message-ID: <asaobA7u4wcb1jxV@XiangdeMacBook-Pro.local>
+Mail-Followup-To: sadmanf@meta.com, linux-erofs@lists.ozlabs.org,
+	Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
+References: <20261006-round1-v1-0-f46b13e11de5@meta.com>
+ <20261007-round1-v2-1-3ffc17bb9028@meta.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,176 +67,134 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261007-round1-v2-1-3ffc17bb9028@meta.com>
 
-long is always 32 bits on Windows, even on 64-bit systems.
+On Wed, Oct 07, 2026 at 03:15:26PM -0400, Sadman Fahmid via B4 Relay wrote:
+> From: Sadman Fahmid <sadmanf@meta.com>
+> 
+> erofs_io_xcopy() falls back to a read/pwrite loop for whatever
+> copy_file_range() and sendfile() did not copy.  If the source reaches
+> EOF before `len` bytes have been copied, erofs_io_read() returns 0,
+> `len` never shrinks and mkfs spins forever instead of reporting the
+> error.
+> 
+> This is easy to hit with a damaged source, e.g. rebuilding with
+> `mkfs.erofs --clean=data out.img src.img` where src.img is truncated
+> in the middle of a file's data, or when a source file shrinks while
+> mkfs runs.  Return -EIO instead.
+> 
+> While at it, keep calling copy_file_range() until it has copied the
+> whole range or fails.  A single call may copy less than requested
+> (e.g. the kernel caps each call at MAX_RW_COUNT, just under 2 GiB,
+> while callers pass chunks of up to 4 GiB), and the remainder was
+> previously copied by sendfile() instead of being reflinked.
+> 
+> Signed-off-by: Sadman Fahmid <sadmanf@meta.com>
+> ---
+> Changes in v2:
+> - Use min_t(s64, len, sizeof(buf)) and int read/write result
+>   variables, as suggested by Gao Xiang. Each request is bounded
+>   to 32 KiB.
+> - Resend only the short-read fix. Gao Xiang already applied
+>   the fd-leak fix (patch 2 from v1).
+> - Link to v1:
+>   https://lore.kernel.org/r/20261006-round1-v1-0-f46b13e11de5@meta.com
 
-Link: https://github.com/chenxiaolong/erofs-utils/commit/becfc45e8372992d96bea103e1284875a397111e
-Link: https://github.com/erofs/go-erofs/blob/main/.github/workflows/patches/erofs-utils/001-windows.patch
+Hi Sadman,
+
+I applied your patch with minor changes (mainly avoid short
+erofs_io_pwrite() ...) If there is any problem, kindly help
+feedback.
+
+Thanks,
+Gao Xiang
+
+From f4a027130ad7842bfa7b7c29a7226c1181281e50 Mon Sep 17 00:00:00 2001
+From: Sadman Fahmid <sadmanf@meta.com>
+Date: Wed, 7 Oct 2026 15:15:26 -0400
+Subject: [PATCH] erofs-utils: lib: fail instead of hanging on short reads in
+ erofs_io_xcopy()
+
+erofs_io_xcopy() falls back to a read/pwrite loop for whatever
+copy_file_range() and sendfile() did not copy.  If the source reaches
+EOF before `len` bytes have been copied, erofs_io_read() returns 0,
+`len` never shrinks and mkfs spins forever instead of reporting the
+error.
+
+This is easy to hit with a damaged source, e.g. rebuilding with
+`mkfs.erofs --clean=data out.img src.img` where src.img is truncated
+in the middle of a file's data, or when a source file shrinks while
+mkfs runs.  Return -EIO instead.
+
+While at it, keep calling copy_file_range() until it has copied the
+whole range or fails.  A single call may copy less than requested
+(e.g. the kernel caps each call at MAX_RW_COUNT, just under 2 GiB,
+while callers pass chunks of up to 4 GiB), and the remainder was
+previously copied by sendfile() instead of being reflinked.
+
+Signed-off-by: Sadman Fahmid <sadmanf@meta.com>
+Link: https://patch.msgid.link/20261007-round1-v2-1-3ffc17bb9028@meta.com
+[ Gao Xiang: let's avoid short erofs_io_pwrite(). ]
 Signed-off-by: Gao Xiang <xiang@kernel.org>
 ---
- include/erofs/err.h      |  9 +++++----
- include/erofs/internal.h |  2 +-
- lib/dedupe.c             | 31 +++++++++++++++----------------
- lib/inode.c              |  4 ++--
- lib/kite_deflate.c       |  3 +--
- 5 files changed, 24 insertions(+), 25 deletions(-)
+ lib/io.c | 34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/include/erofs/err.h b/include/erofs/err.h
-index 28de701..1d18d54 100644
---- a/include/erofs/err.h
-+++ b/include/erofs/err.h
-@@ -13,6 +13,7 @@ extern "C"
+diff --git a/lib/io.c b/lib/io.c
+index 5c5449ff..4bb40ab1 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -642,9 +642,13 @@ int erofs_io_xcopy(struct erofs_vfile *vout, off_t pos,
+ 		off_t ret __maybe_unused;
+ 
+ #ifdef HAVE_COPY_FILE_RANGE
+-		ret = copy_file_range(vin->fd, NULL, vout->fd, &pos, len, 0);
+-		if (ret > 0)
++		while (len) {
++			ret = copy_file_range(vin->fd, NULL, vout->fd, &pos,
++					      len, 0);
++			if (ret <= 0)
++				break;
+ 			len -= ret;
++		}
  #endif
- 
- #include <errno.h>
-+#include <stdint.h>
- #include <string.h>
- #include <stdio.h>
- 
-@@ -30,7 +31,7 @@ static inline const char *erofs_strerror(int err)
- 
- #define MAX_ERRNO (4095)
- #define IS_ERR_VALUE(x)                                                        \
--	((unsigned long)(void *)(x) >= (unsigned long)-MAX_ERRNO)
-+	((uintptr_t)(void *)(x) >= (uintptr_t)-MAX_ERRNO)
- 
- static inline void *ERR_PTR(long error)
- {
-@@ -39,18 +40,18 @@ static inline void *ERR_PTR(long error)
- 
- static inline int IS_ERR(const void *ptr)
- {
--	return IS_ERR_VALUE((unsigned long)ptr);
-+	return IS_ERR_VALUE((uintptr_t)ptr);
- }
- 
- static inline long PTR_ERR(const void *ptr)
- {
--	return (long) ptr;
-+	return (intptr_t)ptr;
- }
- 
- static inline void * ERR_CAST(const void *ptr)
- {
- 	/* cast away the const */
--	return (void *) ptr;
-+	return (void *)ptr;
- }
- 
- /* EROFS-specific error codes */
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index d905077..19e38fb 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -348,7 +348,7 @@ static inline unsigned int erofs_inode_datalayout(unsigned int ifmt)
- 
- static inline struct erofs_inode *erofs_parent_inode(struct erofs_inode *inode)
- {
--	return (struct erofs_inode *)((unsigned long)inode->i_parent & ~1UL);
-+	return (struct erofs_inode *)((uintptr_t)inode->i_parent & ~(uintptr_t)1);
- }
- 
- #define IS_ROOT(x)	((x) == erofs_parent_inode(x))
-diff --git a/lib/dedupe.c b/lib/dedupe.c
-index ec9e2bb..b242f7d 100644
---- a/lib/dedupe.c
-+++ b/lib/dedupe.c
-@@ -9,18 +9,17 @@
- #include "liberofs_xxhash.h"
- #include "liberofs_sha256.h"
- 
--unsigned long erofs_memcmp2(const u8 *s1, const u8 *s2,
--			    unsigned long sz)
-+uintptr_t erofs_memcmp2(const u8 *s1, const u8 *s2, uintptr_t sz)
- {
--	const unsigned long *a1, *a2;
--	unsigned long n = sz;
-+	const uintptr_t *a1, *a2;
-+	uintptr_t n = sz;
- 
--	if (sz < sizeof(long))
-+	if (sz < sizeof(uintptr_t))
- 		goto out_bytes;
- 
--	if (((long)s1 & (sizeof(long) - 1)) ==
--			((long)s2 & (sizeof(long) - 1))) {
--		while ((long)s1 & (sizeof(long) - 1)) {
-+	if (((uintptr_t)s1 & (sizeof(uintptr_t) - 1)) ==
-+			((uintptr_t)s2 & (sizeof(uintptr_t) - 1))) {
-+		while ((uintptr_t)s1 & (sizeof(uintptr_t) - 1)) {
- 			if (*s1 != *s2)
- 				break;
- 			++s1;
-@@ -28,25 +27,25 @@ unsigned long erofs_memcmp2(const u8 *s1, const u8 *s2,
- 			--sz;
- 		}
- 
--		a1 = (const unsigned long *)s1;
--		a2 = (const unsigned long *)s2;
--		while (sz >= sizeof(long)) {
-+		a1 = (const uintptr_t *)s1;
-+		a2 = (const uintptr_t *)s2;
-+		while (sz >= sizeof(uintptr_t)) {
- 			if (*a1 != *a2)
- 				break;
- 			++a1;
- 			++a2;
--			sz -= sizeof(long);
-+			sz -= sizeof(uintptr_t);
- 		}
- 	} else {
--		a1 = (const unsigned long *)s1;
--		a2 = (const unsigned long *)s2;
-+		a1 = (const uintptr_t *)s1;
-+		a2 = (const uintptr_t *)s2;
- 		do {
- 			if (get_unaligned(a1) != get_unaligned(a2))
- 				break;
- 			++a1;
- 			++a2;
--			sz -= sizeof(long);
--		} while (sz >= sizeof(long));
-+			sz -= sizeof(uintptr_t);
-+		} while (sz >= sizeof(uintptr_t));
+ #if defined(HAVE_SYS_SENDFILE_H) && defined(HAVE_SENDFILE)
+ 		if (len && !noseek) {
+@@ -660,21 +664,19 @@ int erofs_io_xcopy(struct erofs_vfile *vout, off_t pos,
+ #endif
  	}
- 	s1 = (const u8 *)a1;
- 	s2 = (const u8 *)a2;
-diff --git a/lib/inode.c b/lib/inode.c
-index 489c44e..d819659 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -2169,13 +2169,13 @@ static int erofs_mkfs_handle_inode(const struct erofs_mkfs_btctx *ctx,
  
- static bool erofs_inode_visited(struct erofs_inode *inode)
- {
--	return (unsigned long)inode->i_parent & 1UL;
-+	return (uintptr_t)inode->i_parent & 1;
+-	do {
++	while (len) {
+ 		char buf[32768];
+-		int ret = min_t(unsigned int, len, sizeof(buf));
+-
+-		ret = erofs_io_read(vin, buf, ret);
+-		if (ret < 0)
+-			return ret;
+-		if (ret > 0) {
+-			ret = erofs_io_pwrite(vout, buf, pos, ret);
+-			if (ret < 0)
+-				return ret;
+-			pos += ret;
+-		}
+-		len -= ret;
+-	} while (len);
++		int ret, nread;
++
++		nread = erofs_io_read(vin, buf, min_t(s64, len, sizeof(buf));
++		if (nread <= 0)
++			return nread < 0 ? nread : -EIO;
++		ret = erofs_io_pwrite(vout, buf, pos, nread);
++		if (ret != nread)
++			return ret < 0 ? ret : -EIO;
++		pos += nread;
++		len -= nread;
++	}
+ 	return 0;
  }
  
- static void erofs_mark_parent_inode(struct erofs_inode *inode,
- 				    struct erofs_inode *dir)
- {
--	inode->i_parent = (void *)((unsigned long)dir | 1);
-+	inode->i_parent = (void *)((uintptr_t)dir | 1);
- }
- 
- static int erofs_mkfs_dump_tree(const struct erofs_mkfs_btctx *ctx)
-diff --git a/lib/kite_deflate.c b/lib/kite_deflate.c
-index c1d3c6d..67b01c9 100644
---- a/lib/kite_deflate.c
-+++ b/lib/kite_deflate.c
-@@ -13,8 +13,7 @@
- #include <ctype.h>
- #include <stdio.h>
- 
--unsigned long erofs_memcmp2(const u8 *s1, const u8 *s2,
--			    unsigned long sz);
-+uintptr_t erofs_memcmp2(const u8 *s1, const u8 *s2, uintptr_t sz);
- 
- #ifdef TEST
- #define kite_dbg(x, ...)	fprintf(stderr, x "\n", ##__VA_ARGS__)
--- 
-2.50.1 (Apple Git-155)
 
 
