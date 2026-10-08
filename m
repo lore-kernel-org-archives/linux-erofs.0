@@ -1,54 +1,54 @@
-Return-Path: <linux-erofs+bounces-4679-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4680-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF43CCA600C
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Oct 2026 15:37:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 238A9CA600C
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Oct 2026 15:43:30 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j0vJL5KXCz2yYK;
-	Fri, 09 Oct 2026 02:37:38 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791473858;
-	cv=none; b=Hjw9suKZOSHSzz8h3TsQCOwxZeXr0ShMdradtUN/pjwMON+mFDt4dHxmtTzOzt+TuW/d9Q5Mj44zWH5qvdfXDPz8bVy+f+sRt7aDtUNN1cor2VRZ8k0w9b00TPwxCuEP1L3/TazeZ7tPKQe/ASqZExchn62SqWYkHJW4Fg+na8zeTSzTzfPYfYHLy2rM2LO83mjbVxtegtiqe2iq0V+hI7ii55G408ktJFKIi5B0ecatt3JVPr5jRIuyqTiJvZ6QexnhmQPzEaYz7aHSCwtkZ7ktP54Kr/WmeZU1y7BOr5WOMjfqhE7o7eSWmN2s/4SWmL9kwXz6drA637NRsmC7iw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j0vR42cBYz2yWy;
+	Fri, 09 Oct 2026 02:43:28 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791474208;
+	cv=none; b=R568S3UNhbaQnIH1sTQ7VSO7IHdCbFVob1gSVwVJiWXT4ygoyzzdh2DdIeK0VYF2fxoEcH7j5fXIkWgNOSF0TU6ZSxoNNpWvjz61aC+wG+r0Ngr7FLxG1YJlNtcOnVtGBx0uhaX+bkqx2e0AoxaA2TK26rdeUNSW2Y9EQDyEdGtdQFNAGIdjf3E9PVpkO79Yqg9/e8wjn8TJIt/laa/1sDnhvcPFvSS5E8ksxeWdYMsfqD5AfbQLz78jpuFjns09PeCHKqXU6/NcJuwsMKJM4dz49FbOhWj3LSQ0xgC4gdJcxqT/k2ZIX18maU6Ks7XM/FJwMwk1yKFdiWeUR0VV7w==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791473858; c=relaxed/relaxed;
-	bh=q2vRo77bLcmiimJzYUxVrzyOeslFSyHDZgW/3tMMbLY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=CwsCh5WlMHRi8kQM4PHB4v8fZs/2XtFDF3/BhBjBYge38GjRRr0qL4G0JuLId1z+4V9KK0LPedZiWEcO36fcLEE462hucXfeW7oYCdSd1qLs/ZG0New1UhcbK6TTsM8lgjdiDm3Ji4FenC8VIWCPCoeSVR2zhpwN3jHYVxHZ+YZCpOjyG2EOuAjlFVc9WtJIvbreRfZyzZ6vEcVWLqOg4HAkuu7mZNDvIiwnC14Sq9uw6GrV0HpJ/xDxEiYylAcQz0llfKMpAUQ5Uqd2umXsR36/kPChmAKgqP580aCOws3SdEwl8bmZf66IkbYvVo6/DvXude4HySgabUDCstEqUw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=HHhUL6eD; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1791474208; c=relaxed/relaxed;
+	bh=zpaywRIMLozy2Gnj07rhjD6HR4RIDSFFI3XZ6vDT+/4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=OFbID83akvdPwWm5WFd6UZikKB4ShBbW0V4omAWPCMgkJ+Dwq65+gw5ACm0kOUuWt6Osu/tHvZoXDIueIzPih9TUHb9VaNrHny0CvvBKK3U4ENUne9BRHAL9vwl1DPkK9Iv3KpIwfjR6p9UIn2S6iT3cq0bLIDWlDIY6320ajJAQc12vrWcDjDMi/y9zmSFsgCVzt1jRyaX+vKyOCG2iIyNcPwb2qnw4KcduK08CMfjK9vHZE9pE7B/AmbLIxuGD7/uUjMlafseNdfJuAg9cWROYSlMczdKmoIrGeLUzXrHzXe2RaHy5r/nIR/5k498WBR0dqQ9qOB4yRuXaoQlTzA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uvaBebGK; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=HHhUL6eD;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uvaBebGK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0vJK5MbHz2yMn
-	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Oct 2026 02:37:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0vR34wcMz2yMn
+	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Oct 2026 02:43:27 +1100 (AEDT)
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id A1E4A44044;
-	Thu,  8 Oct 2026 15:37:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 83983C2BCC7;
-	Thu,  8 Oct 2026 15:37:34 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 7BD0F41645;
+	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D8EBC2BCC7;
+	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791473854;
-	bh=BubYJH38unV8hXWszzJQrFOPQBmZQHcnr0GM1uf9www=;
+	s=k20201202; t=1791474205;
+	bh=58WlZwRdoDNV04QPEm7qCQVQBGqmODxWRZtMn8B/zj0=;
 	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=HHhUL6eDMYuqMlByeVCw0McZBcK4imsApBWg6SmjOf/JqHFg9PbSVwDU8TxU1TKB7
-	 ZOnr+7cksLoaZNiXM6BJxh6RYGZX78+br/wdq6sNi94Z8yvgizW8nX264xGA6qRdmg
-	 TNsitzUjVgLSyBSRj788CHz01MWK20lHDZCnHQTK1zzSXDzIG1Drt9r6LzPLfNFTYn
-	 sB3GQ3H3r5NnFnyuMPqFdkw4nQWZkfVYBXdE/lUgSihyRo+mwdKRKMPrfG67+lf4dq
-	 RIwu1WsseLSDZ+ZyXuFV1w9Ywfp6sX88ogXoWs91m9blpEROimjiXr/6DMv/q7Vyim
-	 Srx/QX8PKrseQ==
+	b=uvaBebGKKgTWQwwLA4Kq1lUbYyUMnLaKbUEr6uVi6JCTE2udCLDbDR9TZIjl+kBsd
+	 DkK3H5kxiEOhxQAnW2jv+SX0onLMly/5CbpniVTgmAkjD02DW57C0KvTlPQy4nez2E
+	 KNIqgEo7m6itK/O5fDN9A3tJs/Vi9pAjy+9RvcAu76eKoF3842QS4R59QUG4yHJISc
+	 Pux4VdWu6c6wPJ79DZlxlv7pK2iRB0piSsZJv8Y/2Ufc4VrDHJ0K93i+myQRpzg+w3
+	 fvVuTR/NrKlY3OgaCKYNR/LgNNeDkxbgkrE2jBX8rHTEwmG8qm8L0cM0h5bkoesNo0
+	 WBbara/8xSIEg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 555C9CA600B;
-	Thu,  8 Oct 2026 15:37:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 372A1CA600D;
+	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
 From: Sadman Fahmid via B4 Relay <devnull+sadmanf.meta.com@kernel.org>
-Date: Thu, 08 Oct 2026 11:37:32 -0400
-Subject: [PATCH] erofs-utils: tar: fix source path leak
+Date: Thu, 08 Oct 2026 11:43:24 -0400
+Subject: [PATCH] erofs-utils: lib: fix null memcpy source in xattr listing
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,19 +62,19 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261008-chunking-tar-srcpath-v1-v1-1-0d79d76a1593@meta.com>
-X-B4-Tracking: v=1; b=H4sIALu4x2oC/x3NQQ6CMBCF4auQWTuxECXGqxgX0zK0E3VopkBIC
- He3uvwW7387FDbhAvdmB+NVikxa0Z4aCIk0MspQDZ3r+ta5G4a06Es04kyGxUKmOeHaohsH7j1
- drm70UNfZeJTtX348qz0VRm+kIf16k0kUPfOW6/+HdaY3HMcX7g2PwY8AAAA=
+Message-Id: <20261008-chunking-xattr-infix-v1-v1-1-4a7736c35081@meta.com>
+X-B4-Tracking: v=1; b=H4sIABu6x2oC/x2NywrCQAxFf6VkbbBT8Pkr4iIzjdOgpiVTy0Dpv
+ xtdHg733BUKm3CBa7OC8SJFRnUIuwbSQJoZpXeGru2OoW3PmIaPPkUzVppnQ9GHVFwCBnJ76ft
+ 4OBH4ejJ28y/f7s6RCmM00jT8eqNJFt1znfz/zTrTC7btCywIiu6PAAAA
 To: linux-erofs@lists.ozlabs.org
 Cc: xiang@kernel.org, jefflexu@linux.alibaba.com, 
  Sadman Fahmid <sadmanf@meta.com>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791473853; l=1125;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791474204; l=1493;
  i=sadmanf@meta.com; s=20261006; h=from:subject:message-id;
- bh=WbKflU4BUacdGyvko5EelvmAxg0hh/Mo+mElmyPInfw=;
- b=cYrFBGBHj7wbAKZvupATfm1OoFa0PO2VSydBO6mOp/yK5oC44JNNJeueq2Kz0qlZaML28AzdK
- Acuu7apVXBSCFNZycMuEW2dMO16sECZApgYQyBsxIkj0M3syPXdfezX
+ bh=Pxsl8oq1y4OPZ92O817gqL4x+XdL3uXSkj2LWJNTIfI=;
+ b=vtF/So3GsAVXGSW4c3VQ//9c993L8s+do1m3U+o2ElsmWUBTar6fSQXhYlojQrlH8Z2heBqqv
+ FhTUs9KUL80AzKMlN0IULYWgnrI0X/2NIh43g3SAc54o6RUJH3RU7r8
 X-Developer-Key: i=sadmanf@meta.com; a=ed25519;
  pk=Pc/arXJpm1RPef8qImFuHROn1p3XNX5MWSUxjZWNTa4=
 X-Endpoint-Received: by B4 Relay for sadmanf@meta.com/20261006 with
@@ -84,38 +84,41 @@ Reply-To: sadmanf@meta.com
 
 From: Sadman Fahmid <sadmanf@meta.com>
 
-Tar import leaks the previous `i_srcpath` allocation when updating
-an existing directory or root inode. Free the old string before
-assigning the new path.
+Xattr listing passes a `NULL` infix to `memcpy()` when no extended
+prefix is present. Skip the copy when `infix_len` is zero.
 
-Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
+Fixes: ac3b2b1f5d03 ("erofs-utils: support long xattr name prefixes for erofsfuse")
 Signed-off-by: Sadman Fahmid <sadmanf@meta.com>
 ---
-Tested with Clang 21 ASan/UBSan and LeakSanitizer enabled. A tar
-containing explicit root and directory headers, a child file, and
-repeated root/directory headers leaks 14 bytes on the baseline.
-With this patch the import exits successfully without a leak report
-and produces an identical EROFS image.
+Tested with Clang 21 ASan/UBSan. Build an image from a directory
+containing a file with user.test=value, then extract it with
+fsck.erofs --xattrs --extract=output image.erofs. UBSan reports a
+null memcpy source on the baseline; the patched extraction succeeds
+and preserves both the file content and its xattr. Leak detection
+was disabled for this test because fsck has a separate existing
+xattr ID allocation leak in erofs_init_inode_xattrs().
 ---
- lib/tar.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/xattr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/tar.c b/lib/tar.c
-index f24ad95..c99ce3c 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -1165,6 +1165,7 @@ new_inode:
- 			inode->u.i_rdev = erofs_new_encode_dev(st.st_rdev);
- 	}
+diff --git a/lib/xattr.c b/lib/xattr.c
+index 3cf8c79..d86d94a 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -1291,7 +1291,8 @@ static int erofs_listxattr_foreach(struct erofs_xattr_iter *it)
+ 		return -ERANGE;
  
-+	free(inode->i_srcpath);
- 	inode->i_srcpath = strdup(eh.path);
- 	if (!inode->i_srcpath) {
- 		ret = -ENOMEM;
+ 	memcpy(it->buffer + it->buffer_ofs, prefix, prefix_len);
+-	memcpy(it->buffer + it->buffer_ofs + prefix_len, infix, infix_len);
++	if (infix_len)
++		memcpy(it->buffer + it->buffer_ofs + prefix_len, infix, infix_len);
+ 	it->buffer_ofs += prefix_len + infix_len;
+ 
+ 	/* 2. handle xattr name */
 
 ---
 base-commit: 50c29ee8d0f88fcec28d492d01eb7ca8715f5961
-change-id: 20261008-chunking-tar-srcpath-v1-0fde6ba450fb
+change-id: 20261008-chunking-xattr-infix-v1-1a0089ddb57a
 
 Best regards,
 -- 
