@@ -1,54 +1,101 @@
-Return-Path: <linux-erofs+bounces-4680-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4681-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 238A9CA600C
-	for <linux-erofs@archiver.kernel.org>; Thu,  8 Oct 2026 15:43:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CFD14CA6017
+	for <linux-erofs@archiver.kernel.org>; Thu,  8 Oct 2026 19:08:40 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j0vR42cBYz2yWy;
-	Fri, 09 Oct 2026 02:43:28 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791474208;
-	cv=none; b=R568S3UNhbaQnIH1sTQ7VSO7IHdCbFVob1gSVwVJiWXT4ygoyzzdh2DdIeK0VYF2fxoEcH7j5fXIkWgNOSF0TU6ZSxoNNpWvjz61aC+wG+r0Ngr7FLxG1YJlNtcOnVtGBx0uhaX+bkqx2e0AoxaA2TK26rdeUNSW2Y9EQDyEdGtdQFNAGIdjf3E9PVpkO79Yqg9/e8wjn8TJIt/laa/1sDnhvcPFvSS5E8ksxeWdYMsfqD5AfbQLz78jpuFjns09PeCHKqXU6/NcJuwsMKJM4dz49FbOhWj3LSQ0xgC4gdJcxqT/k2ZIX18maU6Ks7XM/FJwMwk1yKFdiWeUR0VV7w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j0zzq18Tzz30Vy;
+	Fri, 09 Oct 2026 06:08:39 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::132a"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791486519;
+	cv=none; b=kvEHBAv27yA7Jp2jP3pR8h67q3U6Lm4CzCGXBKmFjJlq8ZyuFvUInO8AGu5OMkF4VcdwdIjs8X43q4gIDEchAxVllW5blEVf40/VG/B/Gyh9qmg5E+6U6ZVtlpQ0YxI94NMb6vdCt2N2Z0qTiXHHPGGB6r9E1rfOu7mQFB+dER6L6IDpgfxya49nDKXzpa/du10lFWxSkZt2u+BNwUbePX4k461uqEvfzoeyguP1hlCDyX9smdZKuQmhHj+O2nf1GJ8DH8EgXx+tVIc2zPhRlJ7pVrRKzFHuNAVNE9NmIH7y2Eniu5/TvZJE4tYO3zjWD2e+yLZnkLtqNXQyQmt7Kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791474208; c=relaxed/relaxed;
-	bh=zpaywRIMLozy2Gnj07rhjD6HR4RIDSFFI3XZ6vDT+/4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=OFbID83akvdPwWm5WFd6UZikKB4ShBbW0V4omAWPCMgkJ+Dwq65+gw5ACm0kOUuWt6Osu/tHvZoXDIueIzPih9TUHb9VaNrHny0CvvBKK3U4ENUne9BRHAL9vwl1DPkK9Iv3KpIwfjR6p9UIn2S6iT3cq0bLIDWlDIY6320ajJAQc12vrWcDjDMi/y9zmSFsgCVzt1jRyaX+vKyOCG2iIyNcPwb2qnw4KcduK08CMfjK9vHZE9pE7B/AmbLIxuGD7/uUjMlafseNdfJuAg9cWROYSlMczdKmoIrGeLUzXrHzXe2RaHy5r/nIR/5k498WBR0dqQ9qOB4yRuXaoQlTzA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uvaBebGK; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1791486519; c=relaxed/relaxed;
+	bh=5apqDPTTuz0tcu66C6sdhKkioJqFGVwtFVltYn4up0I=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cgUUQLuLfUNWNq21msqR4HbCGtL3nx5/+Qz4B/kO24f41AX/QCbw+QvHO1LrXkxxM7/clC+fDgxlWaPPax+ht6elbFs0uHx6WD26ljOqYWVjOgxDNMoSzkDNnKUzx53rgOvLhzgeqO7pQFS29+v6SBCtsPJ6uvsY9hqs6Nq0nXxRbSb0s9ggkJi7bPkS5MstJno94Bjw+OrGxtyjOKVJhd3G2DD4anWYdtmRephWrFynXcSMF/+8SNuLVhyYpx0yODXC1JXam794TEQGAqLz8QgrypjVFy54DJCUfnYcob9CjDBp5ZYjnyNLYtGy2GP59vliPqW82h3HNaTDYd+/SA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com; dkim=pass (2048-bit key; unprotected) header.d=trailofbits.com header.i=@trailofbits.com header.a=rsa-sha256 header.s=google header.b=BPRU0b6Q; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::132a; helo=mail-dy1-x132a.google.com; envelope-from=artem@trailofbits.com; receiver=lists.ozlabs.org) smtp.mailfrom=trailofbits.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uvaBebGK;
+	dkim=pass (2048-bit key; unprotected) header.d=trailofbits.com header.i=@trailofbits.com header.a=rsa-sha256 header.s=google header.b=BPRU0b6Q;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+sadmanf.meta.com@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=trailofbits.com (client-ip=2607:f8b0:4864:20::132a; helo=mail-dy1-x132a.google.com; envelope-from=artem@trailofbits.com; receiver=lists.ozlabs.org)
+Received: from mail-dy1-x132a.google.com (mail-dy1-x132a.google.com [IPv6:2607:f8b0:4864:20::132a])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0vR34wcMz2yMn
-	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Oct 2026 02:43:27 +1100 (AEDT)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sea.source.kernel.org (Postfix) with ESMTP id 7BD0F41645;
-	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D8EBC2BCC7;
-	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791474205;
-	bh=58WlZwRdoDNV04QPEm7qCQVQBGqmODxWRZtMn8B/zj0=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=uvaBebGKKgTWQwwLA4Kq1lUbYyUMnLaKbUEr6uVi6JCTE2udCLDbDR9TZIjl+kBsd
-	 DkK3H5kxiEOhxQAnW2jv+SX0onLMly/5CbpniVTgmAkjD02DW57C0KvTlPQy4nez2E
-	 KNIqgEo7m6itK/O5fDN9A3tJs/Vi9pAjy+9RvcAu76eKoF3842QS4R59QUG4yHJISc
-	 Pux4VdWu6c6wPJ79DZlxlv7pK2iRB0piSsZJv8Y/2Ufc4VrDHJ0K93i+myQRpzg+w3
-	 fvVuTR/NrKlY3OgaCKYNR/LgNNeDkxbgkrE2jBX8rHTEwmG8qm8L0cM0h5bkoesNo0
-	 WBbara/8xSIEg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 372A1CA600D;
-	Thu,  8 Oct 2026 15:43:25 +0000 (UTC)
-From: Sadman Fahmid via B4 Relay <devnull+sadmanf.meta.com@kernel.org>
-Date: Thu, 08 Oct 2026 11:43:24 -0400
-Subject: [PATCH] erofs-utils: lib: fix null memcpy source in xattr listing
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j0zzp0MS7z2yqs
+	for <linux-erofs@lists.ozlabs.org>; Fri, 09 Oct 2026 06:08:37 +1100 (AEDT)
+Received: by mail-dy1-x132a.google.com with SMTP id 5a478bee46e88-3115c4451c8so4777838eec.1
+        for <linux-erofs@lists.ozlabs.org>; Thu, 08 Oct 2026 12:08:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=trailofbits.com; s=google; t=1791486515; x=1792091315; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=5apqDPTTuz0tcu66C6sdhKkioJqFGVwtFVltYn4up0I=;
+        b=BPRU0b6Qp8QmNPUTV6sx7jc2b6otedEeEDg80tp3dyPe1odP2Vvl63kWgegORoIMjS
+         XyIuvFDUu0l/xKqk8FLJLWczJcgjGU47LeZzidvV1TNDrfazxYPdTnubkwQ9poBnXFQl
+         zI2bIY7mcm88KsD1YCG5lZWfw6ru1g/WinQIy7yk07matzfPK412/Z5AmMAVuHQ817l3
+         hJ1MXXmsdfaURK36jil4jUwK/Wqbp8Ar9GODjl3Z9BoqkuLudrRf6Sa+UODMkprO/ydO
+         tQ7tkwESj0DWu8Q/rpP9HfE3E86CVVC6hMXu5zHeKGLtqoWEoCb1gKfAwTHZUBY4ayP+
+         RRCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791486515; x=1792091315;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=5apqDPTTuz0tcu66C6sdhKkioJqFGVwtFVltYn4up0I=;
+        b=eig4M1M4FxT3Cld2VauqjOaY5syYwRD35uti/4MtCIZ5JSOTrL1lLBIYVsPqk3S1TF
+         VrNcyIVQjwemXunL5WuvFgdcjHrvD4KTEzrj5IHiEBrwbE+ierO9MMxeahDeTSobDUtK
+         Qinvd0o7IFSIWZimUEt8ICx1gF9BDQoHyi0KM87WXdpi1XqVV0VUw9+UOvl6xoBJ4LVG
+         3LJNYI+rQ9tnvFZXyaNnkPOSRdMWJ8L1ggcK1zWBT4Va9ccGIy0uRejoTzZ5Gp8c1bb0
+         yxOeMygpvQ9yoaaH2HtQWMNfpUlxMjXjCppzJq4Kbl4+dnkmOt8IJ2yRtp6ylpterZPW
+         33YA==
+X-Forwarded-Encrypted: i=1; AKwUvByKZX1CXdnyI2FcJwbK77BQ4KmEC3i5GJ8oqTsQBfzhbyrdbA5KEJq4cxpgT2MbUjkZm8+Yn7VSfYJ0eg==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYLtRuaRvZKGOd48I9v4ALouWcpEMkJ/05uGfuwNnt25UugjSAhw
+	JbrGytpa7rqPHCRLOI3MIBQ8LZcVhkCc7hldV2DXZeK/w5GuIqNLipIr8ZCHXt+ZP1Y=
+X-Gm-Gg: AYBFou0xtNOu4BgT2JQXjk6fJXAonT2w8XSpdTduAa6D+7BgN3OaxtS0amYpSaB/ygf
+	yDodbKgRrYjIQCGnUSp6Dhh6r0Mx2COHuk8ke7xdaJsnkhE8OKVxQQrO6AsckK7jsmegULR1wdc
+	ULKKkK0L4vsCvCjy0CfkLLfGxYo8ylCwIRBf8GM9r53Cplugws8f6w+gIKPYclT+1DEvBs1A8tk
+	/p/dphJETS9n3DXbxl8yrOgbIEi3uoKMbhnDXVT8w56XoQkTJM7iW4e5J23HKBrBqcRxNimKApd
+	4H+o7xk518oLXSjsS2RIFJRU7gP8lQ8ZVxMUekKI2PGIA2bGDW4OjF8Nk8R9fxJRa8bE2NYYjjc
+	tvOT9nejyKBsek7Qwq3C8zb4+3SMh3Ilicatt2SMkNa1ZbE6UGuovk4mvB0PdOpijZwXk+AzFGd
+	/Pa6tIgGVEGgx8bmXDbWdMm34555rJB8BcFaPKzPhpzGag3imWVnSEHvJbVbY18BX/s/w1WDLdY
+	ErURhi0qawPQRVhRi+QZBkrlyOpiCMyW0Rag7qxUMsDO1QtEaXMY/RUg6kL6EpSpgACK1o=
+X-Received: by 2002:a05:693c:87cd:20b0:353:5d7a:cabe with SMTP id 5a478bee46e88-3536c53930dmr317574eec.13.1791486515207;
+        Thu, 08 Oct 2026 12:08:35 -0700 (PDT)
+Received: from localhost.localdomain ([2603:8001:5f01:8bab:bc88:5ec1:4f8a:5b23])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537c841648sm80561eec.3.2026.10.08.12.08.34
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 08 Oct 2026 12:08:34 -0700 (PDT)
+From: Artem Dinaburg <artem@trailofbits.com>
+To: stable@vger.kernel.org
+Cc: Artem Dinaburg <artem@trailofbits.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Sasha Levin <sashal@kernel.org>,
+	Gao Xiang <hsiangkao@linux.alibaba.com>,
+	Robert Morris <rtm@csail.mit.edu>,
+	Hongbo Li <lihongbo22@huawei.com>,
+	Gao Xiang <xiang@kernel.org>,
+	Chao Yu <chao@kernel.org>,
+	Yue Hu <huyue2@coolpad.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>,
+	linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	Yue Hu <zbestahu@gmail.com>,
+	Sandeep Dhavale <dhavale@google.com>,
+	Hongbo Li <hongbohbli@tencent.com>,
+	Chunhai Guo <guochunhai@vivo.com>
+Subject: [PATCH 6.6.y 1/2] erofs: avoid infinite loops due to corrupted subpage compact indexes
+Date: Thu,  8 Oct 2026 15:08:27 -0400
+Message-ID: <20261008190830.97970-2-artem@trailofbits.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261008190830.97970-1-artem@trailofbits.com>
+References: <20261008190830.97970-1-artem@trailofbits.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,69 +107,106 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261008-chunking-xattr-infix-v1-v1-1-4a7736c35081@meta.com>
-X-B4-Tracking: v=1; b=H4sIABu6x2oC/x2NywrCQAxFf6VkbbBT8Pkr4iIzjdOgpiVTy0Dpv
- xtdHg733BUKm3CBa7OC8SJFRnUIuwbSQJoZpXeGru2OoW3PmIaPPkUzVppnQ9GHVFwCBnJ76ft
- 4OBH4ejJ28y/f7s6RCmM00jT8eqNJFt1znfz/zTrTC7btCywIiu6PAAAA
-To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org, jefflexu@linux.alibaba.com, 
- Sadman Fahmid <sadmanf@meta.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791474204; l=1493;
- i=sadmanf@meta.com; s=20261006; h=from:subject:message-id;
- bh=Pxsl8oq1y4OPZ92O817gqL4x+XdL3uXSkj2LWJNTIfI=;
- b=vtF/So3GsAVXGSW4c3VQ//9c993L8s+do1m3U+o2ElsmWUBTar6fSQXhYlojQrlH8Z2heBqqv
- FhTUs9KUL80AzKMlN0IULYWgnrI0X/2NIh43g3SAc54o6RUJH3RU7r8
-X-Developer-Key: i=sadmanf@meta.com; a=ed25519;
- pk=Pc/arXJpm1RPef8qImFuHROn1p3XNX5MWSUxjZWNTa4=
-X-Endpoint-Received: by B4 Relay for sadmanf@meta.com/20261006 with
- auth_id=1125
-X-Original-From: Sadman Fahmid <sadmanf@meta.com>
-Reply-To: sadmanf@meta.com
+Content-Transfer-Encoding: 8bit
 
-From: Sadman Fahmid <sadmanf@meta.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-Xattr listing passes a `NULL` infix to `memcpy()` when no extended
-prefix is present. Skip the copy when `infix_len` is zero.
+[ Upstream commit e13d315ae077bb7c3c6027cc292401bc0f4ec683 ]
 
-Fixes: ac3b2b1f5d03 ("erofs-utils: support long xattr name prefixes for erofsfuse")
-Signed-off-by: Sadman Fahmid <sadmanf@meta.com>
+Robert reported an infinite loop observed by two crafted images.
+
+The root cause is that `clusterofs` can be larger than `lclustersize`
+for !NONHEAD `lclusters` in corrupted subpage compact indexes, e.g.:
+
+  blocksize = lclustersize = 512   lcn = 6   clusterofs = 515
+
+Move the corresponding check for full compress indexes to
+`z_erofs_load_lcluster_from_disk()` to also cover subpage compact
+compress indexes.
+
+It also fixes the position of `m->type >= Z_EROFS_LCLUSTER_TYPE_MAX`
+check, since it should be placed right after
+`z_erofs_load_{compact,full}_lcluster()`.
+
+[ Backport to 6.6.y: preserve the switch-based full/compact loader and
+  perform the type and cluster-offset validation after either loader
+  using z_logical_clusterbits. ]
+
+Fixes: 8d2517aaeea3 ("erofs: fix up compacted indexes for block size < 4096")
+Fixes: 1a5223c182fd ("erofs: do sanity check on m->type in z_erofs_load_compact_lcluster()")
+Reported-by: Robert Morris <rtm@csail.mit.edu>
+Closes: https://lore.kernel.org/r/35167.1760645886@localhost
+Reviewed-by: Hongbo Li <lihongbo22@huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Assisted-by: LLM
+Signed-off-by: Artem Dinaburg <artem@trailofbits.com>
 ---
-Tested with Clang 21 ASan/UBSan. Build an image from a directory
-containing a file with user.test=value, then extract it with
-fsck.erofs --xattrs --extract=output image.erofs. UBSan reports a
-null memcpy source on the baseline; the patched extraction succeeds
-and preserves both the file content and its xattr. Leak detection
-was disabled for this test because fsck has a separate existing
-xattr ID allocation leak in erofs_init_inode_xattrs().
----
- lib/xattr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+This is patch 1 of 2 in the ordered 6.6.y backport series.
+This change addresses CVE-2025-68251. 6.6 validates clusterofs only in the
+full-index loader, leaving corrupted subpage compact NONHEAD records able
+to drive non-progressing lookback.
+This needed a target-specific adjustment; I called it out in the bracketed
+backport note above.
 
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 3cf8c79..d86d94a 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -1291,7 +1291,8 @@ static int erofs_listxattr_foreach(struct erofs_xattr_iter *it)
- 		return -ERANGE;
+The fix is already present in 6.12.y, 6.18.y, and 7.2.y, but not in 6.6.y.
+
+ fs/erofs/zmap.c | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
+index 76566c2cbf63..e53d5239f04d 100644
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -67,10 +67,6 @@ static int z_erofs_load_full_lcluster(struct z_erofs_maprecorder *m,
+ 		if (advise & Z_EROFS_LI_PARTIAL_REF)
+ 			m->partialref = true;
+ 		m->clusterofs = le16_to_cpu(di->di_clusterofs);
+-		if (m->clusterofs >= 1 << vi->z_logical_clusterbits) {
+-			DBG_BUGON(1);
+-			return -EFSCORRUPTED;
+-		}
+ 		m->pblk = le32_to_cpu(di->di_u.blkaddr);
+ 		break;
+ 	default:
+@@ -276,14 +272,34 @@ static int z_erofs_load_compact_lcluster(struct z_erofs_maprecorder *m,
+ static int z_erofs_load_lcluster_from_disk(struct z_erofs_maprecorder *m,
+ 					   unsigned int lcn, bool lookahead)
+ {
+-	switch (EROFS_I(m->inode)->datalayout) {
++	struct erofs_inode *vi = EROFS_I(m->inode);
++	int err;
++
++	switch (vi->datalayout) {
+ 	case EROFS_INODE_COMPRESSED_FULL:
+-		return z_erofs_load_full_lcluster(m, lcn);
++		err = z_erofs_load_full_lcluster(m, lcn);
++		break;
+ 	case EROFS_INODE_COMPRESSED_COMPACT:
+-		return z_erofs_load_compact_lcluster(m, lcn, lookahead);
++		err = z_erofs_load_compact_lcluster(m, lcn, lookahead);
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
++	if (err)
++		return err;
++
++	if (m->type >= Z_EROFS_LCLUSTER_TYPE_MAX) {
++		erofs_err(m->inode->i_sb, "unknown type %u @ lcn %u of nid %llu",
++			  m->type, lcn, vi->nid);
++		DBG_BUGON(1);
++		return -EOPNOTSUPP;
++	}
++	if (m->type != Z_EROFS_LCLUSTER_TYPE_NONHEAD &&
++	    m->clusterofs >= (1 << vi->z_logical_clusterbits)) {
++		DBG_BUGON(1);
++		return -EFSCORRUPTED;
++	}
++	return 0;
+ }
  
- 	memcpy(it->buffer + it->buffer_ofs, prefix, prefix_len);
--	memcpy(it->buffer + it->buffer_ofs + prefix_len, infix, infix_len);
-+	if (infix_len)
-+		memcpy(it->buffer + it->buffer_ofs + prefix_len, infix, infix_len);
- 	it->buffer_ofs += prefix_len + infix_len;
- 
- 	/* 2. handle xattr name */
-
----
-base-commit: 50c29ee8d0f88fcec28d492d01eb7ca8715f5961
-change-id: 20261008-chunking-xattr-infix-v1-1a0089ddb57a
-
-Best regards,
+ static int z_erofs_extent_lookback(struct z_erofs_maprecorder *m,
 -- 
-Sadman Fahmid <sadmanf@meta.com>
-
+2.39.5
 
 
