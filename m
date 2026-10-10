@@ -1,62 +1,51 @@
-Return-Path: <linux-erofs+bounces-4685-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4686-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE371CA9EBE
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2026 07:06:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4DF48CA9EBE
+	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2026 07:17:47 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j1vsv5kBPz2yjw;
-	Sat, 10 Oct 2026 18:06:43 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791616003;
-	cv=none; b=FW7m9QBkwdU6MgFkCNBHWbK8KUWJr8y2jp1DiZ/S98dSFqURob/F4WxtKnERY0fDZhEy8UGt7M/uNOHw5nzscR7p2PvSw6+gBzTZsbJRGlHeJN6eEHIsR78AAxAiaXcDWggx4p9JjDyA3XO57hxPiAFnTz0RZUNLmBMhbQayAbsWLknomVFeicgtmXDrXsS0Fc2gK1cGUOTZrgmqlCePgeIiuw8hCfDaX687vazdBIx5hvUArgwQjVPQhSNKosoGzCWN/ZJGYX5ufMUso+fh3CePSq2GigkxWHQp4jbiTl3CA8hYBr7R1Swr6+zHEfoNyq6hMOsBxZOzI9LpTioiaw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j1w6d4CDgz2xyh;
+	Sat, 10 Oct 2026 18:17:45 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791616665;
+	cv=none; b=Yqb+Wk4WBk0NDdAwofG2L+2rOXGLKXR8DoD2aJjHrUFpgXqPyH/QYrUUpGBBm4b9pxWkJ5Dsa74lXCQ/6Egea6ZTQ1G+aNDur9qq9hRiW2OigEafnM+Q1GfF5XaDW0JihZUwySBgRWhMDlVbMxEloxGXgDFBN0yI5uMQP1Oyb86CZVw3XxmkBd8ztJ1TciYlbw8EI+W3Xnrkc0q9YPacstqOsa5F9wY5pbHUAp87fo4NSqDm+dHzXkbiJu/TucjDuvQZDFKVS+ic7S2s8YF3pT5EeCY4T4FcDMChjozrkh3C4XPUpBDflE0ztCMR21PU3VazT8yd5rUH82u2PhAyTw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791616003; c=relaxed/relaxed;
-	bh=Suzf8PCRnkauEGFkBM6f+/nSdAYzije1adxZPO+1Hvw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=id6OMgT4RMEVYcK4lPeTh1lf75SnCPicWBbNDSGQsfRy2pj0wjcoHWRmVhgKkxWPcUuJuntu4HYNAeeRW/sHySjGrr19fTSAIOkQiWFhOZWaH9QtmSCP37PStjh1DRjmP4ODsNQem8QdHD5/DhWR1bKu5cCH0gh9KIWnFQGvsLyMrRjMzZbpp9O/16rz+aKRMJ2+uKFpRaEU5H059YPCD8OmbF2n2CTsBRfBmvYm0QHMbO70IrPLvE+LGP36F/JheibPXZ8TJFFO9G71gAMHqSipuodrtA1Q4vjtRgLOSrNr0P4mNSEmHT+f9woFpuQNL7engLCtjr7hLDoLQipkEQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YEJksbD7; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1791616665; c=relaxed/relaxed;
+	bh=LjaoX7Zu0LcypZ9rSEHpW4L8GeX+4hGgjpaev3HY+BA=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=Z+QcrzCO5HdIWrgQWdqkrFnvVQmVYOcj8sIWLIpPayr77VUSYi5tuK4FKqp4GaGSvitH3RqUoStI3S1UKE7XD+twB1T1KTywQlqD1WlVEzP9A8p+4l32X3DfNLDWbWcshx4bPWkDX6xpuCYrMjZa5f/Qysbz0qSOMrqLlp+Pb0wBEJ56lHLe/56iwZ4ZmjZpsY/hk9Pu9dwzfqoXthZktH4H/oRAJH84wLIQOwqOgiodL5bmlh0JqwnEPBhTZ6W+79eHfrJRRub55ZALMXdr0CsNaWoh/keM5GkQjGwmE4biPK1lGZw1gAXqP/R6iWbEXD29tKd9RhAkaY/5clxtaw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZQ5UpPih; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YEJksbD7;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZQ5UpPih;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (unknown [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j1vst4PXzz2yHD
-	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Oct 2026 18:06:42 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j1w6c4r3xz2xsW
+	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Oct 2026 18:17:44 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 3232343B1A;
-	Sat, 10 Oct 2026 07:06:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A93FA1F00893;
-	Sat, 10 Oct 2026 07:06:38 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 7E0EB601F0;
+	Sat, 10 Oct 2026 07:17:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 731821F000FF;
+	Sat, 10 Oct 2026 07:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791616000;
-	bh=Suzf8PCRnkauEGFkBM6f+/nSdAYzije1adxZPO+1Hvw=;
-	h=From:To:Cc:Subject:Date;
-	b=YEJksbD737KiIJ3DHjtl8X8VgDFniow81R+lnSWCbirvFR0+9HrrMM0yC5hkJn1N2
-	 MnihZN7sy1Lpn4sX3fTqt8KKsc5HdCL5rddTPeDag3lTyJbEKs6z8mmMR4apWjdb6i
-	 8c8ONZi9ZfgFs4bVrYGLXKIFE7aoe6tu2XDN/D+wK+5k5+rWOipsTk2G3FkjCX8jaF
-	 c0nceMI89x44CX2Ss07KvwGQdRRhpWpTbzwBqx7+aiVfFIAaeqFd/u5AK6lPiZe5kD
-	 3D5+o7Zvx9Sij8ZATxCoZLpGaNx9HnD4Afzp5lFe1QIYR5GkQemjXUnyTpeqsQxl/d
-	 6RnmqYV9iDgNQ==
-From: Chao Yu <chao@kernel.org>
-To: xiang@kernel.org
-Cc: linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <lihongbo22@huawei.com>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Chao Yu <chao@kernel.org>
-Subject: [PATCH] MAINTAINERS: erofs: add dev branch to git tree entry
-Date: Sat, 10 Oct 2026 15:06:23 +0800
-Message-ID: <20261010070623.1766952-1-chao@kernel.org>
-X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
+	s=k20260515; t=1791616661;
+	bh=LjaoX7Zu0LcypZ9rSEHpW4L8GeX+4hGgjpaev3HY+BA=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To;
+	b=ZQ5UpPih/Tz9/Paz6Wvf+ZLJkIth3WlLAL42Y/yg3dRilGulBZczhkzGjEjnLQwPR
+	 GU+JBuxigErrJ/ljpA0ocLbGlqfwsuGwyYMC/DXoKFBso27eqFRA08hF/XycpbnnJq
+	 9NjftyW1dzYzFEdnOOcdCt6r7tMYgD4546yCusKN/PKdRXiyFLDD1nNS8qe4+BM9md
+	 10vN3oSAwrM2FivSErZ0X7/H3BcQ55wqzH0RPdeNBgQ/jzZreUcHySwDdF58E2HR5j
+	 WArCisIwYs2jrN2RiLl/nqz01n9FjHzMXtsVwwOtBjnNtQ3Yr69C37jISfEu/C/kpa
+	 v4+U18wMUKpEQ==
+Message-ID: <6e1b9e96-eb98-4eec-9c34-5bd9ca2f9808@kernel.org>
+Date: Sat, 10 Oct 2026 15:17:38 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -68,36 +57,26 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-
+User-Agent: Mozilla Thunderbird
+Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org
+Subject: Re: [PATCH] MAINTAINERS: erofs: update my email address
+To: Jingbo Xu <jefflexu@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+ xiang@kernel.org
+References: <20260921030417.87932-1-jefflexu@linux.alibaba.com>
+Content-Language: en-US
 From: Chao Yu <chao@kernel.org>
+In-Reply-To: <20260921030417.87932-1-jefflexu@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The EROFS entry lists the git tree without a branch, so tools that
-derive a baseline from MAINTAINERS, e.g. sashiko, fall back to the
-remote HEAD, which points to master. master only moves at -rc1, so
-series developed against the dev branch fail to apply there.
+On 9/21/26 11:04, Jingbo Xu wrote:
+> From: Jingbo Xu <jefflexu@163.com>
+> 
+> This email address will not be available in a few days.
+> Update my own email address to jefflexu@163.com.
+> 
+> Signed-off-by: Jingbo Xu <jefflexu@163.com>
+Acked-by: Chao Yu <chao@kernel.org>
 
-Name the dev branch explicitly, where erofs patches are queued.
-
-Signed-off-by: Chao Yu <chao@kernel.org>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 068beaa035ac..63c8de75ada9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9690,7 +9690,7 @@ R:	Chunhai Guo <guochunhai@vivo.com>
- L:	linux-erofs@lists.ozlabs.org
- S:	Maintained
- W:	https://erofs.docs.kernel.org
--T:	git git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git
-+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
- F:	Documentation/ABI/testing/sysfs-fs-erofs
- F:	Documentation/filesystems/erofs.rst
- F:	fs/erofs/
--- 
-2.49.0
-
+Thanks,
 
