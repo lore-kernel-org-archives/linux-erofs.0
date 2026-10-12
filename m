@@ -1,87 +1,89 @@
-Return-Path: <linux-erofs+bounces-4696-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4697-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B4301CA9EC5
-	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2026 14:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33671CA9EDC
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2026 14:01:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j3JzC5lsmz30Vm;
-	Tue, 13 Oct 2026 01:01:11 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=185.125.188.122
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791813671;
-	cv=none; b=bRAjwbIsC2/ez9l1j37JGOJzUS6OJkqUM2Z3GkUm2pfhFvj/lZj4isa2K8G2wRAviNYglM3sHTf3sQkTWSvpdaUn6xhyk6zxyR2a8ZmlMRbOGRl3t3z/LEhqxk4c7JKpEW9svJzDI5Gu8fGssDTHONg4fQ9BOrvAGp+DjqPoBC/hZfy1wCaCAMFnr7gRjemt5pMZOiXzdSaqBrW6Btd9x/rcge7bpjbkne0nN9zez2QeW/86/eNbU5cSwYcVq4TaKwrrQtnrZFyYGajE1Iom5MWAcm3jfrhrw0QK75jj+/3el6H4Kh/dHSnND8StxsVcczmZv7VgjLDDna/9xARDNw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j3JzG1tYXz30Vv;
+	Tue, 13 Oct 2026 01:01:14 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=185.125.188.123
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791813674;
+	cv=none; b=eIL+5NpiRdFpIz5rZYDGRZ0iQZRA7UOSZvySck2weNL5lvjvmzdXKez/RK/LvLedyehdEB0c9aCrMOWuaNuMWOXtxJoFhc7lDKZyZOGmzPkkl3eLhKKmirSRJuCWW0kDAA8O5MvDgvso77K27S95aYdFCdWtQZ8dOf6xwW75OhgbhYBvq34aJ6prPWYeg7qe/uk6uyepSs+XjFGFds9Iy6+xQnp9oo0+8I8iEoKyH3IhUseKgTCGOhpYSkBsomXMdkVTQ/GF7geSbHkbivddwsTHncLCI3+/U2ZTwxgSPJFGnUVHGjAOoqPR42j2AI6qjN8sQ3TLVlqzNrweQjclAQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791813671; c=relaxed/relaxed;
-	bh=afzLNemZ9BnwP+jnhUnGmD8FCTofIYCNqHjd+AROSF8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BeR0+GFrBJEImd4qpddoq1oAub6eyaT1ySkNdhBjUJX1+I0vzxkOt82J4Nb8JzyrY6lvNjnewjVBM/SuRrASxe/R+yE6UjnL1xsAhhGdsneJm56tgcg9HRebmxMYpgY2/2jCocDv2w5gutaaxFVQuF9sqg94dGwkpBRWWArE2gmoypHHhFLGiAPOWFRPnNHflKSCmmIFSjmJzhaLsrMeQi4e6KuADr99Hgv3FSjeAbeEh+M85IyvzMh4RWbqjfG4T00e1sAewgiOqBdS7BNcIZVRjJTsoxp7Hv+vZ/k7Y1zWZkDViJ8E0gcyUQ2YT5ilgJMuYZV/z8X4DfZHzPHeSg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=HH4pJdLW; dkim-atps=neutral; spf=pass (client-ip=185.125.188.122; helo=smtp-relay-internal-0.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org) smtp.mailfrom=canonical.com
+	t=1791813674; c=relaxed/relaxed;
+	bh=kuOaJLmxnY7yoVsV4vEGIpHLhEj34y0iyvEaELuk1CE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MBDbVXVN+gwQ2SCNjTpUBvIVCqHK2/QKeSBsqLPHxiCYczV5igRd7L0k/p08CGqLU/6Dr+WhtKVzxGDNQ1BT9IrI7x+ocajYCTKOmkrKs0UUCAXbEK4o1P83loShn+p2whADechxZ6w9M40fTWdI9eSKVDla1rsXjcRu3PyvNSiplO0lgESrzPtfKAZztC2e/VA1+BUP8UnNLSjCcgR2Tn9CVI/7SYvSVZt2Bk5I2oeXTvc5dRTBgcfrLkE2gq4UWY6dRA0C8LJbrQCZCxt+9g0kbiBxtsALWfusoCHPADfsZtgl723LTVSmCBHN1KKw8dnf9233zJ+oanwSUPHJ1w==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=canonical.com; dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=jJInrhOM; dkim-atps=neutral; spf=pass (client-ip=185.125.188.123; helo=smtp-relay-internal-1.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org) smtp.mailfrom=canonical.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=canonical.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=HH4pJdLW;
+	dkim=pass (4096-bit key; unprotected) header.d=canonical.com header.i=@canonical.com header.a=rsa-sha256 header.s=20251003 header.b=jJInrhOM;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=canonical.com (client-ip=185.125.188.122; helo=smtp-relay-internal-0.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org)
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=canonical.com (client-ip=185.125.188.123; helo=smtp-relay-internal-1.canonical.com; envelope-from=heinrich.schuchardt@canonical.com; receiver=lists.ozlabs.org)
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3Jz93y5qz30VV
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 01:01:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3JzF3lDHz30VV
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 01:01:13 +1100 (AEDT)
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com [209.85.128.71])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 6B2FA3F1F9
-	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 14:01:03 +0000 (UTC)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 70DA43F13F
+	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 14:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20251003; t=1791813663;
-	bh=afzLNemZ9BnwP+jnhUnGmD8FCTofIYCNqHjd+AROSF8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version;
-	b=HH4pJdLWiX++qnqv6I58DSK7BCED+CbO3y8g0tTRqiEdmNlEV/hZoxpSmApLTBimi
-	 AsToNG9HY5arAYOesgRBLNtRmv+bjZsujrCkFpBxftZG/ExFjR6SIqTm7qScSBzoNr
-	 ju1EvRd/X2pCFMd1BJvSOKGnbX7Pssr9GuFHCKYJ+hvrTaB+bOcgZjrhEuCS012/eJ
-	 y2Y4HS3Iq2uywiGKMmJHFphEKpg7pVu/lXZr6HNvBG4Ae+1B5D3Ainbly3pRmBg/N7
-	 MgdrnnNhqzVJOUzpNvjU0RTabNcngvoYRH8algsjknplIcG0P2CVQye8VRdj2Z9/rc
-	 s71bTIQRoljnk0qWj87x7h86B5qpJgUN4uPsqQq3BkUSGs70wW7yqvSjRVk9dX+rrv
-	 A0fYMRojG+edEpgO8I1nWQuOz7BXESRE2u/nPfz09WErV6096ZnH1cAHPTMhFeOfCg
-	 +jWUUdeglhAnxf9I5jAzq++5BbXxi+z/Blpj/9+6yCt3JsRrI5OaMPamuAGNG3VQyM
-	 ghqln3TZ9GK1HX1OfiQRxdzs7lvjfJoYh2U/5BkDpolRHeNQ5/yJZ3ZQp5QRq26pm/
-	 KIuzwGFGoKxO6lAUQwy5NpgUCHGjNtdy4eg2QWPNVeGn/yw2cw8Risb+yWeBVWwqVZ
-	 VaeZ5XQDKwBLpRH2ls1TTA/Q=
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4a020cf06c3so10413615e9.3
-        for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 07:01:03 -0700 (PDT)
+	s=20251003; t=1791813669;
+	bh=kuOaJLmxnY7yoVsV4vEGIpHLhEj34y0iyvEaELuk1CE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+	b=jJInrhOMBhoPqZJomyjM5Z4s2YI5fIQrWi64tQM5e36ZSxkKV1y2wd3wqyr523/mq
+	 ZstC4d70ouK8lXPBVjknP7vpkrjPLRXUj67u7p1zSZITUr5n76r5c2SAMc2Rc8yUYI
+	 hBiCwnbWNOx3Oph/gEE1atv0w0SY5KWUS2J1jmsbrcP04z1NVbyyNS82O4KpnUw0C/
+	 jFxQ+lHpEgt1wmBqnw6tHgjtYhNnuHM4qIdZy0EOD19aYPIb/FZc/Irb5K03HtdmJM
+	 pD12/F93WXX8NzbxNB+VsCgRa2atvz2wAKH98RJzOrRU018sT3Zzdmqi1+xsXIf4Zj
+	 lkUpW0kFrPjdSbX2rZ1k2As/Z8UTAKugezDkQaZu31veOQv/O9G/C3AyMNigNleG2C
+	 WA5PFmC5WeB439GdVRFaiYzulIvIghVSgFdWx8M0sMWYxZ9b+mfwdcCuVHfE7eHUcI
+	 7caQQv4cvkkBPmKUlMt5vEnibxE+CEylC0DZK9GqJsD8bsb+GFAsmemw5W7bc8GCxB
+	 Ynt/B1fXXgAZA9zlv5ovqQQBexLpxKBAUv588ZNtY0zIc23oi6PsP/Z5g8Wuis+wGH
+	 6CeTlmbw2pUZmR+6Jt8tOUSKW0R96ZhDEAvswbEnuaneUak2970YzV6n9/wuSPcfUQ
+	 J0qv7VSKrTCUzu47hm6J4sL0=
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4a17c024b89so18539115e9.1
+        for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 07:01:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791813663; x=1792418463;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=afzLNemZ9BnwP+jnhUnGmD8FCTofIYCNqHjd+AROSF8=;
-        b=yqGdOKRNOm7c8xr8+HBMccmoyUOUwLoKoC0MoIwOChbgm8ZtmV1lFA6nPbOYl0KP3Y
-         68FtOHtKifm0ZfYQUA/dDo+jS5xowYf61SIBqL64oalcYyE+g/BPdthpe0WaeP0N2msy
-         ZiOlz9p3hwg7vpUdScu6x85beyAEKoVLBzktytDbDU2pswnmlgrK8sPs9UjoEXyAkMPd
-         PdmSsVaTHzxz61Td+2knRLQKj7sdz7FHUryPh4uHFkTottBddlYKLc7zLxc43t6PkWvM
-         wnl8rGrNswaBRqcLVs1jJSOp8uCo8jXHVBfgsk0/jYawbtDMB4v4CoFlX2p8WbPLbeId
-         dwVQ==
-X-Forwarded-Encrypted: i=1; AKwUvByXNjpnfjMVJB6ty4/XDsot2Qx4UWlXjBL+1XfUN7qPGm6PDH+itLkIK7iuliDpvRh4yh0Hw1gor3IeQA==@lists.ozlabs.org
-X-Gm-Message-State: AFq9FYKOS0QUd/0DVq8GqhLHSIMBPdK4jKZFZ2wNzR3br5aVCntn0WLT
-	A5HoNZDeOBIT+TYKO5kakHSo6+5289MSmjZ68tx/bsjrxW9zR4OjtXvZUWTGckpAeSgQCQ2629M
-	y9dubYma+TKj9kXnDqItX5AJ0GCIso+36Xp4W6A3NU4KA8IOIPn63zApaGcaMuYDDeD4eR881tN
-	caOpPCtg==
-X-Gm-Gg: AYBFou0BtTtNdmVq6lKRbsgsZlFoxHMcdqRmQqIIwom68oLwEwafUld6PH+sfsxeog3
-	qyOALDE/srFnwPAbphw3UlN25A2aaALWjeSenZZt74T/3lTW3Dgg7xFaV0roEIwuBfnmz2YcSjv
-	SvpssZsKvmTY0H3PR52hy0QV/iopNmc7BC24nOkLwlHIBhcxqEtwBucDL6DvSdj5y2vhN/rB3LC
-	VtAHZiz4vWrhqUt+7d8im2lPUcfJ1aNBu0WIYqEu/jc+zkrHbFg+vU+qti4qjFVhEEN6rOkYo59
-	ck4hi1c7g4LDXyAd6HuANW11HAZ6s+oREdgcNNxChZHUDkYHIMfhUF1B4FIpRT+qwId1EhTyx+b
-	+gJCUJRV6RXsA435FSfGC5QXeiWj+9Br63t3aKUnQRO8Jv/i4j6UaoeA=
-X-Received: by 2002:a05:600c:3ba5:b0:4a1:70d4:c69 with SMTP id 5b1f17b1804b1-4a18e4c03bbmr210745995e9.28.1791813662882;
-        Mon, 12 Oct 2026 07:01:02 -0700 (PDT)
-X-Received: by 2002:a05:600c:3ba5:b0:4a1:70d4:c69 with SMTP id 5b1f17b1804b1-4a18e4c03bbmr210745395e9.28.1791813662399;
-        Mon, 12 Oct 2026 07:01:02 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791813669; x=1792418469;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kuOaJLmxnY7yoVsV4vEGIpHLhEj34y0iyvEaELuk1CE=;
+        b=hmUxctIxtIvLj0MfnkcV2mETpuL5WOP7oRiPMOB1VU06hl0wCKx8+sOhPBEZPmMRkl
+         z+Dcnh4MN8ilwP77H4EbZXYMThnyTQjqorTD2GlSsT7M/We4DkqC4NSx2lbPXhEnXHz5
+         iN6JGvn+iojTK4DFHPMTBeUW6uUY84jtGQIGYBDxLMbFOZ5evvQlfMfTeR2oTdnOeLCo
+         bANhSrPH/ry0w/y47a3+j02rjcCHBfRQtPRpszO2uFkm8/TCjqTVqiiSrGLLptoYGOwA
+         FCrHCSyS0hKPCObPyMPbqeVH7ka2rLIIt5hGkZFq+TLI6X9VsOC4sXiEuH4EMQRTxni7
+         VWjA==
+X-Forwarded-Encrypted: i=1; AKwUvByCk3WcHmPm4QIJjm7nCDVBGZZxCTwJVHMfBBVSiDYpcLhUJ2Hs3KhabPS+v/rBQ6MfV9cXI/NOpnS1+A==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYLzrlRZ5epFG1u4aCFAJlHTVae/HEQBraTBBgNry5J70Wy1XSuf
+	L4TQumlC9/6AREH7cG4rWKIeo2dRMgBxwmg7pS/D6W4/Yl1GZxNpQCuOrVF8f2NjXIKreqkDk5I
+	E9N9gl9XF33Q/0alH+2wIrbySM5iGwvH8SwIulmWT1OqDDp8fN1N+vGEKOL/xdqYMDFXuX0scAz
+	Y2+GDbgq4bOuR1cQ==
+X-Gm-Gg: AYBFou2Mk8oO6WLy4jrwROxKLSPNu0/QkKyyjS2qJ1dLf+RrA7fmwVazvwG9H7zq32m
+	6s9ztihMIlHUpCowow7zxfwZb1T3CRFt+eZBsvRwa69swE9Vz/lNdp4UnyDhqntMUJDoGM01q4U
+	xTROm1M45iryh/quqTxT9UORdIwNPpaTFhUM+J4k+v8sscDstlg/Lj0PZOKmStwj2fbuig4O5an
+	9FVaAbCKRktjNFNCWSkJdKvQLW11y8UenJh7DiOiixsNwMSjecDH99HhOZDJKmCOOGvmiq+fdVm
+	E0cbrfpNXyzJUyIKSQH2A7UBMkdbvWsOMIkq4KrnrjFUHzr+2oxBYDjYrisY4H7sT0ZaSOlAtS3
+	MO7Bn+EXpioYhfHdIdz8s6bs0RdvT61jiiNPBR/zx4pgt2d96vPsqtJA=
+X-Received: by 2002:a05:600d:6413:10b0:4a1:88d7:4e6a with SMTP id 5b1f17b1804b1-4a19470eccamr88701545e9.27.1791813668878;
+        Mon, 12 Oct 2026 07:01:08 -0700 (PDT)
+X-Received: by 2002:a05:600d:6413:10b0:4a1:88d7:4e6a with SMTP id 5b1f17b1804b1-4a19470eccamr88700855e9.27.1791813668274;
+        Mon, 12 Oct 2026 07:01:08 -0700 (PDT)
 Received: from workstation5 ([2a02:908:1242:30e0:468d:767c:32e6:22fa])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18bf15691sm284551015e9.6.2026.10.12.07.00.59
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18bf15691sm284551015e9.6.2026.10.12.07.01.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 07:01:00 -0700 (PDT)
+        Mon, 12 Oct 2026 07:01:07 -0700 (PDT)
 From: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 To: Tom Rini <trini@konsulko.com>
 Cc: Simon Glass <sjg@chromium.org>,
@@ -95,10 +97,12 @@ Cc: Simon Glass <sjg@chromium.org>,
 	u-boot@lists.u-boot-project.org,
 	linux-erofs@lists.ozlabs.org,
 	Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
-Subject: [PATCH 0/9] fs: improve change date handling
-Date: Mon, 12 Oct 2026 16:00:39 +0200
-Message-ID: <20261012140048.214059-1-heinrich.schuchardt@canonical.com>
+Subject: [PATCH 1/9] fs: move struct fstype_info definition to top of file
+Date: Mon, 12 Oct 2026 16:00:40 +0200
+Message-ID: <20261012140048.214059-2-heinrich.schuchardt@canonical.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261012140048.214059-1-heinrich.schuchardt@canonical.com>
+References: <20261012140048.214059-1-heinrich.schuchardt@canonical.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -112,31 +116,117 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-* Let the ls command print the change date for FAT and ext4 files.
-* Correctly update the change date when writing ext4 files.
-* Adjust tests.
+Structure definitions should precede code using them.
 
-Heinrich Schuchardt (9):
-  fs: move struct fstype_info definition to top of file
-  fs: print change date in directory listing for FAT
-  fs: ext4: print change date in directory listing
-  fs: ext4: don't read time fields in XPL
-  fs: ext4: set inode timestamps on write
-  test: Probe RTC early in dm_test_host()
-  test: fs: allow optional date field in ls output assertion
-  test: env: allow optional date field in ls output assertion
-  test: test_erofs: adjust expected ls output
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+---
+ fs/fs.c | 86 ++++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 43 insertions(+), 43 deletions(-)
 
- fs/ext4/ext4_write.c                |  45 +++++++++-
- fs/ext4/ext4fs.c                    |   8 +-
- fs/fat/fat.c                        |   2 +-
- fs/fs.c                             | 127 ++++++++++++++++++----------
- test/dm/host.c                      |  13 +++
- test/py/tests/test_env.py           |   2 +-
- test/py/tests/test_fs/test_basic.py |   4 +-
- test/py/tests/test_fs/test_erofs.py |   8 +-
- 8 files changed, 150 insertions(+), 59 deletions(-)
-
+diff --git a/fs/fs.c b/fs/fs.c
+index b18ccec8cb4..b647b1cc103 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -39,6 +39,49 @@ static int fs_dev_part;
+ static struct disk_partition fs_partition;
+ static int fs_type = FS_TYPE_ANY;
+ 
++struct fstype_info {
++	int fstype;
++	char *name;
++	/*
++	 * Is it legal to pass NULL as .probe()'s  fs_dev_desc parameter? This
++	 * should be false in most cases. For "virtual" filesystems which
++	 * aren't based on a U-Boot block device (e.g. sandbox), this can be
++	 * set to true. This should also be true for the dummy entry at the end
++	 * of fstypes[], since that is essentially a "virtual" (non-existent)
++	 * filesystem.
++	 */
++	bool null_dev_desc_ok;
++	int (*probe)(struct blk_desc *fs_dev_desc,
++		     struct disk_partition *fs_partition);
++	int (*ls)(const char *dirname);
++	int (*exists)(const char *filename);
++	int (*size)(const char *filename, loff_t *size);
++	int (*read)(const char *filename, void *buf, loff_t offset,
++		    loff_t len, loff_t *actread);
++	int (*write)(const char *filename, void *buf, loff_t offset,
++		     loff_t len, loff_t *actwrite);
++	void (*close)(void);
++	int (*uuid)(char *uuid_str);
++	/*
++	 * Open a directory stream.  On success return 0 and directory
++	 * stream pointer via 'dirsp'.  On error, return -errno.  See
++	 * fs_opendir().
++	 */
++	int (*opendir)(const char *filename, struct fs_dir_stream **dirsp);
++	/*
++	 * Read next entry from directory stream.  On success return 0
++	 * and directory entry pointer via 'dentp'.  On error return
++	 * -errno.  See fs_readdir().
++	 */
++	int (*readdir)(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
++	/* see fs_closedir() */
++	void (*closedir)(struct fs_dir_stream *dirs);
++	int (*unlink)(const char *filename);
++	int (*mkdir)(const char *dirname);
++	int (*ln)(const char *filename, const char *target);
++	int (*rename)(const char *old_path, const char *new_path);
++};
++
+ void fs_set_type(int type)
+ {
+ 	fs_type = type;
+@@ -148,49 +191,6 @@ static inline int fs_rename_unsupported(const char *old_path,
+ 	return -1;
+ }
+ 
+-struct fstype_info {
+-	int fstype;
+-	char *name;
+-	/*
+-	 * Is it legal to pass NULL as .probe()'s  fs_dev_desc parameter? This
+-	 * should be false in most cases. For "virtual" filesystems which
+-	 * aren't based on a U-Boot block device (e.g. sandbox), this can be
+-	 * set to true. This should also be true for the dummy entry at the end
+-	 * of fstypes[], since that is essentially a "virtual" (non-existent)
+-	 * filesystem.
+-	 */
+-	bool null_dev_desc_ok;
+-	int (*probe)(struct blk_desc *fs_dev_desc,
+-		     struct disk_partition *fs_partition);
+-	int (*ls)(const char *dirname);
+-	int (*exists)(const char *filename);
+-	int (*size)(const char *filename, loff_t *size);
+-	int (*read)(const char *filename, void *buf, loff_t offset,
+-		    loff_t len, loff_t *actread);
+-	int (*write)(const char *filename, void *buf, loff_t offset,
+-		     loff_t len, loff_t *actwrite);
+-	void (*close)(void);
+-	int (*uuid)(char *uuid_str);
+-	/*
+-	 * Open a directory stream.  On success return 0 and directory
+-	 * stream pointer via 'dirsp'.  On error, return -errno.  See
+-	 * fs_opendir().
+-	 */
+-	int (*opendir)(const char *filename, struct fs_dir_stream **dirsp);
+-	/*
+-	 * Read next entry from directory stream.  On success return 0
+-	 * and directory entry pointer via 'dentp'.  On error return
+-	 * -errno.  See fs_readdir().
+-	 */
+-	int (*readdir)(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+-	/* see fs_closedir() */
+-	void (*closedir)(struct fs_dir_stream *dirs);
+-	int (*unlink)(const char *filename);
+-	int (*mkdir)(const char *dirname);
+-	int (*ln)(const char *filename, const char *target);
+-	int (*rename)(const char *old_path, const char *new_path);
+-};
+-
+ static struct fstype_info fstypes[] = {
+ #if CONFIG_IS_ENABLED(FS_FAT)
+ 	{
 -- 
 2.55.0
 
