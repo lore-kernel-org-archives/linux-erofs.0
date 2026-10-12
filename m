@@ -1,51 +1,65 @@
-Return-Path: <linux-erofs+bounces-4691-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4692-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2DFB9CA9EC5
-	for <linux-erofs@archiver.kernel.org>; Sat, 10 Oct 2026 23:44:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CECFCA9ED1
+	for <linux-erofs@archiver.kernel.org>; Mon, 12 Oct 2026 10:48:46 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j2L1M1RQHz30gC;
-	Sun, 11 Oct 2026 10:44:39 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791675879;
-	cv=none; b=Y6/zmuKB8Fmkt6FVlPj3kKIyH6vNGLSU/5mSvrnicJ0sRPE2qb3vdoJmvVd2vmtTxEgn3SfkhDqMfiNzyEx2sSDdWLzZY94yHi/iYudiwtsA/wx0UiHvcAo8HxjpsCM+JfXdvuWAAdYKSq+P+BrUt2WQVDg2sx/F2uGW1qwfXEds6DRYun65mm6l8yY4PxpVJqVznLxjYEmo4MTHn/H/NKjYex8XpObLuF56rXfgvND5fFgf7pUovdU3+Son3+PcG/5bYuWgzTqztGgQ7SvKo0W0hCcJvrtv4J8qn+ItW7Ub/4bfEVtsMveps8Be1xTwA8Rks4/8o5BUkrmt5fFeQg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j3Dj85qwCz2yPR;
+	Mon, 12 Oct 2026 21:48:44 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791802124;
+	cv=none; b=Kme1JwZUYUezTY7S2hyg/kAX0n6IZmwcTuWSx5wg+20pUC19cAmxFJ5jaYSd9R3ZqTJqIUQGxrf96gJlt/SD1DtGi7QKsJGPB4ZkGy4iZ7lH6ZYqGDDyJzx30YXUfTZ6bk4rqIAo6zRwHzpMqeYlsneyPMyVJ36w82/zWrArgrTHFr7teoWeVqYfxaKigoezEOM3uGl6byxvjY6B90E/51Xga9VWBkkkWoTVzC5SfFO+yDaDEt/fJeclyb/tNl5FAyukwXnIz75AYgsO8yOXAVR5g9XTHkvOhE1cnMVhWr6gy4rg9FJD26gdh7SHxyV6ZYuRcytmpHCqVlnzHeQGEQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791675879; c=relaxed/relaxed;
-	bh=eeRFFWYz3sJFveuLFv6B8qZclKQNU1SgYyPsR1Nr5ro=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=BljdiOMzEPPLPeaNQlzf3nZD5P79yWYfA+BDLmvQmu+a6c821fzNGfagpWX9T/UotKLRDxZLRVSvBAOyK0iamghe33l3ElTS3aKHXZWcDuTuJ91vjWoa8RLyZt7ILbp5UHkPlQ3dbx79uIK3Xas46yD5s5MEPBi3oIHC7CsNh5Qw6qXjkhRCWaqBkk1HxOof9IniupmfE59isiLosotH0lYXpei1dE3tW8iARKvK+WcnF4/6JnBrtwfN5xg1R+pPFqs72yUID3yIu0e2jUPoJJAQCsG78N2eWvaKX/IFxhL2iJj++0rPIppi41iVX7jgyVj790yMVjJQtveq2KCVgA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IXLQ/Jp8; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1791802124; c=relaxed/relaxed;
+	bh=86dla+81F3suTOLS52ok6cqcU2G1FZrSK0sW+VFXWFk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=k+fO+qt8BNSJhiwHqNZcLT6DR+jaYBaCZP84tJyqSK3sh9KmTc/dcssHrhsZz71LRnw3yfWSTIFsVyAfLNN6UnuCPO7y20KKu2ksN8V4QNrAymtpFhr8PiPGSj1NvZ24d06AgSFLJfANWyeBLiljMbNsfd+n1G/X1iv0jmeXEP9szGqt5okp5UvrKGag1HI6cf5TRUgQqXxrOQXQ9FoCkixQp/u7TOWXJZtMoVEN9fSidJLJByjkSlbFO03HVZemq+Qi8Z8sPr2izXI2kWKZp+cAmZ0cgD3ZZBupSe4pBSK8HmghM8Su2fpYcZ2/njHYaAlSoZvt9rzCqVuhWzutYQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T7yEkkwM; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IXLQ/Jp8;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T7yEkkwM;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j2L1L07qvz2yNj
-	for <linux-erofs@lists.ozlabs.org>; Sun, 11 Oct 2026 10:44:37 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3Dj76hftz2xwP
+	for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 21:48:43 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 4290C600AA
-	for <linux-erofs@lists.ozlabs.org>; Sat, 10 Oct 2026 23:44:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E181F000FF;
-	Sat, 10 Oct 2026 23:44:32 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id 1813640F06;
+	Mon, 12 Oct 2026 10:48:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C54891F0089B;
+	Mon, 12 Oct 2026 10:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791675873;
-	bh=eeRFFWYz3sJFveuLFv6B8qZclKQNU1SgYyPsR1Nr5ro=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To;
-	b=IXLQ/Jp8w9X6Z47qQisiQ7S4MYxB/bdFsz5yyg3fAAX+aCMKlqucqz8lkb3+bJVv1
-	 HTaijcfrWyaj8fv5twf60mcdnJpM3wOVybjcBz6SpnCWq7rRDCltSRrd7hzy4zwJ2M
-	 41aQ5xZUfdB8jA+L/jqqk3yPkHiCDWh9SOhrMzsbFqhrVEthIaDkxAWGG6iTJWdlC8
-	 Wtt54yB4oo94OHtd26q/aNiZZc9iMAf1vxEQ1w3K9j2vb6HpERzckWfrzNMnAS1yMU
-	 /hYUFO6Cf14zj1Sdk1LwSgaEHD6lqMyLdJl616Hk4N/zF5+guJHJk7RYwXM/hsB/QY
-	 kumnqpPi9szpw==
-Message-ID: <0b7f00ae-29ca-48e4-83f8-eec0213e3535@kernel.org>
-Date: Sun, 11 Oct 2026 07:44:31 +0800
+	s=k20260515; t=1791802121;
+	bh=86dla+81F3suTOLS52ok6cqcU2G1FZrSK0sW+VFXWFk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=T7yEkkwMSiReMceqyGA3nhecrnbDPlVSdz19p92FWrl2iftSzKqoxvi0qM9gmkwSb
+	 0UunS9J28l9AZmxCipppAqaIykx/jJxI2cWqIod+Jcoz2/KaLQo80JfFY/MbfYPy6N
+	 MDKEp2WcpbeSqWZ5DZ7PuHhiWH71k9v45FBVoVvRtXSk57ZDC3KEqu1nI6VUOxmeE2
+	 O0axRlQEX2foTPnE20oXleoxS836XP88nfO+2753ZnL4P0wXDjSs5PXIylk39AD9tb
+	 dqLQCsNKgMa1/sS3oVdqqU2L+TmmdivcTMAWz4nHGC80gCn/nZvvSgAdmFj4b1+aIT
+	 qIV9+DwK1jpYg==
+From: Christian Brauner <brauner@kernel.org>
+To: linux-erofs@lists.ozlabs.org,
+	Giuseppe Scrivano <giuseppe@scrivano.org>
+Cc: Christian Brauner <brauner@kernel.org>,
+	xiang@kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	amir73il@gmail.com,
+	viro@zeniv.linux.org.uk,
+	jack@suse.cz,
+	hch@infradead.org
+Subject: Re: (subset) [PATCH v7 0/2] erofs: share the superblock for file-backed mounts
+Date: Mon, 12 Oct 2026 12:48:33 +0200
+Message-ID: <20261012-inkubationszeit-hierher-pferde-402d3192f67b@brauner>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261002163225.1258203-1-giuseppe@scrivano.org>
+References: <20261002163225.1258203-1-giuseppe@scrivano.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,55 +71,36 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MAINTAINERS: erofs: add dev branch to git tree entry
-To: xiang@kernel.org
-References: <20261010070623.1766952-1-chao@kernel.org>
- <asqt-vM6LOPyqz_p@XiangdeMacBook-Pro.local>
-Content-Language: en-US
-From: Chao Yu <chao@kernel.org>
-In-Reply-To: <asqt-vM6LOPyqz_p@XiangdeMacBook-Pro.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1428; i=brauner@kernel.org; h=from:subject:message-id; bh=MYSPzdGHvAq1WootgbulOFD95hAFP42k6oZCW9G+8b8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWSd2c28cp4Nk/kF940plT7Hb8+NXfH7tcG/XyoMVqWfr toY3Hdw6ShlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZiIymaG/w7a69eZTzn3nX1y qTZ31Radya+MBLIFfqzmfa2/iivAq5zhf8Gq2hW8a0S/Nq6dcFrq/cFs5wnJV53XijV53ln2+eT KtdwA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 
-On 10/11/26 05:28, Gao Xiang wrote:
-> On Sat, Oct 10, 2026 at 03:06:23PM +0800, Chao Yu wrote:
->> From: Chao Yu <chao@kernel.org>
->>
->> The EROFS entry lists the git tree without a branch, so tools that
->> derive a baseline from MAINTAINERS, e.g. sashiko, fall back to the
->> remote HEAD, which points to master. master only moves at -rc1, so
->> series developed against the dev branch fail to apply there.
->>
->> Name the dev branch explicitly, where erofs patches are queued.
->>
->> Signed-off-by: Chao Yu <chao@kernel.org>
+On Fri, 02 Oct 2026 18:31:42 +0200, Giuseppe Scrivano wrote:
+> v6: https://lore.kernel.org/linux-fsdevel/20260812142907.1010046-1-gscrivan@redhat.com/
+> v5: https://lore.kernel.org/linux-fsdevel/20260811071241.389589-1-gscrivan@redhat.com/
+> v4: https://lore.kernel.org/linux-fsdevel/20260804060455.2928514-1-gscrivan@redhat.com/
+> v3: https://lore.kernel.org/linux-fsdevel/20260801075446.2508805-1-gscrivan@redhat.com/
+> v2: https://lore.kernel.org/linux-fsdevel/20260731160901.2276832-1-gscrivan@redhat.com/
+> v1: https://lore.kernel.org/linux-fsdevel/20260730124120.1501126-1-gscrivan@redhat.com/
 > 
-> Acked-by: Gao Xiang <xiang@kernel.org>
-> 
-> 
-> Hi Chao,
-> 
-> BTW, could we request sashiko folks adding erofs mailing list
-> to their review list as well?
-> 
-> Since some patch could not Cc LKML or fsdevel, but I guess
-> we need them to be reviewed by sashiko too.
+> [...]
 
-Xiang,
+Applied to the vfs-7.4.shared.super branch of the vfs/vfs.git tree.
+Patches in the vfs-7.4.shared.super branch should appear in linux-next soon.
 
-Agreed, let me submit a patch for erofs.
+Please report any outstanding bugs that were missed during review in a
+new review to the original patch series allowing us to drop it.
 
-Note that by default it's mute (it won't reply review comment back to anyone), so
-author or reviewer needs to check comments from sashiko in its UI (https://sashiko.dev/),
-but we can change the config if we want to receive review email from sashiko.
+It's encouraged to provide Acked-bys and Reviewed-bys even though the
+patch has now been applied. If possible patch trailers will be updated.
 
-Thanks,
+Note that commit hashes shown below are subject to change due to rebase,
+trailer updates or similar. If in doubt, please check the listed branch.
 
-> 
-> Thanks,
-> Gao Xiang
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
+branch: vfs-7.4.shared.super
 
+[1/2] fs: rename vfs_get_super() to get_tree_super() and export it
+      https://git.kernel.org/vfs/vfs/c/64571ba65816
 
