@@ -1,76 +1,82 @@
-Return-Path: <linux-erofs+bounces-4726-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4727-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0CAACCC6B03
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 08:16:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76319CA9ED2
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 08:35:34 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j3nHD2MBlz30VM;
-	Tue, 13 Oct 2026 19:16:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791879400;
-	cv=none; b=K0RrQroKnAddipaHct224KENBD/EUjSYaazcpRMH6Ar+ZltscnfYaM1c8lQPhdQ40aKAYXqd0u4pLEQuc4VXDm572M8DjbNYiC/APkAzoX8wwF1vgCCuDRC45YJo649XbGRj94tSNDg+o3a+2unaVfzwNC9AgKzvWsR3oOTIqM4GOaB+LlSJJuG/4fCYHVkjeVSllgckt316w84/jJlvJ2xalC4GTnylXwMRN72+6XQKRpClccrdz4YkCrGE8Xe8eNEbvghRPQUfbBsFbPhgTSb2z/wAI0/qwXZJqT5TK04wlT6f+4QxerolSjjHoyBNtSFxewuXXo6sF9sxM61otw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j3nj05kx4z3bqh;
+	Tue, 13 Oct 2026 19:35:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::630"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791880532;
+	cv=none; b=iC3NudhOTQDHG3nhpNoktR7Wz503FI3Jjbdpao9HeXrvcUgpDnxKECArrAkLREUmJb8L/fEEz7JEWQsWbXk/VoBZ/WJJ0acArUKFY25hbIujo3lgnPUjlowdOs2gYhMeYky/R2Z1puuuIG0UNW5SC2ILyaUTL8x5oj9TNE++BY3f04jtI5eJRD0cvF3rWiw1iFmtWZ0zx8+BZy1BQst2N193zDCMdQis2Cln8f7LjKPXPT1Rf96oYyXU6EdMOVP1nj50lEaL87B+m1OX07B9GfkDlJN8MLWPmiWn7zH/OkS7dcFeAH0UTJxSfJfD3pFha/RfmEVKab/3pWA21O1uLA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791879400; c=relaxed/relaxed;
-	bh=10xqpOPjo9d02qrdR+y1QjD6wm0apoWOTLYxCcvp86U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TWa7tRgCZ11qDzhdqOAIM9n4F/o8EPHsmJhF0RlTbSlqoH0ugZyLj27Ib/ru3EsOzbQa+tzhATCtLsFG53nyISb17O3qAW5jdo01+EfknRACmzygUpbjr+6aInMsDSJ+t9xfFW2UY7ewo+N1NgwCi3AbgemsHb4wB+69qMr0nqZVX0YQvhA3Tk3qcODYPvX95wsxj9NWrXXawmNwZBTDBNV61ygN3yIzazu2KsOwzhnPal8nIQAkQ8ZN05VF5Uqy+BwaQfpM8LoxcyaKXhQ5Um9pOQgX7ssDpExRmjh0f0I3YjZze24Zriz/zNeyIz+u/jPgEM+qzGqDub0Wh8BzHg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AqDbgD7R; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1791880532; c=relaxed/relaxed;
+	bh=sLU/3bwE6c2wqlZD7EqyDF4UZUsoHZIKWfxxEhj/K04=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KPTXeBpgofetFKNNOaStO0ycl5LWvD5i2HUKicKnniuhvfnW1ZU9bShwirKN0SUmhPbEL5k/0KByp7yQrAUR1ZELW/bWYbTiO3Ez9i1ryT459gqySaUpMIUqDD0pILQ13vssyYvg27IjeH4wE0vOnmxGtCnAiTEpFt1bKjvTJXWVWmd48fampaCZs6bRuaQp3HTqDsbJGTzodzD9YotnUPh26RZqfKn2SMn5/Mcnz7wtMvdH9+PtywtU1XRWTepPh5fu0dAisjlB/jO8QEN0IuG/RQ8w0dbE4hTe5qT14hem1HpNRcRCOocbrwuakpL+LUgv9RwDl0LYEXT5iESr5A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ryP8acTh; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::630; helo=mail-pl1-x630.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AqDbgD7R;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ryP8acTh;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::630; helo=mail-pl1-x630.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3nHC2gfSz2yLY
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 19:16:39 +1100 (AEDT)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id D94B460A66;
-	Tue, 13 Oct 2026 08:16:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A69301F000FF;
-	Tue, 13 Oct 2026 08:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791879396;
-	bh=10xqpOPjo9d02qrdR+y1QjD6wm0apoWOTLYxCcvp86U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=AqDbgD7RPDZnA8yWlYoCzTaFRLOEfIfXzuIMKlCL0epBr0Q3gbAfflTnYwIztLzRJ
-	 1GIASb+SV5fm+Wt6MXY0BlSjWTWYgCjYU6cR5YuG0eJyHI69gxSY70lyorCsP211Xx
-	 4ut57CQ/1zfAAnpUaD51OQclSZdWPg5JoTu35UR5W2wJc6escRvVEKOJwduD/6jILN
-	 ldUfK5O6TW3PM6fj3iL/ZkdIjm31vtT9H7502xcv3vCGKHJihsf9p7e1XMCwMX8bJh
-	 ide58ONFM3JIvdrsvoZbUry/Ff2H9kJrzppM1DZBNC88QSLZfn4gGrjOW0TL1fDahr
-	 PuPREpWrFOp7Q==
-Date: Tue, 13 Oct 2026 10:16:29 +0200
-From: Gao Xiang <xiang@kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-	stable-commits@vger.kernel.org, xiang@kernel.org,
-	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
-	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>, linux-erofs@lists.ozlabs.org
-Subject: Re: Patch "erofs: remove fscache backend entirely" has been added to
- the 6.18-stable tree
-Message-ID: <as3o3Q8X-2gK2HyF@XiangdeMacBook-Pro.local>
-Mail-Followup-To: Greg KH <greg@kroah.com>, stable@vger.kernel.org,
-	Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
-	xiang@kernel.org, Chao Yu <chao@kernel.org>,
-	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Hongbo Li <hongbohbli@tencent.com>,
-	Chunhai Guo <guochunhai@vivo.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>, linux-erofs@lists.ozlabs.org
-References: <20261013020044.2527207-1-sashal@kernel.org>
- <as3drCZLoTUPS_oC@XiangdeMacBook-Pro.local>
- <2026101352-subtract-deflector-a77b@gregkh>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3nhz1Jyfz3bgK
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 19:35:29 +1100 (AEDT)
+Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-2e623eda81cso15661345ad.0
+        for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 01:35:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791880527; x=1792485327; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sLU/3bwE6c2wqlZD7EqyDF4UZUsoHZIKWfxxEhj/K04=;
+        b=ryP8acThM37UsrtZDk9plfasL8+mF/hYY8v9KfIutj1o/LPmSCfGVBlLynt6LKkHV1
+         peYr/sjL5AchXvtmXRsQuiPuvEMqhWSa3EzNZsjjXhGOSIKJkfkfSmRFsxVK6q0Ll4X8
+         F15OYmZeazmR+8Z0Z03ShVtQkw/55O2cIM0vPoH+cxFLvJUobiyuNKYfilXe7mb9eQ/X
+         /lPZIsuujlpAfcmwGL9m2m3kKnzlDx5p/DOuhxlr446sXfnpGSvNAH9Vj7zvleAxSeso
+         KqvZJdFlxTXZ5gPKSO2rO76i1rXGHBBrnwSCUBMKo8gXmUm28vAQrerzCshGsuU9JWa5
+         l9Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791880527; x=1792485327;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sLU/3bwE6c2wqlZD7EqyDF4UZUsoHZIKWfxxEhj/K04=;
+        b=zGgMEb88hw34+kEIErj8oC53G0AIhiPDMQTzig52AxGxAWYDG64cegNpIK0xavJXxs
+         g5YJt/BzF5Hpiq0oYfWQwD3LACmt2Tknep2BvSnb77MQACp/QV8Bkjpa9OG0IZj99R7Z
+         7yytmQwCOJdAffKNg5vGqlGDCFvr685Gze/FUEdBh3ATiNulVpri2eD1OGD4TYgalRGF
+         cx6mHKCj15b3T3LGBjiivzkkQaJQyH0pUIajqJzHRZJHjtonw9tz0zbvm90PbQeTq7On
+         uI0utJPpJTNmEow5skolD2FxQ7ZqP4VDmjaPlvYCcH0rDkTC3EjGLg9X1T848omM7SK0
+         6MoQ==
+X-Gm-Message-State: AFq9FYIAmlZId/RcqrDsrNsu+eEYjYStJwRmUfnO6/H8K1SPIxgUj0A7
+	JJr3G5tzXU7H+wULgXS0KS6cMBnc71JSiaOuhqf5YolBGalUbmPrIDD6msqhv3Gifdw=
+X-Gm-Gg: AYBFou09cc54jjgiNzJVxzeyowXCg+S2mHHifrlp8PnHtsSNTZqYsOOWUV/iknSNuoN
+	k6C6YtkDXk7kGg75MGa2EPFYocjazPCtW9z2xig9D2V268UscU6hgOqcVtWW17QehAYme6XH4wU
+	oK4G3OR0vCOnPMgzYiyuivrpUI0imL2i0JZdma2pDDQr2KB94gNDEoQ/G9ixVM4zaecKBdPyisx
+	bPy+U4Y97kbfs+zxNLzFKRc8eMf4adTbLlq2qXCS702esxpn0FpWPS5FNUqxVW4vGHx/LOFsOxC
+	BblbVIDU7DtR0toUDP59Sgceo+rrQ6k6MCHa/v0hcdxYeytb/l7CPUq4LIEVeU7y/1/bvlEDg1I
+	p7yq0xB5MKj3GfzA3Ica/Xgcur9eKTzc14YrtGvr6LlrTAtEp3DW6MRNpvvcF4T5/oFJY8EahB/
+	G1nOgVN/fWJlq2jF8+OZk9WEQjRkSubODJV+TpKBMM/XKJmdXitK1Ced3ZotVXCK8+nWEFrVzno
+	OA+NmHYzBTyhmLkLpc6YDKCGOLYVILNzSAFPRSs1/9m/Wp9ew==
+X-Received: by 2002:a17:90b:55cb:b0:3ac:403d:6239 with SMTP id 98e67ed59e1d1-3ac403d6baamr1022405a91.43.1791880526658;
+        Tue, 13 Oct 2026 01:35:26 -0700 (PDT)
+Received: from zyf-laptop.tail52ade4.ts.net ([2406:da16:fb5:6000:18dd:9662:938a:f20c])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ab36fdc75esm20669441a91.12.2026.10.13.01.35.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 01:35:26 -0700 (PDT)
+From: Yifan Zhao <stopire@gmail.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: xiang@kernel.org,
+	Yifan Zhao <stopire@gmail.com>
+Subject: [PATCH] erofs-utils: lib: fix reads for chunk-based files
+Date: Tue, 13 Oct 2026 16:35:17 +0800
+Message-ID: <20261013083517.2435363-1-stopire@gmail.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -82,59 +88,72 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <2026101352-subtract-deflector-a77b@gregkh>
+Content-Transfer-Encoding: 8bit
 
-Hi Greg,
+Use erofs_io_read() to handle chunk read errors and short reads while
+retrying EINTR without corrupting the buffer position.
 
-On Tue, Oct 13, 2026 at 09:59:58AM +0200, Greg KH wrote:
-> On Tue, Oct 13, 2026 at 09:28:44AM +0200, Gao Xiang wrote:
-> > Hi Sasha,
-> > 
-> > I'm not sure why we need to backport this into stable kernels, as there
-> > are users who use EROFS over fscache on these stable kernels.
-> > 
-> > The functionality works and it's a breaking change.  Could you please
-> > kindly tell why?
-> 
-> Why would you have a breaking change in Linus's tree?  We never break
-> existing users, so how was this ever accepted in mainline?
+Assisted-by: Codex:gpt-6-astra
+Signed-off-by: Yifan Zhao <stopire@gmail.com>
+---
+ lib/blobchunk.c | 9 ++++++---
+ lib/io.c        | 5 +++--
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
-Because the similar + better functionality "erofs over fanotify" is
-already available in the recent upstream, and it has simpler interfaces
-than "erofs over fscache.", so we don't actually break users as long
-as one of those functionalities exist ("erofs over fanotify" or
-"erofs over fscache".  Many stable kernels don't support "erofs over
-fsnotify", so backport this commit will make existing users using
-old stable kernels have no choice (no "erofs over fanotify" nor
-"erofs over fscache").
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 8f43dd0..50e4f7e 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -325,6 +325,7 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 				  erofs_off_t startoff, int device_id)
+ {
+ 	struct erofs_sb_info *sbi = inode->sbi;
++	struct erofs_vfile vf = { .fd = fd };
+ 	unsigned int chunkbits = inode->u.chunkbits;
+ 	unsigned int count, unit;
+ 	struct erofs_chunkitem *chunk, *lastch;
+@@ -332,7 +333,7 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 	erofs_off_t pos, len, chunksize, interval_start;
+ 	erofs_blk_t minextblks;
+ 	u8 *chunkdata;
+-	int ret;
++	ssize_t ret;
+ 
+ 	/* if the file is fully sparsed, use one big chunk instead */
+ 	if (lseek(fd, startoff, SEEK_DATA) < 0 && errno == ENXIO) {
+@@ -407,8 +408,10 @@ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 		}
+ 
+ 		len = min_t(u64, inode->i_size - pos, chunksize);
+-		ret = read(fd, chunkdata, len);
+-		if (ret < len) {
++		ret = erofs_io_read(&vf, chunkdata, len);
++		if (ret < 0)
++			goto err;
++		if (ret != len) {
+ 			ret = -EIO;
+ 			goto err;
+ 		}
+diff --git a/lib/io.c b/lib/io.c
+index 193b869..3333170 100644
+--- a/lib/io.c
++++ b/lib/io.c
+@@ -551,11 +551,12 @@ ssize_t erofs_io_read(struct erofs_vfile *vf, void *buf, size_t bytes)
+ 					  strerror(errno));
+ 				return -errno;
+ 			}
++			continue;
+ 		}
+ 		bytes -= ret;
+ 		i += ret;
+-        }
+-        return i;
++	}
++	return i;
+ }
+ 
+ ssize_t erofs_io_write(struct erofs_vfile *vf, void *buf, size_t len)
+-- 
+2.56.0
 
-The commit message is already described well I think. 
-
-> 
-> As this removal fixes known bugs, isn't that a good thing for those
-> older users as well?  Why would you want them to run broken systems?
-
-I think it depends on the importance of the bug, at least "erofs over
-fscache" is usable (and it's used by vendors) on stable kernels, but
-it's unneeded to address every edge case found by LLMs since I mostly
-think it doesn't impact the real use case, and as I said, we have
-a new unique interface ("erofs over fanotify") now, but only on very
-latest kernels.
-
-Also there could always be breaking changes for various reasons (e.g.
-obsolete/dispute filesystem breaking changes these years like
-bcachefs, etc), will these commits be backported to all stable kernels
-too?
-
-Thanks,
-Gao Xiang
-
-
->
-> thanks,
-> 
-> greg k-h
-> 
 
