@@ -1,65 +1,78 @@
-Return-Path: <linux-erofs+bounces-4731-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4732-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6F11CC6B03
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 11:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 40218CC6B03
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 11:30:33 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j3sPn06kyz3brV;
-	Tue, 13 Oct 2026 22:22:37 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791890556;
-	cv=none; b=W6N1oQxlkwwNYBdWfe0S4JuqujfhT5ve5Zwooh3vItUAUMCakmFklDdb8A5+69GTynt5yzD2IkywHsIBFPQ4PRyCkvNY622WH/E4/yGAU3q/VZJD32fSxUQGpyCBsvggYNvaNbCVoUUsAVHxmqhIjKu7VC16oK4KTb2aIbqFp2O0Zb4L9vk98DAuMYUCV7qteDoVylYw3Cd7ozTeLhEfZfv1EpzN0xQbcVPO383AAzCV2yNxJK1CFtEDCmUloZoTDznxkwGZHGdG7tPjRDjm3y5n51supMCxc0KD/NcIYvuL4yF/v6Ozq1v6uEHTh3KSGDjKa56PsTlFWO9J6rLMhA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j3sZv3cb1z3brc;
+	Tue, 13 Oct 2026 22:30:31 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791891031;
+	cv=none; b=DPtsSBKbodmVzNXv+5wQhvLQ6Qdj7fugKnDiM7iupcK/6KrAO1nhYDv3NW1BjZvQa5G3kHvJcf+54xUKu20AApUBHUmQMyHfbqGEeBCJrqBx3F4xULAmESCPx09Hg78WNa0w8o0EnUyRXd7qDBl16Eh/XQl0TRixBkFaGT/J2XMsAdig92A8WpzBDxIkG5uMEuESsgbkAKEe3doGRI46/N0jauMwqUf+4dfrX/I+iTZf5NDMcWkI0d+i7lt4q3n0WCOiaUo+oPNLnHDj1LpbhZ5vt5mYqZ6tTFUm2TekAWH0BFtO/9kTnX2FjLH0ktCsHnQV8IjdwnYU3PcEsPrQcA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791890556; c=relaxed/relaxed;
-	bh=mtpgXdzPgdHugzEFbyFxgZF7cgPiieuUZpPezpahctY=;
+	t=1791891031; c=relaxed/relaxed;
+	bh=AbuubQMqIWURa7xcEbVazmv8Iuf/praRkVi4La8Wohk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CqaNUNIlO+bf/1vlcMgURMK2Cj1dK4skBs+2oN+qDfB6HQZYh1wiQJcRj7a36fPPh2SOXdMH2eDitYgZDX2kTbOuVPi0xCJVcnRJ+/LWtgf8YfPLHkXP65iZjp/Br/82QflEe/E0C8yFKmwMTpjUwsm2UgUPs/DXw3ASt6YQLykSfs84aCQLGLe9KUhwO1Yd/3xD9U2hWQ7SSjoJJUTZ+h3FTWGEoNaj9qxcOctrIhKN7SJDZnv5qW5F2njI4ozWWRKkdDaVAWxJV7/vl+HO80dNxasEmjusuq4WZfusboLM9wop536A6f4B3sceQJud1WpwlSv4/KsfoLbtWXrd3A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PZpNke+k; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=SWlvjYxw4hCRUqza2ZQXl1iVYuXxY1BSpnbqHJiZXBOCuEeNuUikONK9BNKpHRDC2SCgUoMlgUuW7S9sVvvW9tumWMaxdWgrz8u/UL3CQThLDaDf/mY/fVGza5wltCkCRTsu+9YEoosND0qy3lS88b65NN4kFsuzBVEpQIHCZr5D/wbeOdDhtRYwEFMBYoYuOxDpQQzbnLhbIqSYrwM5Mu59E2AoLgddL7DQ68h0pS8I7ExQu4l5S+/wtFaiddW12YRZf6lU2nUvbX2Wngt/8pfrg2dPrzj5rfx7qFpXPHmjb2gjFjhKahnI3NrnsD7h8RcyX4DUrEnJiMWuBs2Gug==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R5hcsCUD; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PZpNke+k;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=R5hcsCUD;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3sPm2P4Kz3br2
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 22:22:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3sZt2d46z3br2
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 22:30:30 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 08B3360A5E;
-	Tue, 13 Oct 2026 11:22:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C9A1F00899;
-	Tue, 13 Oct 2026 11:22:32 +0000 (UTC)
+	by sea.source.kernel.org (Postfix) with ESMTP id D4392406B2;
+	Tue, 13 Oct 2026 11:30:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA3BE1F000FF;
+	Tue, 13 Oct 2026 11:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791890553;
-	bh=mtpgXdzPgdHugzEFbyFxgZF7cgPiieuUZpPezpahctY=;
+	s=k20260515; t=1791891026;
+	bh=AbuubQMqIWURa7xcEbVazmv8Iuf/praRkVi4La8Wohk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=PZpNke+ky9Mf0deSxyKCg4UUJbgy4KDId6WcZbWS72Gw5uU76oskxmdDSQvuFJF+Y
-	 9iXh3+rKMIjDZK1kud0aBVXddZVH0FFcHyb+KmcFJfZKeRMLkRnhM6UG9xY/G5H/kM
-	 TLPwGprXCFampSpBhxQACcJXsYhhl/+qaKTyf9qZKYl4h/G9QMolGRahO8jYj0mEXA
-	 CP2l7avckvUe4j1+tIcK3IVjRmJsD5vJ4Qo+JrNj8q9PmTzpm8CwCrQNaAV19lwF0u
-	 4dYr+ct2hiu0PYGUJFpKcguC0o3YExmBHFxMMmZ6HLipfZq42qTvZ9znoueyjfY9ta
-	 N6AK75rGaod+g==
-Date: Tue, 13 Oct 2026 13:22:28 +0200
+	b=R5hcsCUD+0eCdv9NN4nVV9gF7Adq/8hoJYhkSW0Yc7Fnrm9yKSN/5jYQXr6b3cQAQ
+	 m7b3qgWKFpAMNP1u1LPLaQomj8Iz8rQI/pu9R5HPaTQ7ezc9cEPGGBzb8f7DODKQXJ
+	 kI9lOJYOKWHo50TO0QHiPQegeVDb7zESky9eVS+ztKIfDzh+9E1W/HsNivAcY5rZ+l
+	 jlikqKQmEYRJJclxbEvivy/XhiqaTNQQkCQkj1NM2jI9rtNFQL8QP9R/wAJhs0gg11
+	 txYr7UFZ6ReXzpAGsEC/xqBl8iF9u9cS2eVNtnwBg/2aNkZGMNxJBDctaZVF/ZzJnO
+	 yKBwQy4srEcVg==
+Date: Tue, 13 Oct 2026 13:30:20 +0200
 From: Gao Xiang <xiang@kernel.org>
-To: Michael Bommarito <michael.bommarito@gmail.com>
-Cc: Gao Xiang <xiang@kernel.org>, Sasha Levin <sashal@kernel.org>,
-	stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-	linux-erofs@lists.ozlabs.org
+To: Greg KH <greg@kroah.com>
+Cc: stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+	stable-commits@vger.kernel.org, xiang@kernel.org,
+	Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Sandeep Dhavale <dhavale@google.com>,
+	Hongbo Li <hongbohbli@tencent.com>,
+	Chunhai Guo <guochunhai@vivo.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>, linux-erofs@lists.ozlabs.org
 Subject: Re: Patch "erofs: remove fscache backend entirely" has been added to
  the 6.18-stable tree
-Message-ID: <as4UdEWzIr2O_M31@MacBookPro>
-Mail-Followup-To: Michael Bommarito <michael.bommarito@gmail.com>,
-	Gao Xiang <xiang@kernel.org>, Sasha Levin <sashal@kernel.org>,
-	stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-	linux-erofs@lists.ozlabs.org
+Message-ID: <as4WTEbunXMcOIvc@MacBookPro>
+Mail-Followup-To: Greg KH <greg@kroah.com>, stable@vger.kernel.org,
+	Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+	xiang@kernel.org, Chao Yu <chao@kernel.org>,
+	Yue Hu <zbestahu@gmail.com>, Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Sandeep Dhavale <dhavale@google.com>,
+	Hongbo Li <hongbohbli@tencent.com>,
+	Chunhai Guo <guochunhai@vivo.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>, linux-erofs@lists.ozlabs.org
 References: <20261013020044.2527207-1-sashal@kernel.org>
  <as3drCZLoTUPS_oC@XiangdeMacBook-Pro.local>
- <20261013111011.2814836-1-michael.bommarito@gmail.com>
+ <2026101352-subtract-deflector-a77b@gregkh>
+ <as3o3Q8X-2gK2HyF@XiangdeMacBook-Pro.local>
+ <2026101340-upcountry-wildland-6ebf@gregkh>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -73,36 +86,76 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261013111011.2814836-1-michael.bommarito@gmail.com>
+In-Reply-To: <2026101340-upcountry-wildland-6ebf@gregkh>
 
-Hi Michael,
-
-On Tue, Oct 13, 2026 at 07:10:11AM -0400, Michael Bommarito wrote:
-> For context, the original bug I found can hit both 100% deterministic
-> local DoS and a textbook UAF on kmalloc-128 slab that requires timing,
-> but I don't think an LPE can be ruled out...
+On Tue, Oct 13, 2026 at 12:37:56PM +0200, Greg KH wrote:
+> On Tue, Oct 13, 2026 at 10:16:29AM +0200, Gao Xiang wrote:
+> > Hi Greg,
+> > 
+> > On Tue, Oct 13, 2026 at 09:59:58AM +0200, Greg KH wrote:
+> > > On Tue, Oct 13, 2026 at 09:28:44AM +0200, Gao Xiang wrote:
+> > > > Hi Sasha,
+> > > > 
+> > > > I'm not sure why we need to backport this into stable kernels, as there
+> > > > are users who use EROFS over fscache on these stable kernels.
+> > > > 
+> > > > The functionality works and it's a breaking change.  Could you please
+> > > > kindly tell why?
+> > > 
+> > > Why would you have a breaking change in Linus's tree?  We never break
+> > > existing users, so how was this ever accepted in mainline?
+> > 
+> > Because the similar + better functionality "erofs over fanotify" is
+> > already available in the recent upstream, and it has simpler interfaces
+> > than "erofs over fscache.", so we don't actually break users as long
+> > as one of those functionalities exist ("erofs over fanotify" or
+> > "erofs over fscache".  Many stable kernels don't support "erofs over
+> > fsnotify", so backport this commit will make existing users using
+> > old stable kernels have no choice (no "erofs over fanotify" nor
+> > "erofs over fscache").
+> > 
+> > The commit message is already described well I think. 
+> > 
+> > > 
+> > > As this removal fixes known bugs, isn't that a good thing for those
+> > > older users as well?  Why would you want them to run broken systems?
+> > 
+> > I think it depends on the importance of the bug, at least "erofs over
+> > fscache" is usable (and it's used by vendors) on stable kernels, but
+> > it's unneeded to address every edge case found by LLMs since I mostly
+> > think it doesn't impact the real use case, and as I said, we have
+> > a new unique interface ("erofs over fanotify") now, but only on very
+> > latest kernels.
+> > 
+> > Also there could always be breaking changes for various reasons (e.g.
+> > obsolete/dispute filesystem breaking changes these years like
+> > bcachefs, etc), will these commits be backported to all stable kernels
+> > too?
 > 
-> Since it is reachable by an ordinary read() on Nydus or others that
-> enabled ondemand in Kconfig, I think it is worth thinking about what to
-> do for all of the pre-deprecation users (even if it's just comms).
+> Sometimes, yes they are.
 > 
-> I would defer to Gao, but I sent a minimal fix in June that can
-> close the UAF without any other breaking changes.
+> But this makes sense, I'll go drop this patch now, thanks.
 
-Do you mean this one?
-https://lore.kernel.org/r/20260619135800.1594811-1-michael.bommarito@gmail.com
+Thanks, Greg.  As I said, "erofs over fscache" is still used by
+Xiaomi on old stable kernels for example:
+https://lore.kernel.org/all/20260923084823.496741-1-hwenwur@gmail.com
 
-As I requested months ago, could you please provide a reproducer first
-so I can play with your patch.
+But we prefer to use fanotify in recent kernels and it has
+a simpler and unique interface than the old one.
 
-If you provide a minimal reproducer, of course we could address this in
-the stable kernels.
+There is no need to leave two same functionality features within
+the same codebase, so we deprecated fscache two years ago, and
+removed it months before so that we could sunset the old
+interface over time.
+
+I think another similar example is XFS v4 format, The kconfig says
+that it will be removed in 2030 as well:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/xfs/Kconfig?h=v7.2#n51
 
 Thanks,
 Gao Xiang
 
 > 
-> Thanks,
-> Michael Bommarito
+> greg k-h
 > 
 
