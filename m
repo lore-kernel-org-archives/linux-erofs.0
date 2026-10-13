@@ -1,90 +1,90 @@
-Return-Path: <linux-erofs+bounces-4715-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4716-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DE10CCC6B03
-	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 03:30:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 196D3CC6B03
+	for <linux-erofs@archiver.kernel.org>; Tue, 13 Oct 2026 03:31:11 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j3fxL2gbhz30V0;
-	Tue, 13 Oct 2026 14:30:46 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2a00:1450:4864:20::533" arc.chain=google.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791862246;
-	cv=pass; b=TxMtjZderYs+hnp2UNoemxFdXrjmPVMlHMdAiRYoYcngulMc+BUfkxpJ9jExeijRD4FOIiboQoR0DFvojDJi0F2sjnCBGOoEdKy7sAoGcJKqsENIsehxzrZRpYKuR1GjIMgwKXf8dPGJiPG7dhxgLLBnH5zgiBJkcxw4HkqXOOkv5+qt2mIq9apUPb4quevjRvsYkLcIRpRLJZKfeNtJM+pcQzknl8kBYnJhBWTF+OH1b6SWlvjrTDlOD6xUUq9/gVA191zTo4o4JpSJzguzXZMWP6Kom4zXiZQH0ErSkpnZdpzA9KhAeMOXRjkZLXZ+QAzvakQcMSE2aW/S/AU/+w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j3fxn2bK3z30VQ;
+	Tue, 13 Oct 2026 14:31:09 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2607:f8b0:4864:20::531" arc.chain=google.com
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1791862269;
+	cv=pass; b=g9mCzwJ9xvylffVh9ztSi138jARL44lfofGWIqhRJ79qFJV4p3YdDuX6iiNZ0gzO2Bw2hhONN8s6tIWzGYMD1erBdM1WjsMp/iu3hx4ac6T3P5BPtP4A9UR3BkS7Bnqrw6Aysu6C9MOutBFGCcYgeLbDvsBs0tNEQStypdJfG1ENhPrdEVaPFo90cGjqfILiilBEfos7hRiEVvJYV2ryyfYs5/pfu1Lqny1fdu5TziWq5BIIqepGudxA5Pz5Jc08xOC2cuKZYB07Hv2Xr/yO8unQxH4cECYAJRxF0IQlRbKe4ZI8y4oIlsUcCiUumFgWLlTCN9mqUgTWW+QN0xtz8A==
 ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1791862246; c=relaxed/relaxed;
-	bh=5+myLxei0DrwpchrD7vPBT2X99/j9b3NLQSDp+UZF+k=;
+	t=1791862269; c=relaxed/relaxed;
+	bh=ixp0gwcDzT/gOTcIFY6ZgU5UUL8+seL2a4GqUvvZO4o=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=W8DkUn2v+z2nVZTDTT+Z61dhMpsEImhnSGClaqumNQXnDTsBH8f4NfoX+xpEEvvTmBqrhl/G5ido+eBa8lvb+mZLVsBZIF6VDe02eVYbYTohgOeMOlteJPFl2wKfvWoJufPnGtG2kOIZz51vMcZyhXfVhdsuP7AHVxbdE8GOl3qmcYQXPTrC/wESf6YuM8P4Jc6kNtOOCzOuHMjW8k7lW0F8ITx3n5Mc+qgw4fGYeg2tdD88rXVD/Aofn/j5U6SdJMkQT1UxSpo1GdugqXLq/46V8q0din2lNYp2zLVTtYF36iCmRcOFqtanquztDTvVX5jl/pzTuG3B13ny2I5TMw==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ezNtUGlP; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::533; helo=mail-ed1-x533.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
+	 To:Cc:Content-Type; b=oi7WcLn8bKSFEYNtiGPuBHWFHIEN3Rsf3aRQ+mJXqzK+KwYDI6dhTWXJBKfR22ZAsfJ85imVfBsViqT8kHK8o+FfkL3xHdXcLu2+ULkI3/PhMb6DuvG2yxW6tvp1BVShT43WMEWQrj/K3AYbHXwMgsU2kdov9DFH+mLCjCtX9TKp5jI9vubRE8X/V6DcfhB6WK7URr6otuXpF82xd38a7mi+uFdYOx32bedOFwC+BCZ4YlIRdgBIInhSiYXMOOtBJh20KKlK9ksnIQVoZt8McKwTJSLK0Zo/m7VGm9Iebm10vZopqF3Ee7YIAJkeSui3Mf4Q9DoSS3JlQGT3xyBCtA==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ZZUoY2Sk; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::531; helo=mail-pg1-x531.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ezNtUGlP;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=ZZUoY2Sk;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2a00:1450:4864:20::533; helo=mail-ed1-x533.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org)
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:20::531; helo=mail-pg1-x531.google.com; envelope-from=sjg@chromium.org; receiver=lists.ozlabs.org)
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3fxK2vbyz30Tf
-	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 14:30:45 +1100 (AEDT)
-Received: by mail-ed1-x533.google.com with SMTP id 4fb4d7f45d1cf-6b1afcd2d23so2153390a12.1
-        for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 20:30:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791862241; cv=none;
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j3fxm3znKz30Tf
+	for <linux-erofs@lists.ozlabs.org>; Tue, 13 Oct 2026 14:31:08 +1100 (AEDT)
+Received: by mail-pg1-x531.google.com with SMTP id 41be03b00d2f7-cbedd5aece4so2111927a12.0
+        for <linux-erofs@lists.ozlabs.org>; Mon, 12 Oct 2026 20:31:08 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791862265; cv=none;
         d=google.com; s=arc-20260327;
-        b=qTXVa64FV7U2+4sr6272Dep6Kl1sUCKk+nGKRwgH2zc3JCRJoRBgNTawpaM9NL2d9D
-         67AdsbZW5AOHBWeN7hfkTjPAK84pX1RqCFcg6oWpoqvu5vHJ9JMeGyZMXnDEsp5eTNYA
-         zp/5vt3Z27dazEq4+dmM07ZHY0I1ih618qxlxXLLgsTQYrzL2m7I7TucdwrPfZCQ4z0m
-         WiiE1ZkFjXobtQ2BfHkv4pkYS1U8oJxJLtEzuo3o0CrwHAr9PJtyxarmcqGULOcQDxp/
-         9Uz3Xa4mSthn1WPFhRqhC6+D6CJoMj9iwD7xwSSkja7TqV+iNZ82noPXEkEE9vQDaf9W
-         3+lw==
+        b=Hf58oGqOzg05Qsn+XDD1hrZnOymJjwo7PzK+vCC50iXHVMdTz3svKp1/i5cyDsuO4c
+         ta/nO4r+HGXo+szQppR2d5CdiToRX1m2NShX6OXqWakiL/G+eeza+ftwYbazK1NdaB7S
+         5QEO06km1wTZL9/N1wae4Z1EWJajaNGLPsqbbAblCFUxGj/isu4hz3xXlsVd/E1zZFIY
+         N+9+fAFsmar3EFJzgRX35FVk6no1fUP1GKjLeH7A74F9tqCA/xRazomMxK+LO9PInci0
+         BHs+ZXa8Snio7uoZlHong7fcyi1Ebfgi3Qsoi2Yi/jo/atUmNU2vv55PGMZuiTOjR4k5
+         mpNw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:dkim-signature;
-        bh=5+myLxei0DrwpchrD7vPBT2X99/j9b3NLQSDp+UZF+k=;
-        fh=Ec211N/4l86UBpvRyPTtmgdZyWOVR3cGpvM6ZQV4tz4=;
-        b=QjLiRa/0NKInTQKQPGUJAv66dPMnbKREt4xnPe/wHxes2QFrAKuqnmGcPnZDBvyB95
-         XlAY1k/Rk0+ezIWmYvJZDfO8W8TCdi7Z66+sC7Q88u0hzi4nye3F91gKOaiP+zZNexXn
-         eEwSxNF61YUz3vnAGs2OxqNqYbg/dgkzH4T3HGf8jKpqXk8V9gehnkLbMMi0DPV/TsYJ
-         D5TW0iI+fRao8mA/gOs4rFX1xYRXdupar/zAgSXE4wNDjTyphZ8QSER5ka/LK4S3NelE
-         tLXwoQeaPpZz9HI7kOYh8+x9oyzb30Q28hFn4EWgjibtPRX9pUaEsJiqshMEioMQt6NM
-         4v1A==;
+        bh=ixp0gwcDzT/gOTcIFY6ZgU5UUL8+seL2a4GqUvvZO4o=;
+        fh=Jf+s+gzFNyiODck4SdVAYsw6Fy/W6+g/ctumXuZv+G0=;
+        b=m9n+2pTi9k8HR2p7A66yrVj3bmUwL8JnCUEKEMh4khsr+efyiq+AOygCIfK+ITbZzM
+         m2HiXv4x5jCciefpaAvwYMZmE2I1XV7h5Algj1jXTPgEcGWivj/pr/XFrw6I/qaE7qOS
+         uDPzDZyXNkiXm2I/za6CaHRvsvPvKz5+40KtCwXkrY6TU9fWZSST0IHshrkLmsYV7ikv
+         VG37LeJ+XtBlsxcNi/KGmu68o0gqLlfZQ5ttoqBMIAcwrVZttfRvgDxpUY6yUXJNwmR+
+         vCsUMpqd6X5M0U43p/FJqtkhq+SMZL7ihltV/ol8ZGBZpV+D4LKx//dGW39SLXc8jEtK
+         fuSg==;
         darn=lists.ozlabs.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1791862241; x=1792467041; darn=lists.ozlabs.org;
+        d=chromium.org; s=google; t=1791862265; x=1792467065; darn=lists.ozlabs.org;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=5+myLxei0DrwpchrD7vPBT2X99/j9b3NLQSDp+UZF+k=;
-        b=ezNtUGlPeRDSSy7iRtO8GrloKJ+w8WS/XCed4rQMbt27APEISI8Odz/gVfSuL/C56X
-         0V4gHCW25JA8tr0LgjbWqNYiabRYtqObPahXB3H+LXnM1VGU57y/24ZT3VCcHLpYEuIV
-         3h0mSsAahK7pAd12aVz2E8vOAcBe0mmP/4eKE=
+        bh=ixp0gwcDzT/gOTcIFY6ZgU5UUL8+seL2a4GqUvvZO4o=;
+        b=ZZUoY2SkcvGb/HPyJca3sI6iIgGf1Cci/+gvQspk6sQH6GAXs1PYw1nI/OkxvSnS4P
+         lDomApfJwd8tq50R82hvfTfXCjwp/fLYzdTSMNpEVltD7td6KfKRUmIDWpW26f24tmyi
+         ydh6W4bzDcckZJIKSGxwDsaQ1bdOq0Wk4T2BQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791862241; x=1792467041;
+        d=1e100.net; s=20260707; t=1791862265; x=1792467065;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=5+myLxei0DrwpchrD7vPBT2X99/j9b3NLQSDp+UZF+k=;
-        b=pNf54S3nRptco+88THe2FzGOwjbp7WAjld9d7tM6AjV7aJLxTMbPIF2ywaUt5j1EgT
-         3ipmZJeoGuWD3ff1eNm/t+T4i2KX4Q4aByAo1f13gKb91ttyEy1w07iDiblw+lAXOXJw
-         NwXw1OrsLVw4/9jlEhx9dtRDCmJGtdqpZ6clMLsRLljJVxuLxusZVbRhUk8E9A8cgb9f
-         lAMRYt6Llodsap7T+WTxYfxJIUSxYOZS71XC7fK3WRfi2fODOpCFvaAgEZAJqK8Blf7o
-         7LvLoTd+mdsWhH7J9m1JJdOz64IsxU68kWZ3KY2FeahPzfDo0evrSgOKxsMaJn5Yu+b+
-         qh0g==
-X-Forwarded-Encrypted: i=1; AKwUvBw6GPkPJyt9YlIjz6W0AXmceF/ZgczKEr3JkPvnOdmDPb1nPhRag84rOKHEbYk21U+dMDsr/x8CDsnOmA==@lists.ozlabs.org
-X-Gm-Message-State: AFq9FYIQeQx2bB3jJRYpubZBhCWC2/AbD1i47U6ZDhy+IXZMDDmyCg2w
-	XeKTaDKmCbSb0ZLY9ZdgbX6GqqYFBgdlvfR1fOLkxjZEHpVyAZBpW3uR1qbgrGor7pvTidV8biY
-	L8wlB2Z5/Plu0a5xiVe5kwcFGbswsUI81fno8ATgc
-X-Gm-Gg: AYBFou33DCmDs55iqH72qwtotV1xfXOWsORw4v8uKC/3CgPDfx5nVJ9zMoNZhyUwIjq
-	Yp2LEgui/GVvi0i6g0l27rFBtv19oXBJ9dZMkvPEgqYVU06axO3/rI3AJ6L3W38oO9wKmSZausb
-	1nAJhtImUweCvBEDICzdUl7vTayYVH92QUr8JfyhfADcq9Hs0D/yIjshJxiWYGy7t0DMR8Xd2b6
-	OkL6ck1E00IgPjI6g4r79Zx8jlu0JUDfYgqcjxIGmTHCADBJQAfiZzPqLN6rIoD5BDSQsjNnFj3
-	qPDJa71STyamIEeM5GZwQ0HfK13Rx8lWShomPHsWM+de+bQclhvpMYfp
-X-Received: by 2002:a05:6402:a0d6:b0:6ac:a862:d8ce with SMTP id
- 4fb4d7f45d1cf-6b17c2389e0mr8370776a12.7.1791862235262; Mon, 12 Oct 2026
- 20:30:35 -0700 (PDT)
+        bh=ixp0gwcDzT/gOTcIFY6ZgU5UUL8+seL2a4GqUvvZO4o=;
+        b=PSWLcuS9D7SPjNx6jg/xHeWeobAB71jYZZqBY/EvoLBFF5kNNcU4bN1xZOo9A318uj
+         pYWRxrIZQEFaz6WmZ1ybcgulc1jE93keFAbUsf17nThzgb4rZ6IrIyxfwnslNgzI/Ohv
+         Qtg+fBl3ELzUNgx6JxUG9ajfhcwgmfyUBxl31wUo9CUUYHxnm6rUTxz5X9dUaCtb7JNO
+         VdqqNx57PJ58mBnW6SF2yK0c8cZhR9/oB6TOLoLTHNYIU8ksGMmu/tykEkNT/FC/pdfs
+         wDWO1wE79/1gPneCIMYiRUjZ0TpO1PlwF5edzaTdmFnDz2Xbl0ZF7ZVjnQM8d0C5mpDn
+         jGgA==
+X-Forwarded-Encrypted: i=1; AKwUvBzHTVdSjWJ9KuPu0jkvO3e/de925Xv7i7jqf/ZokRCQsu6LGMYUzZZpn7SXk6jvVa27fM3Bs7rZuPQnuw==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYLMs0dMwGtd/+lTdM7ltEgjntRhzubdESauj6nCebhOtKM8lQId
+	0mjil6c7QNhiVk3nL3EQ6RdHQAOhMYzmDPcaoU+zYPzVlGJ/umUEiJ5KhVVVNp22K/McIoFdRLK
+	faOYs83NBR2sNL3jdKRd0mtUVFMaEixnS7x8IchDK
+X-Gm-Gg: AYBFou1umcpX+SN8ED9rFZCo8QU3Zoeakf4XRNfAUabP0ma6IMvcHB73SALa//Yc+To
+	Buy6nSJujAvxHRqTmJCNNt0JXXP8WQVTJ3M04HYcchNG+C1U7t3+KLMINTEOdWCsoQ4lUf+kZOk
+	h89IO7yWg/x+oW/KRTwaZH+7fT+Kz6GFrDI4NAtOXsWQS2l3xYQ9wzoMcEwaVIKujDAljhVamvm
+	PHSnuw1RvqmLz2cd308Av35odjMQQG/GYDq6HvgQ2r/kDWPYJy83njYhYU0p0xCAesTj5weLosD
+	vEoK96LAKoW8sqYbgl5KwnEOdCoFwm7UnQ9nJ6sczub1uHhPFYJJcLIe3tBzXygArII=
+X-Received: by 2002:a17:90b:3c0f:b0:3ab:b764:8256 with SMTP id
+ 98e67ed59e1d1-3abb7649df1mr4024600a91.17.1791862265444; Mon, 12 Oct 2026
+ 20:31:05 -0700 (PDT)
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -96,13 +96,13 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261012140048.214059-1-heinrich.schuchardt@canonical.com> <20261012140048.214059-4-heinrich.schuchardt@canonical.com>
-In-Reply-To: <20261012140048.214059-4-heinrich.schuchardt@canonical.com>
+References: <20261012140048.214059-1-heinrich.schuchardt@canonical.com> <20261012140048.214059-5-heinrich.schuchardt@canonical.com>
+In-Reply-To: <20261012140048.214059-5-heinrich.schuchardt@canonical.com>
 From: Simon Glass <sjg@chromium.org>
-Date: Tue, 13 Oct 2026 04:30:19 +0100
-X-Gm-Features: AclHuK9VPHxmBMUsd70OuKT1C4KOL3Hvezn-GuCiz0_ZVhQam8yovIHjrzsHRKU
-Message-ID: <CAFLszTgHzLZrr_2orNJFiCwG+Gp_g2=doSPEan5z3CxsSh4wRw@mail.gmail.com>
-Subject: Re: [PATCH 3/9] fs: ext4: print change date in directory listing
+Date: Tue, 13 Oct 2026 04:30:48 +0100
+X-Gm-Features: AclHuK8WwdCSGkCMdXjk0bM2LSgGqGD0emanwMKwWErheekLFkiCYylny6MMJE0
+Message-ID: <CAFLszTj=uzZkXLhO0Ox1UqnAfF9DOoLc6F13+MjLg5CKNreErA@mail.gmail.com>
+Subject: Re: [PATCH 4/9] fs: ext4: don't read time fields in XPL
 To: heinrich.schuchardt@canonical.com
 Cc: Tom Rini <trini@konsulko.com>, Simon Glass <sjg@chromium.org>, 
 	Huang Jianan <jnhuang95@gmail.com>, Daniel Munic <v-dmunic@microsoft.com>, 
@@ -116,48 +116,47 @@ Hi Heinrich,
 
 On 2026-10-12T14:00:39, Heinrich Schuchardt
 <heinrich.schuchardt@canonical.com> wrote:
-> fs: ext4: print change date in directory listing
+> fs: ext4: don't read time fields in XPL
 >
-> Declare FS_CAP_DATE in the ext4 fstype_info entry so that fs_ls_generic()
-> displays the modification date alongside the file size:
+> The ext4 readdir implementation populates dent time fields in XML
+> builds though that information is never used.
+
+Typo: 'XML' should be 'xPL'. Please can you also give the motivation?
+Presumably it is the code-size saving in SPL. Do you have a figure?
+
+> Guard the three rtc_to_tm() calls with !IS_ENABLED(CONFIG_XPL_BUILD),
+> consistent with the FAT driver.
+
+The patch also adds le32_to_cpu() to each of the three fields. That
+fixes a real bug on big-endian hosts, since the struct ext2_inode
+members are __le32. Please can you mention it here, or put it in its
+own patch? It is currently hidden behind the subject.
 
 >
->  4096 2024-03-15 09:30 filename.txt
-
-The subject says 'change date' but the body says 'modification date'.
-For ext4 these are different fields: i_ctime is the inode change time
-and i_mtime is the modification time, as you explain in patch 5. The
-code uses mtime, so please can you say 'modification date' in the
-subject too? Also, the example does not match the output.
-fs_ls_generic() prints ' %8lld ', so the size is padded to eight
-columns.
-
->
->  4096 2024-03-15 09:30 filename.txt
+> Guard the three rtc_to_tm() calls with !IS_ENABLED(CONFIG_XPL_BUILD),
+> consistent with the FAT driver.
 >
 > Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 >
-> fs/fs.c | 3 +++
->  1 file changed, 3 insertions(+)
+> fs/ext4/ext4fs.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
 
-> diff --git a/fs/fs.c b/fs/fs.c
-> @@ -261,6 +261,9 @@ static struct fstype_info fstypes[] = {
-> +#if !IS_ENABLED(CONFIG_XPL_BUILD)
-> +             .caps = FS_CAP_DATE,
-> +#endif
+> diff --git a/fs/ext4/ext4fs.c b/fs/ext4/ext4fs.c
+> @@ -319,9 +319,11 @@ int ext4fs_readdir(struct fs_dir_stream *fs_dirs, struct fs_dirent **dentp)
+> +             rtc_to_tm(le32_to_cpu(fdiro.inode.ctime), &dent->create_time);
 
-At this point in the series ext4fs_readdir() still does:
+Your next patch points out that i_ctime is the inode change time, not
+the creation time, yet here it is copied into create_time. Since you
+are touching this line, should create_time be left zeroed, or filled
+from i_crtime when the inode is large enough? What do you think?
 
-    rtc_to_tm(fdiro.inode.mtime, &dent->change_time);
+> dirs->fpos += le16_to_cpu(dirent.direntlen);
+>       dent->size = fdiro.inode.size;
 
-Without le32_to_cpu(), this patch prints garbage dates on big-endian
-machines until patch 4. It might be worth moving le32_to_cpu() fix
-into this patch, or into one before it, so that the data is correct
-before it is shown?
-
-In any case:
-
-Reviewed-by: Simon Glass <sjg@chromium.org>
+BTW, the line below has the same endianness problem: 'size' is __le32
+and is used without le32_to_cpu(). It also ignores size_high, so files
+of 4GB or more show the wrong size in ls. Not for this patch, but it
+may be worth a follow-up.
 
 Regards,
 Simon
