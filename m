@@ -1,56 +1,67 @@
-Return-Path: <linux-erofs+bounces-4740-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
+Return-Path: <linux-erofs+bounces-4741-linux-erofs=archiver.kernel.org@lists.ozlabs.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90D0CCC6B38
-	for <linux-erofs@archiver.kernel.org>; Fri, 16 Oct 2026 04:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85B81CC6B38
+	for <linux-erofs@archiver.kernel.org>; Fri, 16 Oct 2026 07:09:26 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j5WjT26vYz2yNj;
-	Fri, 16 Oct 2026 15:11:57 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.28.5
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792123917;
-	cv=none; b=b8bfsE1v2KJ0FnLDbQ+/DAYynhxMmrLHqzi9yC73g+TsZbssrPQ6FuEUjaqYNc1k1av4b3lqciFNOvhz4G9lBC3LxB4jfqQyjlAs4wbbtPxmnnxvIEj0sUHy595Hn7kFJO9tju9ijkkvFAs6ZaiBbB0IvzmGNG/HFmAN6zgOg54zUQHIocCDC+YtpTgrIcJJWpBcCZ3ycEsuKsnDSgMQWgPAsqkd+3/ZLN3D9lsSqcxL+gW9kdg3PJG8PsKaEwfjAFFurXhD6TdnekgAevu68A7P2EyQN4UIprUpdEtHcOXTG1pE9l55Aybe/N1/1un08zambajJ6e41CMsq/jaLkA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4j5bfD21V1z2yTH;
+	Fri, 16 Oct 2026 18:09:24 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792134564;
+	cv=none; b=db5I26+ZBUNQN+tgjXlz/ncAt9ZG6jzRO2MYDztNS7vWkwdGmDOPcR2T2Th4OO8RB/GpJiFUcwV8Y5NVB8VugPzBeGYOq/UwklsJp3SmiziQeqSxVBLWAVgVMaibUb3sqRY3wPR/1raGkLp6OpxGEmYJ3AyV6d1Cy/zEh/XNEGhFYqLhzZuMZmezLljS3VISv8LSGJGckduidhU//hj6bVcgF5rm4vDmfa9goKDsNrn9imDSVb4nZuxkKFPja67HjNUUov6IXFJ4S7yYgV9QWZ15A2OaGTndfaGRb/GcPSdNh/ETG2ZtXg+sCS//qaLoP4fNzQkKsCgteFVZUIsEuQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1792123917; c=relaxed/relaxed;
-	bh=vbO+vifKiqBGD5SfF2m4S6cQe/JLEOcIEjOjSAHPgdU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=P55U3bLyGWtY68nmRfMaf+2lImt6+YtF+T3/HDwvSKgISr4va8weaCNWAk/8XrmKH4H786FCJ/mT0AQKacqec/DBElGPRfPEEotTgbIrG/7j2ZMhVf9f8dhfnsy3ODuB23U6TQxZbwFkQFfo18KGO6DjhtYNJwU8RrG3zdEd1GwtAeRFtPEphFWavXddakbNd3KjU2VVHFrgSZtuX/704wmXO1rWY/8mnRgH/uNZVJuNLPx5NwpoYUpwD33REdXRJE/QEFZWzj1U2GKO+1hX6qcFu0+voGgd1DS+IJWR4Va/9/U7DSwRvQ2Um1HtaCS5FNfjEhIoSzZ1EfHpG2Yjyw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com; dkim=pass (1024-bit key; unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=GCWqHgBT; dkim-atps=neutral; spf=pass (client-ip=115.124.28.5; helo=out28-5.mail.aliyun.com; envelope-from=liuc63@xiaopeng.com; receiver=lists.ozlabs.org) smtp.mailfrom=xiaopeng.com
-Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+	t=1792134564; c=relaxed/relaxed;
+	bh=e1AqkV8YwWc9VSlf9Xpn+R39QPSGxhBbbDZwM6dVNZ8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jCnc8EIAeuawS1VwUl+y7BE4VEN2QENeVTbpihhetYFgmYP/LeGAVB56s8zt80l4pn+ymRRX/tZSnKEpZSWsBWHGiNkge72a9zggyAbfJGeQ7LMjl2nuYoZTnmGNZrx50SUWNZnSdlU8k/zaGNE0nCOJA6lpB9seiX0x3VYKjG6Vok029xkxTELrFAs2JYC1Fz9T3ar4aMIyic+12aEZZw14I6PkAJkBtiYOYvY/Kqsw/zyGRF3awSVpq9pHRmUMT01ZGCgv1nsLF/eJH0mZLo7WCTuSyxKrIb6WocNsWWZjI4p/tNCLfvEWJvZZQv2SK4DTkjpvwgGOxR0D1LXWJg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i+GL2vJp; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=GCWqHgBT;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i+GL2vJp;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=xiaopeng.com (client-ip=115.124.28.5; helo=out28-5.mail.aliyun.com; envelope-from=liuc63@xiaopeng.com; receiver=lists.ozlabs.org)
-Received: from out28-5.mail.aliyun.com (out28-5.mail.aliyun.com [115.124.28.5])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j5WjQ39Qsz2xNC
-	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Oct 2026 15:11:51 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=xiaopeng.com; s=default;
-	t=1792123906; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=vbO+vifKiqBGD5SfF2m4S6cQe/JLEOcIEjOjSAHPgdU=;
-	b=GCWqHgBTcf76B2VC5guewxzURc/ErKmSp2Aeo8FNNfevV+Fq6sVntr3a0TSpQ/cF1OLpcNXynnZnDvEQeEgvzgjjraDsOXNCDXZ4+oPW9yd0IWqUyVXIdDOUBg+Bc7ssS44QBJw6Z4kOUkFmANrqS2fB0S6XP2cR76fa56itA/Q=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.09093241|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.0151924-0.000875209-0.983932;FP=17779160273956545723|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037006180;MF=liuc63@xiaopeng.com;NM=1;PH=DS;RN=9;RT=9;SR=0;TI=SMTPD_---.jg1YhS-_1792123903;
-Received: from localhost(mailfrom:liuc63@xiaopeng.com fp:SMTPD_---.jg1YhS-_1792123903 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Fri, 16 Oct 2026 12:11:44 +0800
-From: Liu Chao <liuc63@xiaopeng.com>
-To: Chao Yu <chao@kernel.org>,
-	Chunhai Guo <guochunhai@vivo.com>,
-	Gao Xiang <xiang@kernel.org>,
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4j5bfC0wdBz2ySc
+	for <linux-erofs@lists.ozlabs.org>; Fri, 16 Oct 2026 18:09:22 +1100 (AEDT)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id B522743DE7;
+	Fri, 16 Oct 2026 07:09:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AD21F000C4;
+	Fri, 16 Oct 2026 07:09:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792134559;
+	bh=e1AqkV8YwWc9VSlf9Xpn+R39QPSGxhBbbDZwM6dVNZ8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=i+GL2vJpDOhdsnwP6Sg12Tcwxe5flkkHR+oQC4ah61eOp1XjpcmsIQxpxNChzuDVh
+	 g6jELw18psnkiCU5K5Zohg0j+PJHORQmuFq4A5u3dWp7+MHPHAaphks7xlE6O6yyIT
+	 842ObtM0ZYV+LtCoWbBr0w2F9I1WjwvSbMirb6jb0IHo4IDrvUiP3XeU42dpAWKtqL
+	 9cSvANMVrHXyGWKkJr/K0fiNGJJB2rNy0sj3bjanhT5r/de47t7y9tFwwtucadJNDt
+	 trIA9zjhimBxEqZJrqEkW7amizyEebBwM78s73yleLtXvbh8MHce2mY20rCqVsaPCQ
+	 PKsHUptJKmB7Q==
+Date: Fri, 16 Oct 2026 09:09:14 +0200
+From: Gao Xiang <xiang@kernel.org>
+To: Liu Chao <liuc63@xiaopeng.com>
+Cc: Chao Yu <chao@kernel.org>, Chunhai Guo <guochunhai@vivo.com>,
+	Gao Xiang <xiang@kernel.org>, Hongbo Li <lihongbo22@huawei.com>,
+	Jeffle Xu <jefflexu@linux.alibaba.com>,
+	Sandeep Dhavale <dhavale@google.com>, Yue Hu <zbestahu@gmail.com>,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] erofs: fix unsigned underflow in LZ4 in-place
+ decompression
+Message-ID: <atHNmmoGa3d3iAea@MacBookPro>
+Mail-Followup-To: Liu Chao <liuc63@xiaopeng.com>, Chao Yu <chao@kernel.org>,
+	Chunhai Guo <guochunhai@vivo.com>, Gao Xiang <xiang@kernel.org>,
 	Hongbo Li <lihongbo22@huawei.com>,
 	Jeffle Xu <jefflexu@linux.alibaba.com>,
-	Sandeep Dhavale <dhavale@google.com>,
-	Yue Hu <zbestahu@gmail.com>
-Cc: linux-erofs@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] erofs: fix unsigned underflow in LZ4 in-place decompression
-Date: Fri, 16 Oct 2026 12:11:43 +0800
-Message-ID: <20261016041143.2293155-1-liuc63@xiaopeng.com>
-X-Mailer: git-send-email 2.50.1
+	Sandeep Dhavale <dhavale@google.com>, Yue Hu <zbestahu@gmail.com>,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20261016041143.2293155-1-liuc63@xiaopeng.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,42 +73,54 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 List-Unsubscribe: <mailto:linux-erofs+unsubscribe@lists.ozlabs.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261016041143.2293155-1-liuc63@xiaopeng.com>
 
-z_erofs_lz4_handle_overlap() computes the overlap offset between the
-input and output page arrays as rq->outpages - rq->inpages.  Both
-values are derived from on-disk pcluster metadata (pcl->length and
-pcl->pclustersize) which an attacker can set independently, so
-outpages may legitimately be smaller than inpages.  The unsigned
-subtraction then underflows, causing rq->out[] to be indexed far out
-of bounds and the returned LZ4 source pointer to point past the
-output buffer, resulting in out-of-bounds reads and writes.
 
-The in-place path is only valid when the output buffer is at least as
-large as the input buffer, so guard the branch with
-rq->outpages >= rq->inpages.  When the condition does not hold, fall
-through to docopy, which copies the compressed data to the per-CPU
-buffer and decompresses safely.
+Hi,
 
-Reviewed-by: Fang Xieyan <fangxy@xiaopeng.com>
-Signed-off-by: Liu Chao <liuc63@xiaopeng.com>
----
- fs/erofs/decompressor.c | 1 +
- 1 file changed, 1 insertion(+)
+On Fri, Oct 16, 2026 at 12:11:43PM +0800, Liu Chao wrote:
+> z_erofs_lz4_handle_overlap() computes the overlap offset between the
+> input and output page arrays as rq->outpages - rq->inpages.  Both
+> values are derived from on-disk pcluster metadata (pcl->length and
+> pcl->pclustersize) which an attacker can set independently, so
+> outpages may legitimately be smaller than inpages.  The unsigned
+> subtraction then underflows, causing rq->out[] to be indexed far out
+> of bounds and the returned LZ4 source pointer to point past the
+> output buffer, resulting in out-of-bounds reads and writes.
+> 
+> The in-place path is only valid when the output buffer is at least as
+> large as the input buffer, so guard the branch with
+> rq->outpages >= rq->inpages.  When the condition does not hold, fall
+> through to docopy, which copies the compressed data to the per-CPU
+> buffer and decompresses safely.
+> 
+> Reviewed-by: Fang Xieyan <fangxy@xiaopeng.com>
+> Signed-off-by: Liu Chao <liuc63@xiaopeng.com>
+> ---
+>  fs/erofs/decompressor.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+> index 354762c97..50a5f9ddf 100644
+> --- a/fs/erofs/decompressor.c
+> +++ b/fs/erofs/decompressor.c
+> @@ -117,6 +117,7 @@ static void *z_erofs_lz4_handle_overlap(struct z_erofs_decompress_req *rq,
+>  		oend = rq->pageofs_out + rq->outputsize;
+>  		omargin = PAGE_ALIGN(oend) - oend;
+>  		if (rq->partial_decoding || !may_inplace ||
+> +		    rq->outpages < rq->inpages ||
 
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 354762c97..50a5f9ddf 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -117,6 +117,7 @@ static void *z_erofs_lz4_handle_overlap(struct z_erofs_decompress_req *rq,
- 		oend = rq->pageofs_out + rq->outputsize;
- 		omargin = PAGE_ALIGN(oend) - oend;
- 		if (rq->partial_decoding || !may_inplace ||
-+		    rq->outpages < rq->inpages ||
- 		    omargin < LZ4_DECOMPRESS_INPLACE_MARGIN(rq->inputsize))
- 			goto docopy;
- 
---
-2.50.1
+This is not against to the latest upstream, and
+do you notice the following commits?
 
+ commit 21e161de2dc660b1bb70ef5b156ab8e6e1cca3ab
+
+ commit a5242d37c83abe86df95c6941e2ace9f9055ffcb
+
+also do you have a reproducer?
+
+Thanks,
+Gao Xiang
 
