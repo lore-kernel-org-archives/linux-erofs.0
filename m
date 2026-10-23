@@ -1,142 +1,91 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4D2606A319
-	for <linux-erofs@archiver.kernel.org>; Fri, 23 Oct 2026 02:32:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D747160A2600
+	for <linux-erofs@archiver.kernel.org>; Fri, 23 Oct 2026 17:42:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=p1 header.b=Na8isWUY
+	dkim=pass (2048-bit key, unprotected) header.d=cs.unc.edu header.i=@cs.unc.edu header.a=rsa-sha256 header.s=google header.b=PnZdjLqB
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4j9n9q4jW7z2xnv;
-	Fri, 23 Oct 2026 13:32:47 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=185.132.183.11 arc.chain=microsoft.com
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792722767;
-	cv=pass; b=b7DwINlQHY03l1PiP34kolEIhZMXzze2Nk8jXfYdPeRNfLbf3xcFRPx9uPeOMOpgdZtkq63PD5epvaAAz5iRuZYi5QZKunES1eHJXU3/0uyKq6AAQpFMDOagv51v1UKB0J/CpQWtsmRcy7sHXHtYX6AkQk9jpvJNG8jn5Ngq51zn4DFgpHOIV6HZGdepEzLjlBO6wn4KtXTZ4AEV2tG1+F8Pj2lDtGuvIN52Mw3TTs2BT8YqU77ErnTjBEvRs5rDMbaQpCZHpJaUEgJqidcKOrx/v2lELWuFMgun60OkUAmSc/rLpYoPKx6MUV6R/qLfF027E9D51oGx2xBz5+Zkmg==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1792722767; c=relaxed/relaxed;
-	bh=GtzgE55cN67hd1jiQIK7BiV2/2X+ObRkWS5aL9Gc4Ug=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=E2BMNSq7TppE0fWmfiDjV84xpU56+p0L+nCeBvKhg85qes2OEJR2hI2JPSGx5FsgUJy8LoNMFqNARSwBqr9JlY0eTq8Mqje1EzLqI86f+UxROEk3CiMyrQRth0nnh8lsPj2Jw7M7DDHBfjWc4dJb+9i5GNrNAJuhQFrCti3jKL69qsCAHmrh4sTALLnBTr099fPWNcx/4SfTwwhGz+bjvJvVuVIZjKUyiZx4J9ebaPPvAG4z/eRhgNP1vCOqKQ3bxZf5DBs/HADgZNoYPV6z6kQWBN//GKaNeC+hCH5k1FAqm7X/qAbCL/XbuPdopBJpTnIMtzBBThFhpUrB5p24Iw==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com; dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=p1 header.b=Na8isWUY; dkim-atps=neutral; spf=pass (client-ip=185.132.183.11; helo=mx07-001d1705.pphosted.com; envelope-from=friendy.su@sony.com; receiver=lists.ozlabs.org) smtp.mailfrom=sony.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jB9Mx32fsz2xpt;
+	Sat, 24 Oct 2026 04:42:53 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::f2d"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792777373;
+	cv=none; b=jiIRj6ZD2MuLZKBT5QHMMpD35AQR1QYtfpiJVaDgGD3ronbLcydCGmx5ScKQ2SbyvG5aExyDA04Za2NTydKnCzyIZxNzTQDYoOxyVJ93OYM8PGxyhvHz36S763RvYLaQTgoaDTUroI6DQPZniWAZtZ7rdFdc4bhxjXMtYjWnNmjuUIhIDMZFsOoM3YRx4yBir+UpTAdJbepJ/M5+XUb/kNBzN1Y8VQNOgpQf2/MaNeFfffZwBEhfa5AZ5DDojEcwfs4tL+4NPsWPsqtRGpPUZhR8rzFlCJVyv1x2/KHdvz2i7ZxsGocnDZ2EKn65t1gFkVhi1hpTQbJh5kPRl/9Vzg==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1792777373; c=relaxed/relaxed;
+	bh=pttEG3ZBXhyYyMZMgd6B9fdOX/UQFW77/8mvHBDA3zg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DzIS54vlL1qWpZOGig7zAzqot3KssTTM+zKe2FwAFe0+oAMP6a0hfOnhYDPzsrRUhUE/g4GXEnhrjly3a+w/WCxOOzx11lOnLGrv5TsAvnL7w2uq1vXdeaeV4JCFByxjmXCBlLcbTG9t+yMBa4DuL/Y2L5Zt8Wx5W3tv/698vMA2HZhqq9TgQ87iv5eHIAqduUYZYObIVWlP4ZHwEPkBoalYQDvx/OxuHaW1RPnWskEVz4sgDC6YxokprJaO0EhSisENmc8zFrVb8bGwC4hgfmpZk2so1bdfcd9hfx9UUwsaPOVENgr9b6+gik/bnuW10RxsUK38uKmFxKRNDlcYOw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=cs.unc.edu; dkim=pass (2048-bit key; unprotected) header.d=cs.unc.edu header.i=@cs.unc.edu header.a=rsa-sha256 header.s=google header.b=PnZdjLqB; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::f2d; helo=mail-qv1-xf2d.google.com; envelope-from=hengyul@cs.unc.edu; receiver=lists.ozlabs.org) smtp.mailfrom=cs.unc.edu
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=cs.unc.edu
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=p1 header.b=Na8isWUY;
+	dkim=pass (2048-bit key; unprotected) header.d=cs.unc.edu header.i=@cs.unc.edu header.a=rsa-sha256 header.s=google header.b=PnZdjLqB;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sony.com (client-ip=185.132.183.11; helo=mx07-001d1705.pphosted.com; envelope-from=friendy.su@sony.com; receiver=lists.ozlabs.org)
-Received: from mx07-001d1705.pphosted.com (mx07-001d1705.pphosted.com [185.132.183.11])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=cs.unc.edu (client-ip=2607:f8b0:4864:20::f2d; helo=mail-qv1-xf2d.google.com; envelope-from=hengyul@cs.unc.edu; receiver=lists.ozlabs.org)
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4j9n9p0hGyz2xSl
-	for <linux-erofs@lists.ozlabs.org>; Fri, 23 Oct 2026 13:32:44 +1100 (AEDT)
-Received: from pps.filterd (m0209326.ppops.net [127.0.0.1])
-	by mx08-001d1705.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69N1G3g53222804;
-	Fri, 23 Oct 2026 02:32:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sony.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=p1; bh=GtzgE55
-	cN67hd1jiQIK7BiV2/2X+ObRkWS5aL9Gc4Ug=; b=Na8isWUYHIt+6AfCPonsS0z
-	rxJzHJDL1d9iC4B67TD3OTbESHQmdashj/YBSkg9FecZPabIsJqyIeh8Y2SVW9EN
-	43jYyQF3aby/GeuBcofBz4S84zMz0ZgjyzOJcqktikFTxbfCOG7tC7lVHK/FW0bF
-	n7cXf6175SbCYYhAyejV9yyLtENcTXWt6cAJudmJfNOzSVfirR7uCFlF7GnpotNQ
-	oGo3PDnuxoj0gAr1B6FG/1HyWWwuij7UhQ5eGmWZpVkjpTRFq5Jf8VnEHWaAuK8F
-	w3Ycy698C7z9KeldRx+WeK+92JNwO+DbvoP/z708IS/Sx7pupRnDQhwDa/NcKOg=
-	=
-Received: from typpr03cu001.outbound.protection.outlook.com (mail-japaneastazon11012041.outbound.protection.outlook.com [52.101.126.41])
-	by mx08-001d1705.pphosted.com (PPS) with ESMTPS id 4hdw4ycf0j-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
-	Fri, 23 Oct 2026 02:32:29 +0000 (GMT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KLKm20nCf9D2TunMMaVjDMtLqkm1v0sHUVxlPqerdKE3V/Ed3T2+istOPMse4jPcbRSL0+Soum+6iGL5pQJeK0kYoLwqs7AtFvA//4EXgpQFLQ2UFHHRvYPMp1dWXC2BAj1LPC0H+/DKwaeQ5hmwnKn9JEmYW/dlDH9zaGMHQ2Kq9JopR7kkKvaSTwuOzYZ67Udx5tLYCs3DlflRNUd4uKwAaSLUGBPUpJpLv5uypzB1+emI2PFBkskMuImsNrFb0R7R4Nh+OPtHqJx+lODRJtxJJ+oi9cTGYqgHz+kDIVT0Ue13Qo/ZL2/Vn+Hnm+/1hLVEIWCHoZRX6s3ZcPzs+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GtzgE55cN67hd1jiQIK7BiV2/2X+ObRkWS5aL9Gc4Ug=;
- b=SkFFn4f3gWbrPQUIbIAtrBNJNd61G4/t3A88GGTyPBQf4cxqGRuiV3QkTr7IIAumIYxeV5tlXXq+Fu9iWIgJ9Z3HsgsUMDfG2HsE1SQ2bSuhduo7b/dzZduIeIZxy+TVij7N8ULtRY8DtkML7ogNMUK6elgyQfLW5xS/EKPq9ts/8XoS86oHKaPR5DIqCAP1OL/LW4O/hT8MgMjAanBv5d8uV1XuCTjka1HjQYJOeWBH04dPvY9kytHhDwVw+KyWWsD+zoYf5FOmMZRVOtRYbaotSzHYC1zLs6TYnv8UM1qO8K0RkKPFioYuE2Q+AaFA4WCd5hB0wImHThHGNNYvvg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=sony.com; dmarc=pass action=none header.from=sony.com;
- dkim=pass header.d=sony.com; arc=none
-Received: from TY0PR04MB6191.apcprd04.prod.outlook.com (2603:1096:400:32c::12)
- by JH0PR04MB7250.apcprd04.prod.outlook.com (2603:1096:990:3e::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.546.18; Fri, 23 Oct
- 2026 02:32:22 +0000
-Received: from TY0PR04MB6191.apcprd04.prod.outlook.com
- ([fe80::aa83:1e3d:19d1:736]) by TY0PR04MB6191.apcprd04.prod.outlook.com
- ([fe80::aa83:1e3d:19d1:736%6]) with mapi id 15.21.0546.017; Fri, 23 Oct 2026
- 02:32:21 +0000
-From: "Friendy.Su@sony.com" <Friendy.Su@sony.com>
-To: "xiang@kernel.org" <xiang@kernel.org>,
-        "chao@kernel.org"
-	<chao@kernel.org>, "jack@suse.cz" <jack@suse.cz>,
-        "amir73il@gmail.com"
-	<amir73il@gmail.com>
-CC: "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Yuezhang.Mo@sony.com" <Yuezhang.Mo@sony.com>,
-        "Daniel.Palmer@sony.com"
-	<Daniel.Palmer@sony.com>
-Subject: Re: [PATCH v2] erofs: set SB_I_ALLOW_HSM for bdev-based mounts
-Thread-Topic: [PATCH v2] erofs: set SB_I_ALLOW_HSM for bdev-based mounts
-Thread-Index: AQHdYpT5uYRh4g5Ytkao5CHS76ViOrcKZ/V+
-Date: Fri, 23 Oct 2026 02:32:21 +0000
-Message-ID:
- <TY0PR04MB6191A05CCB7E65F910A5B07DFD642@TY0PR04MB6191.apcprd04.prod.outlook.com>
-References: <20261023021635.2852395-1-friendy.su@sony.com>
-In-Reply-To: <20261023021635.2852395-1-friendy.su@sony.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=sony.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TY0PR04MB6191:EE_|JH0PR04MB7250:EE_
-x-ms-office365-filtering-correlation-id: ad6ee4a4-8bf1-472a-eaf9-08df30addd86
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|1800799024|366016|23010399003|10070799003|376014|38070700021|56012099006|11063799006|261022105027099003|261021121427099003|261022075727099003|261009223027099003|22082099003|18002099003|10067099003|261022115727099003;
-x-microsoft-antispam-message-info:
- 4musVHddSGgEOJdGu0Y0UZsz5j/gHboby5xEuHRTb1llKOQZxjYbKSZ3iJ70Gggq4PEKUSTjnNprn1uR8xDxKJFzW1rtoIzwpGPQLHqkoORqveHPEOe84NvN5z3YC1P2NM2D39GPt0M0hoSod3i4gQcoYfa4D5NpJm0hEutkXjwMurHOZu4s15WStg2rYuHCovKpZPvnWoNc5uQEH+sfPhfG7fuoyp8Ff0qKpYQy2m1Dvl/a/irstgHaWMrb7NYdMS7ag5ciJWxMaED+sT+PL50+YzCM5edgC4Pe53GJe89KIO8lYl71K54huuK/MNCj078jFfySH2CaxCOi3iwmOVXMRqgF3ixrHVoUe6It7h8mdXv44W9C0Ja+oCZ9B7n7nrLBhoHGHYMDhRq/ScSzPJjymKgZVik6vj3xMvTCuFqyEcTWAlw3hYab5uj+EZKqlopvkmwoPu3lEVsV5lAZBcF3aKFdWVdupf3zmRp959baIcDwynni2r76gl/l0txa6GU2f0qFKzA2w/c6YZqnsH/w4jMfUSOQdFdMGyk7ihJm/4Xw0KSUuXHaQgpolC80lWtYAN78gSOj4fl2U+JQogfNLIbDgVNTeAjHIcBqsbgd75KyKNXalvN4+TVW4Nwyf6jq5DuSN1m10+3gBlzphO0inb3mpbMJGcqj10g/zjX4u+ji4EHcP1rm8+6mU0mBBQE6YmrTyCi6Z1gLENrqU1IWmPkC+PWYuvwUVkzX3+A=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY0PR04MB6191.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(10070799003)(376014)(38070700021)(56012099006)(11063799006)(261022105027099003)(261021121427099003)(261022075727099003)(261009223027099003)(22082099003)(18002099003)(10067099003)(261022115727099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?95Lp/Wmx1jsr/tI5Dfwj/1gso3TLd/HM2SO65pQ64CXGMoB9/gilBeLpI2?=
- =?iso-8859-1?Q?YNHDv2mLO8QBqZnYAMJRzEBmNgcH0DQ+Z1uBY54SXWnrOApN/2FfCOItgY?=
- =?iso-8859-1?Q?cLPflxCzzTx3ZbszJmDoMiWWvbrT8kshy57jLTx75vL+zR4UJzmeI24Njk?=
- =?iso-8859-1?Q?ehtc+sZcBLdDaIygS862a9HdklNpkU/nlrzR0EnnK9fF8GeatkmRUe7nly?=
- =?iso-8859-1?Q?RHBq4AHFiwU4a+zlGE57wDyoW+YJ7CStRpKX7ViWmBdmov1ZV3ZVjyogTg?=
- =?iso-8859-1?Q?94psdaWjEeRr22npE1sQUMRarcfhArQVZnjr1JSxWZNwsWagWMsAg77U96?=
- =?iso-8859-1?Q?D8cD+r1hT6z7edCMqXqZYthQX363wqEF2EGPW441beX0zm/nRATFm8ZtI8?=
- =?iso-8859-1?Q?ue8CNSjpxkfr9zHJwG1N6ALWAwZWC5uZFTW46L90rJ5Y3qW1GRaykzudeZ?=
- =?iso-8859-1?Q?sr2EILEddaYKsi0Da/HoPxZ6zbITdgDZ/7TqSFEOEE9xe+U4ZrBjZZS3/4?=
- =?iso-8859-1?Q?S6B4SX+sj2L9Mr8lM9hfAdLlO8uUCYBga2OTS/ZTO56EoAiBGzmoI+nvc4?=
- =?iso-8859-1?Q?sYSmyMyigJxwR8G2bYI5YOrJDI++FQovkj3HLEMimBcuQJg3i/iQE6Yez2?=
- =?iso-8859-1?Q?ZPGS7v7YSKpssyoDyqbceKdswsHWZDgdmgrSNsxTUSPPrGwbmJg9kuy1nx?=
- =?iso-8859-1?Q?v5KK5EO+EPizDX6ZR8w8NRhq99j7ufaw/Wv+1s/RepwhKn/y4D3D3OUVBW?=
- =?iso-8859-1?Q?AXBBVLPUeuzlqR0FrAq7gLUFQ7wmQHTOU46LTj+5+XOPG5Z0KpENfb5TXA?=
- =?iso-8859-1?Q?56X2I7du/2oPQKT4azMpruPRzpzCgsOczpDlpwXl6h3wekDii8dEhh/bU2?=
- =?iso-8859-1?Q?CBQFI8Z0mvOknkwf5F1xPeyE4MrMG7ZlyMlApKqv3edVTz6F07YnrskmMk?=
- =?iso-8859-1?Q?cWnis6UQ54q3uSmffglY7BQEjv3zDbr9qJqeR7pmLMh2O28xMHWHQQiEDN?=
- =?iso-8859-1?Q?iZtWsnVCDZYdebdX7xM4t/Btb99V46shGK990t6njIublk29AkbMuDFK8S?=
- =?iso-8859-1?Q?CDu9cFDp5SC1L6lCwsMTAMwwslQel4mzZgb6g4h8+1yLC9Kfd6zeKj3dgi?=
- =?iso-8859-1?Q?to8vJNVqtrxieDuazYbcqFahS4ImPSLeNtOiemnAbJB8Pf4E8EAozUiZ1x?=
- =?iso-8859-1?Q?+28w5qKwJm3qZbbXtGBeEMT6gGisINM74X8NgZvCGEwx41HdtCgT1TnOrS?=
- =?iso-8859-1?Q?x8Esv3GdKJBuzSt4nFSA8SfJrOhjMHdbD6JwscTPeKaKw4o2FTFl3N8cMn?=
- =?iso-8859-1?Q?BuKPQfXZ7C99fKgPzm+SdemXS01OfEAqsaJ6feNgRDyQOpGaUF5uViQQx2?=
- =?iso-8859-1?Q?YQkL3Wzz3T0YFN/Tcyu1XIhn8nZwxpM8c9V1K9gDBQozYaDu/m4xyFqVNT?=
- =?iso-8859-1?Q?6jAFpwpIoDOtUljsACSqNrLLLw8QgAr3DWqJL5vR2M49dgFIIDl7Ddja2L?=
- =?iso-8859-1?Q?EJ7grOiljJyekjS63u+7c7VklmdY6gyEobjzJ4riSml7F7TiMBpqBFKtyT?=
- =?iso-8859-1?Q?geUf9+VNMDvUDWkBxKGfskYl4qD09jso3/aI2YxC74KfF7VW6kHLO0d76c?=
- =?iso-8859-1?Q?t8ilYG5Hi7342wXHYEVCCc3O4OdhbFNqGYSw4gBvy6Cz+Cv+Zya7riU2Wa?=
- =?iso-8859-1?Q?mdRVF0e1bc0JkYYRRF39ayA+g1YUUFZ0XUeKKnJ76Ah9ZUQtM8VTl76PLJ?=
- =?iso-8859-1?Q?ytokTC46h8s3k6tvx1LT7mnzDHQEL0pEQNgVR1sMLK5IVn7AVzw8l5brwA?=
- =?iso-8859-1?Q?IdRDUNp4LnPCjp7RpsF7Owoi/UkMHSs=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jB9Mq4bJrz2xGw
+	for <linux-erofs@lists.ozlabs.org>; Sat, 24 Oct 2026 04:42:45 +1100 (AEDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id 6a1803df08f44-9178d514951so10710536d6.0
+        for <linux-erofs@lists.ozlabs.org>; Fri, 23 Oct 2026 10:42:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cs.unc.edu; s=google; t=1792777362; x=1793382162; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pttEG3ZBXhyYyMZMgd6B9fdOX/UQFW77/8mvHBDA3zg=;
+        b=PnZdjLqB5UR7bX1n72fM4NXjtRG4/RSSMMohfa7QGLB6N/GnrJynOYqSvYoMXTjXw+
+         nGl2LZSBRDJSPWJ5XKfo+OTOn2YjjmKDWi+3VwijNTO9j0ogVcHexsSuT3D6seaF3t55
+         Nd+/b4VoC2ZinpX3LFZD6myMbmWyigpx1+0MEOsBzXrIfCiAW4ePcZDtIgQ7yGEIthsC
+         7ZN8c+bOb/z3izGmtfMs7yImVby4EUYGg0yer5FZyr1yipFlTXo91EqVpAC6NrZol5Yy
+         MKufaMD+fQcPvXvJCUlR3Ii4+UIvfpE4rdO5Ym1WF9I6Lfmi4y34srDvozaSzD/asLNJ
+         jcbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792777362; x=1793382162;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=pttEG3ZBXhyYyMZMgd6B9fdOX/UQFW77/8mvHBDA3zg=;
+        b=EpTglQzdEDeMs7cv1Kf2JPNjeccQ7alBkrGJlfQTpHjxvSVyr6mayFlgDePhoWcnLk
+         g0wrOvkiGCxAHOjmLQxoOh+mFp/KAYCYVgrJEZ4kePuds6JmL6mLiZ79tSYkWPpnyin1
+         ibDcg49s1BFv+k1ySmdia6RZISiP2TNiZVW8bAxFI886FW+fTGnGfRTo00A6zVtDUC1z
+         CjU863d+bVhB5uJqQq2iv0sTmXYYvKuDaCEhHxRdEmrbH7t9RcOl4xSD7wbqm/YaQfOL
+         TBAHmLVUqSyd69nCqrHVcWqhv4BbjL6o+Ep5efODV/cjkY57TRDDja9LScyNY1esWebQ
+         WFWg==
+X-Forwarded-Encrypted: i=1; AKwUvByvYMAbOyFDZ0tlrp8AWVgPzwdO+FQSg+RDRalpHY6M9NAAQjRthio89w5cAaNA7wE1uJlq2bC1RAOQaQ==@lists.ozlabs.org
+X-Gm-Message-State: AFq9FYKNf8xZwws+hWRZzI7sDE2uMtq7G/2YGI3Sk6uY65LJRZ1jm67O
+	0rAEhvVNhkID+/xbo7fDitAeC9C3Yzs3bGdq+dbWi58yKAyOzNfoSDsFKUGqH7huEA==
+X-Gm-Gg: AYBFou0AYt7XloVctbR1NlWOyzZVw0XZODx0IMZlIY/4rpx7rWn0TgJ0qC3uR1QNxdu
+	P/bz+koCqDdLuMzB6a7UtZWpvpQWzJWDuBqyEOmpUPcdd0CZj1AJ8Gfp96dIqQb05DmRBNE1F3I
+	J/UPa93WqJklewmIN+jVOc3WfQBI2+fLeqcOw7NlalRP2pwAU8q5Zs3F4PXTAn6FyB/NTVb1nP6
+	gJKD7OCJk7DEX8XK6tV1QyIshS1XDXvsJntxMnA4f1bJW1LzTZXrSdgSimS5yPwC+Zq+nz9GEKU
+	Bf2BGQ+2K6iB8y01ylQyAVFKwcpYh2jRj7Jv1zPRb46wdPILxX6YMx1RBmQ2uzVEohNtXUXKJfN
+	Ob5/dzQo5dp1SiAx2K91B0PmTCOqBxsLDJrt/gqN0t40Lmaw9oz8gDKuZLN5VPkHh4b7I82biHZ
+	BzHH94sqymRUB5cH8bb5hsztygmhpSt1c4PUwq90vN+hDn8DyrX81O1X9fi0R8KWn0gATEUn8vn
+	XytD7QWI624/nljGIHfDf/dscBEu9qRokG3XWzEW/Ny+musqEqT7QTSVod1xqrcua0KjpRuhf5y
+	54Q=
+X-Received: by 2002:a05:6214:f6a:b0:91b:8c62:eda7 with SMTP id 6a1803df08f44-91c3a86fa9emr45307186d6.29.1792777361801;
+        Fri, 23 Oct 2026 10:42:41 -0700 (PDT)
+Received: from cobra01.cs.unc.edu (cobra01.cs.unc.edu. [152.2.130.143])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91c47cdf6cfsm277166d6.43.2026.10.23.10.42.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Oct 2026 10:42:41 -0700 (PDT)
+From: Hengyu Liang <hengyul@cs.unc.edu>
+To: xiang@kernel.org
+Cc: chao@kernel.org,
+	zbestahu@gmail.com,
+	jefflexu@163.com,
+	dhavale@google.com,
+	hongbohbli@tencent.com,
+	guochunhai@vivo.com,
+	linux-erofs@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] erofs: fix metadata reads at the end of file-backed images
+Date: Fri, 23 Oct 2026 13:42:31 -0400
+Message-ID: <20261023174232.3282900-1-hengyul@cs.unc.edu>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -148,119 +97,89 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-X-Exchange-RoutingPolicyChecked:
-	MlX6vI5e2BNbvOgnWIKPlO57hnAidGuMS5ZyNrFAmrfzpNz/BtDUKyeHiE6wPprtwbf6AyzEGWp0fjoGixyXXciFVQCK8Z/XpHNE6eOCh/o0Y/GyZ69kfol5WG/6ryaYCtU9Mvo7n515xZNmfpj8IlZjKUOyCa0y3uV8TUR6KhdZGwVakIDedwEaE1HdFI96HD+6ggFCgB1r65FigjmdfyHpRljNRyBRUkWIov9+iJHr9Emnpi6G81JZt06WMPoYC1CJKMHJqrwN2xXvpV6rOkqj+WXQSQkGCrMFsgEGtTlQAsto/Y4aECB9VGha7+MiGeQY0jAiClQBPjxFpbmemA==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	EVuCzXKVeSGlGlJCcJu6tO6/1/giZOeTex11h/hMNQx5AdA4sWKF5FCoDWNvod3oV18mC1edh8zcVK57V8Dwsa6TmpnagK1vr7Kii+xA3ZZ1g2VvvwtfZOu/Q/3V9vaHvnSsmXZQ+QtyyEMzwaoqjoi1tsGNb0EfUAOr3kB5Kd/IyjTkpsRKoBw4Cijs9bzxnYEuAwmFfKPgoiBHLdHbG6Y91Q5kWzdXeZnO9idoKwjNHIsEXQrDvKvV/78nVZqepBIe3wK51DFj1BkynE4FSn+u6cJxyReYayv+npfWfvZLi4ixWZthRpYnaCpNpSmkk+Wl5cSZum/qWXbZEw/t48C+GZJPE3uPFwqzLyeCKsufQ7waYEC5TXf+n5SnvSc2yCsc7E9eAhwZEw3e7DejnhyzP1v/nYJRzFZlkq72e+IYhgPgSj/8pM73oJT3lADdrvxJarQQz/QgrtjGoyontoIO0Ipwf/p7wmGdZLKJXAqLHZ7qgfeRkdDHToplHObRm1D3ittxMiA7R1wsXbfAb6dYKW71NgDcMbM4mr4a+l/N/HJ2+uOfBTjdNqKS7ojiA34SCU+LDWNEpvwpproEXpXDMl5J04X56fjOGDEl8WVt86ha/dtcVRV1g8mCypG3
-X-OriginatorOrg: sony.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TY0PR04MB6191.apcprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ad6ee4a4-8bf1-472a-eaf9-08df30addd86
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Oct 2026 02:32:21.3824
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 66c65d8a-9158-4521-a2d8-664963db48e4
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: aLts+mb0hDgvUBHako/i6ILBJ+M1gba/bTdvyhqM8FQ1gW4vfoSDtB9LAOLIS3FJG+HwQKdFB2BdCX6/YGSMwQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: JH0PR04MB7250
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDAwOSBTYWx0ZWRfX29PPT1TSnokY
- GbKVJbVln2JtCidvFzhyRzu1K0lYpKr/o7ViD/RWPOC/FwStAmLaHjgMx98Ji/OnfwhzkIqvsJL
- Ap1WGnpLBzu/RDEwHQvOU7q2ok9L4W+nLoOIdocCKPxVRkCCQgjd1GmLXMjPiGa9cfvmwR7Bu3H
- Mj9YmyoxJzxrOK5TZGAScrjtiEHAztsc471n/ELZ/zpeurSLKXTZU6wWL1MWH6xhyDR4bBlX+1J
- E8HjNPrVOaDpvfDCAi8gsNIf/bHUe5p0B9/z6Xa+1HdZhWfdyp6V3K/Tn71WkfbEpHWQ/FBb1JV
- 4L7cIc8B/+SMW/L/gjb+5PYS9jUR0/zBOUDks/vTMZeqCbTooKBRxy0toTd2VwSccwY0zcoflQi
- UEuofWOjjyEpf3cOvVmyh/aNknPpCQlDNOaqU2lhmQ6/oKdTO4/B8v/pPPAKiUSa49ZDYuQZLLq
- 1iF44LiXZPmiVN3uFig==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDAwOSBTYWx0ZWRfX4Hi4OvH5lfuf
- odyVrsyXbEL3yzB4QhbO2ikP2tH0FyDo1Yeil0rNjXTsjF0CPfEcyY5uc+kCy8fjnoPcTssWGDH
- Ld0px2U/bBvv1iFDtN/W4W3TjTqdTip/AcC/PON8sWWl/dSMGfDl
-X-Proofpoint-GUID: VpHTjSodXUKef77uTlPi5X212SUF9F0L
-X-Proofpoint-ORIG-GUID: VpHTjSodXUKef77uTlPi5X212SUF9F0L
-X-Authority-Analysis: v=2.4 cv=OuzaWC/t c=1 sm=1 tr=0 ts=6adac73e cx=c_pps
- a=asJOei98DcUXs9cTXKz9ZQ==:117 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
- a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=8nJEP1OIZ-IA:10
- a=660iZSQnnn4A:10 a=7j0FZ4iXMVMA:10 a=xR56lInIT_wA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=KAb5x4SsHD3PzxGk7EmX:22 a=lmptg-Pxpg44AF-n8Qp9:22
- a=z6gsHLkEAAAA:8 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=voM4FWlXAAAA:8
- a=SqQ6MPcMXgqzPSFYyf4A:9 a=wPNLvfGTeEIA:10 a=IC2XNlieTeVoXbcui8wp:22
-X-Sony-Outbound-GUID: VpHTjSodXUKef77uTlPi5X212SUF9F0L
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-23_01,2026-10-21_02,2025-10-01_01
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS autolearn=ham autolearn_force=no version=4.0.1
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Hi, Gao=0A=
-=0A=
-I will send patches for test in erofs-utils.=0A=
-=0A=
-Best Regards=0A=
-Friendy=0A=
-=0A=
-=0A=
-________________________________________=0A=
-From: Su, Friendy <Friendy.Su@sony.com>=0A=
-Sent: Friday, October 23, 2026 10:16=0A=
-To: xiang@kernel.org; chao@kernel.org; jack@suse.cz; amir73il@gmail.com=0A=
-Cc: linux-erofs@lists.ozlabs.org; linux-kernel@vger.kernel.org; Su, Friendy=
-; Mo, Yuezhang; Palmer, Daniel (SGC)=0A=
-Subject: [PATCH v2] erofs: set SB_I_ALLOW_HSM for bdev-based mounts=0A=
-=0A=
-SB_I_ALLOW_HSM makes erofs support fanotify FAN_PRE_ACCESS event=0A=
-for bdev-based mounts. file-backed mounts do not support this.=0A=
-=0A=
-This is for use case that erofs file data is not available on=0A=
-local block device at mount, but need to be filled at fanotify=0A=
-FAN_PRE_ACCESS event handler.=0A=
-=0A=
-E.g. format erofs to blob mode, meta data on /dev/pmem0, file data=0A=
-on blob device /dev/pmem1. The file content in blob device is dummy.=0A=
-=0A=
-mount as below:=0A=
-=0A=
-$ sudo mount -o dax,device=3D/dev/pmem1 /dev/pmem0 /mnt/erofs/=0A=
-=0A=
-In FAN_PRE_ACCESS handler, actual file content is fetched from remote=0A=
-then filled into the DAX mounted block device /dev/pmem1.=0A=
-=0A=
-Signed-off-by: Friendy Su <friendy.su@sony.com>=0A=
-Reviewed-by: Yuezhang Mo <Yuezhang.Mo@sony.com>=0A=
-Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>=0A=
----=0A=
- fs/erofs/super.c | 9 +++++++++=0A=
- 1 file changed, 9 insertions(+)=0A=
-=0A=
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c=0A=
-index 0967aace9f7f..be8728b8d116 100644=0A=
---- a/fs/erofs/super.c=0A=
-+++ b/fs/erofs/super.c=0A=
-@@ -667,6 +667,15 @@ static int erofs_fc_fill_super(struct super_block *sb,=
- struct fs_context *fc)=0A=
-                errorfc(fc, "FSDAX is not allowed when inode_share is on");=
-=0A=
-                return -EINVAL;=0A=
-        }=0A=
-+       if (!erofs_is_fileio_mode(sbi)) {=0A=
-+               /*=0A=
-+                * Only enable HSM to support fanotify FAN_PRE_ACCESS event=
-=0A=
-+                * under block device backed mounts.=0A=
-+                * For file-backed mounts, do not enable since erofs-utils=
-=0A=
-+                * has already supported FAN_PRE_ACCESS event on backend im=
-age.=0A=
-+                */=0A=
-+               sb->s_iflags |=3D SB_I_ALLOW_HSM;=0A=
-+       }=0A=
-=0A=
-        sbi->blkszbits =3D PAGE_SHIFT;=0A=
-        if (erofs_is_fileio_mode(sbi)) {=0A=
---=0A=
-2.34.1=0A=
-=0A=
+Commit e587a984d332 ("erofs: use dedicated meta inodes for file-backed
+mounts") made erofs_read_meta_folio() read the metadata of a
+file-backed mount one whole folio at a time.
+
+However, an image only has to be a multiple of its block size. With a
+block size below the page size, it can end in the middle of a page. The
+read of that last page is then short, and erofs_fileio_ki_complete()
+fails it with -EIO. As of now, inodes in the last page of such an image
+cannot be read, and an image smaller than a page cannot be mounted.
+
+The issue can be reproduced with util-linux 2.41, whose mount uses the
+image file directly:
+
+    mkdir src
+    for i in $(seq 50); do echo $i > src/$i; done
+    mkfs.erofs -b512 test.erofs src
+    mount -t erofs test.erofs /mnt
+    ls -l /mnt
+
+Before that commit, ls -l lists all 50 files. After it, ls -l reports
+"Input/output error" for 24 of them.
+
+This patch reads the folio only up to the end of the backing file and
+zeroes the rest, as the page cache of the backing file did before.
+
+Fixes: e587a984d332 ("erofs: use dedicated meta inodes for file-backed mounts")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hengyu Liang <hengyul@cs.unc.edu>
+---
+Tested in KVM with KASAN on a804c5742bff: file-backed mounts of images
+with 512 to 4096 byte blocks, uncompressed and compressed, with and
+without directio. With this patch every file reads back correctly;
+without it, 24 of the 36 mounts give errors. Not tested on 16K or 64K
+page kernels, where 4K-block images should be affected too.
+
+ fs/erofs/fileio.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
+index c36a90a1a4cb..b4ed7fe7347c 100644
+--- a/fs/erofs/fileio.c
++++ b/fs/erofs/fileio.c
+@@ -142,17 +142,26 @@ int erofs_read_meta_folio(struct file *file, struct folio *folio)
+ 		.dev = { .m_pa = folio_pos(folio), },
+ 	};
+ 	struct inode *inode = folio_inode(folio);
++	size_t len = folio_size(folio);
++	loff_t pos, isize;
+ 	int err;
+ 
+ 	err = erofs_map_dev(inode->i_sb, &io.dev);
+ 	if (err)
+ 		return err;
+ 
++	pos = io.dev.m_dif->fsoff + io.dev.m_pa;
++	isize = i_size_read(file_inode(io.dev.m_dif->file));
++	/* the image may end in the middle of the folio, zero the rest */
++	if (pos < isize && isize - pos < len) {
++		len = isize - pos;
++		folio_zero_segment(folio, len, folio_size(folio));
++	}
++
+ 	io.rq = erofs_fileio_rq_alloc(inode->i_sb, io.dev.m_dif->file);
+ 	io.rq->bio.bi_end_io = erofs_fileio_meta_endio;
+-	io.rq->bio.bi_iter.bi_sector =
+-		(io.dev.m_dif->fsoff + io.dev.m_pa) >> 9;
+-	bio_add_folio_nofail(&io.rq->bio, folio, folio_size(folio), 0);
++	io.rq->bio.bi_iter.bi_sector = pos >> 9;
++	bio_add_folio_nofail(&io.rq->bio, folio, len, 0);
+ 	erofs_fileio_rq_submit(io.rq);
+ 	return 0;
+ }
+
+base-commit: a804c5742bff224d4cb4d25dd383554d598be32b
+-- 
+2.53.0
+
 
