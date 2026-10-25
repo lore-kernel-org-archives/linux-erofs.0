@@ -1,65 +1,51 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B6BD606A31D
-	for <linux-erofs@archiver.kernel.org>; Sat, 24 Oct 2026 19:49:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97538606A988
+	for <linux-erofs@archiver.kernel.org>; Sun, 25 Oct 2026 02:21:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FTPJQGRD
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OSka3LFL
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jBr7S3HZyz2xlw;
-	Sun, 25 Oct 2026 06:49:24 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jC0qq6K0Zz2y32;
+	Sun, 25 Oct 2026 13:21:27 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792871364;
-	cv=none; b=TqOxWuMoKFpfB/l2KnBVZoy6bEtntVGJ/iviKgub4neOjXbzv3u9g1vCOp4BjGHnWjbia0+RAjdbUPHl4EAIDVYPPOExyDR/EjEkFcLDNzJ9zjA7JKsRpg0txcmIxlWmW1rfNatvpwuy650zjf+b9CGO3m0mS2gw3SCO/I7gGyqdJTp3+aPP7K9FtpfmUeq6/YB0sP4tHkkalRWYDzTaM968X6FqNnqT0r99+yBPXl6bgZd84LyixwzXAJE3v7cMT5DFOigSQ0E6LD3W8FIob7ltf7klgnK+UeEl78eQkPUo442GZM2YaAPpjoZDNHxd6K9xYoVhN5iuOhcrhEkXuA==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1792894887;
+	cv=none; b=bmRJrAsOHZC7wgdkl7SYmsk2Z6WObLbV7LMpDalKoS2BzC1rK7dqYh7OBEJLgJFcFqEioa+PtzOHUTK21HMc+1j9fBeXZZqcdtR+qkADZtdni1LkpI0PIH7SoCCPiQLcmcq6enh8+LgVP9FCcc7K3XcHfUdnvKH+TZKJQAB5jqrLmXakvniWSaMAZq1d3kTSEU+4qpf+9nbjUweflchOjv4Mx1AC89FU/rnnsJuQ3gECwlJtmfDvp1mVc1PcNSL2tbioSfoYnfOAzdkC33bNnoIwxfIS7wEHUqISTNJ06qzEAM9NcJyTvVWXSMr4JI9yomT0cotnxm1qZKZTZqW8+Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1792871364; c=relaxed/relaxed;
-	bh=Lolb73ZzkNeVgvmRmzP6aoaOobLavyPT6W9rKgYFA2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MGFueoukBU/BqFOpKOxHlskdTJsBsnJr3qGPW/fHIayiYvdr8fby1i60qwA8XA7fubJ7ncBqTilZFxLaH5o17z+38xDXwrTMHP0rZmBlKORaWyfAJMFi6lFfRgIQRHX7MkBiE2qU6jAUJDAk0Ag5JizfnikuN54OjA/PDi2EsJ3TVN+BeHTcW3mNMo8n7iCa3EwP2ZCOSntn9dI/wlZ8ek4TUzj7uSaXX9ah4kw0Gh9I9oqCDt+5nLIuOEggDH6FL4m7l5BeogLH4V/FlXvsQrY9mLEYbba0PZPCBaGhcXQp81/I1hnMqCDzCM8Z5BJYqdmn2G28ZJCPYluWrYNHow==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FTPJQGRD; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	t=1792894887; c=relaxed/relaxed;
+	bh=tk1nNKvu4gh+/6cQpDYde1nK+SUWzRQlVwuGvyxxZfc=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=hDmb0fN+EafKMj1icekln7c/nqRov2anfpegmjbqII9RS9quh+BRsunnVotSsrDAcCFXkkXif1QarHK7VIi1M6xGU4QNoA260jQrw7eVGT0hqVGzJvaHjsKb1xqmUODUso1pG9ycS9yx9JWF5kmPUBzGBusA/U68bzyapAsXD3oe76wwsNU1/zzgeCpDq/KQ7Beiq6HF0AYtzuNtpiHXTCXXjZz886mhtXNVCIdJdwMv8BGVYq3BhHSeh5B9OKSqwqvunJsbxhYHIVp4lvJ9AcAQlMws8uXmSSDSdab8wpGpYwYJ6Q8hlxOqUItEsP8ABElndlGng7+Ck2r7PJfYfA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OSka3LFL; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FTPJQGRD;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OSka3LFL;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
 Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jBr7R2Mzsz2xjh
-	for <linux-erofs@lists.ozlabs.org>; Sun, 25 Oct 2026 06:49:23 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jC0qp5VFRz2xqh
+	for <linux-erofs@lists.ozlabs.org>; Sun, 25 Oct 2026 13:21:26 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 7C458600D4;
-	Sat, 24 Oct 2026 19:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD24E1F01825;
-	Sat, 24 Oct 2026 19:49:16 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 5932A6024D;
+	Sun, 25 Oct 2026 02:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA401F01825;
+	Sun, 25 Oct 2026 02:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792871359;
-	bh=Lolb73ZzkNeVgvmRmzP6aoaOobLavyPT6W9rKgYFA2k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FTPJQGRDTq/Damy+nZIDwbaBi5mKEikg6ZiCXnHVxB4mlVRQGnCR9ffg1/1jfk1Tr
-	 9HhOxXIMp2I9res7so/5oAS/TK0KBEtNKaA5IXLFM3dcjsOyLFerixtLr9aX3coHc9
-	 rFfyT/sgchtEh+Jbr/0HJpv76tAhkipoY+GKcDhsU7r/T+BtznLXwf8jCy+a0eiCTP
-	 JQ7RwCT0kBt4ZQynGpn0bi+sdERq+5aHRd6DK5H9hjps5LrIqzWdogvvD+NILMc097
-	 +gbIjG98PApTqTlUYyJ/lnDy1dRKDS2LCXyEvolD48WMIunNXR5liA0ba0iseRT0Ng
-	 La0jb+VXxo7DA==
-Date: Sat, 24 Oct 2026 21:49:09 +0200
-From: Gao Xiang <xiang@kernel.org>
-To: Hengyu Liang <hengyul@cs.unc.edu>
-Cc: xiang@kernel.org, chao@kernel.org, zbestahu@gmail.com, jefflexu@163.com,
-	dhavale@google.com, hongbohbli@tencent.com, guochunhai@vivo.com,
-	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] erofs: fix metadata reads at the end of file-backed
- images
-Message-ID: <at0LtfBEoQpV4VDn@MacBookPro>
-Mail-Followup-To: Hengyu Liang <hengyul@cs.unc.edu>, xiang@kernel.org,
-	chao@kernel.org, zbestahu@gmail.com, jefflexu@163.com,
-	dhavale@google.com, hongbohbli@tencent.com, guochunhai@vivo.com,
-	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-References: <20261023190051.3457491-1-hengyul@cs.unc.edu>
+	s=k20260515; t=1792894883;
+	bh=tk1nNKvu4gh+/6cQpDYde1nK+SUWzRQlVwuGvyxxZfc=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To;
+	b=OSka3LFLmkiQLqEa70/pTPQS9idWYgbeWk/LwcTeJ35OvI+2DknedSsgSj1VD6DP+
+	 8WTrtbdgwG4TlzkuQmQV4fhpLk7/tgW2c8AFM5YpmbqM4SzEYQLDs68Ea2jOecQjse
+	 YIymUt3ygNuxu6M3+glYkMqwOncXIZGcR17WvKaDFnb523mKiuAxYQWHBoPXmQuXgb
+	 Af9Q6csQyf5AnzEX6rndObQsxAEIXhnt8vz9poR5suZo6DRBK7hCzTCG0bN5xchi4T
+	 wjZCJzSHM3+OqVrKIoqfjFJE8aQzbE5qxiNTQswDSSRzpAzZOGCFbNi3EJipYx7ph7
+	 dOqtTXu00gAzg==
+Message-ID: <22cd38be-5f6e-45e6-8042-9ad091089192@kernel.org>
+Date: Sun, 25 Oct 2026 10:21:20 +0800
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -71,85 +57,49 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261023190051.3457491-1-hengyul@cs.unc.edu>
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+User-Agent: Mozilla Thunderbird
+Cc: chao@kernel.org, LKML <linux-kernel@vger.kernel.org>,
+ YoungWoo Rim <xsapiens75@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] erofs: hold real inodes for shared files
+To: Gao Xiang <xiang@kernel.org>, linux-erofs@lists.ozlabs.org
+References: <20261024192028.53932-1-xiang@kernel.org>
+Content-Language: en-US
+From: Chao Yu <chao@kernel.org>
+In-Reply-To: <20261024192028.53932-1-xiang@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS autolearn=ham autolearn_force=no version=4.0.1
+	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-On Fri, Oct 23, 2026 at 03:00:51PM -0400, Hengyu Liang wrote:
-> Commit e587a984d332 ("erofs: use dedicated meta inodes for file-backed
-> mounts") made erofs_read_meta_folio() read the metadata of a
-> file-backed mount one whole folio at a time.
+On 10/25/26 03:20, Gao Xiang wrote:
+> EROFS page cache sharing uses shared inodes. However, a mmaped VMA
+> keeps the shared file even after the corresponding fd is closed, while
+> currently the real inode is never held by any reference associated
+> with the shared file.
 > 
-> However, an image only has to be a multiple of its block size. With a
-> block size below the page size, it can end in the middle of a page. The
-> read of that last page is then short, and erofs_fileio_ki_complete()
-> fails it with -EIO. As of now, inodes in the last page of such an image
-> cannot be read, and an image smaller than a page cannot be mounted.
+> As a result, the real inode could be evicted and removed from the
+> shared inode's list while the page fault can still invoke on the
+> shared inode's address space, which causes no candidate is
+> successfully acquired by erofs_real_inode().
 > 
-> The issue can be reproduced with util-linux 2.41, whose mount uses the
-> image file directly:
+> Fix this by simply keeping the original inode in the shared backing
+> file's private data.
 > 
->     mkdir src
->     for i in $(seq 50); do echo $i > src/$i; done
->     mkfs.erofs -b512 test.erofs src
->     mount -t erofs test.erofs /mnt
->     ls -l /mnt
+> Also replace confusing "readinode"/"rf" names with "sf" (sharedfile)
+> to unify the terms as well as nullify realinode in erofs_real_inode()
+> to avoid returning an uninitialized pointer.
 > 
-> Before that commit, ls -l lists all 50 files. After it, ls -l reports
-> "Input/output error" for 24 of them.
-> 
-> This patch reads the folio only up to the end of the backing file and
-> zeroes the rest, as the page cache of the backing file did before. A
-> folio that lies wholly past the end is zeroed without a read.
-> 
-> Fixes: e587a984d332 ("erofs: use dedicated meta inodes for file-backed mounts")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hengyu Liang <hengyul@cs.unc.edu>
-> ---
-> Changes in v2:
-> - Also zero a folio that lies wholly past the end of the backing file,
->   without a read, as suggested by Gao Xiang.
-> - v1: https://lore.kernel.org/r/20261023174232.3282900-1-hengyul@cs.unc.edu
-> 
-> Tested in KVM with KASAN on 734bef548a96: the images used for v1, plus
-> three images cut so that whole folios lie past the end. With this
-> patch every complete image reads back correctly, and the cut images
-> give the same results as v7.2 (EFSCORRUPTED instead of EIO for the
-> inodes past the end).
-> 
->  fs/erofs/fileio.c | 19 ++++++++++++++++---
->  1 file changed, 16 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
-> index c36a90a1a4cb..a77af604479f 100644
-> --- a/fs/erofs/fileio.c
-> +++ b/fs/erofs/fileio.c
-> @@ -142,17 +142,30 @@ int erofs_read_meta_folio(struct file *file, struct folio *folio)
->  		.dev = { .m_pa = folio_pos(folio), },
->  	};
->  	struct inode *inode = folio_inode(folio);
-> +	size_t len = folio_size(folio);
-> +	loff_t pos, isize;
->  	int err;
->  
->  	err = erofs_map_dev(inode->i_sb, &io.dev);
->  	if (err)
->  		return err;
->  
-> +	pos = io.dev.m_dif->fsoff + io.dev.m_pa;
-> +	isize = i_size_read(file_inode(io.dev.m_dif->file));
-> +	/* the image may end before the end of the folio, zero the rest */
+> Fixes: 5ef3208e3be5 ("erofs: introduce the page cache share feature")
+> Reported-by: YoungWoo Rim <xsapiens75@gmail.com>
+> Closes: https://lore.kernel.org/r/atzSVuvqYKgmvDmO@MacBookPro
+> Cc: stable@vger.kernel.org # 7.0+
+> Signed-off-by: Gao Xiang (Docker) <xiang@kernel.org>
 
-I dropped this obvious comment, otherwise it looks good to me:
-
-Reviewed-by: Gao Xiang <xiang@kernel.org>
+Reviewed-by: Chao Yu <chao@kernel.org>
 
 Thanks,
-Gao Xiang
 
