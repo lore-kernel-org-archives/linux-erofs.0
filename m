@@ -2,79 +2,49 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 513DC606A31A
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2026 03:54:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E8F7606A31A
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2026 08:33:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hO5/TKe8
+	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jG6g46jzdz2y8r;
-	Fri, 30 Oct 2026 14:54:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25" arc.chain=kernel.org
-ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793332480;
-	cv=pass; b=PtMtG+TO6hS0I0JBCbuDagk2AjdMYzYX0cMevEsN/bleam+S8bZXARfy1Grhll1vjuXzN0FjC2LqPiypWpa4KrNNgoKSPytnc12jQAqHJ6HzFv8IQxuTQQoS6wRt3EFb+PHspOuR6ALs1KJP8n/3/fO/vP2FhlMgc6i9lk2u6+vzueUnX5sU1YewK7NRH0w7Dl38wnmX68YTlMX5VWHls+6nRr56wJNcIwVLEqmebGSYCmp8kY/yDnzEJwdw73AnpvbYmGSjdZVcMj51unyDe+Q6HcpKZ1pxaB+aQwbn0797hXXvsE2Q/xPTtuuzGqnAMf/eMJwP6sIuR9wQLLOqmw==
-ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793332480; c=relaxed/relaxed;
-	bh=Y94x0XFkUWge/pJ0DfaIyGIPUJpHReZSVXKDZIueDcI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=gy0CNqcuiTWnKme8iJRdoqFKZ5WignTuWEY6QL4OJyb10ezvB8iydkvgJ3TsTikhjibRxR9PHU02gEiqmJLg0/c4tTeCoFCWylnTzY5wS7ASo8uPFXS6X74omZ4p1Tqk6xao87hbSiWMIXcgGhK7UEGD9nl1nT2S9krkA/krSiNETJZMlg9MXB+02ULCEn1j7NBMFG+5gAAvOdD/FIylvb8riMJKWWb9fv4zAbr9LfyAZXXLplXUHkz+u0rW0YwOs2vlrslhb7Kb6SlJbGK/qfnuKzTckJzsqDF/vRHiCXrl/geygq1T/1bTfeQJCR5zOqa3AgaN5Nv77rukwrD6qQ==
-ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hO5/TKe8; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+daejun7.park.samsung.com@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jGDrJ4fckz30VT;
+	Fri, 30 Oct 2026 19:33:04 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793349184;
+	cv=none; b=nVo0eiK0Kosc5aIpC4y9NSEbSbtdEIqf3BF8kXCIlMfoKZ25quvVuQgng6OjVY4JrHhuCkol9bivpmkE8yb/cI6tjT4ZasO4tYoYlVsA/e5oHGoROorrV4Q4y4JkmNYYHKFGDaQ4viHZVpCG8vjITEitECa/Ype5YriG8f4Jzy86eb9++CeIklqoQESvMfbDdRlnqWjVCpeSyNx7pG9rfaQ+Nd51UX9xjnkcTf+uSWQ6Ybly++NYDJ3AgxTNOEpGR+P/U7H8UTxZ1sqB9J0phrnclCcFvs/DPobBIA6qw5tfZUU9yNI9kvp0oGNZigINbY2FmvfUqT10END8Z63/iw==
+ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1793349184; c=relaxed/relaxed;
+	bh=/LT+r8Vr8cV3YtbOoqvwkAJFUkF/x6SzpDAAc75TKG4=;
+	h=Date:From:To:Cc:Message-ID:Subject:MIME-Version:Content-Type; b=cevt5bht/agx1eERJ4SWdVTiVbhpcoGrkCnZsGm281g69/yrBS7f2UlASLSG/O6JaQGVUyy/0JQ7uwaLSB3jeY3O5tuiN3789kCrBac56r2p2SngVlAY2PBxv7XK/p9AgfN2FVdzSD333goP5vBpQIzVIvTdP8dpjw9kXP0Iqh5qB96AWosDrqPZDwoMei1RTc1zgkW/4QlOUD3mW6xTckYXTb2ca3O44rxlGmklPLvKb46dKIIOLF09FCw1vyOmt3ZTLuHi3y5yxRghzzub0O71lgNuy+Fk8vRqid1SHJGmvi23ai2sWKg2Odjk0p+bkueW+JTq1wNBHWg/6w3k8A==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=lanbingying.lby@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hO5/TKe8;
+	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=devnull+daejun7.park.samsung.com@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=lanbingying.lby@linux.alibaba.com; receiver=lists.ozlabs.org)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jG6g35dKMz2xwL
-	for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2026 14:54:39 +1100 (AEDT)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 4F1C643E96;
-	Fri, 30 Oct 2026 03:54:37 +0000 (UTC)
-Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
-ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793332477;
-	b=yfCxlAlkqrjdlJcthNwKSA80KDla00Ts66DLx6S7qocZx3GU5i/9EwZPApdfarkJyTZa
-	 SBuuqGKB7gqjCLDEVEFMMp5+577SHe8wv2+n671lpF5fCxPrWcHcjBybNbSq51hbExNdC
-	 peaqSO6mhf7bIb/dE6frfQSawVALuT575J0L9ITEaBW0IP2FW1Vwe2OgpODBgszAZUwyy
-	 qQvE0OgcNwpgd+K8AH5aXazjZnvWYU1L5QY7vZdY5IK93I6D8Tw7YgRJenrC4RfJ3DskC
-	 75eOsYQ0lcPBB0+aXpW25XGwQC4o9T+qwDz6HjGbXby0yKZcLieieqgw9AY7g7dMN7w==
-ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793332477;
-	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
-	 Message-Id:X-B4-Tracking:To:Cc:X-Mailer:X-Developer-Signature:
-	 X-Developer-Key:X-Endpoint-Received:X-Original-From:Reply-To:
-	 Content-Transfer-Encoding;
-	bh=Y94x0XFkUWge/pJ0DfaIyGIPUJpHReZSVXKDZIueDcI=;
-	b=N5rpiaK947K5XrGTiV7NiHlLN4Y3YWxMxdQDqq0Gx67CU+aRf4mlEMJkTKML0HWeR1tc
-	 LsfV4C2BSOldzypTOX1PmMhKdmW22z6PIfkJkEcuSTXOzRXuKHpS0/+hfohSc2WgRL17L
-	 69mniD6CrhtWqnVK44mEfmH31juqzNhxzIBmlm7PtJ4nkTugng3TvRNUqDHCJ0vpmeLS2
-	 oWmZDil11gfUzTEobXzRa4LkOZu+XFP/pUr1ks6/At+CpIfiLh5Y5irwrdT7jrnBnBrtd
-	 L6S1vhA9RJFEqyD4R07I+kk19O8728NCCTCGrWQJkO5yyrjDYyY+5SntaO7/JCv0QNw==
-ARC-Authentication-Results: i=1; smtp.kernel.org; 
-	arc=none smtp.remote-ip=100.80.115.77
-Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 836D61F000C1;
-	Fri, 30 Oct 2026 03:54:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793332477;
-	bh=Y94x0XFkUWge/pJ0DfaIyGIPUJpHReZSVXKDZIueDcI=;
-	h=From:Date:Subject:To:Cc:Reply-To;
-	b=hO5/TKe8jFMfYu/Y+OnT611ZFlGksbiJgANg/7QvuXs8qHRWqThO1MpnSLrGRbpTh
-	 XwPEy4N2W/TydQlZFfOGr/HKwp9hdAlWoJee7Uicp3viS6NS5nadvl+yOqesFJLuLl
-	 6paYNSRAWL3PWDyKIveo5NVOVO5DEIAUyS2nK26Ru0ftyonjfCZRYkWDvovOqwlaoG
-	 /9umYj4ZNyxAPG50YuRqu1jTNN8tRNerxqLSl/tVn5BeBV2TMTyXYtu9j8TTLiFx4e
-	 tQTKMbbwrmG/TdOx4y88VYfYiCxMkCWrpix9tEGYcICftdoLpHMB8N3QfnUJQzz0uw
-	 jC0+YnUynxbOQ==
-Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 10C0F435F8;
-	Fri, 30 Oct 2026 03:54:36 +0000 (UTC)
-From: Daejun Park via B4 Relay <devnull+daejun7.park.samsung.com@kernel.org>
-Date: Fri, 30 Oct 2026 12:54:36 +0900
-Subject: [PATCH] erofs: allocate file-backed mount requests from a bio_set
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jGDrF6gRjz30V6
+	for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2026 19:32:59 +1100 (AEDT)
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1793349174; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type;
+	bh=/LT+r8Vr8cV3YtbOoqvwkAJFUkF/x6SzpDAAc75TKG4=;
+	b=F4xzP64d4sKPC9R6rDS3BB8uC4m7OfR3OUoSnl94/5QTH6G0lPL6CR9hT3aIg3eNVwRKam7HrLLWw7VZjkHWgtm5k1KV357DjFg0pIZVxTliQjD2D3T3eUkZwJCRlz2g9w8LNuYoDeaDOZgvuHfSe4l7rt6/MjpZSFfX6hRlnLM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=lanbingying.lby@linux.alibaba.com;NM=1;PH=DW;RN=3;SR=0;TI=W4_0.2.3_v5ForWebDing_2125130F_1793349115036_o7001c56r;
+Received: from WS-web (lanbingying.lby@linux.alibaba.com[W4_0.2.3_v5ForWebDing_2125130F_1793349115036_o7001c56r] cluster:ay36) at Fri, 30 Oct 2026 16:32:48 +0800
+Date: Fri, 30 Oct 2026 16:32:48 +0800
+From: "lanbingying" <lanbingying.lby@linux.alibaba.com>
+To: "linux-erofs" <linux-erofs@lists.ozlabs.org>
+Cc: "Gao Xiang" <xiang@kernel.org>,
+  "Chao Yu" <chao@kernel.org>
+Reply-To: "lanbingying" <lanbingying.lby@linux.alibaba.com>
+Message-ID: <ede0d70f-a0f4-41f6-b2ee-5ec238b2fd01.lanbingying.lby@linux.alibaba.com>
+Subject: =?UTF-8?B?W1JGQ10gZXJvZnMtdXRpbHM6IGFkZHJlc3NpbmcgdGhlIDE2IEdpQiB4YXR0ciBwcmVmaXgg?=
+  =?UTF-8?B?b2Zmc2V0IGxpbWl0IGluIGluY3JlbWVudGFsIGJ1aWxkcw==?=
+X-Mailer: [Alimail-Mailagent revision 290][W4_0.2.3][v5ForWebDing][Chrome]
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -86,254 +56,147 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261030-erofs-fileio-bioset-v1-1-caf47adbb3a3@samsung.com>
-X-B4-Tracking: v=1; b=H4sIAPsU5GoC/x3MTQqAIBBA4avErBtQo9KuEi36GWsgNJyIILp70
- vJbvPeAUGIS6IoHEl0sHEOGLguYtzGshLxkg1Gm0co4pBS9oOedOOLEUejEVld1qybrFusgl0c
- iz/d/7Yf3/QACpbrhZQAAAA==
-To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
-Cc: Yue Hu <zbestahu@gmail.com>, Jingbo Xu <jefflexu@163.com>, 
- Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>, 
- Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
- linux-kernel@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793332475; l=7653;
- i=daejun7.park@samsung.com; s=20261006; h=from:subject:message-id;
- bh=gbIxnX8FciCSXpNYzWxLVeaper8bYHxXoy7NVQKYLCc=;
- b=I6WF5AUXX0OQ89qm/VX6quw8eorvh1mBHO9e7AewMvJa0Kcn5MiGTDvcC4lwsZ93fdrT2yliD
- 6BIC9qz1LBkDbjbNHf8QEkMl3JZqfJOp+386V0RVbVamf1RBQjgp1Uu
-X-Developer-Key: i=daejun7.park@samsung.com; a=ed25519;
- pk=4yUfDqGRZTIj0Ik43z1GoMZRWCNm/rgX6uJuM9dtNIg=
-X-Endpoint-Received: by B4 Relay for daejun7.park@samsung.com/20261006 with
- auth_id=1122
-X-Original-From: Daejun Park <daejun7.park@samsung.com>
-Reply-To: daejun7.park@samsung.com
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
+x-aliyun-im-through: {"version":"v1.0"}
+x-aliyun-mail-creator: W4_0.2.3_v5ForWebDing_QvNTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1NS4wLjAuMCBTYWZhcmkvNTM3LjM2La
+x-aliyun-mailtrack: {"foreign-track":"0"}
+Content-Type: multipart/alternative;
+  boundary="----=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b"
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,
+	MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-From: Daejun Park <daejun7.park@samsung.com>
+------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-Since commit 9f74ae8c9ac9 ("erofs: shorten bvecs[] for file-backed
-mounts"), a file-backed request holds at most 16 bvecs. A 1 MiB
-synchronous readahead window of order-0 folios can then take several
-backing reads.
+SGksCnhhdHRyX3ByZWZpeF9zdGFydCBpcyBhIDMyLWJpdCBmaWVsZCBzdG9yaW5nIGFuIG9mZnNl
+dCBpbiBmb3VyLWJ5dGUgdW5pdHMuIFdoZW4gYW4gaW5jcmVtZW50YWwgYnVpbGQgcGxhY2VzIGEg
+bmV3IGxvbmcgeGF0dHIgbmFtZSBwcmVmaXggdGFibGUgYXQgb3IgYmV5b25kIDE2IEdpQiwgdGhl
+IG9mZnNldCBjYW5ub3QgYmUgcmVwcmVzZW50ZWQgYW5kIG1rZnMuZXJvZnMgcmVqZWN0cyB0aGUg
+YnVpbGQuCkJlZm9yZSB3b3JraW5nIG9uIHBhdGNoZXMsIEkgd291bGQgbGlrZSB0byBkaXNjdXNz
+IHNldmVyYWwgcG9zc2libGUgc29sdXRpb25zOgoKICogClN0b3JlIHRoZSBwcmVmaXggdGFibGUg
+aW4gdGhlIHBhY2tlZCBpbm9kZS4KVXNlIHRoZSBleGlzdGluZyBmb3JtYXQgc3VwcG9ydCBzbyB0
+aGF0IHRoZSB0YWJsZSBpcyBhZGRyZXNzZWQgYnkgYSBsb2dpY2FsIG9mZnNldCB3aXRoaW4gdGhl
+IHBhY2tlZCBpbm9kZSByYXRoZXIgdGhhbiBhIHBoeXNpY2FsIG9mZnNldCBpbiB0aGUgaW1hZ2Uu
+IFRoaXMgYXZvaWRzIGEgZm9ybWF0IGV4dGVuc2lvbiwgYWx0aG91Z2ggdGhlIHRhYmxl4oCZcyBs
+b2dpY2FsIG9mZnNldCByZW1haW5zIHN1YmplY3QgdG8gdGhlIHNhbWUgbGltaXQsIGFuZCBleGlz
+dGluZyByZWZlcmVuY2VzIHRvIGZyYWdtZW50IGRhdGEgbXVzdCBiZSBwcmVzZXJ2ZWQuCgogKiAK
+UmVzZXJ2ZSBzcGFjZSBmb3IgdGhlIHByZWZpeCB0YWJsZSBuZWFyIHRoZSBiZWdpbm5pbmcgb2Yg
+dGhlIGltYWdlLgpSZXNlcnZlIHN1ZmZpY2llbnQgc3BhY2UgYXQgYSBsb3cgb2Zmc2V0IHdoZW4g
+Y3JlYXRpbmcgdGhlIGltYWdlLCB3aXRoIGEgZmVhdHVyZSBmbGFnIGlkZW50aWZ5aW5nIHRoaXMg
+bGF5b3V0LiBTdWJzZXF1ZW50IGluY3JlbWVudGFsIGJ1aWxkcyB3b3VsZCB1c2UgdGhlIHJlc2Vy
+dmVkIHJlZ2lvbiwgd2hpbGUgaW1hZ2VzIHdpdGhvdXQgdGhlIGZsYWcgd291bGQgcmV0YWluIHRo
+ZSBleGlzdGluZyBiZWhhdmlvci4gRXhpc3RpbmcgaW1hZ2VzIHdpdGhvdXQgcmVzZXJ2ZWQgc3Bh
+Y2Ugd291bGQgcmVxdWlyZSBtaWdyYXRpb24gb3IgcmVidWlsZGluZyB0byBhZG9wdCB0aGlzIGxh
+eW91dC4KCiAqIApFeHRlbmQgdGhlIG9mZnNldCB1c2luZyByZXNlcnZlZCBzdXBlcmJsb2NrIHNw
+YWNlLgpBZGQgYW4gdXBwZXIgZmllbGQgZm9yIHhhdHRyX3ByZWZpeF9zdGFydCBpbiB0aGUgc3Vw
+ZXJibG9ja+KAmXMgcmVzZXJ2ZWQgc3BhY2UgYW5kIGNvbWJpbmUgaXQgd2l0aCB0aGUgZXhpc3Rp
+bmcgZmllbGQuIEEgbmV3IGluY29tcGF0IGZlYXR1cmUgd291bGQgZW5hYmxlIHRoZSBleHRlbmRl
+ZCBpbnRlcnByZXRhdGlvbjsgd2l0aG91dCBpdCwgcmVhZGVycyB3b3VsZCByZXRhaW4gdGhlIGN1
+cnJlbnQgaW50ZXJwcmV0YXRpb24uIFRoaXMgd291bGQgYWxsb3cgdGhlIHRhYmxlIHRvIHJlbWFp
+biBhcHBlbmRlZCB0byB0aGUgaW1hZ2UsIGJ1dCByZXF1aXJlIHJlYWRlciB1cGRhdGVzLgoKICog
+ClJlc2VydmUgc3BhY2UgZm9yIHRoZSBwcmVmaXggdGFibGUgd2l0aGluIHRoZSBwYWNrZWQgaW5v
+ZGUuCkJ1aWxkaW5nIG9uIG9wdGlvbiAxLCByZXNlcnZlIGEgZGVkaWNhdGVkIHJlZ2lvbiBhdCBh
+IGxvdyBsb2dpY2FsIG9mZnNldCB3aXRoaW4gdGhlIHBhY2tlZCBpbm9kZSB3aGVuIGNyZWF0aW5n
+IHRoZSBpbWFnZS4gU3Vic2VxdWVudCBpbmNyZW1lbnRhbCBidWlsZHMgY291bGQgdXNlIHRoaXMg
+cmVnaW9uIGluc3RlYWQgb2YgYXBwZW5kaW5nIGEgbmV3IHRhYmxlIGFmdGVyIHRoZSBncm93aW5n
+IGZyYWdtZW50IGRhdGEuIEEgZmVhdHVyZSBmbGFnIGNvdWxkIGlkZW50aWZ5IHRoZSByZXNlcnZh
+dGlvbjsgZXhpc3RpbmcgaW1hZ2VzIHdpdGhvdXQgc3VjaCBhIHJlZ2lvbiB3b3VsZCBuZWVkIGEg
+bWlncmF0aW9uIG9yIHJlYnVpbGQgcGF0aC4KQWxsIG9wdGlvbnMgc2hvdWxkIHByZXNlcnZlIHRo
+ZSBpbnRlcnByZXRhdGlvbiBvZiBleGlzdGluZyBpbWFnZXMuIFdoZXJlIGEgbmV3IGludGVycHJl
+dGF0aW9uIGlzIGludHJvZHVjZWQsIHJlYWRlcnMgdGhhdCBkbyBub3Qgc3VwcG9ydCBpdCBzaG91
+bGQgcmVqZWN0IHRoZSBmZWF0dXJlIHJhdGhlciB0aGFuIHJlYWQgdGhlIHRhYmxlIGZyb20gYW4g
+aW5jb3JyZWN0IGxvY2F0aW9uLgpTZXBhcmF0ZWx5LCB3ZSBjb3VsZCByZXVzZSB0aGUgZXhpc3Rp
+bmcgcHJlZml4IHRhYmxlIHdoZW4gdGhlIHJlcXVpcmVkIHByZWZpeCBlbnRyaWVzIGFuZCB0aGVp
+ciBpbmRpY2VzIG1hdGNoIHRob3NlIGluIHRoZSBiYXNlIGltYWdlLCBwcm92aWRlZCB0aGUgb3Jp
+Z2luYWwgdGFibGUgcmVtYWlucyB2YWxpZCBhbmQgYWNjZXNzaWJsZS4gRm9yIGV4YW1wbGUsIG5l
+d2x5IGFkZGVkIGZpbGVzIG1heSB1c2UgZXhpc3RpbmcgbG9uZyBwcmVmaXhlcyBldmVuIGlmIHRo
+ZWlyIHhhdHRyIHZhbHVlcyBkaWZmZXIsIHNvIG5vIHRhYmxlIHVwZGF0ZSBpcyBuZWVkZWQuIFRo
+aXMgd291bGQgYXZvaWQgd3JpdGluZyBhbm90aGVyIGlkZW50aWNhbCB0YWJsZSBhdCB0aGUgZW5k
+IG9mIHRoZSBpbWFnZS4gSG93ZXZlciwgaXQgaXMgYW4gb3B0aW1pemF0aW9uIHJhdGhlciB0aGFu
+IGEgY29tcGxldGUgc29sdXRpb246IHRoZSBhZGRyZXNzaW5nIGxpbWl0IHN0aWxsIG5lZWRzIHRv
+IGJlIGhhbmRsZWQgd2hlbiBuZXcgcHJlZml4ZXMgYXJlIGFkZGVkIG9yIHRoZSB0YWJsZSBtdXN0
+IGJlIHJlbG9jYXRlZC4KV2hpY2ggYXBwcm9hY2ggd291bGQgYmVzdCBmaXQgRVJPRlPigJlzIGxv
+bmctdGVybSBmb3JtYXQgYW5kIG1haW50ZW5hbmNlIGdvYWxzPyBBcmUgdGhlcmUgb3RoZXIgb3B0
+aW9ucyBvciBjb25zdHJhaW50cyB0aGF0IHNob3VsZCBiZSBjb25zaWRlcmVkPwpUaGFua3MsCkJp
+bmd5aW5nCg==
+------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-Allocate requests from a bio_set, using the mempool that commit
-considered. With GFP_NOIO, bio_alloc_bioset() does not fail if each
-task submits a request before it allocates another:
-
-- Every path submits its request before it allocates the next one.
-
-- Mount already rejects backing files on stacked fses and on
-  file-backed EROFS. A backing read cannot reach this pool again in
-  the same task.
-
-Signed-off-by: Daejun Park <daejun7.park@samsung.com>
----
-This needs "erofs: apply the stacked fs check to extra file-backed
-devices" [1].
-
-Tested in QEMU on mm-new with that patch and "mm/readahead: keep at
-least half of the async window when aligning it" [2]:
-
-- With read_ahead_kb=1024, 1 MiB read() calls on 256 files of 1 MiB
-  take 0.119 s instead of 0.141 s (median of 6). The other 15 cases
-  changed by -22% to +0.4%.
-
-- Without the mm patch, this patch makes the same reads about 25%
-  slower.
-
-- With failslab failing all bio and biovec slab allocations of 8
-  parallel readers, every request came from the bio_set's reserves.
-  All data read back correctly.
-
-- KASAN and lockdep found only the lockdep report noted in [1].
-
-[1] https://lore.kernel.org/r/20261030-erofs-stacked-extra-devices-v1-1-39f7df7ac01b@samsung.com
-[2] https://lore.kernel.org/r/20261030-mm-readahead-async-align-v1-1-109dea6851fc@samsung.com
----
- fs/erofs/fileio.c   | 44 ++++++++++++++++++++++++++++++++------------
- fs/erofs/internal.h |  4 ++++
- fs/erofs/super.c    |  7 +++++++
- 3 files changed, 43 insertions(+), 12 deletions(-)
-
-diff --git a/fs/erofs/fileio.c b/fs/erofs/fileio.c
-index e13293ec70..0fe6eb6643 100644
---- a/fs/erofs/fileio.c
-+++ b/fs/erofs/fileio.c
-@@ -7,13 +7,15 @@
- #include <trace/events/erofs.h>
- 
- struct erofs_fileio_rq {
--	struct bio_vec bvecs[16];
--	struct bio bio;
- 	struct kiocb iocb;
- 	struct super_block *sb;
- 	refcount_t ref;
-+	/* must be last: erofs_fileio_bioset allocates the rest as front_pad */
-+	struct bio bio;
- };
- 
-+static struct bio_set erofs_fileio_bioset;
-+
- struct erofs_fileio {
- 	struct erofs_map_blocks map;
- 	struct erofs_map_dev dev;
-@@ -38,9 +40,8 @@ static void erofs_fileio_ki_complete(struct kiocb *iocb, long ret)
- 		rq->bio.bi_status = errno_to_blk_status(ret);
- 	}
- 	bio_endio(&rq->bio);
--	bio_uninit(&rq->bio);
- 	if (refcount_dec_and_test(&rq->ref))
--		kfree(rq);
-+		bio_put(&rq->bio);
- }
- 
- static void erofs_fileio_rq_submit(struct erofs_fileio_rq *rq)
-@@ -56,22 +57,25 @@ static void erofs_fileio_rq_submit(struct erofs_fileio_rq *rq)
- 	if (test_opt(&EROFS_SB(rq->sb)->opt, DIRECT_IO) &&
- 	    rq->iocb.ki_filp->f_mode & FMODE_CAN_ODIRECT)
- 		rq->iocb.ki_flags = IOCB_DIRECT;
--	iov_iter_bvec(&iter, ITER_DEST, rq->bvecs, rq->bio.bi_vcnt,
-+	iov_iter_bvec(&iter, ITER_DEST, rq->bio.bi_io_vec, rq->bio.bi_vcnt,
- 		      rq->bio.bi_iter.bi_size);
- 	scoped_with_creds(rq->iocb.ki_filp->f_cred)
- 		ret = vfs_iocb_iter_read(rq->iocb.ki_filp, &rq->iocb, &iter);
- 	if (ret != -EIOCBQUEUED)
- 		erofs_fileio_ki_complete(&rq->iocb, ret);
- 	if (refcount_dec_and_test(&rq->ref))
--		kfree(rq);
-+		bio_put(&rq->bio);
- }
- 
- static struct erofs_fileio_rq *erofs_fileio_rq_alloc(struct super_block *sb,
--						     struct file *file)
-+		struct file *file, unsigned short nr_vecs)
- {
--	struct erofs_fileio_rq *rq = kzalloc_obj(*rq, GFP_KERNEL | __GFP_NOFAIL);
-+	struct bio *bio = bio_alloc_bioset(NULL, nr_vecs, REQ_OP_READ,
-+					   GFP_NOIO, &erofs_fileio_bioset);
-+	struct erofs_fileio_rq *rq =
-+			container_of(bio, struct erofs_fileio_rq, bio);
- 
--	bio_init(&rq->bio, NULL, rq->bvecs, ARRAY_SIZE(rq->bvecs), REQ_OP_READ);
-+	memset(rq, 0, offsetof(struct erofs_fileio_rq, bio));
- 	rq->iocb.ki_filp = file;
- 	rq->sb = sb;
- 	refcount_set(&rq->ref, 2);
-@@ -80,7 +84,8 @@ static struct erofs_fileio_rq *erofs_fileio_rq_alloc(struct super_block *sb,
- 
- struct bio *erofs_fileio_bio_alloc(struct erofs_map_dev *mdev)
- {
--	return &erofs_fileio_rq_alloc(mdev->m_sb, mdev->m_dif->file)->bio;
-+	return &erofs_fileio_rq_alloc(mdev->m_sb, mdev->m_dif->file,
-+				      BIO_MAX_VECS)->bio;
- }
- 
- void erofs_fileio_submit_bio(struct bio *bio)
-@@ -108,11 +113,14 @@ static int erofs_fileio_iomap_read_folio_range(const struct iomap_iter *iter,
- 			   offset_in_folio(folio, iter->pos))) {
- 		struct super_block *sb = iter_ctx->realinode->i_sb;
- 		struct erofs_device_info *dif = iter->iomap.private;
-+		unsigned short nr_vecs;
- 
- 		/* submit the existing range if there was one. */
- 		if (ctx->read_ctx)
- 			erofs_fileio_iomap_submit_read(iter, ctx);
--		rq = erofs_fileio_rq_alloc(sb, dif->file);
-+		nr_vecs = bio_max_segs(DIV_ROUND_UP(iomap_length(iter),
-+						    PAGE_SIZE));
-+		rq = erofs_fileio_rq_alloc(sb, dif->file, nr_vecs);
- 		rq->bio.bi_iter.bi_sector = sector;
- 		bio_add_folio_nofail(&rq->bio, folio, plen,
- 				offset_in_folio(folio, iter->pos));
-@@ -161,10 +169,22 @@ int erofs_read_meta_folio(struct file *file, struct folio *folio)
- 		}
- 	}
- 
--	io.rq = erofs_fileio_rq_alloc(inode->i_sb, io.dev.m_dif->file);
-+	io.rq = erofs_fileio_rq_alloc(inode->i_sb, io.dev.m_dif->file, 1);
- 	io.rq->bio.bi_end_io = erofs_fileio_meta_endio;
- 	io.rq->bio.bi_iter.bi_sector = pos >> 9;
- 	bio_add_folio_nofail(&io.rq->bio, folio, len, 0);
- 	erofs_fileio_rq_submit(io.rq);
- 	return 0;
- }
-+
-+int __init erofs_init_fileio(void)
-+{
-+	return bioset_init(&erofs_fileio_bioset, BIO_POOL_SIZE,
-+			   offsetof(struct erofs_fileio_rq, bio),
-+			   BIOSET_NEED_BVECS);
-+}
-+
-+void erofs_exit_fileio(void)
-+{
-+	bioset_exit(&erofs_fileio_bioset);
-+}
-diff --git a/fs/erofs/internal.h b/fs/erofs/internal.h
-index 924b37e06e..e6b85bde82 100644
---- a/fs/erofs/internal.h
-+++ b/fs/erofs/internal.h
-@@ -510,9 +510,13 @@ int z_erofs_parse_cfgs(struct super_block *sb, struct erofs_super_block *dsb);
- #ifdef CONFIG_EROFS_FS_BACKED_BY_FILE
- struct bio *erofs_fileio_bio_alloc(struct erofs_map_dev *mdev);
- void erofs_fileio_submit_bio(struct bio *bio);
-+int __init erofs_init_fileio(void);
-+void erofs_exit_fileio(void);
- #else
- static inline struct bio *erofs_fileio_bio_alloc(struct erofs_map_dev *mdev) { return NULL; }
- static inline void erofs_fileio_submit_bio(struct bio *bio) {}
-+static inline int erofs_init_fileio(void) { return 0; }
-+static inline void erofs_exit_fileio(void) {}
- #endif
- 
- #ifdef CONFIG_EROFS_FS_PAGE_CACHE_SHARE
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index ee01a5ef85..faea77ba25 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -1100,6 +1100,10 @@ static int __init erofs_module_init(void)
- 	if (err)
- 		goto ishare_err;
- 
-+	err = erofs_init_fileio();
-+	if (err)
-+		goto fileio_err;
-+
- 	err = register_filesystem(&erofs_fs_type);
- 	if (err)
- 		goto fs_err;
-@@ -1107,6 +1111,8 @@ static int __init erofs_module_init(void)
- 	return 0;
- 
- fs_err:
-+	erofs_exit_fileio();
-+fileio_err:
- 	erofs_exit_ishare();
- ishare_err:
- 	erofs_exit_sysfs();
-@@ -1122,6 +1128,7 @@ static int __init erofs_module_init(void)
- static void __exit erofs_module_exit(void)
- {
- 	unregister_filesystem(&erofs_fs_type);
-+	erofs_exit_fileio();
- 	erofs_exit_ishare();
- 
- 	/* ensure all delayed rcu free inodes & pclusters are flushed */
-
----
-base-commit: 7778e12f447c2b465fd9c8796348521494b5d3e4
-change-id: 20261029-erofs-fileio-bioset-713570b89d89
-
-Best regards,
--- 
-Daejun Park <daejun7.park@samsung.com>
-
+PGRpdiBjbGFzcz0iX19hbGl5dW5fZW1haWxfYm9keV9ibG9jayI+PGRpdiAgc3R5bGU9ImZvbnQt
+ZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBTVEhlaXRpU0MtTGlnaHQsIFNpbVN1biI+PGRpdiAgc3R5
+bGU9ImNsZWFyOiBib3RoOyBmb250LWZhbWlseTogVGFob21hLCBBcmlhbCwgU1RIZWl0aVNDLUxp
+Z2h0LCBTaW1TdW47Ij48c3BhbiAgc3R5bGU9ImZvbnQtZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBT
+VEhlaXRpU0MtTGlnaHQsIFNpbVN1bjsiPjwvc3Bhbj48cCA+SGksPC9wPjxwID48Y29kZSAgZGly
+PSJsdHIiPnhhdHRyX3ByZWZpeF9zdGFydDwvY29kZT48c3BhbiA+IGlzIGEgMzItYml0IGZpZWxk
+IHN0b3JpbmcgYW4gb2Zmc2V0IGluIGZvdXItYnl0ZSB1bml0cy4gV2hlbiBhbiBpbmNyZW1lbnRh
+bCBidWlsZCBwbGFjZXMgYSBuZXcgbG9uZyB4YXR0ciBuYW1lIHByZWZpeCB0YWJsZSBhdCBvciBi
+ZXlvbmQgMTYgR2lCLCB0aGUgb2Zmc2V0IGNhbm5vdCBiZSByZXByZXNlbnRlZCBhbmQgbWtmcy5l
+cm9mcyByZWplY3RzIHRoZSBidWlsZC48L3NwYW4+PC9wPjxwID48c3BhbiA+QmVmb3JlIHdvcmtp
+bmcgb24gcGF0Y2hlcywgSSB3b3VsZCBsaWtlIHRvIGRpc2N1c3Mgc2V2ZXJhbCBwb3NzaWJsZSBz
+b2x1dGlvbnM6PC9zcGFuPjwvcD48b2wgIHN0YXJ0PSIxIj48bGkgPjxwID48c3BhbiAgc3R5bGU9
+ImZvbnQtd2VpZ2h0OiBib2xkOyI+U3RvcmUgdGhlIHByZWZpeCB0YWJsZSBpbiB0aGUgcGFja2Vk
+IGlub2RlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5Vc2UgdGhlIGV4aXN0aW5nIGZvcm1hdCBzdXBw
+b3J0IHNvIHRoYXQgdGhlIHRhYmxlIGlzIGFkZHJlc3NlZCBieSBhIGxvZ2ljYWwgb2Zmc2V0IHdp
+dGhpbiB0aGUgcGFja2VkIGlub2RlIHJhdGhlciB0aGFuIGEgcGh5c2ljYWwgb2Zmc2V0IGluIHRo
+ZSBpbWFnZS4gVGhpcyBhdm9pZHMgYSBmb3JtYXQgZXh0ZW5zaW9uLCBhbHRob3VnaCB0aGUgdGFi
+bGXigJlzIGxvZ2ljYWwgb2Zmc2V0IHJlbWFpbnMgc3ViamVjdCB0byB0aGUgc2FtZSBsaW1pdCwg
+YW5kIGV4aXN0aW5nIHJlZmVyZW5jZXMgdG8gZnJhZ21lbnQgZGF0YSBtdXN0IGJlIHByZXNlcnZl
+ZC48L3NwYW4+PC9wPjwvbGk+PGxpID48cCA+PHNwYW4gIHN0eWxlPSJmb250LXdlaWdodDogYm9s
+ZDsiPlJlc2VydmUgc3BhY2UgZm9yIHRoZSBwcmVmaXggdGFibGUgbmVhciB0aGUgYmVnaW5uaW5n
+IG9mIHRoZSBpbWFnZS48L3NwYW4+PC9wPjxwID48c3BhbiA+UmVzZXJ2ZSBzdWZmaWNpZW50IHNw
+YWNlIGF0IGEgbG93IG9mZnNldCB3aGVuIGNyZWF0aW5nIHRoZSBpbWFnZSwgd2l0aCBhIGZlYXR1
+cmUgZmxhZyBpZGVudGlmeWluZyB0aGlzIGxheW91dC4gU3Vic2VxdWVudCBpbmNyZW1lbnRhbCBi
+dWlsZHMgd291bGQgdXNlIHRoZSByZXNlcnZlZCByZWdpb24sIHdoaWxlIGltYWdlcyB3aXRob3V0
+IHRoZSBmbGFnIHdvdWxkIHJldGFpbiB0aGUgZXhpc3RpbmcgYmVoYXZpb3IuIEV4aXN0aW5nIGlt
+YWdlcyB3aXRob3V0IHJlc2VydmVkIHNwYWNlIHdvdWxkIHJlcXVpcmUgbWlncmF0aW9uIG9yIHJl
+YnVpbGRpbmcgdG8gYWRvcHQgdGhpcyBsYXlvdXQuPC9zcGFuPjwvcD48L2xpPjxsaSA+PHAgPjxz
+cGFuICBzdHlsZT0iZm9udC13ZWlnaHQ6IGJvbGQ7Ij5FeHRlbmQgdGhlIG9mZnNldCB1c2luZyBy
+ZXNlcnZlZCBzdXBlcmJsb2NrIHNwYWNlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5BZGQgYW4gdXBw
+ZXIgZmllbGQgZm9yIDwvc3Bhbj48Y29kZSAgZGlyPSJsdHIiPnhhdHRyX3ByZWZpeF9zdGFydDwv
+Y29kZT48c3BhbiA+IGluIHRoZSBzdXBlcmJsb2Nr4oCZcyByZXNlcnZlZCBzcGFjZSBhbmQgY29t
+YmluZSBpdCB3aXRoIHRoZSBleGlzdGluZyBmaWVsZC4gQSBuZXcgaW5jb21wYXQgZmVhdHVyZSB3
+b3VsZCBlbmFibGUgdGhlIGV4dGVuZGVkIGludGVycHJldGF0aW9uOyB3aXRob3V0IGl0LCByZWFk
+ZXJzIHdvdWxkIHJldGFpbiB0aGUgY3VycmVudCBpbnRlcnByZXRhdGlvbi4gVGhpcyB3b3VsZCBh
+bGxvdyB0aGUgdGFibGUgdG8gcmVtYWluIGFwcGVuZGVkIHRvIHRoZSBpbWFnZSwgYnV0IHJlcXVp
+cmUgcmVhZGVyIHVwZGF0ZXMuPC9zcGFuPjwvcD48L2xpPjxsaSA+PHAgPjxzcGFuICBzdHlsZT0i
+Zm9udC13ZWlnaHQ6IGJvbGQ7Ij5SZXNlcnZlIHNwYWNlIGZvciB0aGUgcHJlZml4IHRhYmxlIHdp
+dGhpbiB0aGUgcGFja2VkIGlub2RlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5CdWlsZGluZyBvbiBv
+cHRpb24gMSwgcmVzZXJ2ZSBhIGRlZGljYXRlZCByZWdpb24gYXQgYSBsb3cgbG9naWNhbCBvZmZz
+ZXQgd2l0aGluIHRoZSBwYWNrZWQgaW5vZGUgd2hlbiBjcmVhdGluZyB0aGUgaW1hZ2UuIFN1YnNl
+cXVlbnQgaW5jcmVtZW50YWwgYnVpbGRzIGNvdWxkIHVzZSB0aGlzIHJlZ2lvbiBpbnN0ZWFkIG9m
+IGFwcGVuZGluZyBhIG5ldyB0YWJsZSBhZnRlciB0aGUgZ3Jvd2luZyBmcmFnbWVudCBkYXRhLiBB
+IGZlYXR1cmUgZmxhZyBjb3VsZCBpZGVudGlmeSB0aGUgcmVzZXJ2YXRpb247IGV4aXN0aW5nIGlt
+YWdlcyB3aXRob3V0IHN1Y2ggYSByZWdpb24gd291bGQgbmVlZCBhIG1pZ3JhdGlvbiBvciByZWJ1
+aWxkIHBhdGguPC9zcGFuPjwvcD48L2xpPjwvb2w+PHAgPjxzcGFuID5BbGwgb3B0aW9ucyBzaG91
+bGQgcHJlc2VydmUgdGhlIGludGVycHJldGF0aW9uIG9mIGV4aXN0aW5nIGltYWdlcy4gV2hlcmUg
+YSBuZXcgaW50ZXJwcmV0YXRpb24gaXMgaW50cm9kdWNlZCwgcmVhZGVycyB0aGF0IGRvIG5vdCBz
+dXBwb3J0IGl0IHNob3VsZCByZWplY3QgdGhlIGZlYXR1cmUgcmF0aGVyIHRoYW4gcmVhZCB0aGUg
+dGFibGUgZnJvbSBhbiBpbmNvcnJlY3QgbG9jYXRpb24uPC9zcGFuPjwvcD48cCA+PHNwYW4gPlNl
+cGFyYXRlbHksIHdlIGNvdWxkIHJldXNlIHRoZSBleGlzdGluZyBwcmVmaXggdGFibGUgd2hlbiB0
+aGUgcmVxdWlyZWQgcHJlZml4IGVudHJpZXMgYW5kIHRoZWlyIGluZGljZXMgbWF0Y2ggdGhvc2Ug
+aW4gdGhlIGJhc2UgaW1hZ2UsIHByb3ZpZGVkIHRoZSBvcmlnaW5hbCB0YWJsZSByZW1haW5zIHZh
+bGlkIGFuZCBhY2Nlc3NpYmxlLiBGb3IgZXhhbXBsZSwgbmV3bHkgYWRkZWQgZmlsZXMgbWF5IHVz
+ZSBleGlzdGluZyBsb25nIHByZWZpeGVzIGV2ZW4gaWYgdGhlaXIgeGF0dHIgdmFsdWVzIGRpZmZl
+ciwgc28gbm8gdGFibGUgdXBkYXRlIGlzIG5lZWRlZC4gVGhpcyB3b3VsZCBhdm9pZCB3cml0aW5n
+IGFub3RoZXIgaWRlbnRpY2FsIHRhYmxlIGF0IHRoZSBlbmQgb2YgdGhlIGltYWdlLiBIb3dldmVy
+LCBpdCBpcyBhbiBvcHRpbWl6YXRpb24gcmF0aGVyIHRoYW4gYSBjb21wbGV0ZSBzb2x1dGlvbjog
+dGhlIGFkZHJlc3NpbmcgbGltaXQgc3RpbGwgbmVlZHMgdG8gYmUgaGFuZGxlZCB3aGVuIG5ldyBw
+cmVmaXhlcyBhcmUgYWRkZWQgb3IgdGhlIHRhYmxlIG11c3QgYmUgcmVsb2NhdGVkLjwvc3Bhbj48
+L3A+PHAgPjxzcGFuID5XaGljaCBhcHByb2FjaCB3b3VsZCBiZXN0IGZpdCBFUk9GU+KAmXMgbG9u
+Zy10ZXJtIGZvcm1hdCBhbmQgbWFpbnRlbmFuY2UgZ29hbHM/IEFyZSB0aGVyZSBvdGhlciBvcHRp
+b25zIG9yIGNvbnN0cmFpbnRzIHRoYXQgc2hvdWxkIGJlIGNvbnNpZGVyZWQ/PC9zcGFuPjwvcD48
+cCA+PHNwYW4gPlRoYW5rcyw8L3NwYW4+PGJyID48c3BhbiA+QmluZ3lpbmc8L3NwYW4+PC9wPjxk
+aXYgPjwvZGl2PjxzcGFuICBzdHlsZT0iZm9udC1mYW1pbHk6IFRhaG9tYSwgQXJpYWwsIFNUSGVp
+dGlTQy1MaWdodCwgU2ltU3VuOyI+PGJyID48L3NwYW4+PC9kaXY+PGRpdiAgc3R5bGU9ImNsZWFy
+OiBib3RoOyBmb250LWZhbWlseTogVGFob21hLCBBcmlhbCwgU1RIZWl0aVNDLUxpZ2h0LCBTaW1T
+dW47Ij48c3BhbiAgc3R5bGU9ImZvbnQtZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBTVEhlaXRpU0Mt
+TGlnaHQsIFNpbVN1bjsiPjxiciA+PC9zcGFuPjwvZGl2PjxkaXYgIGNsYXNzPSJhbGltYWlsLXNp
+Z25hdHVyZSI+PC9kaXY+PC9kaXY+PC9kaXY+
+------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b--
 
 
