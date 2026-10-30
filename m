@@ -2,75 +2,80 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 434BA606A31A
-	for <linux-erofs@archiver.kernel.org>; Wed, 28 Oct 2026 04:34:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922DC606A31C
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2026 03:52:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bFiWupv4
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XHdkd5og
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jDvdz6M38z2xnv;
-	Wed, 28 Oct 2026 15:34:31 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=192.198.163.18
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793162071;
-	cv=none; b=YAtrOz58vvt7Vt16GHleX2GhlbrYvrUp4zyPg+52b6G/lGeheXMxEFXNLK97vKeCRLzL1dnXIQx4bSjpbwH2wT8htZmhieAI6CfpS+oSPDZas5GQGEeFGNT47pGRdMuzkM8YP5sjAOsAbMFW93WT+oCi2hsY3rW9dE/jPgTyEkaFhcIFqhFHTe+n+GgEkBSWpUrndMNUmQGx2Jmmlx/Ybppv0+rQHxpRBGozs+frXsVMfix8AbSWN1T522G1n9eN/ndMhyJfGv4JyGMxT+2nETjnTnHfZ2oVweRtrFnApS2ewstE8reG7RjAQPo9yL/1X40vKTPs41uus46YNg+h5Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793162071; c=relaxed/relaxed;
-	bh=xUKl8KdILo+EZqmB2uPwCv9z5mMW/gaqddtSdMPDOzY=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=dhoO5y5vCHIpP1cXqFL4cd8rrB8+lYx6iN0hRc58jSH6f2POYDnseIvEM3zAQybTh/mCyBifYtmY2wveronb2F58BfUhNY0FsB82AZwVjDkugkE13tD0/QiuYTc7D9d1eLcjcyDnXUKxqZS7iQ9vhf+OmPdkkwV4qyMPNzhcniLbOuzMVXF75x+hAGzjNfSLVyoYyQmCEZNQQvgZaS/42YGqRL6gOCeOhBBSBnOh8SQkHU/4zP/LHaMWRECNnmZTKF3pEtIOmlygQ790cPQ80RRmlK1BltE56EWPn0Kr9+QHUk5y/Y8e9rb/R8/PraFxNYImb6vw5fhEG7XzwCF5xA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com; dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bFiWupv4; dkim-atps=neutral; spf=pass (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org) smtp.mailfrom=intel.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=intel.com
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jG6cy4SSnz2y32;
+	Fri, 30 Oct 2026 14:52:50 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=pass smtp.remote-ip=172.234.252.31 arc.chain=kernel.org
+ARC-Seal: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793332370;
+	cv=pass; b=DdsVjZdi1HYHnzdLObuKqZhK45frRH4Z+j0/N/QLJtJBDe9K3E15pGp9u86qATiABfUReH+u8G5Q35CIL2hIJPGW0u/njR4kg97UXmgQXr27AE2HVNWj/0lWmH9Tpch57JjRl/vXy7eZK1lTNKPQ8pbGqBF2YOKXzjJPNNWr5hOObRduPJwoT8pTBf0xqjp0DgS1sLoARg40wM5p7HLdtN38oLv16EMVyi6PuPoGbPBl1XEOsRg4gnkY6L5Vhdx2YqB1NZE/h8gYp++CStEGtd0y86sDEtTuukKOEumjpa2O7i1f5rgtldJFQ+CVoUtDXendSX9Bz5dnEuhvFfC/BQ==
+ARC-Message-Signature: i=2; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
+	t=1793332370; c=relaxed/relaxed;
+	bh=iysMAEzBYuRpLgnQMNCkF8C+wwy010ieTKcmJAPE1LY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=lm3ZI0nULDMGNdWgZOhcFrCq3CQMpxTIdDst2SiHrEbHb19BozkugIhWFSXAgzbMSSytCBRiNx2iTWf+YZi9MIjgGbSCNrJjxdbv+udU3tyei+h6/ZrxQ0u5lLKtrFkYAgSoyh25VyRFH1KALUfdiAKLZhtI93dony5H2l3+FT+edqJEi81SW19B0KntYy6TlKC3Nvin6E7+Zng2zjnGqYMClqMoPcUzvMzgqpaWCz2OvkseFjhbNCkTacUe+260GyLrtXH5mpmibe4wkJBkRniiEFtQ66aiJ7dK1Cpih7QMHY/0pXd3kMcCcv+63hjOmyet5wq+gljEyeQN8fIJlg==
+ARC-Authentication-Results: i=2; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XHdkd5og; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+daejun7.park.samsung.com@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=bFiWupv4;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XHdkd5og;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=intel.com (client-ip=192.198.163.18; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=lists.ozlabs.org)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=devnull+daejun7.park.samsung.com@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jDvdw3SpRz2xg9
-	for <linux-erofs@lists.ozlabs.org>; Wed, 28 Oct 2026 15:34:26 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793162069; x=1824698069;
-  h=date:from:to:cc:subject:message-id;
-  bh=CzUlYW85uOQoYae0WgjDmgGhk7W5r/96OF7TK+B4ybc=;
-  b=bFiWupv4j0OSMxfgRodbyNBYSOkB6dJX4MQydSUCxc8+5oJVL9rQPE+N
-   rDKEcnAiAPGIyjY1rCoT/pZLWod69Y87Bsy/V7YPLekziKrKEjgVPAK+Z
-   /rkiH/I0ksvGkc4L0B6zsFw/v0cO4ahmDMRYN80ndKT9/lAmY9eVFxCfq
-   NSPmziNJYVANMzi6P5Isv12kiZBLoiBSINJMD7qZCq7Ur19Nqz/7fD7Ss
-   Ssa9nRyYuXBi6S1f5xa3XILVhHiHr2RtxoqiO91ma4EOQuWZ/8FC5WbJp
-   mVDG7huIMiiV/XHCb8HhObUhFdVW2g7vviHI87ZDHTAoZnmjtyEt3Xv+i
-   w==;
-X-CSE-ConnectionGUID: ZVGnOkS0QPaTecQDJsun7A==
-X-CSE-MsgGUID: tmTaMzOnSYaaPTsRHaMvdA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11948"; a="1904886"
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="1904886"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2026 21:34:18 -0700
-X-CSE-ConnectionGUID: llFDPg1nRY6wgYSxAuK3+A==
-X-CSE-MsgGUID: pEW3nAMPQbq2nmjfnm7Wcw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
-   d="scan'208";a="4778298"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 27 Oct 2026 21:34:17 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xLvMd-00000000YDS-0ZnG;
-	Wed, 28 Oct 2026 04:34:15 +0000
-Date: Wed, 28 Oct 2026 12:33:35 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gao Xiang <xiang@kernel.org>
-Cc: linux-erofs@lists.ozlabs.org
-Subject: [xiang-erofs:dev] BUILD SUCCESS
- 52dceb88082b4c7983d1c8c7de1c181f018055ac
-Message-ID: <202610281231.JP5Dg8Ai-lkp@intel.com>
-User-Agent: s-nail v14.9.24
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_PASS,SPF_PASS
-	autolearn=ham autolearn_force=no version=4.0.1
-X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
-	aws-us-west-2-korg-listserv-alma10-1
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jG6cx0wzwz2xqh
+	for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2026 14:52:48 +1100 (AEDT)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by sea.source.kernel.org (Postfix) with ESMTP id 6B81040284;
+	Fri, 30 Oct 2026 03:52:45 +0000 (UTC)
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793332365;
+	b=NIAFCn6Gp942P6YuC4F1Rck4ykmuGKnOhUV0THIcHm/9OAzp2Gk8z4bspeZCt3h1QNB+
+	 hSNgaXJqJlItvJE8fihRXRiWHlc5mlVSh3NrcxUGf15om0jzHHgiRM4QmfWETHAG0Y99+
+	 OPckIrlPesQJDuGq94ixnfGA9Xua3bd1oObWBtYej5lNV/EVZmNBKalyRQqkRCa5z/SBX
+	 hMh1AJAiwU7RL7ix7h4B1ZOFU3hXKlApDaCPvkW/wpWlusaCBhakw4B2/ar3V+o7tOLFg
+	 NPbqd5zVoVeB7/Px9umfDuZY6mFcGvnWr2xdx+uZXYBzErcXJFMbIe839fOijXCEdew==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793332365;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:To:Cc:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key:X-Endpoint-Received:X-Original-From:Reply-To:
+	 Content-Transfer-Encoding;
+	bh=iysMAEzBYuRpLgnQMNCkF8C+wwy010ieTKcmJAPE1LY=;
+	b=M7Kw+saMKBhIJM8P0O5CmEEIRtVx73GB/noMs0wff7/Dk4ONciuZeOI6fI2tIixno9Az
+	 BhyWIHappbAk6JC27FRu8HOSjwD9xCI5sraGeA6GynAe7lPoZiGZCUNnNg4UJ6G+EjNeE
+	 ixzc5uJRvoRh90SbuVmhmyOr85F3Ox2mDdZ9uZJlU1A/fVpF6mKA2r1xfabGasHXXqVUp
+	 W5L5skiDy6cDkt2VRHfedOVTt+Mgy0RZylVh5HjP0N1vamkPrG2uWRtR+l9VRweJud3A1
+	 y/X+JJvgGcfNsM9epI0t5sRNlRAZ7yykoM8QSAxx86kOTCgE73uVocP2I+xj6iSSadA==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id CC5FF1F000C1;
+	Fri, 30 Oct 2026 03:52:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793332365;
+	bh=iysMAEzBYuRpLgnQMNCkF8C+wwy010ieTKcmJAPE1LY=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=XHdkd5og36XBX6Y0CKOirURH4O86UuKspW7B0vwL6GEdcv9KiUKw9f5b0BF1Jw1av
+	 sKkNAjmnbVli9io0JC42m2CgBPk6EMScyP3JZcE9TA63WImPALjQwsinIvIwdoDOm/
+	 DyHIWmqL3dO8guWKZRkLc8pgzSTzqVyIuUzQzjDYlc5d4MWlBwes22sziV4dCbxSPb
+	 vNARyKDxLW25rSzGASzokJFfvsbcREraKe5lQprsSfoR8Zwv2maAQ1fqfupwfHGI7W
+	 +bWLU3ffIhlH8WzROEIfHQHXejit1DaIdO042LqyK5oA3K6uB13rSJ3JpBZcNq73jI
+	 MrzLVQsK3iEVw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 293474363D;
+	Fri, 30 Oct 2026 03:52:44 +0000 (UTC)
+From: Daejun Park via B4 Relay <devnull+daejun7.park.samsung.com@kernel.org>
+Date: Fri, 30 Oct 2026 12:52:44 +0900
+Subject: [PATCH] erofs: apply the stacked fs check to extra file-backed
+ devices
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -81,304 +86,111 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261030-erofs-stacked-extra-devices-v1-1-39f7df7ac01b@samsung.com>
+X-B4-Tracking: v=1; b=H4sIAIsU5GoC/x3MQQqDQAxA0atI1g1MRrGlV5EuwiTaUNCSiAji3
+ R1cvsX/B4S6acC7OcB1s7BlrqBHA+XL86RoUg055Z5SfqH6MgbGyuWngrqvzig1LBooT6aOhBO
+ 1LdTD33W0/b4Pn/O8AHOgu11tAAAA
+To: Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>
+Cc: Yue Hu <zbestahu@gmail.com>, Jingbo Xu <jefflexu@163.com>, 
+ Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>, 
+ Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
+ linux-kernel@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793332363; l=2715;
+ i=daejun7.park@samsung.com; s=20261006; h=from:subject:message-id;
+ bh=ewjS8koWFn8Z4rafq/egOLIaNXTnJqYTfaJQKrbMB9s=;
+ b=Bxud52oBS6RR96umz1PtXO37YvER3b+2EfdcZL8t9uPHVWsq+/Uz3ePCKWAOKbZTXGR7NGnva
+ nFn3KIa7gzFAP/HdYKb9DQZFWkBJqKLaV5LyPa3JI2b8LA9yVJcSgKT
+X-Developer-Key: i=daejun7.park@samsung.com; a=ed25519;
+ pk=4yUfDqGRZTIj0Ik43z1GoMZRWCNm/rgX6uJuM9dtNIg=
+X-Endpoint-Received: by B4 Relay for daejun7.park@samsung.com/20261006 with
+ auth_id=1122
+X-Original-From: Daejun Park <daejun7.park@samsung.com>
+Reply-To: daejun7.park@samsung.com
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
+X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
+	aws-us-west-2-korg-listserv-alma10-1
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs.git dev
-branch HEAD: 52dceb88082b4c7983d1c8c7de1c181f018055ac  erofs: fix metadata reads at the end of file-backed images
+From: Daejun Park <daejun7.park@samsung.com>
 
-elapsed time: 3203m
+erofs_fc_fill_super() rejects a file-backed mount whose image is on a
+file-backed EROFS or on a filesystem with s_stack_depth set. This
+bounds the nesting of reads. Extra devices given by device= are not
+checked. File-backed mounts can still nest through them without limit.
 
-configs tested: 283
-configs skipped: 5
+Apply the same check to extra devices.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Fixes: fb176750266a ("erofs: add file-backed mount support")
+Signed-off-by: Daejun Park <daejun7.park@samsung.com>
+---
+Tested on erofs dev in a QEMU guest with KASAN and lockdep:
 
-tested configs:
-alpha                              allnoconfig    gcc-16.2.0
-alpha                             allyesconfig    gcc-16.2.0
-alpha                                defconfig    gcc-16.2.0
-arc                               allmodconfig    clang-24
-arc                                allnoconfig    gcc-16.2.0
-arc                               allyesconfig    clang-24
-arc                       axs103_smp_defconfig    clang-17
-arc                                  defconfig    gcc-16.2.0
-arc                   randconfig-1000-20261026    clang-24
-arc                   randconfig-1000-20261027    gcc-10.5.0
-arc                   randconfig-1001-20261026    clang-24
-arc                   randconfig-1001-20261027    gcc-10.5.0
-arm                                allnoconfig    gcc-16.2.0
-arm                               allyesconfig    clang-24
-arm                                  defconfig    gcc-16.2.0
-arm                             hisi_defconfig    gcc-16.2.0
-arm                            imxrt_defconfig    clang-17
-arm                             mmp2_defconfig    clang-24
-arm                            omap1_defconfig    clang-24
-arm                          orion5x_defconfig    clang-17
-arm                   randconfig-1000-20261026    clang-24
-arm                   randconfig-1000-20261027    gcc-10.5.0
-arm                   randconfig-1001-20261026    clang-24
-arm                   randconfig-1001-20261027    gcc-10.5.0
-arm                   randconfig-1002-20261026    clang-24
-arm                   randconfig-1002-20261027    gcc-10.5.0
-arm                   randconfig-1003-20261026    clang-24
-arm                   randconfig-1003-20261027    gcc-10.5.0
-arm                        versatile_defconfig    gcc-16.2.0
-arm64                             allmodconfig    clang-24
-arm64                              allnoconfig    gcc-16.2.0
-arm64                                defconfig    gcc-16.2.0
-arm64                 randconfig-1000-20261026    clang-24
-arm64                 randconfig-1000-20261027    gcc-8.5.0
-arm64                 randconfig-1001-20261026    clang-24
-arm64                 randconfig-1001-20261027    gcc-8.5.0
-arm64                 randconfig-1002-20261026    clang-24
-arm64                 randconfig-1002-20261027    gcc-8.5.0
-arm64                 randconfig-1003-20261026    clang-24
-arm64                 randconfig-1003-20261027    gcc-8.5.0
-csky                              allmodconfig    gcc-16.2.0
-csky                               allnoconfig    gcc-16.2.0
-csky                                 defconfig    gcc-16.2.0
-csky                  randconfig-1000-20261026    clang-24
-csky                  randconfig-1000-20261027    gcc-8.5.0
-csky                  randconfig-1001-20261026    clang-24
-csky                  randconfig-1001-20261027    gcc-8.5.0
-hexagon                           allmodconfig    gcc-16.2.0
-hexagon                            allnoconfig    gcc-16.2.0
-hexagon                              defconfig    gcc-16.2.0
-hexagon               randconfig-1000-20261026    clang-24
-hexagon               randconfig-1000-20261027    clang-24
-hexagon               randconfig-1001-20261026    clang-24
-hexagon               randconfig-1001-20261027    clang-24
-i386                              allmodconfig    clang-22
-i386                               allnoconfig    gcc-16.2.0
-i386                              allyesconfig    clang-22
-i386        buildonly-randconfig-1000-20261026    clang-22
-i386        buildonly-randconfig-1000-20261027    clang-22
-i386        buildonly-randconfig-1001-20261026    clang-22
-i386        buildonly-randconfig-1001-20261027    clang-22
-i386        buildonly-randconfig-1002-20261026    clang-22
-i386        buildonly-randconfig-1002-20261027    clang-22
-i386        buildonly-randconfig-1003-20261026    clang-22
-i386        buildonly-randconfig-1003-20261027    clang-22
-i386        buildonly-randconfig-1004-20261026    clang-22
-i386        buildonly-randconfig-1004-20261027    clang-22
-i386        buildonly-randconfig-1005-20261026    clang-22
-i386        buildonly-randconfig-1005-20261027    clang-22
-i386                                 defconfig    gcc-16.2.0
-i386                  randconfig-1000-20261026    gcc-14
-i386                  randconfig-1000-20261027    gcc-14
-i386                  randconfig-1001-20261026    gcc-14
-i386                  randconfig-1001-20261027    gcc-14
-i386                  randconfig-1002-20261026    gcc-14
-i386                  randconfig-1002-20261027    gcc-14
-i386                  randconfig-1003-20261026    gcc-14
-i386                  randconfig-1003-20261027    gcc-14
-i386                  randconfig-1004-20261026    gcc-14
-i386                  randconfig-1004-20261027    gcc-14
-i386                  randconfig-1005-20261026    gcc-14
-i386                  randconfig-1005-20261027    gcc-14
-i386                  randconfig-1006-20261026    gcc-14
-i386                  randconfig-1006-20261027    gcc-14
-i386                  randconfig-1007-20261026    clang-22
-i386                  randconfig-1007-20261027    gcc-14
-i386                  randconfig-1008-20261026    clang-22
-i386                  randconfig-1008-20261027    gcc-14
-i386                  randconfig-1009-20261026    clang-22
-i386                  randconfig-1009-20261027    gcc-14
-i386                  randconfig-1010-20261026    clang-22
-i386                  randconfig-1010-20261027    gcc-14
-i386                  randconfig-1011-20261026    clang-22
-i386                  randconfig-1011-20261027    gcc-14
-i386                  randconfig-1012-20261026    clang-22
-i386                  randconfig-1012-20261027    gcc-14
-i386                  randconfig-1013-20261026    clang-22
-i386                  randconfig-1013-20261027    gcc-14
-loongarch                         allmodconfig    clang-24
-loongarch                          allnoconfig    gcc-16.2.0
-loongarch                            defconfig    clang-24
-loongarch             randconfig-1000-20261026    clang-24
-loongarch             randconfig-1000-20261027    clang-24
-loongarch             randconfig-1001-20261026    clang-24
-loongarch             randconfig-1001-20261027    clang-24
-m68k                              allmodconfig    gcc-16.2.0
-m68k                               allnoconfig    gcc-16.2.0
-m68k                              allyesconfig    clang-24
-m68k                          apollo_defconfig    clang-17
-m68k                                 defconfig    clang-24
-m68k                        m5275evb_defconfig    clang-17
-m68k                        m5329evb_defconfig    clang-17
-microblaze                         allnoconfig    gcc-16.2.0
-microblaze                        allyesconfig    gcc-16.2.0
-microblaze                           defconfig    clang-24
-mips                              allmodconfig    gcc-16.2.0
-mips                               allnoconfig    gcc-16.2.0
-mips                              allyesconfig    gcc-16.2.0
-mips                         bcm47xx_defconfig    clang-17
-mips                       bmips_stb_defconfig    clang-17
-mips                       maltaaprp_defconfig    clang-17
-mips                    sb1250_swarm_defconfig    gcc-16.2.0
-nios2                             allmodconfig    clang-20
-nios2                             allmodconfig    gcc-11.5.0
-nios2                              allnoconfig    clang-24
-nios2                                defconfig    clang-24
-nios2                 randconfig-1000-20261026    clang-24
-nios2                 randconfig-1000-20261027    clang-24
-nios2                 randconfig-1001-20261026    clang-24
-nios2                 randconfig-1001-20261027    clang-24
-openrisc                          allmodconfig    clang-20
-openrisc                          allmodconfig    gcc-11.5.0
-openrisc                           allnoconfig    clang-24
-openrisc                             defconfig    gcc-16.2.0
-openrisc                        virt_defconfig    clang-24
-parisc                            allmodconfig    gcc-16.2.0
-parisc                             allnoconfig    clang-24
-parisc                            allyesconfig    clang-17
-parisc                               defconfig    gcc-16.2.0
-parisc                randconfig-1000-20261026    gcc-14.4.0
-parisc                randconfig-1000-20261027    clang-22
-parisc                randconfig-1001-20261026    gcc-14.4.0
-parisc                randconfig-1001-20261027    clang-22
-parisc64                             defconfig    clang-24
-powerpc                           allmodconfig    gcc-16.2.0
-powerpc                            allnoconfig    clang-24
-powerpc                       bamboo_defconfig    clang-17
-powerpc                       bamboo_defconfig    clang-24
-powerpc                        eiger_defconfig    clang-24
-powerpc                     ge_imp3a_defconfig    gcc-16.2.0
-powerpc                  linkstation_defconfig    clang-17
-powerpc                      mpc5200_defconfig    clang-24
-powerpc                  mpc8315_rdb_defconfig    clang-17
-powerpc               randconfig-1000-20261026    gcc-14.4.0
-powerpc               randconfig-1000-20261027    clang-22
-powerpc               randconfig-1001-20261026    gcc-14.4.0
-powerpc               randconfig-1001-20261027    clang-22
-powerpc                     sam440ep_defconfig    clang-17
-powerpc                      tqm8540_defconfig    clang-24
-powerpc                      tqm8560_defconfig    clang-17
-powerpc64             randconfig-1000-20261026    gcc-14.4.0
-powerpc64             randconfig-1000-20261027    clang-22
-powerpc64             randconfig-1001-20261026    gcc-14.4.0
-powerpc64             randconfig-1001-20261027    clang-22
-riscv                             allmodconfig    clang-24
-riscv                              allnoconfig    clang-24
-riscv                             allyesconfig    clang-24
-riscv                                defconfig    gcc-16.2.0
-riscv                 randconfig-1000-20261026    gcc-13.5.0
-riscv                 randconfig-1000-20261027    gcc-16.2.0
-riscv                 randconfig-1001-20261026    gcc-13.5.0
-riscv                 randconfig-1001-20261027    gcc-16.2.0
-s390                              allmodconfig    clang-17
-s390                               allnoconfig    clang-24
-s390                              allyesconfig    gcc-16.2.0
-s390                                 defconfig    gcc-16.2.0
-s390                  randconfig-1000-20261026    gcc-13.5.0
-s390                  randconfig-1000-20261027    gcc-16.2.0
-s390                  randconfig-1001-20261026    gcc-13.5.0
-s390                  randconfig-1001-20261027    gcc-16.2.0
-sh                                allmodconfig    gcc-16.2.0
-sh                                 allnoconfig    clang-24
-sh                                allyesconfig    clang-17
-sh                         apsh4ad0a_defconfig    gcc-16.2.0
-sh                                   defconfig    gcc-14
-sh                    randconfig-1000-20261026    gcc-13.5.0
-sh                    randconfig-1000-20261027    gcc-16.2.0
-sh                    randconfig-1001-20261026    gcc-13.5.0
-sh                    randconfig-1001-20261027    gcc-16.2.0
-sh                           sdk7786_defconfig    gcc-16.2.0
-sh                            se7705_defconfig    clang-24
-sh                            sh2007_defconfig    clang-17
-sh                    sh7770_generic_defconfig    clang-17
-sparc                              allnoconfig    clang-24
-sparc                                defconfig    gcc-16.2.0
-sparc                 randconfig-1000-20261026    gcc-14
-sparc                 randconfig-1000-20261027    clang-20
-sparc                 randconfig-1001-20261026    gcc-14
-sparc                 randconfig-1001-20261027    clang-20
-sparc64                           allmodconfig    clang-20
-sparc64                              defconfig    gcc-14
-sparc64               randconfig-1000-20261026    gcc-14
-sparc64               randconfig-1000-20261027    clang-20
-sparc64               randconfig-1001-20261026    gcc-14
-sparc64               randconfig-1001-20261027    clang-20
-um                                allmodconfig    clang-17
-um                                 allnoconfig    clang-24
-um                                allyesconfig    gcc-16.2.0
-um                                   defconfig    gcc-14
-um                              i386_defconfig    gcc-14
-um                    randconfig-1000-20261026    gcc-14
-um                    randconfig-1000-20261027    clang-20
-um                    randconfig-1001-20261026    gcc-14
-um                    randconfig-1001-20261027    clang-20
-um                            x86_64_defconfig    gcc-14
-x86_64                            allmodconfig    clang-22
-x86_64                             allnoconfig    clang-24
-x86_64                            allyesconfig    clang-22
-x86_64      buildonly-randconfig-1000-20261026    clang-22
-x86_64      buildonly-randconfig-1000-20261027    gcc-14
-x86_64      buildonly-randconfig-1001-20261026    clang-22
-x86_64      buildonly-randconfig-1001-20261027    gcc-14
-x86_64      buildonly-randconfig-1002-20261026    clang-22
-x86_64      buildonly-randconfig-1002-20261027    gcc-14
-x86_64      buildonly-randconfig-1003-20261026    clang-22
-x86_64      buildonly-randconfig-1003-20261027    gcc-14
-x86_64      buildonly-randconfig-1004-20261026    clang-22
-x86_64      buildonly-randconfig-1004-20261027    gcc-14
-x86_64      buildonly-randconfig-1005-20261026    clang-22
-x86_64      buildonly-randconfig-1005-20261027    gcc-14
-x86_64                               defconfig    gcc-14
-x86_64                                   kexec    clang-22
-x86_64                randconfig-1000-20261026    clang-22
-x86_64                randconfig-1000-20261027    gcc-14
-x86_64                randconfig-1001-20261026    clang-22
-x86_64                randconfig-1001-20261027    gcc-14
-x86_64                randconfig-1002-20261026    clang-22
-x86_64                randconfig-1002-20261027    gcc-14
-x86_64                randconfig-1003-20261026    clang-22
-x86_64                randconfig-1003-20261027    gcc-14
-x86_64                randconfig-1004-20261026    clang-22
-x86_64                randconfig-1004-20261027    gcc-14
-x86_64                randconfig-1005-20261026    clang-22
-x86_64                randconfig-1005-20261027    gcc-14
-x86_64                randconfig-1006-20261026    gcc-14
-x86_64                randconfig-1006-20261027    clang-22
-x86_64                randconfig-1007-20261026    gcc-14
-x86_64                randconfig-1007-20261027    clang-22
-x86_64                randconfig-1008-20261026    gcc-14
-x86_64                randconfig-1008-20261027    clang-22
-x86_64                randconfig-1009-20261026    gcc-14
-x86_64                randconfig-1009-20261027    clang-22
-x86_64                randconfig-1010-20261026    gcc-14
-x86_64                randconfig-1010-20261027    clang-22
-x86_64                randconfig-1011-20261026    gcc-14
-x86_64                randconfig-1011-20261027    clang-22
-x86_64                randconfig-1012-20261026    gcc-14
-x86_64                randconfig-1012-20261027    clang-22
-x86_64                randconfig-1013-20261026    gcc-14
-x86_64                randconfig-1013-20261027    clang-22
-x86_64                randconfig-1014-20261026    gcc-14
-x86_64                randconfig-1014-20261027    clang-22
-x86_64                randconfig-1015-20261026    gcc-14
-x86_64                randconfig-1015-20261027    clang-22
-x86_64                randconfig-1016-20261026    gcc-14
-x86_64                randconfig-1016-20261027    clang-22
-x86_64                randconfig-1017-20261026    gcc-14
-x86_64                randconfig-1017-20261027    clang-22
-x86_64                                rhel-9.4    clang-22
-x86_64                            rhel-9.4-bpf    gcc-14
-x86_64                           rhel-9.4-func    clang-22
-x86_64                     rhel-9.4-kselftests    clang-22
-x86_64                          rhel-9.4-kunit    gcc-14
-x86_64                            rhel-9.4-ltp    gcc-14
-x86_64                           rhel-9.4-rust    clang-22
-xtensa                             allnoconfig    clang-24
-xtensa                            allyesconfig    clang-20
-xtensa                   audio_kc705_defconfig    gcc-16.2.0
-xtensa                 generic_kc705_defconfig    gcc-16.2.0
-xtensa                randconfig-1000-20261026    gcc-14
-xtensa                randconfig-1000-20261027    clang-20
-xtensa                randconfig-1001-20261026    gcc-14
-xtensa                randconfig-1001-20261027    clang-20
+- Blobs on a file-backed EROFS or overlayfs now get -EINVAL.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+- Blobs on XFS or a loop-mounted EROFS still mount and read back.
+
+- Lockdep warns about devs->rwsem vs i_rwsem for a device= path inside
+  an EROFS mount, with or without this patch.
+---
+ fs/erofs/super.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index ce05557bd9..ee01a5ef85 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -122,6 +122,14 @@ void *erofs_read_metadata(struct super_block *sb, struct erofs_buf *buf,
+ 	return buffer;
+ }
+ 
++/* see the comment in erofs_fc_fill_super() */
++static bool erofs_is_stacked_file(struct file *file)
++{
++	struct super_block *sb = file_inode(file)->i_sb;
++
++	return (sb->s_op == &erofs_sops && !sb->s_bdev) || sb->s_stack_depth;
++}
++
+ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
+ 			     struct erofs_device_info *dif, erofs_off_t *pos)
+ {
+@@ -161,6 +169,11 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
+ 		} else if (!S_ISREG(file_inode(file)->i_mode)) {
+ 			fput(file);
+ 			return -EINVAL;
++		} else if (erofs_is_stacked_file(file)) {
++			erofs_err(sb, "%s: file-backed devices cannot be on stacked fses",
++				  dif->path);
++			fput(file);
++			return -EINVAL;
+ 		}
+ 		if (!dif->dax_dev && test_opt(&sbi->opt, DAX_ALWAYS)) {
+ 			erofs_info(sb, "DAX unsupported by %s. Turning off DAX.",
+@@ -701,9 +714,7 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		 * It MUST change if another fs plans to support them, which
+ 		 * may also require adjusting FILESYSTEM_MAX_STACK_DEPTH.
+ 		 */
+-		inode = file_inode(sbi->dif0.file);
+-		if ((inode->i_sb->s_op == &erofs_sops &&
+-		     !inode->i_sb->s_bdev) || inode->i_sb->s_stack_depth) {
++		if (erofs_is_stacked_file(sbi->dif0.file)) {
+ 			erofs_err(sb, "file-backed mounts cannot be applied to stacked fses");
+ 			return -ENOTBLK;
+ 		}
+
+---
+base-commit: 209108a5456171ab430e25b54b2dfe083455bfb6
+change-id: 20261028-erofs-stacked-extra-devices-d7a141da0133
+
+Best regards,
+-- 
+Daejun Park <daejun7.park@samsung.com>
+
+
 
