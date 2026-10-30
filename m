@@ -2,49 +2,68 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E8F7606A31A
-	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2026 08:33:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04EBB606A31C
+	for <linux-erofs@archiver.kernel.org>; Fri, 30 Oct 2026 09:20:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d
+	dkim=pass (2048-bit key, unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=s1jp header.b=H2yeLGp6
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jGDrJ4fckz30VT;
-	Fri, 30 Oct 2026 19:33:04 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=115.124.30.130
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793349184;
-	cv=none; b=nVo0eiK0Kosc5aIpC4y9NSEbSbtdEIqf3BF8kXCIlMfoKZ25quvVuQgng6OjVY4JrHhuCkol9bivpmkE8yb/cI6tjT4ZasO4tYoYlVsA/e5oHGoROorrV4Q4y4JkmNYYHKFGDaQ4viHZVpCG8vjITEitECa/Ype5YriG8f4Jzy86eb9++CeIklqoQESvMfbDdRlnqWjVCpeSyNx7pG9rfaQ+Nd51UX9xjnkcTf+uSWQ6Ybly++NYDJ3AgxTNOEpGR+P/U7H8UTxZ1sqB9J0phrnclCcFvs/DPobBIA6qw5tfZUU9yNI9kvp0oGNZigINbY2FmvfUqT10END8Z63/iw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jGFtd4Yd8z2yQJ;
+	Fri, 30 Oct 2026 20:20:09 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2001:cf8:acf:41::8"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793352009;
+	cv=none; b=MXzisDDAU8fqCUSoj5y0NFDZXyVbAt3eGrLIvQW0gmztDaa+GuYLG3qUWKguVbd3vJhEmMd9rRnL3RMOQJPdGii3kir8K3EVjEPF2S8C0JWpHmOkE1F2PfXL4xYpdNsFz9Q+ZtQhBf4wCH9IdFtKqfJybDkg5e8ZxN0HTfufPY/8us5UUWv0XAp1Fc5qI4tKMVkZmlXwfLTNENAHZkCJmCLWkG7mBb5bUS3r1AgmmzXm/GrTH0PGIBF1SgTIXf7GOMqOKIa9O1BxSoowqoOZk9dqg26Odr+w1aEU3dfXjk4uVg86p4L6z6lsGBxWlvk4SUixVJNCaU/5TddG/Vx2eA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793349184; c=relaxed/relaxed;
-	bh=/LT+r8Vr8cV3YtbOoqvwkAJFUkF/x6SzpDAAc75TKG4=;
-	h=Date:From:To:Cc:Message-ID:Subject:MIME-Version:Content-Type; b=cevt5bht/agx1eERJ4SWdVTiVbhpcoGrkCnZsGm281g69/yrBS7f2UlASLSG/O6JaQGVUyy/0JQ7uwaLSB3jeY3O5tuiN3789kCrBac56r2p2SngVlAY2PBxv7XK/p9AgfN2FVdzSD333goP5vBpQIzVIvTdP8dpjw9kXP0Iqh5qB96AWosDrqPZDwoMei1RTc1zgkW/4QlOUD3mW6xTckYXTb2ca3O44rxlGmklPLvKb46dKIIOLF09FCw1vyOmt3ZTLuHi3y5yxRghzzub0O71lgNuy+Fk8vRqid1SHJGmvi23ai2sWKg2Odjk0p+bkueW+JTq1wNBHWg/6w3k8A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d; dkim-atps=neutral; spf=pass (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=lanbingying.lby@linux.alibaba.com; receiver=lists.ozlabs.org) smtp.mailfrom=linux.alibaba.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+	t=1793352009; c=relaxed/relaxed;
+	bh=7Wt5tl5CZ2TYnYGmzrc8xzq6oScOz56KiW4EHFpEIEY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Y6rc4qJp+hXebYqRcJwSbWng9/xp1HPo2GHF3GY8jmvIRKTNJxE1NGgcF0ZjSHNwGQpoFS6V2kpeI12aQ480Y5sR6MEs4clc/Mts1zV2Wiu1dqedheQbzFo5McRDSAoOnmK4Fvo15cNYVdzKPOfk6dUJfzJtbiDi+LNvepvxIVDJvTo5atGVNxMLxhIjmqwwkD6hg+Zd+vbQ8J4gVcpOsZuWNLIO4PG3GhZtB2yPClVB7SIE0YgCw6mqapH0Y5MDBu9ddSAYMrBFZbJhWjXNSb0UQRkrvdFk3+L8yJJtNHFJfsY+vajhUQ/dJgX2KL6iDH8wFtmfddt/EyHD1gMmow==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com; dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=s1jp header.b=H2yeLGp6; dkim-atps=neutral; spf=pass (client-ip=2001:cf8:acf:41::8; helo=jpms-ob02-os7.noc.sony.co.jp; envelope-from=friendy.su@sony.com; receiver=lists.ozlabs.org) smtp.mailfrom=sony.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=sony.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=F4xzP64d;
+	dkim=pass (2048-bit key; unprotected) header.d=sony.com header.i=@sony.com header.a=rsa-sha256 header.s=s1jp header.b=H2yeLGp6;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=linux.alibaba.com (client-ip=115.124.30.130; helo=out30-130.freemail.mail.aliyun.com; envelope-from=lanbingying.lby@linux.alibaba.com; receiver=lists.ozlabs.org)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=sony.com (client-ip=2001:cf8:acf:41::8; helo=jpms-ob02-os7.noc.sony.co.jp; envelope-from=friendy.su@sony.com; receiver=lists.ozlabs.org)
+Received: from jpms-ob02-os7.noc.sony.co.jp (jpms-ob02-os7.noc.sony.co.jp [IPv6:2001:cf8:acf:41::8])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jGDrF6gRjz30V6
-	for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2026 19:32:59 +1100 (AEDT)
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1793349174; h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type;
-	bh=/LT+r8Vr8cV3YtbOoqvwkAJFUkF/x6SzpDAAc75TKG4=;
-	b=F4xzP64d4sKPC9R6rDS3BB8uC4m7OfR3OUoSnl94/5QTH6G0lPL6CR9hT3aIg3eNVwRKam7HrLLWw7VZjkHWgtm5k1KV357DjFg0pIZVxTliQjD2D3T3eUkZwJCRlz2g9w8LNuYoDeaDOZgvuHfSe4l7rt6/MjpZSFfX6hRlnLM=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=lanbingying.lby@linux.alibaba.com;NM=1;PH=DW;RN=3;SR=0;TI=W4_0.2.3_v5ForWebDing_2125130F_1793349115036_o7001c56r;
-Received: from WS-web (lanbingying.lby@linux.alibaba.com[W4_0.2.3_v5ForWebDing_2125130F_1793349115036_o7001c56r] cluster:ay36) at Fri, 30 Oct 2026 16:32:48 +0800
-Date: Fri, 30 Oct 2026 16:32:48 +0800
-From: "lanbingying" <lanbingying.lby@linux.alibaba.com>
-To: "linux-erofs" <linux-erofs@lists.ozlabs.org>
-Cc: "Gao Xiang" <xiang@kernel.org>,
-  "Chao Yu" <chao@kernel.org>
-Reply-To: "lanbingying" <lanbingying.lby@linux.alibaba.com>
-Message-ID: <ede0d70f-a0f4-41f6-b2ee-5ec238b2fd01.lanbingying.lby@linux.alibaba.com>
-Subject: =?UTF-8?B?W1JGQ10gZXJvZnMtdXRpbHM6IGFkZHJlc3NpbmcgdGhlIDE2IEdpQiB4YXR0ciBwcmVmaXgg?=
-  =?UTF-8?B?b2Zmc2V0IGxpbWl0IGluIGluY3JlbWVudGFsIGJ1aWxkcw==?=
-X-Mailer: [Alimail-Mailagent revision 290][W4_0.2.3][v5ForWebDing][Chrome]
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jGFtb2HlHz2yFj
+	for <linux-erofs@lists.ozlabs.org>; Fri, 30 Oct 2026 20:20:05 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=sony.com; s=s1jp; t=1793352008; x=1824888008;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=7Wt5tl5CZ2TYnYGmzrc8xzq6oScOz56KiW4EHFpEIEY=;
+  b=H2yeLGp6Sfo7LQDo2BLZR+mjIGTaAw2d2fe7vUBUNNzV3LZLXW/M0HBY
+   0pY2HYZSrlJdfw4U/uRni64ZvdLVyLDUYpfd1cBVyBaVIRFG/wIB82bno
+   +8fsevpYvD5A3iZtFlguKcbNawhmlrEotomeEuU4lQ7B236jFlZ0pKOep
+   Yn8MwvJg29P8HnMDNaOxYrtH52LYQRshYH8ksti7V19iVsh8wS1waSzNr
+   IV/2DxrzV3eSo4iFwGH+67e1IlpWVN8xHD9xonIfgRXLfXVIGSO3JX3lJ
+   rhzgQhpF95fXby3pgZYn4HyUPpAxjMOp0FeigxTv9aAsDK8XVSINRRZud
+   A==;
+X-CSE-ConnectionGUID: DcwMbfV4QNy2TKmcrstu0Q==
+X-CSE-MsgGUID: ldbaAREFQXCa3pJIgWYizA==
+Received: from unknown (HELO jpmta-ob01-os7.noc.sony.co.jp) ([IPv6:2001:cf8:acf:1104::6])
+  by jpms-ob02-os7.noc.sony.co.jp with ESMTP/TLS/TLS_AES_256_GCM_SHA384; 30 Oct 2026 18:19:56 +0900
+X-CSE-ConnectionGUID: oXH0Xu+1SdCp0QRvWfYX8Q==
+X-CSE-MsgGUID: pmZMgzzaQ6aavglwTOAWFg==
+X-IronPort-AV: E=Sophos;i="6.27,166,1786978800"; 
+   d="scan'208";a="78581257"
+Received: from unknown (HELO cscsh-5109200313.ap.sony.com) ([43.82.111.223])
+  by jpmta-ob01-os7.noc.sony.co.jp with ESMTP; 30 Oct 2026 18:19:56 +0900
+From: Friendy Su <friendy.su@sony.com>
+To: xiang@kernel.org,
+	bluce.lee@aliyun.com,
+	jnhuang95@gmail.com,
+	hudsonzhu@tencent.com,
+	zhaoyifan28@huawei.com
+Cc: linux-erofs@lists.ozlabs.org,
+	Friendy Su <friendy.su@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>,
+	Yuezhang Mo <Yuezhang.Mo@sony.com>
+Subject: [PATCH v1] erofs-utils: tests: add test for fanotify FAN_PRE_ACCESS event
+Date: Fri, 30 Oct 2026 17:17:13 +0800
+Message-Id: <20261030091713.101900-1-friendy.su@sony.com>
+X-Mailer: git-send-email 2.34.1
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -56,147 +75,327 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-x-aliyun-im-through: {"version":"v1.0"}
-x-aliyun-mail-creator: W4_0.2.3_v5ForWebDing_QvNTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1NS4wLjAuMCBTYWZhcmkvNTM3LjM2La
-x-aliyun-mailtrack: {"foreign-track":"0"}
-Content-Type: multipart/alternative;
-  boundary="----=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b"
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,
-	MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no version=4.0.1
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-23.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+SB_I_ALLOW_HSM is set in kernel for erofs. Add a test to verify 2 cases below.
 
-SGksCnhhdHRyX3ByZWZpeF9zdGFydCBpcyBhIDMyLWJpdCBmaWVsZCBzdG9yaW5nIGFuIG9mZnNl
-dCBpbiBmb3VyLWJ5dGUgdW5pdHMuIFdoZW4gYW4gaW5jcmVtZW50YWwgYnVpbGQgcGxhY2VzIGEg
-bmV3IGxvbmcgeGF0dHIgbmFtZSBwcmVmaXggdGFibGUgYXQgb3IgYmV5b25kIDE2IEdpQiwgdGhl
-IG9mZnNldCBjYW5ub3QgYmUgcmVwcmVzZW50ZWQgYW5kIG1rZnMuZXJvZnMgcmVqZWN0cyB0aGUg
-YnVpbGQuCkJlZm9yZSB3b3JraW5nIG9uIHBhdGNoZXMsIEkgd291bGQgbGlrZSB0byBkaXNjdXNz
-IHNldmVyYWwgcG9zc2libGUgc29sdXRpb25zOgoKICogClN0b3JlIHRoZSBwcmVmaXggdGFibGUg
-aW4gdGhlIHBhY2tlZCBpbm9kZS4KVXNlIHRoZSBleGlzdGluZyBmb3JtYXQgc3VwcG9ydCBzbyB0
-aGF0IHRoZSB0YWJsZSBpcyBhZGRyZXNzZWQgYnkgYSBsb2dpY2FsIG9mZnNldCB3aXRoaW4gdGhl
-IHBhY2tlZCBpbm9kZSByYXRoZXIgdGhhbiBhIHBoeXNpY2FsIG9mZnNldCBpbiB0aGUgaW1hZ2Uu
-IFRoaXMgYXZvaWRzIGEgZm9ybWF0IGV4dGVuc2lvbiwgYWx0aG91Z2ggdGhlIHRhYmxl4oCZcyBs
-b2dpY2FsIG9mZnNldCByZW1haW5zIHN1YmplY3QgdG8gdGhlIHNhbWUgbGltaXQsIGFuZCBleGlz
-dGluZyByZWZlcmVuY2VzIHRvIGZyYWdtZW50IGRhdGEgbXVzdCBiZSBwcmVzZXJ2ZWQuCgogKiAK
-UmVzZXJ2ZSBzcGFjZSBmb3IgdGhlIHByZWZpeCB0YWJsZSBuZWFyIHRoZSBiZWdpbm5pbmcgb2Yg
-dGhlIGltYWdlLgpSZXNlcnZlIHN1ZmZpY2llbnQgc3BhY2UgYXQgYSBsb3cgb2Zmc2V0IHdoZW4g
-Y3JlYXRpbmcgdGhlIGltYWdlLCB3aXRoIGEgZmVhdHVyZSBmbGFnIGlkZW50aWZ5aW5nIHRoaXMg
-bGF5b3V0LiBTdWJzZXF1ZW50IGluY3JlbWVudGFsIGJ1aWxkcyB3b3VsZCB1c2UgdGhlIHJlc2Vy
-dmVkIHJlZ2lvbiwgd2hpbGUgaW1hZ2VzIHdpdGhvdXQgdGhlIGZsYWcgd291bGQgcmV0YWluIHRo
-ZSBleGlzdGluZyBiZWhhdmlvci4gRXhpc3RpbmcgaW1hZ2VzIHdpdGhvdXQgcmVzZXJ2ZWQgc3Bh
-Y2Ugd291bGQgcmVxdWlyZSBtaWdyYXRpb24gb3IgcmVidWlsZGluZyB0byBhZG9wdCB0aGlzIGxh
-eW91dC4KCiAqIApFeHRlbmQgdGhlIG9mZnNldCB1c2luZyByZXNlcnZlZCBzdXBlcmJsb2NrIHNw
-YWNlLgpBZGQgYW4gdXBwZXIgZmllbGQgZm9yIHhhdHRyX3ByZWZpeF9zdGFydCBpbiB0aGUgc3Vw
-ZXJibG9ja+KAmXMgcmVzZXJ2ZWQgc3BhY2UgYW5kIGNvbWJpbmUgaXQgd2l0aCB0aGUgZXhpc3Rp
-bmcgZmllbGQuIEEgbmV3IGluY29tcGF0IGZlYXR1cmUgd291bGQgZW5hYmxlIHRoZSBleHRlbmRl
-ZCBpbnRlcnByZXRhdGlvbjsgd2l0aG91dCBpdCwgcmVhZGVycyB3b3VsZCByZXRhaW4gdGhlIGN1
-cnJlbnQgaW50ZXJwcmV0YXRpb24uIFRoaXMgd291bGQgYWxsb3cgdGhlIHRhYmxlIHRvIHJlbWFp
-biBhcHBlbmRlZCB0byB0aGUgaW1hZ2UsIGJ1dCByZXF1aXJlIHJlYWRlciB1cGRhdGVzLgoKICog
-ClJlc2VydmUgc3BhY2UgZm9yIHRoZSBwcmVmaXggdGFibGUgd2l0aGluIHRoZSBwYWNrZWQgaW5v
-ZGUuCkJ1aWxkaW5nIG9uIG9wdGlvbiAxLCByZXNlcnZlIGEgZGVkaWNhdGVkIHJlZ2lvbiBhdCBh
-IGxvdyBsb2dpY2FsIG9mZnNldCB3aXRoaW4gdGhlIHBhY2tlZCBpbm9kZSB3aGVuIGNyZWF0aW5n
-IHRoZSBpbWFnZS4gU3Vic2VxdWVudCBpbmNyZW1lbnRhbCBidWlsZHMgY291bGQgdXNlIHRoaXMg
-cmVnaW9uIGluc3RlYWQgb2YgYXBwZW5kaW5nIGEgbmV3IHRhYmxlIGFmdGVyIHRoZSBncm93aW5n
-IGZyYWdtZW50IGRhdGEuIEEgZmVhdHVyZSBmbGFnIGNvdWxkIGlkZW50aWZ5IHRoZSByZXNlcnZh
-dGlvbjsgZXhpc3RpbmcgaW1hZ2VzIHdpdGhvdXQgc3VjaCBhIHJlZ2lvbiB3b3VsZCBuZWVkIGEg
-bWlncmF0aW9uIG9yIHJlYnVpbGQgcGF0aC4KQWxsIG9wdGlvbnMgc2hvdWxkIHByZXNlcnZlIHRo
-ZSBpbnRlcnByZXRhdGlvbiBvZiBleGlzdGluZyBpbWFnZXMuIFdoZXJlIGEgbmV3IGludGVycHJl
-dGF0aW9uIGlzIGludHJvZHVjZWQsIHJlYWRlcnMgdGhhdCBkbyBub3Qgc3VwcG9ydCBpdCBzaG91
-bGQgcmVqZWN0IHRoZSBmZWF0dXJlIHJhdGhlciB0aGFuIHJlYWQgdGhlIHRhYmxlIGZyb20gYW4g
-aW5jb3JyZWN0IGxvY2F0aW9uLgpTZXBhcmF0ZWx5LCB3ZSBjb3VsZCByZXVzZSB0aGUgZXhpc3Rp
-bmcgcHJlZml4IHRhYmxlIHdoZW4gdGhlIHJlcXVpcmVkIHByZWZpeCBlbnRyaWVzIGFuZCB0aGVp
-ciBpbmRpY2VzIG1hdGNoIHRob3NlIGluIHRoZSBiYXNlIGltYWdlLCBwcm92aWRlZCB0aGUgb3Jp
-Z2luYWwgdGFibGUgcmVtYWlucyB2YWxpZCBhbmQgYWNjZXNzaWJsZS4gRm9yIGV4YW1wbGUsIG5l
-d2x5IGFkZGVkIGZpbGVzIG1heSB1c2UgZXhpc3RpbmcgbG9uZyBwcmVmaXhlcyBldmVuIGlmIHRo
-ZWlyIHhhdHRyIHZhbHVlcyBkaWZmZXIsIHNvIG5vIHRhYmxlIHVwZGF0ZSBpcyBuZWVkZWQuIFRo
-aXMgd291bGQgYXZvaWQgd3JpdGluZyBhbm90aGVyIGlkZW50aWNhbCB0YWJsZSBhdCB0aGUgZW5k
-IG9mIHRoZSBpbWFnZS4gSG93ZXZlciwgaXQgaXMgYW4gb3B0aW1pemF0aW9uIHJhdGhlciB0aGFu
-IGEgY29tcGxldGUgc29sdXRpb246IHRoZSBhZGRyZXNzaW5nIGxpbWl0IHN0aWxsIG5lZWRzIHRv
-IGJlIGhhbmRsZWQgd2hlbiBuZXcgcHJlZml4ZXMgYXJlIGFkZGVkIG9yIHRoZSB0YWJsZSBtdXN0
-IGJlIHJlbG9jYXRlZC4KV2hpY2ggYXBwcm9hY2ggd291bGQgYmVzdCBmaXQgRVJPRlPigJlzIGxv
-bmctdGVybSBmb3JtYXQgYW5kIG1haW50ZW5hbmNlIGdvYWxzPyBBcmUgdGhlcmUgb3RoZXIgb3B0
-aW9ucyBvciBjb25zdHJhaW50cyB0aGF0IHNob3VsZCBiZSBjb25zaWRlcmVkPwpUaGFua3MsCkJp
-bmd5aW5nCg==
-------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: base64
+case 1: with bdev-based device, FAN_PRE_ACCESS event is triggered.
 
-PGRpdiBjbGFzcz0iX19hbGl5dW5fZW1haWxfYm9keV9ibG9jayI+PGRpdiAgc3R5bGU9ImZvbnQt
-ZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBTVEhlaXRpU0MtTGlnaHQsIFNpbVN1biI+PGRpdiAgc3R5
-bGU9ImNsZWFyOiBib3RoOyBmb250LWZhbWlseTogVGFob21hLCBBcmlhbCwgU1RIZWl0aVNDLUxp
-Z2h0LCBTaW1TdW47Ij48c3BhbiAgc3R5bGU9ImZvbnQtZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBT
-VEhlaXRpU0MtTGlnaHQsIFNpbVN1bjsiPjwvc3Bhbj48cCA+SGksPC9wPjxwID48Y29kZSAgZGly
-PSJsdHIiPnhhdHRyX3ByZWZpeF9zdGFydDwvY29kZT48c3BhbiA+IGlzIGEgMzItYml0IGZpZWxk
-IHN0b3JpbmcgYW4gb2Zmc2V0IGluIGZvdXItYnl0ZSB1bml0cy4gV2hlbiBhbiBpbmNyZW1lbnRh
-bCBidWlsZCBwbGFjZXMgYSBuZXcgbG9uZyB4YXR0ciBuYW1lIHByZWZpeCB0YWJsZSBhdCBvciBi
-ZXlvbmQgMTYgR2lCLCB0aGUgb2Zmc2V0IGNhbm5vdCBiZSByZXByZXNlbnRlZCBhbmQgbWtmcy5l
-cm9mcyByZWplY3RzIHRoZSBidWlsZC48L3NwYW4+PC9wPjxwID48c3BhbiA+QmVmb3JlIHdvcmtp
-bmcgb24gcGF0Y2hlcywgSSB3b3VsZCBsaWtlIHRvIGRpc2N1c3Mgc2V2ZXJhbCBwb3NzaWJsZSBz
-b2x1dGlvbnM6PC9zcGFuPjwvcD48b2wgIHN0YXJ0PSIxIj48bGkgPjxwID48c3BhbiAgc3R5bGU9
-ImZvbnQtd2VpZ2h0OiBib2xkOyI+U3RvcmUgdGhlIHByZWZpeCB0YWJsZSBpbiB0aGUgcGFja2Vk
-IGlub2RlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5Vc2UgdGhlIGV4aXN0aW5nIGZvcm1hdCBzdXBw
-b3J0IHNvIHRoYXQgdGhlIHRhYmxlIGlzIGFkZHJlc3NlZCBieSBhIGxvZ2ljYWwgb2Zmc2V0IHdp
-dGhpbiB0aGUgcGFja2VkIGlub2RlIHJhdGhlciB0aGFuIGEgcGh5c2ljYWwgb2Zmc2V0IGluIHRo
-ZSBpbWFnZS4gVGhpcyBhdm9pZHMgYSBmb3JtYXQgZXh0ZW5zaW9uLCBhbHRob3VnaCB0aGUgdGFi
-bGXigJlzIGxvZ2ljYWwgb2Zmc2V0IHJlbWFpbnMgc3ViamVjdCB0byB0aGUgc2FtZSBsaW1pdCwg
-YW5kIGV4aXN0aW5nIHJlZmVyZW5jZXMgdG8gZnJhZ21lbnQgZGF0YSBtdXN0IGJlIHByZXNlcnZl
-ZC48L3NwYW4+PC9wPjwvbGk+PGxpID48cCA+PHNwYW4gIHN0eWxlPSJmb250LXdlaWdodDogYm9s
-ZDsiPlJlc2VydmUgc3BhY2UgZm9yIHRoZSBwcmVmaXggdGFibGUgbmVhciB0aGUgYmVnaW5uaW5n
-IG9mIHRoZSBpbWFnZS48L3NwYW4+PC9wPjxwID48c3BhbiA+UmVzZXJ2ZSBzdWZmaWNpZW50IHNw
-YWNlIGF0IGEgbG93IG9mZnNldCB3aGVuIGNyZWF0aW5nIHRoZSBpbWFnZSwgd2l0aCBhIGZlYXR1
-cmUgZmxhZyBpZGVudGlmeWluZyB0aGlzIGxheW91dC4gU3Vic2VxdWVudCBpbmNyZW1lbnRhbCBi
-dWlsZHMgd291bGQgdXNlIHRoZSByZXNlcnZlZCByZWdpb24sIHdoaWxlIGltYWdlcyB3aXRob3V0
-IHRoZSBmbGFnIHdvdWxkIHJldGFpbiB0aGUgZXhpc3RpbmcgYmVoYXZpb3IuIEV4aXN0aW5nIGlt
-YWdlcyB3aXRob3V0IHJlc2VydmVkIHNwYWNlIHdvdWxkIHJlcXVpcmUgbWlncmF0aW9uIG9yIHJl
-YnVpbGRpbmcgdG8gYWRvcHQgdGhpcyBsYXlvdXQuPC9zcGFuPjwvcD48L2xpPjxsaSA+PHAgPjxz
-cGFuICBzdHlsZT0iZm9udC13ZWlnaHQ6IGJvbGQ7Ij5FeHRlbmQgdGhlIG9mZnNldCB1c2luZyBy
-ZXNlcnZlZCBzdXBlcmJsb2NrIHNwYWNlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5BZGQgYW4gdXBw
-ZXIgZmllbGQgZm9yIDwvc3Bhbj48Y29kZSAgZGlyPSJsdHIiPnhhdHRyX3ByZWZpeF9zdGFydDwv
-Y29kZT48c3BhbiA+IGluIHRoZSBzdXBlcmJsb2Nr4oCZcyByZXNlcnZlZCBzcGFjZSBhbmQgY29t
-YmluZSBpdCB3aXRoIHRoZSBleGlzdGluZyBmaWVsZC4gQSBuZXcgaW5jb21wYXQgZmVhdHVyZSB3
-b3VsZCBlbmFibGUgdGhlIGV4dGVuZGVkIGludGVycHJldGF0aW9uOyB3aXRob3V0IGl0LCByZWFk
-ZXJzIHdvdWxkIHJldGFpbiB0aGUgY3VycmVudCBpbnRlcnByZXRhdGlvbi4gVGhpcyB3b3VsZCBh
-bGxvdyB0aGUgdGFibGUgdG8gcmVtYWluIGFwcGVuZGVkIHRvIHRoZSBpbWFnZSwgYnV0IHJlcXVp
-cmUgcmVhZGVyIHVwZGF0ZXMuPC9zcGFuPjwvcD48L2xpPjxsaSA+PHAgPjxzcGFuICBzdHlsZT0i
-Zm9udC13ZWlnaHQ6IGJvbGQ7Ij5SZXNlcnZlIHNwYWNlIGZvciB0aGUgcHJlZml4IHRhYmxlIHdp
-dGhpbiB0aGUgcGFja2VkIGlub2RlLjwvc3Bhbj48L3A+PHAgPjxzcGFuID5CdWlsZGluZyBvbiBv
-cHRpb24gMSwgcmVzZXJ2ZSBhIGRlZGljYXRlZCByZWdpb24gYXQgYSBsb3cgbG9naWNhbCBvZmZz
-ZXQgd2l0aGluIHRoZSBwYWNrZWQgaW5vZGUgd2hlbiBjcmVhdGluZyB0aGUgaW1hZ2UuIFN1YnNl
-cXVlbnQgaW5jcmVtZW50YWwgYnVpbGRzIGNvdWxkIHVzZSB0aGlzIHJlZ2lvbiBpbnN0ZWFkIG9m
-IGFwcGVuZGluZyBhIG5ldyB0YWJsZSBhZnRlciB0aGUgZ3Jvd2luZyBmcmFnbWVudCBkYXRhLiBB
-IGZlYXR1cmUgZmxhZyBjb3VsZCBpZGVudGlmeSB0aGUgcmVzZXJ2YXRpb247IGV4aXN0aW5nIGlt
-YWdlcyB3aXRob3V0IHN1Y2ggYSByZWdpb24gd291bGQgbmVlZCBhIG1pZ3JhdGlvbiBvciByZWJ1
-aWxkIHBhdGguPC9zcGFuPjwvcD48L2xpPjwvb2w+PHAgPjxzcGFuID5BbGwgb3B0aW9ucyBzaG91
-bGQgcHJlc2VydmUgdGhlIGludGVycHJldGF0aW9uIG9mIGV4aXN0aW5nIGltYWdlcy4gV2hlcmUg
-YSBuZXcgaW50ZXJwcmV0YXRpb24gaXMgaW50cm9kdWNlZCwgcmVhZGVycyB0aGF0IGRvIG5vdCBz
-dXBwb3J0IGl0IHNob3VsZCByZWplY3QgdGhlIGZlYXR1cmUgcmF0aGVyIHRoYW4gcmVhZCB0aGUg
-dGFibGUgZnJvbSBhbiBpbmNvcnJlY3QgbG9jYXRpb24uPC9zcGFuPjwvcD48cCA+PHNwYW4gPlNl
-cGFyYXRlbHksIHdlIGNvdWxkIHJldXNlIHRoZSBleGlzdGluZyBwcmVmaXggdGFibGUgd2hlbiB0
-aGUgcmVxdWlyZWQgcHJlZml4IGVudHJpZXMgYW5kIHRoZWlyIGluZGljZXMgbWF0Y2ggdGhvc2Ug
-aW4gdGhlIGJhc2UgaW1hZ2UsIHByb3ZpZGVkIHRoZSBvcmlnaW5hbCB0YWJsZSByZW1haW5zIHZh
-bGlkIGFuZCBhY2Nlc3NpYmxlLiBGb3IgZXhhbXBsZSwgbmV3bHkgYWRkZWQgZmlsZXMgbWF5IHVz
-ZSBleGlzdGluZyBsb25nIHByZWZpeGVzIGV2ZW4gaWYgdGhlaXIgeGF0dHIgdmFsdWVzIGRpZmZl
-ciwgc28gbm8gdGFibGUgdXBkYXRlIGlzIG5lZWRlZC4gVGhpcyB3b3VsZCBhdm9pZCB3cml0aW5n
-IGFub3RoZXIgaWRlbnRpY2FsIHRhYmxlIGF0IHRoZSBlbmQgb2YgdGhlIGltYWdlLiBIb3dldmVy
-LCBpdCBpcyBhbiBvcHRpbWl6YXRpb24gcmF0aGVyIHRoYW4gYSBjb21wbGV0ZSBzb2x1dGlvbjog
-dGhlIGFkZHJlc3NpbmcgbGltaXQgc3RpbGwgbmVlZHMgdG8gYmUgaGFuZGxlZCB3aGVuIG5ldyBw
-cmVmaXhlcyBhcmUgYWRkZWQgb3IgdGhlIHRhYmxlIG11c3QgYmUgcmVsb2NhdGVkLjwvc3Bhbj48
-L3A+PHAgPjxzcGFuID5XaGljaCBhcHByb2FjaCB3b3VsZCBiZXN0IGZpdCBFUk9GU+KAmXMgbG9u
-Zy10ZXJtIGZvcm1hdCBhbmQgbWFpbnRlbmFuY2UgZ29hbHM/IEFyZSB0aGVyZSBvdGhlciBvcHRp
-b25zIG9yIGNvbnN0cmFpbnRzIHRoYXQgc2hvdWxkIGJlIGNvbnNpZGVyZWQ/PC9zcGFuPjwvcD48
-cCA+PHNwYW4gPlRoYW5rcyw8L3NwYW4+PGJyID48c3BhbiA+QmluZ3lpbmc8L3NwYW4+PC9wPjxk
-aXYgPjwvZGl2PjxzcGFuICBzdHlsZT0iZm9udC1mYW1pbHk6IFRhaG9tYSwgQXJpYWwsIFNUSGVp
-dGlTQy1MaWdodCwgU2ltU3VuOyI+PGJyID48L3NwYW4+PC9kaXY+PGRpdiAgc3R5bGU9ImNsZWFy
-OiBib3RoOyBmb250LWZhbWlseTogVGFob21hLCBBcmlhbCwgU1RIZWl0aVNDLUxpZ2h0LCBTaW1T
-dW47Ij48c3BhbiAgc3R5bGU9ImZvbnQtZmFtaWx5OiBUYWhvbWEsIEFyaWFsLCBTVEhlaXRpU0Mt
-TGlnaHQsIFNpbVN1bjsiPjxiciA+PC9zcGFuPjwvZGl2PjxkaXYgIGNsYXNzPSJhbGltYWlsLXNp
-Z25hdHVyZSI+PC9kaXY+PC9kaXY+PC9kaXY+
-------=ALIBOUNDARY_2348_7f168beb3700_6ae45630_2485b--
+ # SCRATCH_DEV=/dev/pmem1 make check TESTS=erofs/033
+
+PASS: erofs/033
+=============
+1 test passed
+=============
+
+case 2: with file-backed image, FAN_PRE_ACCESS event fails to mark.
+
+ # SCRATCH_DEV=erofs.img make check TESTS=erofs/033
+
+fs-monitor not started
+PASS: erofs/033
+=============
+1 test passed
+=============
+
+Signed-off-by: Friendy Su <friendy.su@sony.com>
+Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
+Reviewed-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+---
+ tests/erofs/033        |  85 +++++++++++++++++++++++
+ tests/erofs/033.out    |   2 +
+ tests/src/Makefile.am  |   6 +-
+ tests/src/fs-monitor.c | 151 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 243 insertions(+), 1 deletion(-)
+ create mode 100755 tests/erofs/033
+ create mode 100644 tests/erofs/033.out
+ create mode 100644 tests/src/fs-monitor.c
+
+diff --git a/tests/erofs/033 b/tests/erofs/033
+new file mode 100755
+index 0000000..fab6d56
+--- /dev/null
++++ b/tests/erofs/033
+@@ -0,0 +1,85 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0+
++#
++# 033 - check FAN_PRE_ACCESS fanotify event
++#
++seq=`basename $0`
++seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
++
++# get standard environment, filters and checks
++. "${srcdir}/common/rc"
++
++cleanup()
++{
++	cd /
++	rm -rf $tmp.*
++}
++
++_require_erofs
++
++# remove previous $seqres.full before test
++rm -f $seqres.full
++
++# real QA test starts here
++echo "QA output created by $seq"
++
++if [ -z $SCRATCH_DEV ]; then
++	SCRATCH_DEV=$tmp/erofs_$seq.img
++	rm -f SCRATCH_DEV
++fi
++
++localdir="$tmp/$seq"
++rm -rf $localdir
++mkdir -p $localdir
++
++# create a file for mmap()
++dd if=/dev/urandom of=$localdir/file-2M bs=2M count=1 >> $seqre.full 2>&1
++
++MKFS_OPTIONS="$MKFS_OPTIONS -x1"
++_scratch_mkfs $localdir >> $seqres.full 2>&1 || _fail "failed to mkfs"
++
++# _scratch_mount always mount with '-o loop', file backed mount
++# can not be tested. So mount with ${MOUNT_PROG} directly.
++#_scratch_mount 2>>$seqres.full
++${MOUNT_PROG} ${SCRATCH_DEV} ${SCRATCH_MNT} 2>>$seqres.full
++
++# start fanotify event monitor
++src/fs-monitor ${SCRATCH_MNT} > $tmp.fsmonitor 2>&1 &
++
++fsmonitor_pid=$!
++sleep 1
++
++ps -p ${fsmonitor_pid} > /dev/null
++
++if [ $? -ne 0 ]; then
++	echo "fs-monitor not started" | tee -a $seqres.full >&2
++	if [ ! -f ${SCRATCH_DEV} ]; then
++		echo "fanotify monitor failed to start on non-file-backed image"
++	fi
++	${UMOUNT_PROG} ${SCRATCH_MNT}
++	echo Silence is golden
++	status=0
++	exit 0
++fi
++
++echo "fs-monitor started" | tee -a $seqres.full >&2
++
++# do mmap(), FAN_PRE_ACCESS event will be triggered
++xfs_io -r -c "mmap -r 0 2M" -c close ${SCRATCH_MNT}/file-2M >> $seqres.full
++
++sleep 1
++
++# kill fs-monitor process anyway
++kill -TERM ${fsmonitor_pid}
++
++cat $tmp.fsmonitor >>$seqres.full
++
++(cat $tmp.fsmonitor | grep -q "FAN_PRE_ACCESS EVENT" > /dev/null) || \
++	echo "No FAN_PRE_ACCESS EVENT"
++
++#_scratch_unmount
++${UMOUNT_PROG} ${SCRATCH_MNT}
++
++echo Silence is golden
++status=0
++exit 0
+diff --git a/tests/erofs/033.out b/tests/erofs/033.out
+new file mode 100644
+index 0000000..c5d2914
+--- /dev/null
++++ b/tests/erofs/033.out
+@@ -0,0 +1,2 @@
++QA output created by 033
++Silence is golden
+diff --git a/tests/src/Makefile.am b/tests/src/Makefile.am
+index 16de41a..d645539 100644
+--- a/tests/src/Makefile.am
++++ b/tests/src/Makefile.am
+@@ -3,7 +3,7 @@
+ 
+ AUTOMAKE_OPTIONS	= foreign
+ check_PROGRAMS		=
+-noinst_PROGRAMS		= fssum
++noinst_PROGRAMS		= fssum fs-monitor
+ 
+ fssum_CFLAGS = -Wall -I$(top_srcdir)/include
+ fssum_LDADD = $(top_builddir)/lib/liberofs.la
+@@ -15,3 +15,7 @@ badlz4_SOURCES = badlz4.c
+ badlz4_CFLAGS = ${liblz4_CFLAGS}
+ badlz4_LDADD = ${liblz4_LIBS}
+ endif
++
++check_PROGRAMS += fs-monitor
++fs_monitor_CFLAGS = -Wall -I$(top_srcdir)/include
++fs_monitor_SOURCES = fs-monitor.c
+diff --git a/tests/src/fs-monitor.c b/tests/src/fs-monitor.c
+new file mode 100644
+index 0000000..07b7a2a
+--- /dev/null
++++ b/tests/src/fs-monitor.c
+@@ -0,0 +1,151 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Partly copied from https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/samples/fanotify/fs-monitor.c
++ */
++
++#include <errno.h>
++#include <err.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <fcntl.h>
++#include <sys/fanotify.h>
++#include <sys/types.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <poll.h>
++
++static void handle_pre_access_event(int fd,
++	       struct fanotify_event_metadata *event)
++{
++	struct fanotify_event_info_header *info;
++	struct fanotify_event_info_range *range;
++	struct fanotify_response response;
++	int off;
++
++
++	for (off = sizeof(*event) ; off < event->event_len;
++	     off += info->len) {
++		info = (struct fanotify_event_info_header *)
++			((char *) event + off);
++
++		switch (info->info_type) {
++		case FAN_EVENT_INFO_TYPE_RANGE:
++			range = (struct fanotify_event_info_range *) info;
++
++			printf("FAN_PRE_ACCESS event range: \n");
++			printf("offset = 0x%llx, count = 0x%llx\n",
++					range->offset, range->count);
++
++			response.fd = event->fd;
++                        response.response = FAN_ALLOW;
++			if (write(fd, &response, sizeof(response)) < 0)
++					perror("Send FAN_PRE_ACCESS response failed");
++
++			break;
++		default:
++			printf("\tUnknown info type=%d len=%d:\n",
++			       info->info_type, info->len);
++			break;
++		}
++
++		fflush(stdout);
++	}
++}
++
++static void handle_notifications(int fd, char *buffer, int len)
++{
++	struct fanotify_event_metadata *event =
++		(struct fanotify_event_metadata *) buffer;
++
++	for (; FAN_EVENT_OK(event, len); event = FAN_EVENT_NEXT(event, len)) {
++
++		if (event->mask == FAN_PRE_ACCESS) {
++
++			/* This msg will be checked in test case */
++			printf("FAN_PRE_ACCESS EVENT (len=%d)\n", event->event_len);
++
++			handle_pre_access_event(fd, event);
++		}
++
++		/* TODO: Add more event handler here */
++
++		printf("---\n\n");
++		fflush(stdout);
++	}
++
++}
++
++int main(int argc, char **argv)
++{
++	int fd, poll_num, opt, nfds;
++	int check = 0;
++	char buffer[BUFSIZ];
++	struct pollfd fds[1];
++
++	if (argc < 2) {
++		printf("Missing path argument\n");
++		return 1;
++	}
++
++	while ((opt = getopt(argc, argv, "c")) != -1) {
++		switch (opt) {
++		case 'c':
++			check = 1;
++			break;
++		default:
++			fprintf(stderr, "Usage: %s [-c] path\n",
++				argv[0]);
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	fd = fanotify_init(FAN_CLOEXEC | FAN_CLASS_PRE_CONTENT | FAN_NONBLOCK,
++                        O_RDONLY);
++	if (check)
++		exit(fd < 0);
++
++	if (fd < 0) {
++		perror("fanotify_init");
++		errx(1, "fanotify_init");
++	}
++
++	if (fanotify_mark(fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
++                          FAN_PRE_ACCESS, AT_FDCWD, argv[optind])) {
++		perror("fanotify_mark");
++		errx(1, "fanotify_mark");
++	}
++
++	printf("fanotify active\n");
++	fflush(stdout);
++
++	fds[0].fd = fd;
++        fds[0].events = POLLIN;
++
++	nfds = 1;
++
++	while (1) {
++	        poll_num = poll(fds, nfds, -1);
++                if (poll_num == -1) {
++                        if (errno == EINTR)	/* Interrupted by a signal */
++                                continue;	/* Restart poll() */
++
++                        perror("poll");		/* Unexpected error */
++                        exit(EXIT_FAILURE);
++                }
++
++		if (poll_num > 0) {
++
++                        if (fds[0].revents & POLLIN) {
++		                int n = read(fd, buffer, sizeof(buffer));
++		                if (n == -1 && errno != EAGAIN) {
++					perror("read");
++					exit(EXIT_FAILURE);
++				}
++
++				handle_notifications(fd, buffer, n);
++			}
++		}
++	}
++
++	return 0;
++}
+-- 
+2.34.1
 
 
