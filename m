@@ -1,56 +1,83 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19931606A334
-	for <linux-erofs@archiver.kernel.org>; Tue,  3 Nov 2026 12:54:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581A8606D802
+	for <linux-erofs@archiver.kernel.org>; Tue,  3 Nov 2026 13:55:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iQjQoALR
+	dkim=pass (2048-bit key, unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=C8nOCa4Z
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jJpS00tfFz2xK7;
-	Tue, 03 Nov 2026 23:54:24 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793710464;
-	cv=none; b=Ilm7MoNIT8JfoeEe05Tv+3FCx9N2bhEMAXcY0WK+PXa/xV10U/6CeIWPX2aiAVTY6Twn1WzM2N2WhZfstjoQUe6gSiNJQgeyz9YfVAxnWojYvcUMbpRq0OiW7YI+7UO424RF/VDj2kxFn7UN7x59vqTVUQJy2/nz7wkgmeZHAA/EmyL/0Jh9Vtzhzsw0uzQRqFAN7WCM5v0vDeDGFg9nm1r3vfyvcNGSkYvWKYF/o5RFJ+N4KBBefnsumCuhioUD3Dg879vBH28k89YuuxXxB8VRgk9vVMFNB9b9auBp0I6uL69Ph8T9uEYmDPaVhq3hbyShmizulVxLVfbGRRn5zA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jJqpR2xp1z2xN4;
+	Wed, 04 Nov 2026 00:55:27 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::334"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793714127;
+	cv=none; b=NwzIjX5ptmgTI6O+mjZDRhzpzNusTCFxUJd4JK6o2VGchGwUKWYj8/THWM+VpTvmd2R6JE9bF+Md7rennxE+YvNMbxfY1bmpVKa1hSD7emS/8pl4tzrGg9OqZ3dR1I7UP3s0JjiHQJfbfOsgSu9iAGqx9JQR80EFoKUEvNHHHcHBGzykAQc/S9nYXEA6do4nwLpzpsBy3nv1GUx1JtnL0oY9pEY1LeVe2A0Y4w8h+lBK4/AOPB9Aau24tkUwHmvoUgXC67+4r6sq4Y+sVkFxn7czvJYoY0GycAvbmwIkOQC2nhDB7Yd5XyRaAn549VoStptE41xdbXufBC4sAeg0Gg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793710464; c=relaxed/relaxed;
-	bh=6l0I/mq9iZ9HD/h7Ui4EY7ABhj1TqxJgvRYhqBnTbAQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dulygynj2A23CnaaptSydTVeTMxwSRr0zXi1OHUieAAFKKjO2G4InQO8TYr20cKo3jRp3zc5gSoW8rHyeRaKNSY31uhjnmZt6Apt/AtTTLVWo5LVJxSFvT0LQWmz92eSZHHOBSvmz+jlkS4pYnxkxIjnMSgsRJSCqkrmbne2IPbBNNa6C5p4ucfRiny5mVWGvTMWiByOKBjgD8JobPcyGWaatEmXYfN4di1eqAy8zH//cFlqdFJdQkji04Fm30017zXiXkgNMXNHkBTz+EP/3hEGI2sU+PynAmLczRruN7eeKm3KCjVVmyVzJhWIAoDm5OUFPmv4NNc7kYCQlfPbSw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iQjQoALR; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1793714127; c=relaxed/relaxed;
+	bh=sA7d83TPIURKpBQwIZf/Vd8TK1vj80wHKwjv//LmLbI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fNFWWZ0Icz/8PbeaajVhtV94hV30lR3eSpusknae/NqQnMYX2wtOeGnxuPG67m2GKCxFbQhT/6HG5CmjMgZHP53cdycY6wYNno7ABjRLNg1+b1bXqdALqxvXCW3YMGW+DqSMAd3ZChboiftGn31NcQwA04jNZJJnpOg5RICN+pwTIJ2ZBbIdDFbPRU8DaNqi671yU2lDzmo3NZ2Mx0n23VcCZEf9etdsF6bW3EWfQqWgvtOyoyi3skq86eNcHeiJNGF1XcxwavM27EnQGjDoQxFX2OTWa/ryh3sAeH+XY9kt9GbNwqJ8swHrsxi6X4dWOsas8rmqU10MvxkFe9NxGw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=C8nOCa4Z; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::334; helo=mail-wm1-x334.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iQjQoALR;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=C8nOCa4Z;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::334; helo=mail-wm1-x334.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jJpRy6VM9z2xH9
-	for <linux-erofs@lists.ozlabs.org>; Tue, 03 Nov 2026 23:54:22 +1100 (AEDT)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 2E82E60621;
-	Tue,  3 Nov 2026 12:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7324E1F000C1;
-	Tue,  3 Nov 2026 12:54:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793710459;
-	bh=6l0I/mq9iZ9HD/h7Ui4EY7ABhj1TqxJgvRYhqBnTbAQ=;
-	h=From:To:Cc:Subject:Date;
-	b=iQjQoALRFfomFvUW2GDR06qNgh/Q1TZ1LP4duLLnHR79jzBNGpm7zXQwtOjr83UZh
-	 NDfS9V+g9awJSCPHZAZAW0A5s0HMps+2dAicL2GzMhUaS4aWLH6R/eSBOWZPQVIUkv
-	 q7er+JN6EeNOBZJHYhIqKpcEnepIBbfgxgXbFs1nSbdgeduJXqasxH3eC/lOtuWnFq
-	 A35oza9Irb0kCE79WmXnfzz/nKghRc4Q2t+f3jUZpK5DzR/g2FqY6cxKJZOj8IGJRW
-	 BS6AywoYP3fq2RBpCFn/swnxQfShk3CYNF8orqgYipCxQ+0pQ3OkwmmQMGHha5zL45
-	 IoUpKmPxEj7Rw==
-From: Gao Xiang <xiang@kernel.org>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jJqpP5Dvyz2xMQ
+	for <linux-erofs@lists.ozlabs.org>; Wed, 04 Nov 2026 00:55:25 +1100 (AEDT)
+Received: by mail-wm1-x334.google.com with SMTP id 5b1f17b1804b1-4a5036bbac7so26701475e9.3
+        for <linux-erofs@lists.ozlabs.org>; Tue, 03 Nov 2026 05:55:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=docker.com; s=google; t=1793714122; x=1794318922; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sA7d83TPIURKpBQwIZf/Vd8TK1vj80wHKwjv//LmLbI=;
+        b=C8nOCa4Zj/oRyZdVMs4H2IyoAI5WT6Al8oFF8sBwfATx6pDfDoi+8k166h1ZpegHRD
+         gEVZD0coex7OGsErHbBqtOcwZ5TtjEwKeZkGuDpcXV1ZmpX75bq9lwfkWg2s7zFArfHl
+         DluFPm/jEmL1wVD/g0QFeF9LLUBI7aa1Uq93U8lvy/mXPp2FJXdmGTWphj0VWYJaEbMr
+         Yt3izDZ0UxYmmD+yJTEpgnK48bUpqODCrH2UJpPtebBVeg6qhhWolITshi53JoZdnIN1
+         1P0TMIT8kP7Sgws42sWIKdWEchh+Tpv3i2HG4OjqpWdKxnV6AGBhJJtW0sxA4NIP+9bx
+         XSWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793714122; x=1794318922;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sA7d83TPIURKpBQwIZf/Vd8TK1vj80wHKwjv//LmLbI=;
+        b=mnvP+yWdlKnmawMfeIaXAJNuvsq+4IQ3SKuMexaG6JlfNEtps2RAbuHU+yTajV2UAu
+         MlSsWw+gRMTPG+yd3f04qqd8z8kmet+8kVXiD34vZ0VyyKO65gC43xDJt2L6HrZqzQB9
+         eO6WuRnKupLdtsvofes6Nwco+x6JYQireWthYxLAXE1WdzOoeEnd/KZxcY1ypPJ1ZzhV
+         0EsIq0ycMQSoRAroNn6Cjf26Ms1dbchpG9CKW3UhadJy6ZfXP6r0MukIXk8FpeqXhgkK
+         J9aPnwbgh7FH+hrC9WcS0ZfNPfsc/6E1JNher+0hrS4yhUa6dsvHu4yPUWzpCUZXp0+y
+         6T4w==
+X-Gm-Message-State: APuU4Z/iKYVIh6f9QwHorEBdfKetbhNuQ5ND2t6nq2dgWo2h4ofeSrHr
+	v2UPo3+1h4UGKseySMEWm2O72Y2Zqp8lvLTmCOOpAG2L1WEnwxjqlnYbIzqPx96tntYaWTnMKD4
+	bMi4Oc6Q=
+X-Gm-Gg: AYBFou1JHuSdHjE2nK5UyGPFZL5ciUYKUoPMKJ4naOSVhr1qdetYLHf/38PeiIy5S6A
+	E7GE/Vv1e6gf9DbpzdfxkhmjyeQ134CY/73UZucg0GR9xNbCR8Sz8qeVHvh1Xv7rOOqi35KRYwq
+	7XFI+d/RYGvTjSa9hSCYpItVTtAUNGvEdUIUA2Uhqv+T0lB8+t+F2rSLeRE30GIhcJmK2Zii+Ca
+	U/H71JI6msByyKer4dQFJ9L3eiUNeW5Quw690xIJh642mKe97LbxI+vmRXPz/wyqHNKV1kJmtX3
+	OgcKvuYi9WClWFJILkvyFO5GG37Fbu59RuexVDGkYzh7KZskMRE3Xr07YsvyUzO8qrXLwDfNgPS
+	xzjsiVNkX7VEvbjc2We4dnrvz7pIpF9ezGt2TF1wVLvsr+WZFRzpNU4/BeJgnZGyFW2N1YPE7w4
+	GGCK1PGyPW7k8AFE00puazdFbs0ymKhlKJUK5moWr+oOAPvgrX6plqehgpbZomuWR4+S2kEN2RI
+	VTNTlqT/EFB8CZz2VXvgjIf28JRDy39HA0s1MifdXeJQZKAywywuBe9R0qr5wTljmk0D+69SaDo
+	4LR+O6d/0hQrpKkkCIdNVmkUkDCE2Z0wjLOkpaVOtPy9AwahwQ8=
+X-Received: by 2002:a05:600c:138c:b0:4a1:f90d:6f4c with SMTP id 5b1f17b1804b1-4ac17ffaff2mr288386115e9.7.1793714122045;
+        Tue, 03 Nov 2026 05:55:22 -0800 (PST)
+Received: from localhost.localdomain ([2a02:8108:8388:6600:c9e:809a:89ec:9967])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2a82cebdbsm65698565e9.3.2026.11.03.05.55.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 05:55:21 -0800 (PST)
+From: Gao Xiang <xiang.gao@docker.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <xiang@kernel.org>,
-	Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH] erofs-utils: lib: fix packed pos in erofs_xattr_flush_name_prefixes()
-Date: Tue,  3 Nov 2026 13:54:12 +0100
-Message-ID: <20261103125412.12594-1-xiang@kernel.org>
-X-Mailer: git-send-email 2.50.1
+Cc: Gao Xiang <xiang.gao@docker.com>
+Subject: [PATCH] erofs-utils: build: normalize line endings from Windows checkouts
+Date: Tue,  3 Nov 2026 14:55:07 +0100
+Message-ID: <20261103135507.2749-1-xiang.gao@docker.com>
+X-Mailer: git-send-email 2.56.0.windows.4
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -62,7 +89,7 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
@@ -70,85 +97,75 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-erofs_os_lseek() usage is no longer valid.
+CRLF line endings leave a trailing carriage return in MSYS2 package
+URLs, causing curl to reject them, and prevent shell scripts from
+running correctly.
 
-Fixes: bfc94a2580c0 ("erofs-utils: lib: track packed inode position explicitly")
+Use dos2unix on the dependency manifest before reading it and on text
+build inputs before running Autotools in both build stages. Skip binary
+files and Git metadata.
+
 Fixes: e2d8dde04abf ("erofs-utils: add native Windows support")
-Reported-by: Yifan Zhao <stopire@gmail.com>
-Closes: https://lore.kernel.org/r/6f29b317-9df0-4e96-94c0-e3c3858f41e5@gmail.com
-Signed-off-by: Gao Xiang <xiang@kernel.org>
+Assisted-by: ChatGPT:gpt-6.1-sol
+Signed-off-by: Gao Xiang <xiang.gao@docker.com>
 ---
- lib/fragments.c          |  4 +++-
- lib/liberofs_fragments.h |  2 +-
- lib/xattr.c              | 11 +++++------
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ Dockerfile | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/lib/fragments.c b/lib/fragments.c
-index 61577d2..d4e79b2 100644
---- a/lib/fragments.c
-+++ b/lib/fragments.c
-@@ -403,8 +403,10 @@ int erofs_flush_packed_inode(struct erofs_importer *im)
- 	return 0;
- }
+diff --git a/Dockerfile b/Dockerfile
+index 2e9689d..dfedb97 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -13,6 +13,7 @@ RUN apk add --no-cache \
+     libtool \
+     pkgconfig \
+     git \
++    dos2unix \
+     util-linux-dev util-linux-static \
+     fuse3-dev fuse3-static \
+     zlib-dev zlib-static \
+@@ -30,7 +31,9 @@ RUN apk add --no-cache \
+ WORKDIR /build
+ COPY . .
  
--int erofs_packedfile(struct erofs_sb_info *sbi)
-+int erofs_packedfile(struct erofs_sb_info *sbi, erofs_off_t **ppos)
- {
-+	if (ppos)
-+		*ppos = &sbi->packedinode->pos;
- 	return sbi->packedinode->fd;
- }
+-RUN ./autogen.sh && \
++# Normalize text inputs from Windows checkouts; dos2unix skips binary files.
++RUN find . -type f ! -path './.git/*' -exec dos2unix -q {} + && \
++    ./autogen.sh && \
+     PKG_CONFIG="pkg-config --static" LDFLAGS="-static -no-pie" ./configure --enable-static --disable-shared \
+         --prefix=$(pwd)/output \
+         --enable-multithreading \
+@@ -56,7 +59,7 @@ FROM --platform=${MINGW_BUILD_PLATFORM} alpine:3.24.1 AS windows-builder
  
-diff --git a/lib/liberofs_fragments.h b/lib/liberofs_fragments.h
-index cf54936..57fe952 100644
---- a/lib/liberofs_fragments.h
-+++ b/lib/liberofs_fragments.h
-@@ -20,6 +20,6 @@ int erofs_fragment_pack(struct erofs_inode *inode, void *data,
- 			erofs_off_t pos, erofs_off_t len, u32 tofh, bool tail);
- int erofs_fragment_commit(struct erofs_inode *inode, u32 tofh);
- int erofs_flush_packed_inode(struct erofs_importer *im);
--int erofs_packedfile(struct erofs_sb_info *sbi);
-+int erofs_packedfile(struct erofs_sb_info *sbi, erofs_off_t **ppos);
+ RUN apk add --no-cache \
+     build-base autoconf automake libtool pkgconf git \
+-    ca-certificates curl tar zstd mingw-w64-gcc
++    ca-certificates curl tar zstd dos2unix mingw-w64-gcc
  
- #endif
-diff --git a/lib/xattr.c b/lib/xattr.c
-index 93cfead..c670b12 100644
---- a/lib/xattr.c
-+++ b/lib/xattr.c
-@@ -885,6 +885,7 @@ int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain)
- 	struct erofs_buffer_head *bh = NULL;
- 	struct erofs_vfile _vf;
- 	struct ea_type_node *tnode;
-+	erofs_off_t *ppos = NULL;
- 	s64 start, offset = 0;
- 	int err;
+ ENV MINGW_TARGET=x86_64-w64-mingw32 MINGW_PREFIX=/ucrt64
+ ENV CC=${MINGW_TARGET}-gcc \
+@@ -69,7 +72,8 @@ ENV CC=${MINGW_TARGET}-gcc \
+ ARG MSYS2_MIRROR=https://repo.msys2.org/mingw/ucrt64
+ WORKDIR /deps
+ COPY scripts/msys2-ucrt64.sha256 .
+-RUN while read -r checksum package; do \
++RUN dos2unix -q msys2-ucrt64.sha256 && \
++    while read -r checksum package; do \
+         curl -fLsS -o "$package" "${MSYS2_MIRROR}/$package" && \
+         echo "$checksum  $package" | sha256sum -c - && \
+         tar --zstd -xf "$package" -C / ucrt64 || exit 1; \
+@@ -81,7 +85,9 @@ ENV PKG_CONFIG_LIBDIR=${MINGW_PREFIX}/lib/pkgconfig PKG_CONFIG_PATH=""
  
-@@ -897,11 +898,9 @@ int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain)
- 			vf = bmgr->vf;
- 		} else if (may_fragments) {
- 			erofs_sb_set_fragments(sbi);
--			_vf = (struct erofs_vfile){ .fd = erofs_packedfile(sbi) };
-+			_vf = (struct erofs_vfile){ .fd = erofs_packedfile(sbi, &ppos) };
- 			vf = &_vf;
--			offset = erofs_os_lseek(vf->fd, 0, SEEK_CUR);
--			if (offset < 0)
--				return -errno;
-+			offset = *ppos;
- 			bmgr = NULL;
- 		} else {
- 			plain = true;
-@@ -960,8 +959,8 @@ int erofs_xattr_flush_name_prefixes(struct erofs_importer *im, bool plain)
- 		erofs_bdrop(bh, false);
- 	} else {
- 		DBG_BUGON(bmgr);
--		if (erofs_os_lseek(vf->fd, offset, SEEK_SET) < 0)
--			return -errno;
-+		if (ppos)
-+			*ppos = offset;
- 	}
- 	erofs_sb_set_xattr_prefixes(sbi);
- 	return 0;
+ WORKDIR /build
+ COPY . .
+-RUN ./autogen.sh && mkdir build-windows && cd build-windows && \
++# Normalize text inputs from Windows checkouts; dos2unix skips binary files.
++RUN find . -type f ! -path './.git/*' -exec dos2unix -q {} + && \
++    ./autogen.sh && mkdir build-windows && cd build-windows && \
+     PKG_CONFIG="pkg-config --static" \
+     CPPFLAGS="-I${MINGW_PREFIX}/include -I${MINGW_PREFIX}/include/tre" \
+     LDFLAGS="-static -L${MINGW_PREFIX}/lib" \
 -- 
-2.50.1 (Apple Git-155)
+2.56.0.windows.4
 
 
