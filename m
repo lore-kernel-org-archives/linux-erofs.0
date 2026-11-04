@@ -2,44 +2,47 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 319C2606A326
-	for <linux-erofs@archiver.kernel.org>; Wed,  4 Nov 2026 04:12:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C798C606A32F
+	for <linux-erofs@archiver.kernel.org>; Wed,  4 Nov 2026 04:12:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=j/0k2TUJ
+	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=CXImXi71
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jKBqd1r7Yz2xcB;
-	Wed, 04 Nov 2026 15:12:45 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=47.251.158.134
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793765565;
-	cv=none; b=bJX+yOR69piM2J/Eg1gQ+7n742ejRMf+jrvBDeINLDb+3Z/hPGPY+Ct3uEOENQua+KcYIZRXz1myHlYxut/LwyvFq1b3UnAnPWvq/t8xy0GkBxXo7DBQKn13B8G7pA53CSIbHeuTvjmePNU+HZ5gUushKZquAKwRktiahvU9OB6xDXiIeeh8h7LofoAQqF3Sdi1PpVSPHC00fQcgBTdptbdSP3joc5LRmF8Tx4XqazBI0dF85TTq6M2VUwfll6oKj63UGfNjf0Y0Tzl4s79erVymR4VMFOrUJZ9k35TDSurE0BvIDzRl8r3CFjyympgYcLs/QqR8tLpdeNbirmzOOA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jKBqg3xDzz2y89;
+	Wed, 04 Nov 2026 15:12:47 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=154.81.10.32
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793765567;
+	cv=none; b=VUI9L13C53neZhSO2wodEm5L3tyWeYqS7Cy+7JjnpeSNUBtzJPsMguZo84/Ki3Az+jOcd+gHkskQhsl68OSzhSJUYu5PXoktPjBwHQTPKP8bLviJNHf3gBk5znmEXsoee3LKddWcYTCSbQU3emJIO+rwBI7YBWVcdenygRrL/Dp9HwZO+SJ8mFepHZ6/CTFNDdQn5ApDvCdPZnVOjzLFWPbNHov0wQlLk66Dtl07317gNusYDZaQ36yoyiIJ9QnMX+VPYb9MbF1JF5cZ/pZLgO9bxrs7amNj9OX6LtLyE1R9SsvAN5aXgsxnq+mBJrL2nVvbGp3QKW3/DDp1uiNMIQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793765565; c=relaxed/relaxed;
-	bh=ybivg3PbgROGQMlDbNRdRU+SsCVtKenBJzfatC/zz2w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JVEGD4yfo1DWAGxKzO8fjQFEeC53b32VwXf7C+4pyU8TC1yTNvvqYYdIOSRLjpxhqplJWvbTZB+QE1qcvlFZ0iXpwy9u5I6FcGH3d3DdK1lOAcnZm4X3Gb+y/erTEqHvPMgXgdWmLphZZXmy76gboYHhx8VEGQOq7ui53SjpWbyNHzJzyyQ8T9E0WUGu0+FSwLei4KzGsnLkUYl4mqfyWtbTXiUISa0ocINz+GhjonwEI5lcms6I/lvOaQNhvMjbE8hh77UJkjn89uAeP9DFYwiGsl8kCCLMbQHV25gIrXTMYtAElGjuuDnjKQ8Senpd5qBzZo516z9UJfHVBdRq2Q==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=j/0k2TUJ; dkim-atps=neutral; spf=pass (client-ip=47.251.158.134; helo=mail-m158134.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
+	t=1793765567; c=relaxed/relaxed;
+	bh=ffVAoUStzWVADAKSO71SuGTzq8J7QN+HgJlhLet7uUM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nWvrGHppDGV5AFBHPu001Seq/jtZSE2d7UetsKA51j3LtLT7Omn58o2KTlYOheV9DrP5r13eOSLPmNI7uzKEnATmJk8hT4As/+g5TbaU3UJGnqQzZ98oZWsphHrlBUQD+eI6EUUbXJsQAHU3Gtgk+rrK1wrw1rkIprXHJ9db+XJjidkuEx4D2IOUyKQxVmH9+ARnXmiMsOc81AVrOTN+IfDeh9hrxfl6RQBMYUXbJ+h5l6bii7MuLA6fY842QsPxGtFzl1IAKkgpPnjXWvq5LAsFBmGgXfJSWbcYXdq3hrKSuRoR7fqhkVBRCKDW6SCnYG8Hvz8CFREpSLiqke3UuA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=CXImXi71; dkim-atps=neutral; spf=pass (client-ip=154.81.10.32; helo=mail-m1032.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=j/0k2TUJ;
+	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=CXImXi71;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=47.251.158.134; helo=mail-m158134.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
-X-Greylist: delayed 304 seconds by postgrey-1.37 at boromir; Wed, 04 Nov 2026 15:12:41 AEDT
-Received: from mail-m158134.netease.com (mail-m158134.netease.com [47.251.158.134])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=154.81.10.32; helo=mail-m1032.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
+X-Greylist: delayed 303 seconds by postgrey-1.37 at boromir; Wed, 04 Nov 2026 15:12:44 AEDT
+Received: from mail-m1032.netease.com (mail-m1032.netease.com [154.81.10.32])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jKBqY6VG7z2x9c
-	for <linux-erofs@lists.ozlabs.org>; Wed, 04 Nov 2026 15:12:41 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jKBqc2GtYz2x9N
+	for <linux-erofs@lists.ozlabs.org>; Wed, 04 Nov 2026 15:12:43 +1100 (AEDT)
 Received: from localhost.localdomain (unknown [124.243.154.173])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 536bdc6cd;
-	Wed, 4 Nov 2026 12:07:28 +0800 (GMT+08:00)
+	by smtp.qiye.163.com (Hmail) with ESMTP id 536bdc6ee;
+	Wed, 4 Nov 2026 12:07:37 +0800 (GMT+08:00)
 From: Wenyuan Xu <sereno.xu@deepseek.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
 Cc: sereno.xu@deepseek.com
-Subject: [RFC 0/7] erofs-utils: add manifest input support
-Date: Wed,  4 Nov 2026 04:07:18 +0000
-Message-ID: <20261104040725.2473313-1-sereno.xu@deepseek.com>
+Subject: [RFC 5/7] erofs-utils: mkfs: support two-field manifest records
+Date: Wed,  4 Nov 2026 04:07:23 +0000
+Message-ID: <20261104040725.2473313-6-sereno.xu@deepseek.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261104040725.2473313-1-sereno.xu@deepseek.com>
+References: <20261104040725.2473313-1-sereno.xu@deepseek.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -52,15 +55,15 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0aa1a4bd8a4903a3kunma3fc75f17e02b
+X-HM-Tid: 0aa1a4bdb1b803a3kunma3fc75f17e088
 X-HM-MType: 1
 X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaTEpIVh0aTUlLTU1CQxlCSVYVFA
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaT0lPVhgdTEtDShhOTkpCQlYVFA
 	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSU9VSU9IVUpOT1VKTEhZV1kWGg8SFR0UWUFZS1VLVU
 	tVS1kG
 DKIM-Signature: a=rsa-sha256;
-	b=j/0k2TUJBOp40YcfN43Tji7z2VUZ8+evhyt4pNK+PNfYhN0CDKb86LUFbrnMsxbol5zxfFWjlec0croQwEtZF9des3WpM33RQQJf7fYe46/GuZ++qheyosa/i1QxI8F/gRxqWObR//JY3oEb2L18vavWbghEtlIaMB71AlPm9N4=; s=default; c=relaxed/relaxed; d=deepseek.com; v=1;
-	bh=ybivg3PbgROGQMlDbNRdRU+SsCVtKenBJzfatC/zz2w=;
+	b=CXImXi71QUta9jf9KYkBiRqxY4Q1L5TMldVYY6e2QK97VRyalR9QpZKLeBmCM+m6hHJCURU5YabXI7qNvTcQz7GnNv9ZCmUdo+1nXP5PhEV6odFJVdjJFAK+P0wsA1KGJqJdYbf5wzgal1CvSaAjLemD5TqAsz45uZb+U4YhQMw=; s=default; c=relaxed/relaxed; d=deepseek.com; v=1;
+	bh=ffVAoUStzWVADAKSO71SuGTzq8J7QN+HgJlhLet7uUM=;
 	h=date:mime-version:subject:message-id:from;
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -69,100 +72,142 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Hi,
+Accept PATH PAYLOAD records alongside complete manifest records. Import
+metadata and xattrs from the backing file using local import policies,
+without recursively scanning directories. Read symbolic links without
+following their targets.
 
-This series adds manifest input support to mkfs.erofs. It lets callers
-specify the image tree and metadata without first creating a matching
-staging directory, while reading regular file contents from a backing
-directory. Only entries listed in the manifest are imported; source
-directories are not scanned recursively.
-
-This series is based on origin/experimental-tests.
-
-Usage:
-
-  mkfs.erofs --manifest=manifest.txt out.erofs basedir/
-
-The manifest accepts two record formats, which can be mixed:
-
-  PATH PAYLOAD SIZE MODE UID GID RDEV MTIME [KEY=VALUE ...]
-  PATH PAYLOAD
-
-The complete record syntax is inspired by composefs's
-"mkcomposefs --from-file" format, documented in composefs-dump(5) [1].
-This series uses eight fixed fields with PAYLOAD immediately after PATH,
-omitting the NLINK, CONTENT and DIGEST fields from the composefs format.
-
-Complete records specify metadata and xattrs explicitly. Regular file
-payloads identify backing files relative to basedir, symlink payloads
-provide link contents, and a MODE beginning with @ creates a hard link
-to an earlier entry. Fields unused for a file type are not parsed and
-can be written as '-'.
-
-Two-field records import metadata, contents and xattrs from the backing
-file using local import policies. Symlinks are imported without
-following their targets, and source hard links are preserved unless
---hard-dereference is specified.
-
-PATH must start with '/', with the root directory defined first and
-parents preceding their children. Duplicate paths and xattr keys are
-rejected. String fields support \xXY byte escapes, including binary
-xattr values. MTIME uses seconds.nanoseconds, where 1.1 means one second
-and one nanosecond.
-
-Both formats support regular file compression, xattr name prefixes and
-shared xattrs. They also work with --incremental=data: the manifest
-provides the update tree, matching directories are merged, and directory
-metadata comes from the new records. No on-disk format changes are
-required.
-
-Patch 1 moves local root inode initialization to the local source path.
-Patches 2 and 3 add helpers for duplicate xattr detection and building
-shared xattrs from already loaded inodes. Patches 4 and 5 implement the
-complete and two-field formats. Patches 6 and 7 add documentation and
-regression coverage.
-
-Test 033 covers file types, metadata, hard links, escaping, binary and
-shared xattrs, name prefixes, malformed records, compression and
-incremental updates. It checks images using dump.erofs and fsck.erofs.
-
-Please apply the fix in [2] before running test 033.
-
-[1] https://man.archlinux.org/man/composefs-dump.5.en
-[2] https://lore.kernel.org/all/20261104035208.2471090-1-sereno.xu@deepseek.com/
-
-Feedback on the record formats and importer integration is welcome.
+Preserve source hard links unless hard dereferencing is requested, and
+count only entries imported into the image. Allow explicit hard links
+to refer to entries imported from backing files.
 
 Assisted-by: LLM
 Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
+---
+ lib/manifest.c | 88 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 86 insertions(+), 2 deletions(-)
 
-Wenyuan Xu (7):
-  erofs-utils: mkfs: init root inode in local source mode
-  erofs-utils: lib: add erofs_inode_has_xattr helper
-  erofs-utils: lib: add erofs_build_shared_xattrs() helper
-  erofs-utils: mkfs: add manifest input mode
-  erofs-utils: mkfs: support two-field manifest records
-  erofs-utils: man: document manifest input formats
-  erofs-utils: tests: cover manifest input
-
- include/erofs/inode.h    |   2 +
- include/erofs/manifest.h |  17 ++
- include/erofs/xattr.h    |   3 +
- lib/Makefile.am          |   3 +-
- lib/inode.c              |  30 +-
- lib/manifest.c           | 527 ++++++++++++++++++++++++++++++++
- lib/xattr.c              |  62 +++-
- man/mkfs.erofs.1         | 114 +++++++
- mkfs/main.c              |  43 ++-
- tests/Makefile.am        |   3 +
- tests/erofs/033          | 637 +++++++++++++++++++++++++++++++++++++++
- tests/erofs/033.out      |   2 +
- 12 files changed, 1403 insertions(+), 40 deletions(-)
- create mode 100644 include/erofs/manifest.h
- create mode 100644 lib/manifest.c
- create mode 100755 tests/erofs/033
- create mode 100644 tests/erofs/033.out
-
+diff --git a/lib/manifest.c b/lib/manifest.c
+index bf8eb8c..244c1a0 100644
+--- a/lib/manifest.c
++++ b/lib/manifest.c
+@@ -175,6 +175,75 @@ enum erofs_manifest_field {
+ 	EROFS_MANIFEST_FIELD_COUNT,
+ };
+ 
++static struct erofs_inode *erofs_manifest_load_local(struct erofs_importer *im,
++		struct erofs_inode *parent, char *payload)
++{
++	struct erofs_inode *inode;
++	struct stat st;
++	char *path;
++	size_t len;
++	int ret;
++
++	/* PAYLOAD */
++	if (erofs_manifest_decode(payload, false, &len) || *payload != '/')
++		return ERR_PTR(-EINVAL);
++	if (asprintf(&path, "%s%s", im->params->source, payload) < 0)
++		return ERR_PTR(-ENOMEM);
++
++	ret = lstat(path, &st) ? -errno : 0;
++	if (ret)
++		goto out_path;
++	if (!S_ISDIR(st.st_mode) && !im->params->hard_dereference) {
++		inode = erofs_iget(st.st_dev, st.st_ino);
++		if (inode) {
++			free(path);
++			if (inode->i_nlink == UINT_MAX) {
++				erofs_iput(inode);
++				return ERR_PTR(-EOVERFLOW);
++			}
++			++inode->i_nlink;
++			return inode;
++		}
++	}
++
++	inode = erofs_new_inode(im->sbi);
++	if (IS_ERR(inode)) {
++		ret = PTR_ERR(inode);
++		goto out_path;
++	}
++	ret = erofs_fill_inode(im, inode, &st, path);
++	if (ret)
++		goto out_inode;
++	inode->i_parent = parent;
++	inode->datasource = EROFS_INODE_DATA_SOURCE_LOCALPATH;
++	if (S_ISLNK(inode->i_mode)) {
++		inode->i_link = malloc(st.st_size);
++		if (!inode->i_link) {
++			ret = -ENOMEM;
++			goto out_inode;
++		}
++		if (readlink(path, inode->i_link, st.st_size) < 0) {
++			ret = -errno;
++			goto out_inode;
++		}
++	}
++
++	if (!im->params->no_xattrs) {
++		/* XATTR */
++		ret = erofs_scan_file_xattrs(inode);
++		if (ret)
++			goto out_inode;
++	}
++
++	free(path);
++	return inode;
++out_inode:
++	erofs_iput(inode);
++out_path:
++	free(path);
++	return ERR_PTR(ret);
++}
++
+ static int erofs_manifest_parse_record(struct erofs_importer *im,
+ 				 struct erofs_inode *sentinel, char *line)
+ {
+@@ -183,7 +252,7 @@ static int erofs_manifest_parse_record(struct erofs_importer *im,
+ 	struct erofs_dentry *d;
+ 	char *f[EROFS_MANIFEST_FIELD_COUNT], *token, *dot;
+ 	char name[EROFS_NAME_LEN + 1];
+-	bool hardlink, is_root;
++	bool hardlink, is_root, short_record = false;
+ 	u64 mode, size = 0, uid, gid, rdev = 0, sec, nsec;
+ 	size_t len;
+ 	int i, ret = -EINVAL;
+@@ -196,8 +265,13 @@ static int erofs_manifest_parse_record(struct erofs_importer *im,
+ 		do {
+ 			token = strsep(&line, " ");
+ 		} while (token && !*token);
+-		if (!token)
++		if (!token) {
++			if (i == EROFS_MANIFEST_PAYLOAD + 1) {
++				short_record = true;
++				break;
++			}
+ 			return -EINVAL;
++		}
+ 		f[i] = token;
+ 	}
+ 
+@@ -212,6 +286,16 @@ static int erofs_manifest_parse_record(struct erofs_importer *im,
+ 		return -EEXIST;
+ 	is_root = parent == sentinel;
+ 
++	if (short_record) {
++		inode = erofs_manifest_load_local(im, parent,
++				f[EROFS_MANIFEST_PAYLOAD]);
++		if (IS_ERR(inode))
++			return PTR_ERR(inode);
++		if (is_root && !S_ISDIR(inode->i_mode))
++			goto out;
++		goto link;
++	}
++
+ 	/* MODE */
+ 	hardlink = f[EROFS_MANIFEST_MODE][0] == '@';
+ 	if (hardlink) {
 -- 
 2.43.0
 
