@@ -2,55 +2,56 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3361F606EE9A
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 521FD606D831
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=EN46cMg4
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=O/KOIhPM
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhjz0ncMz2xSS;
-	Sat, 07 Nov 2026 01:43:03 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhk02HNrz2xWt;
+	Sat, 07 Nov 2026 01:43:04 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.12
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976183;
-	cv=none; b=iJ2sT04W3dORAkU3FYJ6QEcQ6wE71ymcmJ0qrJaHCH5wCCn4U6B47C2KvklNojVBh1Iw8KfnZx8aO/WTjwDIlnEigta9eHX/Y1PkIUI2XM67QSYv4Y/O4wBrjXOgyKzXvpNn8ZqWtzdsUE8TKR4ViNnCHllAfTsEsmaYKYn4IYwHiVcQ82kJIvy0hem2rksfd+R71tCDOUrgiYskJbaHpmqAqSJu9zK93e39JVhGoeBcf2SQBQt8aZYI0DghVDE32l9F12aBc7ZUE8uk1bhNoOXfODyxKBcaEq1/+uKhDWTkiMvoZ4cdisBzWnC+RTarAnxWUqczGa6UImIIOp0K7w==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976184;
+	cv=none; b=NQe5VoyCcwn3Vu2o7VDWl6SvTVO7gEmq4QtAgqTjwMsDOS7A80w/W/UXie0tpZwXVxmWSmPnfb2uqBtgaws6jfHVtIi17crmPPOgs5XjwX03Whzgr9Mw6JAzpO7PIqF3L6dYw7JhvBD4I7o8QQc9VMoHNWLO3eswmHTusX552nTbauKkFzGLwrpogCHh7FZRzzGNq3eIWHL8bCD6x4HSgWz1czxU4uDK3M2RbSsYLiODpwaxdM3AaU2MER3sLJtaZ/K6Jj3WVSk+7jwICv8wBTuTnPnyAoAODs2XBztTwQkjPEOx2+Q6seWqSjxSC11psnNrz9gwcOv7h0BLW9/jjg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793976183; c=relaxed/relaxed;
-	bh=ZukkpYT3qCCda2Jxa+XkaNLKI/uzan+hwGewF/8rdTw=;
-	h=From:Date:Subject:MIME-Version:Message-Id:In-Reply-To:To:Cc:
-	 Content-Type:References; b=FOwkXVkKlXKwAJUM7ISS6gyrTgG9Qi7PE1/FCILfSXD0UPYGB23mVYYnSioP7NXtUGwYX61cJmjXEyzbp/dRyCPZ0wwiam+0IL7nWMU7OIo/pgqcRnklp1jveSAjb/WbBiy996c/Tht5/7E3IeUe1cfbh98dD7Ju9stUU1MZPF6jPMjZmtQwCQ418ANorOcfvme0VBf8UTzmUP1bxJz9kqgIUejXbBdXXYC/idScov0hs2VXp3VGabGMEDE69MSTPRwWcMFXtpA/KDoKbXId7TV9iB6u6g3xkjx4AyVuEA6VhVoUDRLqx3vDTflUieA2Zx3ZUe3xkROeyftowu7kxQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=EN46cMg4; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
+	t=1793976184; c=relaxed/relaxed;
+	bh=qEvUsSQ8oHgd+U12jDuRB72u7Zwo8Q4AXWrOiHlDlZI=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To:Cc:Content-Type:
+	 References; b=XTsCHRzIjYoS9Fbxp/UqgRIlHJTyv5roqcfF0cstKYYp/+FvQWYwesHtQANOLq8W1vVzIYOAlvCXu7X7k0nQ/GMt+BTCN2NAOmMQ29pQhEswA6QGwv7M4tl+TBQrzZdQJmSaH06DLwtenbaZy6bgbEPmgMx5oWBeQvP+jA7/fi0b/PakL59P47t0aB900h8rzBziNW/F0S9f1T/UmbJxa0Sm3qysPsiLKZChX/Qo+6VzLxoSmyu6La/6dNxWdAYqQfq1x3yiB4QmhbPDclYSIyjqeixL1DwMSaXcGSQ75wA6OvqB3V93P9PHSojiZMFmRw/a3TqcloQCBLEQgeX3XQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=O/KOIhPM; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=EN46cMg4;
+	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=O/KOIhPM;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
 Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhjw64ZNz2xPb
-	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:43:00 +1100 (AEDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144250euoutp022e1a6a3073d383bd646015487e8568c9~le9JpKhy81199311993euoutp02D;
-	Fri,  6 Nov 2026 14:42:50 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144250euoutp022e1a6a3073d383bd646015487e8568c9~le9JpKhy81199311993euoutp02D
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhjw60Hxz2xJR
+	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:42:59 +1100 (AEDT)
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144248euoutp02f49d0ceb5c399c84a56a0d9efbe9d496~le9Hs_U2k1199311993euoutp02B;
+	Fri,  6 Nov 2026 14:42:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144248euoutp02f49d0ceb5c399c84a56a0d9efbe9d496~le9Hs_U2k1199311993euoutp02B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1793976170;
-	bh=ZukkpYT3qCCda2Jxa+XkaNLKI/uzan+hwGewF/8rdTw=;
-	h=From:Date:Subject:In-Reply-To:To:Cc:References:From;
-	b=EN46cMg4Z5AshlKXcWj6iq9nVx+1cEFRUR3OeEX1SELWiBSHo0MXSd8R+ZRpXPqPo
-	 5J9fZGzBi/ektMzl9T564UxSBe3S67f6f+YsOPNBKFF7rocyARFmA/WbDBCKVPMy1l
-	 grLUbbLxfYwtJc30nNwsRnyAAGoxoUyejvqHmnV0=
+	s=mail20170921; t=1793976168;
+	bh=qEvUsSQ8oHgd+U12jDuRB72u7Zwo8Q4AXWrOiHlDlZI=;
+	h=From:Subject:Date:To:Cc:References:From;
+	b=O/KOIhPMNr5fvGwnIFx0OHpQiEz8JdSZLEtl0RQ/qRetqaNI1X9cja2oaka5Lhopz
+	 o3+qiAgVYknoP4vOvWrVkK55MsAy+4qtuMElPNieKOyEMrnUQUobYKR4Do09K0IlAW
+	 5lluxIhdkIx047/zGIDlcEmnqr+P6uuq8knZHMCQ=
 Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
 	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144249eucas1p1ca5f03b764c6305120da3e8b65f76ed1~le9JAlvFx2626526265eucas1p1j;
-	Fri,  6 Nov 2026 14:42:49 +0000 (GMT)
+	20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3~le9G5JH1c0320803208eucas1p1W;
+	Fri,  6 Nov 2026 14:42:47 +0000 (GMT)
 Received: from AMDC4942.eu.corp.samsungelectronics.net (unknown
 	[106.210.136.40]) by eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144247eusmtip1bdfc91f54320939f93a2226da03397ef~le9G89u5c0161401614eusmtip13;
-	Fri,  6 Nov 2026 14:42:47 +0000 (GMT)
+	20261106144245eusmtip1424e79dc85f8d505d60f5a807f37d8a5~le9FUmO2M0066400664eusmtip1W;
+	Fri,  6 Nov 2026 14:42:45 +0000 (GMT)
 From: Michal Wilczynski <m.wilczynski@samsung.com>
-Date: Fri, 06 Nov 2026 15:42:41 +0100
-Subject: [PATCH v2 01/15] lib/decompress_unlz4: use
- LZ4_decompress_safe_partial() before boot
+Subject: [PATCH v2 00/15] lib/lz4: stop forking upstream LZ4, vendor it
+ instead
+Date: Fri, 06 Nov 2026 15:42:40 +0100
+Message-Id: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,8 +64,11 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-lz4-vendor-upstream-v2-1-ee04c3f0d7dc@samsung.com>
-In-Reply-To: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
+X-B4-Tracking: v=1; b=H4sIAGDn7WoC/22NwQ6CMBBEf4Xs2TVtUzV68j8Ih1K20ERa0oVGJ
+	fy7lXj0+CYzb1ZgSp4YbtUKibJnH0MBdajADib0hL4rDEqos7gKjY+3xkyhiwmXiedEZkTdWlU
+	KnXDOQllOiZx/7ta6KTx4nmN67SdZftOfT53++rJEgdJenGtJSavbO5uRl9AfbRyh2bbtA0LW5
+	9G4AAAA
+X-Change-ID: 20260904-lz4-vendor-upstream-4bc2202d0ffc
 To: Michal Wilczynski <m.wilczynski@samsung.com>,  Nathan Chancellor
 	<nathan@kernel.org>,  Nick Desaulniers <ndesaulniers@google.com>,  Bill
 	Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,  Russell
@@ -91,76 +95,235 @@ Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
 	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
 	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
 X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1628;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10637;
 	i=m.wilczynski@samsung.com; h=from:subject:message-id;
-	bh=i98BIOEMfPRofAmIfLEP+RTKtUlRGNT17p8zNX3eSM8=;
-	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ6ynW99606dIwL7ulQ6Bbe9jN7M8lqzVe7sNB/dw
-	JkrA5JWdZSyMIhxMMiKKbKc3RhtJPmP4Wn58ce/YOawMoEMYeDiFICJrAtn+Kd4oT3eQJe/yUhy
-	6odrlWpckv+rc3a+M/rqfupkEZNc9AyG/453bnjdSWxq+LLd5e7mt6pKC87ZPImexDM9MuXEZx3
-	FWh4A
+	bh=wz6WKeqe9aM/51sYWqggJMCdGKknzWWNE5KRnyp6sjs=;
+	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ4y20Jt3qO5Hc4C/EfW7vFdUCzJIrNi5qfGlESR2
+	T0TnCSudJSyMIhxMMiKKbKc3RhtJPmP4Wn58ce/YOawMoEMYeDiFICJmMcx/DOtMv9k+ftIImMA
+	m+V9X+Ulr5ItPu+eu2z1muXeRTK2i94xMjTuE3xZtyDYes7GKJVcMTur+hn7twUyrGHYd1Ppdfx
+	na3YA
 X-Developer-Key: i=m.wilczynski@samsung.com; a=openpgp;
 	fpr=CDB15B3219FE00E577C7E3FA65BA97B9EE9C1459
-X-CMS-MailID: 20261106144249eucas1p1ca5f03b764c6305120da3e8b65f76ed1
+X-CMS-MailID: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20261106144249eucas1p1ca5f03b764c6305120da3e8b65f76ed1
+X-RootMTR: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
 X-EPHeader: CA
-X-CMS-RootMailID: 20261106144249eucas1p1ca5f03b764c6305120da3e8b65f76ed1
-References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
-	<CGME20261106144249eucas1p1ca5f03b764c6305120da3e8b65f76ed1@eucas1p1.samsung.com>
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-CMS-RootMailID: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
+References: <CGME20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3@eucas1p1.samsung.com>
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-The pre-boot decompressor is the only in-tree user of
-LZ4_decompress_fast(), which upstream has deprecated since v1.9. It
-never checks the input against the chunk length in the header.
+The in-kernel LZ4 is a fork. The decompressor was last synced with
+upstream v1.8.3 in 2018 and the compressor with v1.7.3 in 2017, both by
+hand. Upstream has made 488 commits against lib/ since, and the gap is
+maintained one cherry-pick at a time.
 
-Decode with LZ4_decompress_safe_partial() instead, bounded by the chunk
-length and by the expected output length. Count every chunk against the
-size the image ends with, and fail a chunk that decodes short or comes
-after that size is reached.
+That has left real bugs in place for example the forked
+LZ4_decompress_fast() has no bounds checks on its input, so corrupted
+input reads past its end and before the output buffer.
 
-x86 decompresses in place; the margin arch/x86/boot/header.S reserves,
-(output >> 8) + 128K, covers the safe decoder's 32-byte overshoot.
+This series vendors the upstream sources unmodified and adapts them at
+build time, so a re-sync becomes a directory copy:
 
-Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
+  upstream/lz4.c, upstream/lz4.h    verbatim upstream sources
+  upstream/lz4hc.c, upstream/lz4hc.h
+  lz4_deps.h                        the build environment
+  lz4_kernel_api.h                  hands the LZ4 names back
+  freestanding/                     ISO C headers -nostdinc drops
+  lz4_compress.c                    the kernel's entry points
+  lz4_decompress.c
+  lz4hc_compress.c
+
+Patches 1-3 apply to the fork as it stands: patch 1 moves the pre-boot
+decompressor off LZ4_decompress_fast(), patch 2 removes it and its
+variants, and patch 3 stops zram's lz4hc backend resetting its stream
+for every page. Patch 4 imports the sources. Patches 5-7 backport the
+upstream fixes the kernel needs on top of v1.10.0. Patch 8 adds the
+build environment. Patch 9 puts the freestanding headers on the pre-boot
+decompressor path. Patches 10, 11 and 13 convert the compressor, HC
+compressor and decompressor in turn; patch 12 widens the in-place margin
+erofs relies on for the new decoder. Patch 14 drops the last duplicated
+prototype list. Patch 15 gives lib/lz4 a MAINTAINERS entry, which it has
+never had.
+
+This is meant to go through Andrew's tree; patch 9 needs acks from the
+boot maintainers.
+
+The exported API changes in four ways.
+
+The three stream types become incomplete. <linux/lz4.h> spelled out their
+layout for the fork's benefit, upstream headers define the same types and
+lib/decompress_unlz4.c ends up with both in one translation unit. Callers
+allocate LZ4_MEM_COMPRESS, LZ4HC_MEM_COMPRESS or LZ4_MEM_DECOMPRESS bytes
+instead of sizeof() every caller but zram already did. Each conversion
+patch makes its own type incomplete so no step leaves the tree broken.
+
+Sixteen macros go with them: the hash geometry (LZ4_HASHLOG,
+LZ4_HASHTABLESIZE, LZ4_HASH_SIZE_U32, LZ4HC_DICTIONARY_LOGSIZE, LZ4HC_MAXD,
+LZ4HC_MAXD_MASK, LZ4HC_HASH_LOG, LZ4HC_HASHTABLESIZE, LZ4HC_HASH_MASK) and
+the sizes derived from it (LZ4_MEMORY_USAGE, LZ4_STREAMSIZE{,_U64},
+LZ4_STREAMHCSIZE{,_SIZET}, LZ4_STREAMDECODESIZE{,_U64}). They existed to
+lay out structures the fork defined here none has an in tree user outside
+lib/lz4. LZ4_compressBound() goes too a static inline whose only caller
+was lib/decompress_unlz4.c, now using the LZ4_COMPRESSBOUND() macro.
+
+LZ4_MEM_DECOMPRESS and LZ4HC_CLAMP_CLEVEL are new.
+
+LZ4_decompress_fast(), LZ4_decompress_fast_continue() and
+LZ4_decompress_fast_usingDict() go. Upstream has deprecated them since
+v1.9, and their last in-tree user, the pre-boot decompressor, now uses
+LZ4_decompress_safe_partial().
+
+There are some behaviour changes. All of them come from upstream rather
+than from this series and I have kept them rather than patching them
+out: a local fix on top of vendored sources is exactly the divergence
+this series exists to remove.
+
+ - LZ4HC levels 10 and up are clamped to 9. Upstream routes them to its
+   optimal parser, whose ~64K opt[] does not fit a kernel stack. The
+   fork had no optimal parser at all - level only scaled search depth -
+   so its levels 10-16 beat its own level 9 by 0.01%. Clamping rather
+   than rejecting keeps existing f2fs and zram settings working.
+
+ - LZ4_decompress_safe_partial() with a zero-length target returns 0
+   rather than -1, matching upstream since 725cb0aafdf7. No in-tree
+   caller depends on it.
+
+ - The compressors require wrkmem aligned to 8 bytes. Upstream checks
+   this and LZ4_initStream() returns NULL, which upstream's own callers
+   then dereference or ignore. The entry points check the alignment
+   themselves, warn once and fail the call. Every in-tree caller uses
+   kmalloc() or vmalloc() and is already aligned; <linux/lz4.h> now
+   documents the requirement.
+
+The layout follows lib/zstd, which keeps upstream's sources in a
+subdirectory and the kernel glue on top. zstd has an upstream import
+tool and an upstream zstd_deps.h; LZ4 has neither, so the kernel glue
+here lives outside the vendored files.
+
+The import is the v1.10.0 release tag. It does not build under
+-Wmissing-prototypes without upstream commit 5ef1f16929b5, which patch 5
+backports. Patch 6 backports upstream's arm64 fast decode loop and patch
+7 its match length limit fix; those are the only deviations from the
+tag. The rest of PR #1753 fixes code added after v1.10.0, so it will
+come with the next release.
+
+checkpatch reports some 3500 errors against patch 4: upstream's coding
+style, and no SPDX tags, in files kept verbatim.
+
+Measured in the kernel: three kernels differing only in lib/lz4, booted
+one core under KVM, each reading 1.3GB of kernel source from an LZ4
+erofs image with the page cache dropped before every pass. For v2 this
+was remeasured with more runs on an idle machine: median of 140 passes.
+The middle column is upstream v1.10.0 with LZ4_FAST_DEC_LOOP=0,
+to separate the version bump from the decode loop upstream added in
+v1.9.0.
+
+                        erofs read, MB/s
+  erofs cluster    today   v1.10.0   + fast loop    net
+             4K     2486      2549          2665    +7%
+            64K     3013      3104          3225    +7%
+
+The same three decoders at the library level, each block decompressed
+on its own the way zram treats a page. x86_64, the fork's and upstream's
+sources built with the kernel's code generation flags (so no SSE), all
+decoding the same compressed input, median of 21 interleaved runs. The
+first corpus is upstream's tests/datagen with a fixed seed, so it is
+byte-identical anywhere; the second is a tar of kernel sources:
+
+                                 decompression, MB/s
+  corpus           block  ratio    today   v1.10.0  + fast loop   net
+  datagen -s0 -P60   4K  1.09x     4584      4535         5097   +11%
+                    16K  1.34x     3960      3978         4828   +22%
+                    64K  1.90x     4797      4802         5598   +17%
+                   256K  1.92x     6749      6559         7600   +13%
+  kernel source tar  4K  2.29x     3719      3832         4219   +13%
+                    16K  2.57x     3778      3880         4203   +11%
+                    64K  2.80x     3792      3886         4179   +10%
+                   256K  2.95x     4165      4280         4750   +14%
+
+Compression is not uniformly faster: lz4hc on small blocks of poorly
+compressible data is up to 15% slower. Patches 10 and 11 have the
+numbers.
+
+The cost is size: lib/lz4 grows from 45K to 86K of text on x86_64,
+lz4hc most (12K to 39K). That is upstream code the fork never had.
+
 ---
- lib/decompress_unlz4.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+Changes in v2:
+- Drop the RFC prefix
+- New patches 1-2: move the pre-boot decompressor to
+  LZ4_decompress_safe_partial() and remove LZ4_decompress_fast() and its
+  variants from the fork, ahead of the import (Sergey)
+- New patch 3: zram's lz4hc backend resets its stream once, not per page
+- New patches 6-7: backport upstream's arm64 fast decode loop (Sergey)
+  and its match length limit fix
+- New patch 12: widen LZ4_DECOMPRESS_INPLACE_MARGIN for the fast decode
+  loop
+- Compressor entry points check wrkmem alignment, warn and fail (Sergey)
+- Patch 13 names the upstream counterpart of each retired local patch
+  (Sergey)
+- MAINTAINERS: also cover lib/decompress_unlz4.c and
+  include/linux/decompress/unlz4.h (Eric)
+- Remeasure erofs reads with more runs on an idle machine
+- Link to v1: https://lore.kernel.org/r/20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index c0dbb3cea915eb91d8f4ac26c38c4785bbf19770..dc20c22e087900e21da49f9fcb267e6b511e1072 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -151,14 +151,17 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			}
- 		}
- #ifdef PREBOOT
--		if (out_len >= uncomp_chunksize) {
-+		if (out_len >= uncomp_chunksize)
- 			dest_len = uncomp_chunksize;
--			out_len -= dest_len;
--		} else
-+		else
- 			dest_len = out_len;
-+		out_len -= dest_len;
- 
--		ret = LZ4_decompress_fast(inp, outp, dest_len);
--		chunksize = ret;
-+		ret = LZ4_decompress_safe_partial(inp, outp, chunksize,
-+						  dest_len, dest_len);
-+		/* A chunk once the image's stated size is reached is corrupt. */
-+		if (!dest_len || ret != (int)dest_len)
-+			ret = -1;
- #else
- 		dest_len = uncomp_chunksize;
- 
+---
+Michal Wilczynski (15):
+      lib/decompress_unlz4: use LZ4_decompress_safe_partial() before boot
+      lib/lz4: remove LZ4_decompress_fast() and its variants
+      zram: lz4hc: reset the dictionary stream once, not per page
+      lib/lz4: import upstream LZ4 sources verbatim
+      lib/lz4: backport upstream's -Wmissing-prototypes fix
+      lib/lz4: backport upstream's aarch64 fast decode loop enablement
+      lib/lz4: backport upstream's match length limit fix
+      lib/lz4: add the build environment for the vendored sources
+      arch: boot: put the LZ4 freestanding headers on the decompressor path
+      lib/lz4: switch the compressor to the vendored sources
+      lib/lz4: switch the HC compressor to the vendored sources
+      lib/lz4: widen LZ4_DECOMPRESS_INPLACE_MARGIN for the fast decode loop
+      lib/lz4: switch the decompressor to the vendored sources
+      lib/lz4: replace lz4_kernel_api.h's prototypes with <linux/lz4.h>
+      MAINTAINERS: add an entry for the LZ4 compression library
 
+ Documentation/filesystems/f2fs.rst   |    2 +
+ MAINTAINERS                          |   10 +
+ arch/arm/boot/compressed/Makefile    |    3 +
+ arch/mips/boot/compressed/Makefile   |    4 +
+ arch/parisc/boot/compressed/Makefile |    3 +
+ arch/s390/boot/Makefile              |    3 +
+ arch/x86/boot/compressed/Makefile    |    3 +
+ drivers/block/zram/backend_lz4.c     |    8 +-
+ drivers/block/zram/backend_lz4hc.c   |    8 +-
+ include/linux/lz4.h                  |  253 +--
+ lib/decompress_unlz4.c               |   17 +-
+ lib/lz4/Makefile                     |   16 +-
+ lib/lz4/freestanding/limits.h        |   14 +
+ lib/lz4/freestanding/stddef.h        |   15 +
+ lib/lz4/freestanding/stdint.h        |   14 +
+ lib/lz4/freestanding/string.h        |   14 +
+ lib/lz4/lz4_compress.c               |  946 +-----------
+ lib/lz4/lz4_decompress.c             |  724 +--------
+ lib/lz4/lz4_deps.h                   |  118 ++
+ lib/lz4/lz4_kernel_api.h             |   34 +
+ lib/lz4/lz4defs.h                    |  247 ---
+ lib/lz4/lz4hc_compress.c             |  792 +---------
+ lib/lz4/upstream/lz4.c               | 2824 ++++++++++++++++++++++++++++++++++
+ lib/lz4/upstream/lz4.h               |  884 +++++++++++
+ lib/lz4/upstream/lz4hc.c             | 2192 ++++++++++++++++++++++++++
+ lib/lz4/upstream/lz4hc.h             |  414 +++++
+ 26 files changed, 6813 insertions(+), 2749 deletions(-)
+---
+base-commit: 93f51579e7df248780214094418f205253383cc5
+change-id: 20260904-lz4-vendor-upstream-4bc2202d0ffc
+
+Best regards,
 -- 
-2.34.1
+Michal Wilczynski <m.wilczynski@samsung.com>
 
 
