@@ -2,55 +2,55 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7000C608362C
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE011606EE9A
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=Tuy1y/iM
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhk4323Sz2xqh;
-	Sat, 07 Nov 2026 01:43:08 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhk54sTfz2xlY;
+	Sat, 07 Nov 2026 01:43:09 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.12
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976188;
-	cv=none; b=RAUjstIdOWi19SRDgzd1VuyYMoydEVmFczMfzfsRZmQvIyo1SV6o4tiGD/5T6ZquQz35+H07vi0dMdcnt5JTUXwiBIj9oHs+8tgMKF098BPKBnt+RAhUk6RMhC2CXoDccTzs2MGpNWciPEJ7J9F6F+/OhZoeRzvOJL95Tu41+jUl02BQNjHvdJZvIA7wTGrGQGBLlyXapXoUlNpkrkhq+0K4tRt/8XpIarxgkjQZpaklHdT99ulNUWLfg10nBWLG52gW7poI7eMoEO2A/xpjEsadxbb1mJHtCCATw4VUNiuVMqg/QNMgZS3W77snp1q4CI2AGvN83Y3iaQ/+VbZeeA==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976189;
+	cv=none; b=P1zcVb2tfa+EJRcBz90PrzszVhO7TJnKtITFFxl2s9utF8ZT/CWr+sCaf3dVHb0wa2oG7VNBGYiQGWd2Wl7DC3FRD7IQKi8iOePBVTbrl+XCv/UyTlIsehXYe/2VHn0u+wvEw69YMUhCy+Uyisv+H2MxP4B2v6EbyKVlb7+tkayqx2KW2blqM6H/C4ilTRwYzONTuriI5FSRhyCf/sqQ5Xi7bjNcrgX74Ld/o6eGBm+svmwDskNLxyOG8G3Qx/q4aqtk8vP+YHz2+0I1FI8ItUg9pjJ+ZGh3mJcUeQ4a+xsLVR75R2mmrYUA0B0qUuD1ME9kbmhd8QutoGMAiVzO7Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793976188; c=relaxed/relaxed;
-	bh=WSR+OYxGYuCEt4HZgWaGut42QNF8mF7rpyHwN5g0Fmw=;
+	t=1793976189; c=relaxed/relaxed;
+	bh=pvazUZ8GwALVMPvikyd9HIyqQPGJP1xRnMR9Mkuuq5g=;
 	h=From:Date:Subject:MIME-Version:Message-Id:In-Reply-To:To:Cc:
-	 Content-Type:References; b=Y61v8DS/llkbDZ1vMINvReKKTWgPV8hEXTjgt+boXJD/l8IjoVHTSWfOvVzCzf9DJ307K0JVY9U0eJQzyyIlQizRzspaJAfK8ghI77SDWefh1t9YyPwAd3e6Baw2wAnFukEakRILXljeVs+eHfUSXOnC0MWlZaQVdHxxXyr9SAvRBYDpiwtZM4HV3v9csW5S5S6pFgD0t2tUH0xI9sXCK63DQ1PCpMwfKuCWR6j9PIKKt4NYwf920gdgok0ER4tuI8yJJmMkQH3FqX3bQ+7w+Ic/eaKcN5iIAxl2VQ7SMXr5rKc9wyVCD2Om1JK5BHc0I7Zsm3fG+eLK/3mbYvC4fw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
+	 Content-Type:References; b=HAyIbKZDcMvsBBbLsA9tBxlITc60+8iGx+gy/H9zhdRksXTdroFBiVp1YbS9TbxUn4B282FwFQhz4pR0xf/6x4mDC/8MhfMRGNNvQCAgH+dX4x64Y1hVpd4mtHqgVUZ8V9+WeuNmvnStryJ8lBjTh6jgSk/hUjfaAPT9Shpo6HbMCwz0w6ggMM52kWXdUh7pssER9DSRy13v7jblm5nnJKqBP49XHtMq/Eee6Ks+y5Ny+kIPQeZrwxWyNIcWTJJ9axJjArmwDXuhsG4X+fYpaJbhzA6mKcRUB9Bn4NnxNcdz6E2HkzZW0R+IYMVBPAE1Sm/frohCbqg+GVhIyzt8yg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=Tuy1y/iM; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD;
+	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=Tuy1y/iM;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
 Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhk32fC0z2xqD
-	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:43:07 +1100 (AEDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144257euoutp02f046c48219c70db95596d964730e31d9~le9QW44K01214112141euoutp025;
-	Fri,  6 Nov 2026 14:42:57 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144257euoutp02f046c48219c70db95596d964730e31d9~le9QW44K01214112141euoutp025
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhk442Vfz2y2Q
+	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:43:08 +1100 (AEDT)
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144258euoutp024896c522eb7cece168675d99790d92fb~le9RabMVi1397013970euoutp02a;
+	Fri,  6 Nov 2026 14:42:58 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144258euoutp024896c522eb7cece168675d99790d92fb~le9RabMVi1397013970euoutp02a
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1793976177;
-	bh=WSR+OYxGYuCEt4HZgWaGut42QNF8mF7rpyHwN5g0Fmw=;
+	s=mail20170921; t=1793976178;
+	bh=pvazUZ8GwALVMPvikyd9HIyqQPGJP1xRnMR9Mkuuq5g=;
 	h=From:Date:Subject:In-Reply-To:To:Cc:References:From;
-	b=iNy7LdYD9y3Ce85ur99gVOgP70PRAxMlKgJ50WH0DEUBnvXrShJMbvfe3bxA28980
-	 UAciP+g1AouqHElYOm5zofikYQj7Afh276F1w/Rk4NBMq/wRm6tm+0RcLd2EuCebCw
-	 IG4+EnibCn2k/wLwGCpIOYZjqtVBgcW3SMirHPT8=
+	b=Tuy1y/iMSKfBZwuXZQwMW5l8JCrFtBgAguab+c2GbqsJNFIR57SDJeNDcX97g+P9g
+	 UNkpn0TBtxGRr8tKaA3EYg9/BKL1oM+tZbNb1JrubHXRqM5KrxvNvsZIaYpZRMY7Bp
+	 FwekHtiiyhhfFmokD43m3dKmeTG3+Sw3fJxH88Uo=
 Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
 	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144256eucas1p1beb947272dc94f916c8c8131722a480d~le9Pd9eIp0320903209eucas1p1W;
-	Fri,  6 Nov 2026 14:42:56 +0000 (GMT)
+	20261106144258eucas1p1f59ead3e337482e074bfb26f4553e70d~le9RDuTy80320903209eucas1p1Z;
+	Fri,  6 Nov 2026 14:42:58 +0000 (GMT)
 Received: from AMDC4942.eu.corp.samsungelectronics.net (unknown
 	[106.210.136.40]) by eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144254eusmtip1291e4ba24e2a230c09af0eb481e22639~le9N6-Ryb0161401614eusmtip16;
-	Fri,  6 Nov 2026 14:42:54 +0000 (GMT)
+	20261106144256eusmtip19a7550efce2282b6115acdd561526f25~le9Pf0jgn2998329983eusmtip12;
+	Fri,  6 Nov 2026 14:42:56 +0000 (GMT)
 From: Michal Wilczynski <m.wilczynski@samsung.com>
-Date: Fri, 06 Nov 2026 15:42:45 +0100
-Subject: [PATCH v2 05/15] lib/lz4: backport upstream's -Wmissing-prototypes
- fix
+Date: Fri, 06 Nov 2026 15:42:46 +0100
+Subject: [PATCH v2 06/15] lib/lz4: backport upstream's aarch64 fast decode
+ loop enablement
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,7 +63,7 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-lz4-vendor-upstream-v2-5-ee04c3f0d7dc@samsung.com>
+Message-Id: <20261106-lz4-vendor-upstream-v2-6-ee04c3f0d7dc@samsung.com>
 In-Reply-To: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
 To: Michal Wilczynski <m.wilczynski@samsung.com>,  Nathan Chancellor
 	<nathan@kernel.org>,  Nick Desaulniers <ndesaulniers@google.com>,  Bill
@@ -91,77 +91,68 @@ Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
 	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
 	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
 X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2114;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1749;
 	i=m.wilczynski@samsung.com; h=from:subject:message-id;
-	bh=8N9wzkj/hKUNj1BW6DsxrUcKBRzHlHt4de1GPUas8dA=;
-	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ4aKBHw4KzylIunL5nMWL5nDtPGvfc/njCasV+lt
-	GrWpcMX93eUsjCIcTDIiimynN0YbST5j+Fp+fHHv2DmsDKBDGHg4hSAiYSUMjKsiXqrvCj13sck
-	jXdXYxcp/xC/+X8L552H1zvu7FxWvP6wLsP/nMgZJ7gTtqpMCPyt4XBn0/uNTa3qbC/maddKfOC
-	7kveWFQA=
+	bh=YYDQiSfMdDchGst9Ca1G0wxCAGDujriJSlg8sDF+9gg=;
+	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ6q4zL/9pVfolPi++x/a854xv96Q0qw1tHIG7dN/
+	d9s+CMn2FHKwiDGwSArpshydmO0keQ/hqflxx//gpnDygQyhIGLUwAmEu/J8FcgbHruVENh070C
+	inX9/h83PHhopfZcV2vr2U+3j85Ov6LLyPDoh9E2Lsvd3AFusSk2P5k4bKxM2O79qPE7VDht27M
+	XvqwA
 X-Developer-Key: i=m.wilczynski@samsung.com; a=openpgp;
 	fpr=CDB15B3219FE00E577C7E3FA65BA97B9EE9C1459
-X-CMS-MailID: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
+X-CMS-MailID: 20261106144258eucas1p1f59ead3e337482e074bfb26f4553e70d
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
+X-RootMTR: 20261106144258eucas1p1f59ead3e337482e074bfb26f4553e70d
 X-EPHeader: CA
-X-CMS-RootMailID: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
+X-CMS-RootMailID: 20261106144258eucas1p1f59ead3e337482e074bfb26f4553e70d
 References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
-	<CGME20261106144256eucas1p1beb947272dc94f916c8c8131722a480d@eucas1p1.samsung.com>
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	<CGME20261106144258eucas1p1f59ead3e337482e074bfb26f4553e70d@eucas1p1.samsung.com>
+X-Spam-Status: No, score=-23.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=4.0.1
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-v1.10.0 defines LZ4_loadDict_internal() in lz4.c and LZ4HC_searchExtDict()
-in lz4hc.c with external linkage and no prototype, which the kernel's
--Wmissing-prototypes rejects. The first would also prevent linking once
-lz4_compress.c and lz4_decompress.c both include lz4.c, later in this
-series, since each would define it.
+v1.10.0 leaves LZ4_FAST_DEC_LOOP off for aarch64 built with clang, after
+a slowdown reported on some Android phones in 2019 (upstream PR #707).
+An arm64 kernel built with clang therefore decodes with the slower loop.
 
-Neither can be forward declared static in the lz4_deps.h a later patch
-adds, as the other bare helpers are, because their signatures use types
-declared inside the .c files.
+Upstream has since enabled it for all aarch64, in three unreleased
+commits:
 
-Take the two hunks of upstream commit 5ef1f16929b5
-("fix -Wmissing-prototypes warnings") that apply to the files we vendor.
-This goes away at the next re-sync.
+commit 0aa33884faf5 ("[LZ4] Limit disabling LZ4_FAST_DEC_LOOP to aarch64+clang+android")
+commit 51f8af506b4a ("Fix missing endif")
+commit ed86bc1ed802 ("AArch64: Enable LZ4_FAST_DEC_LOOP for Android")
+
+Arm measured +3.5% to +15.6% on Cortex-A510 to X4 with clang. Take the
+lz4.c hunks of all three. This goes away at the next re-sync.
 
 Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
 ---
- lib/lz4/upstream/lz4.c   | 2 +-
- lib/lz4/upstream/lz4hc.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ lib/lz4/upstream/lz4.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/lib/lz4/upstream/lz4.c b/lib/lz4/upstream/lz4.c
-index a2f7abee19fb9a5c768f2a6c266acf5b571f0855..0d474be0236a698d297ab9a430f5082485eb3709 100644
+index 0d474be0236a698d297ab9a430f5082485eb3709..ee69d57aae112f4057c050bbdab4cc0f2d30f9d9 100644
 --- a/lib/lz4/upstream/lz4.c
 +++ b/lib/lz4/upstream/lz4.c
-@@ -1584,7 +1584,7 @@ int LZ4_freeStream (LZ4_stream_t* LZ4_stream)
- 
- typedef enum { _ld_fast, _ld_slow } LoadDict_mode_e;
- #define HASH_UNIT sizeof(reg_t)
--int LZ4_loadDict_internal(LZ4_stream_t* LZ4_dict,
-+static int LZ4_loadDict_internal(LZ4_stream_t* LZ4_dict,
-                     const char* dictionary, int dictSize,
-                     LoadDict_mode_e _ld)
- {
-diff --git a/lib/lz4/upstream/lz4hc.c b/lib/lz4/upstream/lz4hc.c
-index 4d8c36a6978fcae09e4c4a936572b4b271513466..32b29f382268d961d65383b24c7225494d9044ad 100644
---- a/lib/lz4/upstream/lz4hc.c
-+++ b/lib/lz4/upstream/lz4hc.c
-@@ -360,7 +360,7 @@ typedef struct {
-     int back;  /* negative value */
- } LZ4HC_match_t;
- 
--LZ4HC_match_t LZ4HC_searchExtDict(const BYTE* ip, U32 ipIndex,
-+static LZ4HC_match_t LZ4HC_searchExtDict(const BYTE* ip, U32 ipIndex,
-         const BYTE* const iLowLimit, const BYTE* const iHighLimit,
-         const LZ4HC_CCtx_internal* dictCtx, U32 gDictEndIndex,
-         int currentBestML, int nbAttempts)
+@@ -478,12 +478,7 @@ static const int      dec64table[8] = {0, 0, 0, -1, -4,  1, 2, 3};
+ #ifndef LZ4_FAST_DEC_LOOP
+ #  if defined __i386__ || defined _M_IX86 || defined __x86_64__ || defined _M_X64
+ #    define LZ4_FAST_DEC_LOOP 1
+-#  elif defined(__aarch64__) && defined(__APPLE__)
+-#    define LZ4_FAST_DEC_LOOP 1
+-#  elif defined(__aarch64__) && !defined(__clang__)
+-     /* On non-Apple aarch64, we disable this optimization for clang because
+-      * on certain mobile chipsets, performance is reduced with clang. For
+-      * more information refer to https://github.com/lz4/lz4/pull/707 */
++#  elif defined(__aarch64__)
+ #    define LZ4_FAST_DEC_LOOP 1
+ #  else
+ #    define LZ4_FAST_DEC_LOOP 0
 
 -- 
 2.34.1
