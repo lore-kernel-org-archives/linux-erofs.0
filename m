@@ -2,55 +2,55 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01835606EE90
-	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7000C608362C
+	for <linux-erofs@archiver.kernel.org>; Fri,  6 Nov 2026 14:43:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=BwI5Raqt
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhk15tG6z2xm5;
-	Sat, 07 Nov 2026 01:43:05 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.11
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976185;
-	cv=none; b=hhzktFw7auS5ESa/q5mVWay6yyhF+Rze6j9AnykSd1grqZY472SzLQd1DSb+VQrW01Bpz7/KLhoADEivP9ifKfE1wUX72GRr7wy742O+mpfroF2PW07OEPOUd9NvM/Fcx7Xq/vw3xuQBuIdCysnV6D2IDzuMNU/XffSEy93TQwlkwVPfq73pE6X89QP+XZe1bwjVyA+g9zjdtVNbmdxM/mHEsrUS2ehye4q2DgmzKfVZq9zwSrWBfS6keEf377AVUT06J4pciDbD5LyvCwOcAXmI3QMxIuaIkLngquugGVVj6wfJVKSvBcNkRWfOAjw7IiWJH9f3sH9e6zY0vqdgwA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jLhk4323Sz2xqh;
+	Sat, 07 Nov 2026 01:43:08 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=210.118.77.12
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1793976188;
+	cv=none; b=RAUjstIdOWi19SRDgzd1VuyYMoydEVmFczMfzfsRZmQvIyo1SV6o4tiGD/5T6ZquQz35+H07vi0dMdcnt5JTUXwiBIj9oHs+8tgMKF098BPKBnt+RAhUk6RMhC2CXoDccTzs2MGpNWciPEJ7J9F6F+/OhZoeRzvOJL95Tu41+jUl02BQNjHvdJZvIA7wTGrGQGBLlyXapXoUlNpkrkhq+0K4tRt/8XpIarxgkjQZpaklHdT99ulNUWLfg10nBWLG52gW7poI7eMoEO2A/xpjEsadxbb1mJHtCCATw4VUNiuVMqg/QNMgZS3W77snp1q4CI2AGvN83Y3iaQ/+VbZeeA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1793976185; c=relaxed/relaxed;
-	bh=Rj8Y5qafYFutHkOlAoJ29LhMDQuxrVln4aCNYyECpsA=;
+	t=1793976188; c=relaxed/relaxed;
+	bh=WSR+OYxGYuCEt4HZgWaGut42QNF8mF7rpyHwN5g0Fmw=;
 	h=From:Date:Subject:MIME-Version:Message-Id:In-Reply-To:To:Cc:
-	 Content-Type:References; b=fCBLw/Vp1HYSNUZTl7SkRdChYYpdoDAXlB8KqRxCF4B3bgJ8sON2gnQP2lh2rRUDVww/Xusbj6aNbU2YDi65VW3QxLwiXr06DO/fzIx+Ks6En3s7LJtMmqxNv2g9IOeICxI3srO26mBwAcDpvbFsMKKnybmyKShM+eD8qc0+ajBQIy1aTH06kZpW1X05fEJsDQJiBrgHLYLrSIcYYjePad5NGIROu8XJY9wiF97cBwRXexTf2Ae4KbaOgRoJUjHOjAHXVFJcMRN2W89hsNH475dtc1PB9kZzUQF1Bto20Z3gftw/PqDKzw0Rv/ETQ9Zk7hZZI6tyOiJD1mNMQ2Hb0w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=BwI5Raqt; dkim-atps=neutral; spf=pass (client-ip=210.118.77.11; helo=mailout1.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
+	 Content-Type:References; b=Y61v8DS/llkbDZ1vMINvReKKTWgPV8hEXTjgt+boXJD/l8IjoVHTSWfOvVzCzf9DJ307K0JVY9U0eJQzyyIlQizRzspaJAfK8ghI77SDWefh1t9YyPwAd3e6Baw2wAnFukEakRILXljeVs+eHfUSXOnC0MWlZaQVdHxxXyr9SAvRBYDpiwtZM4HV3v9csW5S5S6pFgD0t2tUH0xI9sXCK63DQ1PCpMwfKuCWR6j9PIKKt4NYwf920gdgok0ER4tuI8yJJmMkQH3FqX3bQ+7w+Ic/eaKcN5iIAxl2VQ7SMXr5rKc9wyVCD2Om1JK5BHc0I7Zsm3fG+eLK/3mbYvC4fw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com; dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD; dkim-atps=neutral; spf=pass (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org) smtp.mailfrom=samsung.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=BwI5Raqt;
+	dkim=pass (1024-bit key; unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=iNy7LdYD;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.11; helo=mailout1.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=samsung.com (client-ip=210.118.77.12; helo=mailout2.w1.samsung.com; envelope-from=m.wilczynski@samsung.com; receiver=lists.ozlabs.org)
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhjz5N7Fz2xVY
-	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:43:03 +1100 (AEDT)
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144253euoutp01c796104744657935f58418ab7ccdf555~le9Ma35rb2317823178euoutp01R;
-	Fri,  6 Nov 2026 14:42:53 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20261106144253euoutp01c796104744657935f58418ab7ccdf555~le9Ma35rb2317823178euoutp01R
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jLhk32fC0z2xqD
+	for <linux-erofs@lists.ozlabs.org>; Sat, 07 Nov 2026 01:43:07 +1100 (AEDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144257euoutp02f046c48219c70db95596d964730e31d9~le9QW44K01214112141euoutp025;
+	Fri,  6 Nov 2026 14:42:57 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144257euoutp02f046c48219c70db95596d964730e31d9~le9QW44K01214112141euoutp025
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1793976173;
-	bh=Rj8Y5qafYFutHkOlAoJ29LhMDQuxrVln4aCNYyECpsA=;
+	s=mail20170921; t=1793976177;
+	bh=WSR+OYxGYuCEt4HZgWaGut42QNF8mF7rpyHwN5g0Fmw=;
 	h=From:Date:Subject:In-Reply-To:To:Cc:References:From;
-	b=BwI5RaqtVBatHQ9FvOJ55uoIz+fe2relbWKFywd/iJ7UxbiAUExJDGgQBwVqMgvPP
-	 UdvBd8K2ekwzyndtRORpmlbATxLqEG3g6AEgKFZhuL/6kzMA4waA9KfpwPcfkUWCJj
-	 a5io1KFq5kFQHiWaTDkEAwAoTjw/BLEsdPnf7/6o=
+	b=iNy7LdYD9y3Ce85ur99gVOgP70PRAxMlKgJ50WH0DEUBnvXrShJMbvfe3bxA28980
+	 UAciP+g1AouqHElYOm5zofikYQj7Afh276F1w/Rk4NBMq/wRm6tm+0RcLd2EuCebCw
+	 IG4+EnibCn2k/wLwGCpIOYZjqtVBgcW3SMirHPT8=
 Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144252eucas1p272c9e37d66ad385db070f941879aecb1~le9MI3J6I2474624746eucas1p2Q;
-	Fri,  6 Nov 2026 14:42:52 +0000 (GMT)
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20261106144256eucas1p1beb947272dc94f916c8c8131722a480d~le9Pd9eIp0320903209eucas1p1W;
+	Fri,  6 Nov 2026 14:42:56 +0000 (GMT)
 Received: from AMDC4942.eu.corp.samsungelectronics.net (unknown
 	[106.210.136.40]) by eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20261106144250eusmtip1dcd97a2c5f23d834ade7b24072cbbacb~le9KHGP180491304913eusmtip1T;
-	Fri,  6 Nov 2026 14:42:50 +0000 (GMT)
+	20261106144254eusmtip1291e4ba24e2a230c09af0eb481e22639~le9N6-Ryb0161401614eusmtip16;
+	Fri,  6 Nov 2026 14:42:54 +0000 (GMT)
 From: Michal Wilczynski <m.wilczynski@samsung.com>
-Date: Fri, 06 Nov 2026 15:42:43 +0100
-Subject: [PATCH v2 03/15] zram: lz4hc: reset the dictionary stream once, not
- per page
+Date: Fri, 06 Nov 2026 15:42:45 +0100
+Subject: [PATCH v2 05/15] lib/lz4: backport upstream's -Wmissing-prototypes
+ fix
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -63,7 +63,7 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-lz4-vendor-upstream-v2-3-ee04c3f0d7dc@samsung.com>
+Message-Id: <20261106-lz4-vendor-upstream-v2-5-ee04c3f0d7dc@samsung.com>
 In-Reply-To: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
 To: Michal Wilczynski <m.wilczynski@samsung.com>,  Nathan Chancellor
 	<nathan@kernel.org>,  Nick Desaulniers <ndesaulniers@google.com>,  Bill
@@ -91,23 +91,23 @@ Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
 	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
 	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
 X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1522;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2114;
 	i=m.wilczynski@samsung.com; h=from:subject:message-id;
-	bh=gf0d0kp9GnHtSKcTtEhuhYTslttbHXb7E32RSfsFkrk=;
-	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ5ySyUrfX9+cLNFzLn3MVV/N4i6Nzut7uWYFaCyg
-	Kc99EZURykLgxgHg6yYIsvZjdFGkv8YnpYff/wLZg4rE8gQBi5OAZhI/SSG/1kvExcURfNONrvu
-	ra3M/fXc+ijtu01371vME1PUVXXQZ2dkOLuw/PC7Sw6c1RFJLws3fLXnv6L+4+/39Xt/Bfx8EiS
-	lwg0A
+	bh=8N9wzkj/hKUNj1BW6DsxrUcKBRzHlHt4de1GPUas8dA=;
+	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ4aKBHw4KzylIunL5nMWL5nDtPGvfc/njCasV+lt
+	GrWpcMX93eUsjCIcTDIiimynN0YbST5j+Fp+fHHv2DmsDKBDGHg4hSAiYSUMjKsiXqrvCj13sck
+	jXdXYxcp/xC/+X8L552H1zvu7FxWvP6wLsP/nMgZJ7gTtqpMCPyt4XBn0/uNTa3qbC/maddKfOC
+	7kveWFQA=
 X-Developer-Key: i=m.wilczynski@samsung.com; a=openpgp;
 	fpr=CDB15B3219FE00E577C7E3FA65BA97B9EE9C1459
-X-CMS-MailID: 20261106144252eucas1p272c9e37d66ad385db070f941879aecb1
+X-CMS-MailID: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20261106144252eucas1p272c9e37d66ad385db070f941879aecb1
+X-RootMTR: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
 X-EPHeader: CA
-X-CMS-RootMailID: 20261106144252eucas1p272c9e37d66ad385db070f941879aecb1
+X-CMS-RootMailID: 20261106144256eucas1p1beb947272dc94f916c8c8131722a480d
 References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
-	<CGME20261106144252eucas1p272c9e37d66ad385db070f941879aecb1@eucas1p2.samsung.com>
+	<CGME20261106144256eucas1p1beb947272dc94f916c8c8131722a480d@eucas1p1.samsung.com>
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
@@ -116,41 +116,52 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-With a dictionary, lz4hc_compress() calls LZ4_resetStreamHC() and then
-LZ4_loadDictHC() for every page. LZ4_loadDictHC() re-initialises the
-stream itself and keeps the level, so one reset at creation is enough.
+v1.10.0 defines LZ4_loadDict_internal() in lz4.c and LZ4HC_searchExtDict()
+in lz4hc.c with external linkage and no prototype, which the kernel's
+-Wmissing-prototypes rejects. The first would also prevent linking once
+lz4_compress.c and lz4_decompress.c both include lz4.c, later in this
+series, since each would define it.
 
-The reset is cheap today, but upstream LZ4, which lib/lz4 moves to later
-in this series, clears the whole 256K state in both calls. Reset once in
-lz4hc_create() instead.
+Neither can be forward declared static in the lz4_deps.h a later patch
+adds, as the other bare helpers are, because their signatures use types
+declared inside the .c files.
+
+Take the two hunks of upstream commit 5ef1f16929b5
+("fix -Wmissing-prototypes warnings") that apply to the files we vendor.
+This goes away at the next re-sync.
 
 Signed-off-by: Michal Wilczynski <m.wilczynski@samsung.com>
 ---
- drivers/block/zram/backend_lz4hc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/lz4/upstream/lz4.c   | 2 +-
+ lib/lz4/upstream/lz4hc.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/zram/backend_lz4hc.c b/drivers/block/zram/backend_lz4hc.c
-index d8aa01bb258fec760b597a88296dfaa4e0049693..06286c805cf7c56bd760f460cc854dc4014f293b 100644
---- a/drivers/block/zram/backend_lz4hc.c
-+++ b/drivers/block/zram/backend_lz4hc.c
-@@ -72,6 +72,7 @@ static int lz4hc_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
- 		zctx->cstrm = kzalloc_obj(*zctx->cstrm);
- 		if (!zctx->cstrm)
- 			goto error;
-+		LZ4_resetStreamHC(zctx->cstrm, params->level);
- 	}
+diff --git a/lib/lz4/upstream/lz4.c b/lib/lz4/upstream/lz4.c
+index a2f7abee19fb9a5c768f2a6c266acf5b571f0855..0d474be0236a698d297ab9a430f5082485eb3709 100644
+--- a/lib/lz4/upstream/lz4.c
++++ b/lib/lz4/upstream/lz4.c
+@@ -1584,7 +1584,7 @@ int LZ4_freeStream (LZ4_stream_t* LZ4_stream)
  
- 	return 0;
-@@ -92,8 +93,7 @@ static int lz4hc_compress(struct zcomp_params *params, struct zcomp_ctx *ctx,
- 				      req->dst_len, params->level,
- 				      zctx->mem);
- 	} else {
--		/* Cstrm needs to be reset */
--		LZ4_resetStreamHC(zctx->cstrm, params->level);
-+		/* Reloading the dict resets cstrm and keeps its level */
- 		ret = LZ4_loadDictHC(zctx->cstrm, params->dict,
- 				     params->dict_sz);
- 		if (ret != params->dict_sz)
+ typedef enum { _ld_fast, _ld_slow } LoadDict_mode_e;
+ #define HASH_UNIT sizeof(reg_t)
+-int LZ4_loadDict_internal(LZ4_stream_t* LZ4_dict,
++static int LZ4_loadDict_internal(LZ4_stream_t* LZ4_dict,
+                     const char* dictionary, int dictSize,
+                     LoadDict_mode_e _ld)
+ {
+diff --git a/lib/lz4/upstream/lz4hc.c b/lib/lz4/upstream/lz4hc.c
+index 4d8c36a6978fcae09e4c4a936572b4b271513466..32b29f382268d961d65383b24c7225494d9044ad 100644
+--- a/lib/lz4/upstream/lz4hc.c
++++ b/lib/lz4/upstream/lz4hc.c
+@@ -360,7 +360,7 @@ typedef struct {
+     int back;  /* negative value */
+ } LZ4HC_match_t;
+ 
+-LZ4HC_match_t LZ4HC_searchExtDict(const BYTE* ip, U32 ipIndex,
++static LZ4HC_match_t LZ4HC_searchExtDict(const BYTE* ip, U32 ipIndex,
+         const BYTE* const iLowLimit, const BYTE* const iHighLimit,
+         const LZ4HC_CCtx_internal* dictCtx, U32 gDictEndIndex,
+         int currentBestML, int nbAttempts)
 
 -- 
 2.34.1
