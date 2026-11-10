@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A368360A382A
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:16:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57BED606A901
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:16:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ba3Pyp5O
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B3k5bbEA
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1Gw0YmJz2yr0;
-	Tue, 10 Nov 2026 20:16:08 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302168;
-	cv=none; b=NZbzVP5VxHn4VJaN9J/J0143pTShwdoOglBy2c2WKmCiiTU3fRaht560VFVCeDU6DFeEu4UQCStZ+fnFa4/5S6/WOGkIQfm8TrJh4RCba3o9Y2DTu2WmMURNjODdHsq6NEkPlp9MxFtiCCR4lsq2+gPgIuhjLjST/1QVJGIWu2f3XqHmNSU3SE6KJfd6wBpa+bC+I9ItVptN/XJIun0/9/opWFnRrXURaGbMXZLrRnQ6dpaZq5CZM+4+Cxxw6v4brTrmw9dCB6hqkAfAxbbKhMAw8Yytyg9pooYri4m6JTUFO3UTbykkhJAKEaknD6FyfLka/CCtyxY4WRR1yOnryw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1H14nX6z2yCr;
+	Tue, 10 Nov 2026 20:16:13 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302173;
+	cv=none; b=E0Q+2i02TqO8J8N08vR9uIIW3beIqZiD4kUq1Gas1SsPgc1VGExN2QZGQlA3gAtnZF1W7EaGtEhJQyFQdxJFnBewdNdC7MwFB8GEFKnkM4JmUd8M8X+JrxY2t3wW4p/KaPDO6ddTN7LidYadTbNuOsGrmqFsXkR57BjIGqGEFe9lWzo/mqYZr3SgDNoCVfnwgZuL3PPxGZFvXIhh0uzZ5AeE1WnmgIUQsedIZUpXiOMjrUhF4tQiAr6UfCzDXbftu9jS8UexJoUZUEVTx/wQPtim0n2+tIDQwgaCREWi+RNh211xChdsiJTT3yr1pYhx8bXSHf2q/Io2X+jB/8fHkQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794302168; c=relaxed/relaxed;
-	bh=2Uxnm4Cd0mizACq2HNobDQRQcgrPnhEO2KA80+bveeM=;
+	t=1794302173; c=relaxed/relaxed;
+	bh=48wS641dZNlMgTbgKHYJJRZjCIIpBYSCk6vN7nPVst0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=c5regH+vePB101vOaf5lMAHSkTAhYnDpA8+mD4qVywR8qQ3xU6pPuBv8l3Z32kedDpUfFF99jxbiVtJ2aHi+/xsUI/J8PILPcnVuIezQP5F1IsHntxIM1qhgf0YhELOelQQsBNh4A8KwfWNxjjludZ/MFNQTunHSUVqpRANMehUzNkI+kgQqvDQhW1Z/wpp1KETocWREERmsCwrRfO+Q2KeHgrj23c85H/QxnsEkIp3clK3ns8NiucwT29xskDpDnzJZ2sRvaOnFug0HjfEJ4Re+FVk+ktJlXPNNPn3N1TKYfbRWASkuwZaam+qXW6xcEYs6WMAvpboKPfkYk2GmBA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ba3Pyp5O; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=mQiy6PQuEkDBAkeMOSW88nCRAEc2OkthkiiIal3ewich2w/w70yg5fKJ5ZlmeECDBVUHUXKmx/rS+aiHfv73FqLtz6ZgsZZbArg+ZN23fRQ0zJpdAO/wEfCGkFvKbv4tynHccaX0L5qO6plibn8P+Kts7rlNRbBpQ49sR+ttEhg3Ek6gW4wBBadW7bW3xxUZ9IGjVuR7ETWkmR1TwXJxcWxGGnriSPXuwXUTU7JJapstITMXjqPaLk9VUALVSWK4FYbx/YoYIOUltNLPwEMNlHagyEUTya/GyP1Gct/ydUbMwfXvW3TCwPHAUSf5z5fPhbsfdhUN1ByNCPqiek4FAg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B3k5bbEA; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ba3Pyp5O;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B3k5bbEA;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1Gt6vF1z2xfK;
-	Tue, 10 Nov 2026 20:16:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1H10Z9Pz2xfK;
+	Tue, 10 Nov 2026 20:16:13 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 95A4E45731;
+	by sea.source.kernel.org (Postfix) with ESMTP id 8CB1744729;
+	Tue, 10 Nov 2026 09:16:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7381F0089F;
 	Tue, 10 Nov 2026 09:16:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92891F008A2;
-	Tue, 10 Nov 2026 09:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302164;
-	bh=2Uxnm4Cd0mizACq2HNobDQRQcgrPnhEO2KA80+bveeM=;
+	s=k20260515; t=1794302171;
+	bh=48wS641dZNlMgTbgKHYJJRZjCIIpBYSCk6vN7nPVst0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ba3Pyp5OpjsLWNS18IN6KJmuJFLn691WGOW4O+tQFCTWln2eXYVZ3JE1wBRhcmoW6
-	 hLpwpT4jz67cKW4CJB9uIhzhbMhfgiFHlr2CZK53VaqCwK5HM1YqSaiFHCScsFMBkn
-	 Q0OzOCwsepsGyP/WRgtRo4+3FcZl8eUfyuWZ7KuL8XDVDG6tcU8rd25pxcEBVszf1y
-	 XJvR4c13VrmJU77uH8rLkN68FB+fLrhpSvF6buW7PxoKBBbfZNWSogmUA09LLIYVWc
-	 o8T8B1sqCgT2o3NyN+rjS4hlvf0pw7ESlo7MI8nYdimYq23hA2cdZ9j7+asrP+da9o
-	 Z/f8j2gHp/WZg==
+	b=B3k5bbEAWfpJtZp1vzeXux0KzrY0ieZxwUJi/83P+f7eKHCKBYc9mkYVfNK2b/51Z
+	 IE7odp0lQqQ7mwusK6pgB1WlHVkO/UlsckyLpTfE8Yp89sMOk+QjYT1he8sjTHJobl
+	 zbSxv5PQZ8XY+Ts/6iaugpn66hCj3rJCosVRpDg0+EuqU7+TpcsCN1TcwITx1L6QCL
+	 1C6NNljvCVnJ+dNekIZ/1LCG3UXVW6y81kv+eHD0umTjqyrBp3lV94BaeU5UIyHZKc
+	 zDKybfsspnrP1qhiqd+dsnxznVfYXFvZSeoRYSBElTyxocH2QJC3b5d8zXbtpIhziF
+	 ygU0pzxGVue5w==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:17 +0100
-Subject: [PATCH RFC 01/41] loop: refuse backing files that aren't open for
- reading
+Date: Tue, 10 Nov 2026 10:14:18 +0100
+Subject: [PATCH RFC 02/41] nvmet: check that the file backend supports
+ ->{read,write}_iter
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-1-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-2-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -80,14 +80,14 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, stable@vger.kernel.org
+ "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1688; i=brauner@kernel.org;
- h=from:subject:message-id; bh=k5rFTn5qwSY0P1NIV6SDcJMZmh5p3efbZZ8FHYDs+to=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejBVvfNKBs+f5kIhpoaev8LtD4oXZ1xL0i19ll21p
- i5fZsmkjlIWBjEuBlkxRRaHdpNwueU8FZuNMjVg5rAygQxh4OIUgInc3s/I0OHqXaH2k1fp545n
- UtNUpkUwfzq4/7uEmpjnzfcNZ9bvT2JkeCygm5CxsPhqWqRgSqf6D/8dk2afLnMX1LJ/rjh/3zZ
- BPgA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1206; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=9rTO3vQgbbKMLgtf9DhInii/7oHGTrugRkWUh4dwMMs=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejBtltmGmxnek3mf9QvZzp8xjWWx5Y+Awzls7lyHP
+ /4+2Dk3oqOUhUGMi0FWTJHFod0kXG45T8Vmo0wNmDmsTCBDGLg4BWAivzwZGU4478oq2RB1Nuut
+ 48Jj7Tu4n8+545UyJdpwumO4VdS2g7kM/9TW5p9ep3/AsD+mInRXw3I+rR/SC0xnPXVmN7wifGZ
+ vBB8A
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -98,47 +98,38 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-loop_configure() takes any file as long as it implements ->read_iter().
-Loop itself never checked whether the file was actually opened for
-reading. Buffered I/O went through vfs_iter_read() which refuses files
-without FMODE_READ. Direct I/O has called ->read_iter() of the backing
-file directly ever since loop grew support for it.
+The file backend calls ->read_iter() and ->write_iter() of the backing
+file directly but never checks that they exist. Everything that isn't a
+block device ends up in the file backend. So a namespace pointing to a
+file without them calls a NULL pointer on its first I/O. Only
+buffered_io=1 gets that far as the O_DIRECT open fails for such files.
 
-Since commit f2fed441c69b ("loop: stop using vfs_iter_{read,write} for
-buffered I/O") buffered I/O calls ->read_iter() directly as well. That
-commit was about O_DIRECT handling and the FMODE_READ check went away
-as a side effect.
+Refuse them when the namespace is enabled the same way zloop does since
+commit 0c10f8a1a7ae ("zloop: check that the zone backing file support
+->{read,write}_iter").
 
-So whoever can set up a loop device can read a file it was only allowed
-to open for writing. Open the file O_WRONLY, configure a loop device
-with it and read the contents through the loop device.
-
-Refuse backing files that aren't open for reading. Loop always reads
-from its backing file so a write-only backing file never made sense in
-the first place.
-
-Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
-Fixes: f2fed441c69b ("loop: stop using vfs_iter_{read,write} for buffered I/O")
-Cc: stable@vger.kernel.org
+Fixes: d5eff33ee6f8 ("nvmet: add simple file backed ns support")
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/block/loop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvme/target/io-cmd-file.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a3325ceab484..c96e35c3ef42 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -528,6 +528,9 @@ static void loop_assign_backing_file(struct loop_device *lo, struct file *file)
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 695963dd932e..dfa8aa46188c 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -47,6 +47,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 		return ret;
+ 	}
  
- static int loop_check_backing_file(struct file *file)
- {
-+	if (!(file->f_mode & FMODE_READ))
-+		return -EBADF;
++	if (!ns->file->f_op->read_iter || !ns->file->f_op->write_iter) {
++		ret = -EINVAL;
++		goto err;
++	}
 +
- 	if (!file->f_op->read_iter)
- 		return -EINVAL;
+ 	nvmet_file_ns_revalidate(ns);
  
+ 	/*
 
 -- 
 2.53.0
