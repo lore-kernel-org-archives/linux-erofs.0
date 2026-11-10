@@ -2,51 +2,51 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 898C2606B9E7
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:16:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA0C606C67A
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:16:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JDSV52m4
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CjYzYxSG
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1HH2mQbz2yLY;
-	Tue, 10 Nov 2026 20:16:27 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302187;
-	cv=none; b=A3zjf7dnGyJ4Tzjxt1AxWQntlqfJTT0pEKqe7wB1RvzB/aS3IMrTaZQoMi3oUA8W3C16QbG44YDBWMOjU1rtrwTkJRUbcxLTIdqdUxVnpn5ubTycZqwuL06iYALRcP+1YKyqGOVA9xwHSISRCGvZsU4TZKQcGyESTc3xWwZgh0CrkVfwcIeXUYJ3XU+YYSk2bvphTBDgsDSor8JTYGUQfskpVGKvqsPmpvx41DdckQ4N3+tm/F29fK3FrBRXtq1ELJpMX/DpDAjkB69HEPl3Ay/tWghgXSbDzHJWygiELngb7BsnTdOauVDd9nl25CAGDIrxOM3xUUFk4ujEJwO89Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1HQ5yJcz2yR1;
+	Tue, 10 Nov 2026 20:16:34 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302194;
+	cv=none; b=D8DNNnyxSRfDFMuLpyoHsF5u0Jcmv3PD6jamfbJbox0FUj8wAj5X9yJRk00RMIpof8FLpNceRvB12c8mvZjzFzMS2vT4Wjj5hgiipBDzOYuGGpaeQaqR4G66Tb6UjDf0iW2rOgnAYG2+lLR3o3pSYgAybC4zX17PJR5NZhhaEwxuEWeSrr4T7HI4pgdq5XrTcF2GWAvxB97o3QXSurlpq7SfsOBFMzoCZ/jZn2FkWx4zQmGi+GV/kT+wNgeODgG9pAd3eUtytHHVkkhgmqvg8GqDwsWJwvUeBjIWPKXPmiwJAyLfl4Leb7/KcIIwpkAT9L5+0dpyc8hDKyFkTFGCtg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794302187; c=relaxed/relaxed;
-	bh=+PlyOtqsg4uvOLuXQ3/FL9HLYIT+WYfLjjBDzOseC4E=;
+	t=1794302194; c=relaxed/relaxed;
+	bh=eGG9W0yWfKzRivIQZoE53ERZFH3qHATHiSAlm/rfViI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ol4yhKThtWwQFY1HymXbMiiz3VKrzcWi6K5qyn3GwBJvoaEAj954N7HnluaM9PFDOmvI/2rOV5ioGfF6mAy3a/HokVyVzGfR/VYpqLJ6r8AH4asKIsNF3/PPpDlabXFRyP6zZkWzakwS2jm7zQg+Y2U6pfXztk9VLaaxk5rjCPLXjLLbw8ggkbgxSes7k0DaHPOPQp4VAPPI1ydEeMkTPkfthYz4Jy2RTQHM3gGAjmq6XmNwmbBS8BUBwXTto8PNnWlGMqy/F1NSQ8cvSm2RPnMlVBBmDgSFw36v9ONl1gah+vIe7EqXPUk+NDmhfVaU5E570W1Hk9daXSYnJB1EcQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JDSV52m4; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=JQqr/bCzs//hD7eTa3ncHozVBCG79B3Ytq+SdYKdRMQwkuScu/ivlfSrU7aRbtJPm2+JDWAM31ZWEDv8HjT0IUOUIFnVS65n5LfU9hgezg4z34p8FuE1oNO7hgjVttv1M1gyyIA7/CTlBrL7v+DrFMzmfRymDUTu/clvbovdJhcwsEgKWfW809kGJY0Pi/zPdIBzWpfPEUDxcyOykMvMpl7j2v8IS/AxaX//TpAu5tLCagA7qnA4jKc4bSdW5U4jROXfI+xkGsZoRYnns/wRfOQ3r1gvGrXCOxsmlggdaPYIFr729T30VjirS+xXSZq1Iwhlp7zKNSNufgnJP1OpcQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CjYzYxSG; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JDSV52m4;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CjYzYxSG;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1HG4mNJz2xfK;
-	Tue, 10 Nov 2026 20:16:26 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1HP6w5mz2xfK;
+	Tue, 10 Nov 2026 20:16:33 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 2C96146A26;
+	by tor.source.kernel.org (Postfix) with ESMTP id 1686F611CD;
+	Tue, 10 Nov 2026 09:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8126C1F00902;
 	Tue, 10 Nov 2026 09:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C370A1F008BE;
-	Tue, 10 Nov 2026 09:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302185;
-	bh=+PlyOtqsg4uvOLuXQ3/FL9HLYIT+WYfLjjBDzOseC4E=;
+	s=k20260515; t=1794302191;
+	bh=eGG9W0yWfKzRivIQZoE53ERZFH3qHATHiSAlm/rfViI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=JDSV52m4OfCcyst3hFku2YCPCNxNeOvikciB89hDYJCR1LbwEEt/lYeTuQQD7/iUW
-	 H5tRIQ9v6jXMgiZgkJiF4GqOivkKtZZw7NCQaQ+f1NR7twZvTqcjqI+/c/IH9v/Jxy
-	 EoKQxUfmWpqjCJS9oAmdJNyKK7FKdWto+bebjhA+fYE+FkEqbaHlH+Oa9uQsiCi9GB
-	 3VXoXUr7iZu5zDIGq4U4YgT3MCBnLcxw8LrsjsTPugWIr6zcD/ibPJDTK7P1rf/Nm/
-	 FeXmWLksNQuP1ST2JEb6k4O48XmygmJ7cLGcrIfDn6Eu2LG0Vr4DLcJUZZqj6ewXS2
-	 2mhb3DLeE7TVQ==
+	b=CjYzYxSG4MF/PYOuhfPotw8YsrgHpqEMmvVsealc1nZYA5sYB8ePEA/BT0law6L4c
+	 H4DwOy7PJ6PWOuylSpgYpzMq2zQGYiIT8+FEalpf9CzWwtAbdti5C3COkrTAoZVyOC
+	 98zYnncAcJul/uKitX7mc2xPlqIIYPds4N05d66Wgi6oSv9azb1TV2yyF+MJgyG+uT
+	 +q4Aq0251HvqT0ZVS0wHPkEhV8CPEhOZQuBNIukUVbH00aNshGt3HqKek36mnvJebH
+	 4omkN8WkJOC0ohRp48kohw45G0TEI0wyMWnb2yC/I1jgI5cFhMlDgFavrTXU4YWzSj
+	 7d78+YdkJ4mOA==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:20 +0100
-Subject: [PATCH RFC 04/41] fs: add SB_I_PSEUDO
+Date: Tue, 10 Nov 2026 10:14:21 +0100
+Subject: [PATCH RFC 05/41] kernfs: use fc_init_pseudo()
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,7 +60,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-4-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-5-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -81,12 +81,12 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3427; i=brauner@kernel.org;
- h=from:subject:message-id; bh=k3b1S5Aks24kDoWnRvLqsdiiPcKIlG2bf4Gt1cYJbvU=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejDjkUK2x5tSpSe3sln+v7tvX2kk8yFWmKv/wMXyl
- fsivk7i6ShlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZjIgXSGn4zTcuXEC9Zcm34h
- e6vptpmiC3asPh6Q0BteemFfbSaHeDDDP+uZ7aUJ00OdGBbc/56893hNWHZRbjDHr99CTduPlCV
- M4wIA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1308; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=oxvnYqP+iDvCdTKHYHpfovNIFRCjsigYBDc/6gG4KoE=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9ejDzzd/Z9nGXbsVbBqjycnSqNVW8nKT5dary583xR
+ 9dNDt3g2VHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRjaGMDOv3/hK7rKMoLKFw
+ cJvq3Wdf7eI+x+zYPCvtnPsBx+pD2VMYGd6l2F1wrJl6IHntnnLtfb/v/1wpEWL5tkZ74nuPD8z
+ fDFkB
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -97,88 +97,45 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Currently, there's no way to tell whether the files of a filesystem
-store data or whether they are kernel interfaces. Files on pseudo
-filesystems such as procfs or sysfs generate their contents when they're
-read and writes to them are commands to the kernel.
-
-But a few places in the kernel take an arbitrary file and use it as
-storage: loop, zloop, the nvme target's file backend, the scsi target's
-fileio backend, fuse passthrough, the usb mass storage gadget and erofs
-file-backed mounts. At most they check the file type and whether the
-file implements ->read_iter() and ->write_iter(). That's not enough.
-kernfs provides both for every sysfs attribute for example.
-
-Add SB_I_PSEUDO so a filesystem can state that its regular files are
-kernel interfaces and must not be used as storage.
-
-Pseudo filesystems also never hold executables or device nodes. But
-currently each of them decides on its own whether to raise SB_I_NOEXEC
-and SB_I_NODEV. Some do, most don't. Add fc_init_pseudo() as the common
-initialization point for all pseudo filesystems that raises all three
-flags and switch init_pseudo() over to it. The following patches
-convert the mountable pseudo filesystems.
-
-Nothing checks SB_I_PSEUDO yet so no functional changes.
+Initialize all kernfs based filesystems as pseudo filesystems in
+kernfs_get_tree() instead of raising SB_I_NOEXEC and SB_I_NODEV by hand
+in kernfs_fill_super(). This adds SB_I_PSEUDO for sysfs, cgroupfs and
+resctrl.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/libfs.c                     |  2 +-
- include/linux/fs/super_types.h |  1 +
- include/linux/pseudo_fs.h      | 11 +++++++++++
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ fs/kernfs/mount.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/libfs.c b/fs/libfs.c
-index 96a6e9b1535f..8c8789489fdf 100644
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -735,7 +735,7 @@ struct pseudo_fs_context *init_pseudo(struct fs_context *fc,
- 		fc->fs_private = ctx;
- 		fc->ops = &pseudo_fs_context_ops;
- 		fc->sb_flags |= SB_NOUSER;
--		fc->s_iflags |= SB_I_NOEXEC | SB_I_NODEV;
-+		fc_init_pseudo(fc);
- 		fc->global = true;
- 	}
- 	return ctx;
-diff --git a/include/linux/fs/super_types.h b/include/linux/fs/super_types.h
-index 72f4288e16c5..472200bdf081 100644
---- a/include/linux/fs/super_types.h
-+++ b/include/linux/fs/super_types.h
-@@ -359,5 +359,6 @@ struct super_block {
- #define SB_I_NOIDMAP	0x00002000	/* No idmapped mounts on this superblock */
- #define SB_I_ALLOW_HSM	0x00004000	/* Allow HSM events on this superblock */
- #define SB_I_NO_DATA_INTEGRITY	0x00008000 /* fs cannot guarantee data persistence on sync */
-+#define SB_I_PSEUDO	0x00010000	/* regular files are kernel interfaces, not storage */
+diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
+index a0be784bfb06..6b60d212b003 100644
+--- a/fs/kernfs/mount.c
++++ b/fs/kernfs/mount.c
+@@ -8,6 +8,7 @@
+  */
  
- #endif /* _LINUX_FS_SUPER_TYPES_H */
-diff --git a/include/linux/pseudo_fs.h b/include/linux/pseudo_fs.h
-index a651e60d9410..0ca408aa60af 100644
---- a/include/linux/pseudo_fs.h
-+++ b/include/linux/pseudo_fs.h
-@@ -2,6 +2,7 @@
- #define __LINUX_PSEUDO_FS__
+ #include <linux/fs.h>
++#include <linux/pseudo_fs.h>
+ #include <linux/mount.h>
+ #include <linux/init.h>
+ #include <linux/magic.h>
+@@ -298,8 +299,6 @@ static int kernfs_fill_super(struct super_block *sb, struct kernfs_fs_context *k
+ 	struct dentry *root;
  
- #include <linux/fs_context.h>
-+#include <linux/fs/super_types.h>
+ 	info->sb = sb;
+-	/* Userspace would break if executables or devices appear on sysfs */
+-	sb->s_iflags |= SB_I_NOEXEC | SB_I_NODEV;
+ 	sb->s_blocksize = PAGE_SIZE;
+ 	sb->s_blocksize_bits = PAGE_SHIFT;
+ 	sb->s_magic = kfc->magic;
+@@ -388,6 +387,7 @@ int kernfs_get_tree(struct fs_context *fc)
+ 	info->ns = kfc->ns_tag;
+ 	INIT_LIST_HEAD(&info->node);
  
- struct pseudo_fs_context {
- 	const struct super_operations *ops;
-@@ -15,4 +16,14 @@ struct pseudo_fs_context {
- struct pseudo_fs_context *init_pseudo(struct fs_context *fc,
- 				      unsigned long magic);
- 
-+/*
-+ * Common initialization for all pseudo filesystems, mountable or not. Their
-+ * regular files are kernel interfaces. They don't store data and pseudo
-+ * filesystems never hold executables or device nodes.
-+ */
-+static inline void fc_init_pseudo(struct fs_context *fc)
-+{
-+	fc->s_iflags |= SB_I_PSEUDO | SB_I_NOEXEC | SB_I_NODEV;
-+}
-+
- #endif
++	fc_init_pseudo(fc);
+ 	fc->s_fs_info = info;
+ 	sb = sget_fc(fc, kernfs_test_super, kernfs_set_super);
+ 	if (IS_ERR(sb))
 
 -- 
 2.53.0
