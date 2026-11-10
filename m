@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE5CD606EECA
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:22:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721C3606EEF9
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:22:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fljzn/eV
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eIJ0bZ6Y
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1Mm4qYNz3dTD;
-	Tue, 10 Nov 2026 20:20:20 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1Mv45Pcz3dVp;
+	Tue, 10 Nov 2026 20:20:27 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302420;
-	cv=none; b=YWNUizrsVfUqDii9+F7/ZHu4b83ujmL74O96pqwVNkrpZBAAEbgmktdxGZ5xUyveezYAL53viKhfs+sY4BwL/aWCeNCbaGn+AF1Q+UlqzFu7FCXe9jcCeCpnsVWrK7qoHLQNGS6NFvMYJAKeTL8yPG/qjvgpZmxQOZWynRe9mO4nJVXij8YybY+o28L3XyIa1Ep9V3sYlC8CX8oq817mP50+f3Faj8Q1/Ck9xVC6QFIqoo313VPqNJWfE/2nixaauR2kKMuUFMP/x8F+Grzo5uFEmy/ALml7klBdoGWXonmaTZNROIytG8IICQdNx/OSsPfa9rlSe1wnyx7pQWOTrA==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302427;
+	cv=none; b=JB7T0udrOEsIyPl/mEpkcSFD/VzfsvcK2pvnA/7RAiuVVqImhJ4HYLvRFMek3OL2/NIzOtrOJpnF/APGPbdtu9+hLBk6lrCtoLjNB8Mzt0LkWvXWEqVTnzd6nl1JMU2Yx/w70PpwENdWIcN46z1exmrrrYBp6Xke9PalmV+kjCOXe//GipqaDgl26hPo6xaTAXZ0Hxl/HvC0OscSDmBsMh8tLZVaV4WXV9mkIUaB7n7wb0AtxFhAmw4NgdaVOTJ2N1l48xD+0MuaR5Z0S6AOHa+vHuYSo/v/sCl2w755bZ3JLKflpYotjq5+qDnRAULnN/IMoUsMltrzkdirCOEgZw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794302420; c=relaxed/relaxed;
-	bh=Ed8TTuJF+sB6Lawh6bnyp4GQ+ni/YzFsRx+ZLMEdz+g=;
+	t=1794302427; c=relaxed/relaxed;
+	bh=5v6oTkZQz6qlfBhdJSuXnvnO8rYqx/rzC+7+Nl5/OGM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=dKA/76UNeeVj2HMAdNpKWP9fTLYV+aSmpSK2MRnpcXVvVBVf8+gEd5no2YzvedZkEkvgcohB/cxVFDs0LSbfGhGeaY8yaBze74fLX9n+WYD/hl3Zu/Hilp3WCJlF+B9ix3OINr83NkVpVCSSV5dneiY+M6tTBvi9Bbh3jDzpSHTqgZN8bzn4OXgkja4KqwVQ2klvT9zJI+7Bx+KJ1N7kwbXjBIYOvf5V4FWN6ke3Y3sk7akXuuxlcFfPMPpJWxdanGCUr22kh8P7MBj/5eJaj4VG9IkusIqqSet6Y5ARthmYcY/yG1360hzg2XshtlIVYdO0uDLpJDRX3TIy+OD66A==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fljzn/eV; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=AQWYD/8X2F/qm+rqJnJbGSVhnl74o2ynwWdIsQgpb9ssnDE08yfMSXqTjVDR40pcE8miJgZgvU/63JniVAI4C5OwmVJEbA6k8Vn5TE2EQ0nmbFlHRsf4hTf1srohfNLul+cXq0CK8AsbkC8/8exz4t8GZw5+eSvYWqBqGjcPTPbAjmudIqXqdTfiknZXIUSm1RbqmHDpkB6oiS8qkCBfOXgQ63K8Ux/TyOV0v1aC3lVP6e4bMCdHwhNUcaUi/6c3/UKU6/WkonkYT6qGC61PsiMtbY91cllAbmIGkErD2ygVJwFnFvjmlQVK7gha0hC94i1O2qN/jdaeoYxp5gszUQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eIJ0bZ6Y; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fljzn/eV;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eIJ0bZ6Y;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
 Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1Mm0GJ4z3dSG;
-	Tue, 10 Nov 2026 20:20:20 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1Mt63HJz3dTJ;
+	Tue, 10 Nov 2026 20:20:26 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 2879863813;
+	by tor.source.kernel.org (Postfix) with ESMTP id EF33663821;
+	Tue, 10 Nov 2026 09:20:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 515E81F0089F;
 	Tue, 10 Nov 2026 09:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712051F008A2;
-	Tue, 10 Nov 2026 09:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302417;
-	bh=Ed8TTuJF+sB6Lawh6bnyp4GQ+ni/YzFsRx+ZLMEdz+g=;
+	s=k20260515; t=1794302424;
+	bh=5v6oTkZQz6qlfBhdJSuXnvnO8rYqx/rzC+7+Nl5/OGM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=fljzn/eVvhxziu7rpDchbBxswirw38dG5Hh8oraieWnFAikJKROz9NNo3QUniq7JH
-	 k0pna/SGi6vkmSevbTXH/7hF6ngRgBZPZ2ZczHXlmyUuIpK7skK0i+Do5u+0rc1eoM
-	 1QCt2YoDQYnkiJfUqROif2D9EGzsXbQfijTNIK8+ganjoCxI02/hoEZKq3MGmCMO0h
-	 I4/M12qrVolo7dcfHz+wl17JewslqYT+EnXNgtBY6b3e8843u68sorNH4ya/h/+lAY
-	 VJNr41AO+Mw+z1GcGf7nSnH75QEpkg5/KlZsgid6ulxGcD7CIdFmk46YH/y/seTdPS
-	 T75fjFnSWG6Bg==
+	b=eIJ0bZ6YykzyfYaq0uQnsLuPNj+m0vg4MOIRUUV7WyIHrzOWlMn5BpzKyvQO1xQnK
+	 lIgHxLYXr0xM6gXAPduca8fCpGnrbXmRu3n7sX++lmrPokRdnMxOQCvAaieuNDey1/
+	 rDMY2lnbcyTg88AQ5EnW+l0uOlH6KcCfGavMFZPvkrzrCwVDMo4o1H9usL4RbMeid9
+	 8ju7v6AtrNpyzqVV8uy5DYhL2Vr+eLE/ymRsWc8pcaS97R4A8Z95dfIgLeSJCXVpWi
+	 mDeT0clD8WfcFmQfLKdl3Rcurbo/W+eyqIPzNmzhefzjE4bnqF8y5kxjx80v9c4Gko
+	 v/as+SN9c7AFA==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:54 +0100
-Subject: [PATCH RFC 38/41] fuse: refuse files on pseudo filesystems as
- passthrough backing files
+Date: Tue, 10 Nov 2026 10:14:55 +0100
+Subject: [PATCH RFC 39/41] usb: gadget: f_mass_storage: refuse files on
+ pseudo filesystems
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-38-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-39-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -82,12 +82,12 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1037; i=brauner@kernel.org;
- h=from:subject:message-id; bh=rMGXR6zdtbG+6yYmwIdklnSltQxsfLzPwY1iGb1IBiw=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9enDgUfStKvuJ/w6Jptq+5PlSbP9KPn63MV/6gs8ZA
- ckpeuf/d5SyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAExEcisjw4GLdt6JSusi2NxU
- 1iey9qUufZbz//uNFbOOedou29eyzJjhf+TaNUei0tLOZd18O98+VMavi+/sDjvd9a28azc/0L9
- 1nxkA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1124; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=5CZmEVUvUM8phb7GCUC0PbdIONUtutPPh5jN88b8MUg=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9enDwpOymfbk/lix9c8OUO8H7nMDJjqNuYfXt8RN5b
+ SZ7VM/p6yhlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZhIsgXDP81qmQUMxt7JIhtj
+ H769H+D76yOfp7vrv8Uv+XNqFL+3cjL8szGK7szT6zNcPi0pgC3zv/C19XHNGld3L/vwMHyKxLW
+ bjAA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -98,32 +98,34 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-The fuse server can register any regular file as a backing file. procfs
-and binfmt_misc files are already refused by the stacking depth check as
-both set s_stack_depth to FILESYSTEM_MAX_STACK_DEPTH. sysfs and the
-other pseudo filesystems aren't. Reads and writes of the fuse file would
-then be done on the pseudo file with the fuse server's credentials.
-Refuse files on pseudo filesystems just like loop does.
+fsg_lun_open() takes any regular file as the backing file of a LUN. The
+file-storage kthread then reads and writes it with kernel_read() and
+kernel_write() on behalf of the USB host. With a procfs or sysfs file
+behind a LUN the host gets to read and write kernel interfaces with
+kernel credentials. Refuse files on pseudo filesystems just like loop
+does.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/fuse/backing.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/storage_common.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/fuse/backing.c b/fs/fuse/backing.c
-index 8c21a8a74efb..4e4fb810ddaa 100644
---- a/fs/fuse/backing.c
-+++ b/fs/fuse/backing.c
-@@ -147,6 +147,9 @@ static int fuse_backing_open_file(struct fuse_conn *fc, struct fuse_backing *fb,
- 		if (inode->i_sb->s_stack_depth >= fc->max_stack_depth)
- 			return -ELOOP;
+diff --git a/drivers/usb/gadget/function/storage_common.c b/drivers/usb/gadget/function/storage_common.c
+index 75831f2c7abe..83683ade20c2 100644
+--- a/drivers/usb/gadget/function/storage_common.c
++++ b/drivers/usb/gadget/function/storage_common.c
+@@ -211,6 +211,11 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
+ 		goto out;
+ 	}
  
-+		if (file_is_pseudo(file))
-+			return -EINVAL;
++	if (file_is_pseudo(filp)) {
++		LINFO(curlun, "file on a pseudo filesystem: %s\n", filename);
++		goto out;
++	}
 +
- 		fb->type = FUSE_BACKING_PATH;
- 		fb->path = file->f_path;
- 		path_get(&fb->path);
+ 	/*
+ 	 * If we can't read the file, it's no good.
+ 	 * If we can't write the file, use it read-only.
 
 -- 
 2.53.0
