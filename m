@@ -2,105 +2,42 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C39E4606A31C
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 05:39:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3C04606A96E
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 07:48:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=hqLvt75E
+	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jNwTV2DTtz2yD3;
-	Tue, 10 Nov 2026 16:39:58 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::52c"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794289198;
-	cv=none; b=aErXKFzVZoD8kUF2UM4oto429JaFdohoTShjC3h9e8ZsIxM+KeTReNXGwd9GRiwZhf46z7Fe2RpLX/X1WcfflHShi5bk+VFLyApvqRlCnZwEcOBvUJ/Qvz+5IL8wbZOkrAaz13MabInGNAL+EY6umGmnPFBMDmz4ISMMboVt7TLM+JTS/c/0/39Jkbs1Mf2iXgQBgrHI7QOWEmlPjv/pB/WOudrknGnRn7bOo2crxJzz9AVSN4vmnyGINHVRzJQE787pKmDEJQ/hzos7S14A0lkEdWONPuFRJV05ObrS4iKYUpag9Yj35xuxFiJ2hWITR2X/c7jvgCTS6GAjBbiw/Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jNzL039k9z2yKn;
+	Tue, 10 Nov 2026 18:48:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=156.224.81.211
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794296920;
+	cv=none; b=gK1EpufYCi9PGCNjROH5UhCpgGV/5Y63nymlA5ziCFMhjqYEgPyVFvKLV48BZqr1Ru4ziT8Hpaaw+6JL/JG7uyv4D/JdMJYMXqmKaD3y1YSz/zDRKna/aVRfXmXPCma22eO4DB7Oy+PdngFkssCgAcKty27oCUgn+ZG9O+yy7LSqUlhsinn0egLJOLdmN/1gPbZS2ymc8C2BrrSJ3TcuaVwFFfI+5dP5bWFZ9mfhXoAoacqXxDQg2cOM1W1QJAEzveZsSxYerhGrcweS/lyE2Y0Ru0vY3ZAmjC9GVuTP6QPwgSA7RA+bePV2jhUgURe4qXhUVAohthhO1XBSENPBmg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794289198; c=relaxed/relaxed;
-	bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oFHulPua7IejOBQwm2IUk5zRU3YxKdwuDlabPtgwyv6aEumtO0KNn40cihHVWwUPl99Yy2ZAhSzfpFz0kgelgwuQRgblR85xJpkSbSl1bPBOIEdl7/B7DlzdyFtIPBrF8oskw7X2q0Z2lFo6Jq05GIPvY8xDKAETTxlriBfYQn77BwVKoFebjYCJpOazU1RQSwc8NI6VRM1+YdHpS0ILsmlxbx3+ESxV9ppXPW5hFihifahK1IJUpUwdJViqoIBgfMeowMuBo6ii8Aa5AirzBNdICIRVYaKvprFt8w3b9tv0m3kpebYnnKv0Krhqz3WjbrIZz6eKZiftWMQEMSA4ew==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=hqLvt75E; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::52c; helo=mail-pg1-x52c.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+	t=1794296920; c=relaxed/relaxed;
+	bh=vozIMRZRw4OfnTQmm83KF+9bVM74yKlG4ay6P0WN/N8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=ZrAxkm2PSLp6rQM0Y7yUiUEJ4hyd2GaDwftUgriEneFBWBRCqqP/OMRv8/mMZlsjSuwM/goyJrIYF7lbWu/Bds4sR0LKUKyoQPWgfCYVddBnCl1msBMMMgntWKqIWyaGtMt8fHAFnAaYiqHX8wcVGcEsCqwhghIlkd5wZSb74zqCYU8zMZBzMC44Vk/mm4hyxGISXG8mdxAaPNkMcTvPGaOMiYC88r0DJ0OQo5Oq2Nxd53/oaemxaVs9ajJ7a8xoTPD+pXAvPWrjMzrurQDKodYbo24FSdA4iOeMUW867xvh16SNBtJEZdNOzvQbJhD2VXnb9ZbH0DEKx+9Q0DSVgg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO; dkim-atps=neutral; spf=pass (client-ip=156.224.81.211; helo=mail-m81211.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=hqLvt75E;
+	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:20::52c; helo=mail-pg1-x52c.google.com; envelope-from=senozhatsky@chromium.org; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=156.224.81.211; helo=mail-m81211.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
+Received: from mail-m81211.xmail.ntesmail.com (mail-m81211.xmail.ntesmail.com [156.224.81.211])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jNwTT393hz2xf8
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Nov 2026 16:39:56 +1100 (AEDT)
-Received: by mail-pg1-x52c.google.com with SMTP id 41be03b00d2f7-cd61cef87f1so742680a12.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 09 Nov 2026 21:39:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1794289194; x=1794893994; darn=lists.ozlabs.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-        b=hqLvt75EBjeR0DX2pP+tbcfo3oH8wNnm+zU6ri4UVEWwVkp633DTiauKpOsBSJL5Ey
-         qQ9Lx9kfHRosXRrlj9dLRs8BiEzN5CzD+3L3sjLRJqxyj2ZaDADvJkqoy1mFyXUtXxXG
-         3m3AUF5mJxsIXyzq+nKNHb5myCp1Dmle0n4T0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794289194; x=1794893994;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Y4IpnFVFMm5fXSXAtzV8xsgRv9+hQP6OGl0+r2a9VT0=;
-        b=hL9NtTmxLnkTPDTCbhG5lkf+ycNUX4uqRasNAbNrOsJCo57UejiMB2azuAkQKbHOTE
-         KzNOv/woCBvnig1/06gnEEqBO36t9yg3aOk/PjGDqNPnrQNsSgxmGOmoFFv5vUvURhED
-         32yUodaL2NTv8674aPtGWIzy+De3IJB9EAux7O2Yf1wRqxKhWP8azk2ztfjI3PKfx0Nd
-         ePNt8d6F7EbYiwTx3XN9cwTkkMOh7GoyiYvuvJuKTCM5dz9wVoQ/IzMrgCuH8S8HjKcj
-         KrJO1CijCMAy0nqERrMNbvwMrM6MQCkjxGj/Xi15FUn/cy/xggjNqWdf6mXcjcHArxJC
-         uvmA==
-X-Forwarded-Encrypted: i=1; AL+hErELXbLhPvz4mU8Tk/3MPls4P7OR8Fwkfe4/M1ermDsivc4qY45NpKyyo7K+tvRQCkN22nrIBLI8uigG2A==@lists.ozlabs.org
-X-Gm-Message-State: APuU4Z+GYJnKxsZgAxx1SlpQnEaVsGvc0H+fzfAJuH3CMvrBu9H+1Me2
-	LZEyoaSM+3uQFFlITH9vMBOGQJGtH4VR4Cm40wKkwziTbKGA4kVa+xFF8Q0B1zrw2w==
-X-Gm-Gg: AYBFou0XOASwPkKLODwL/UqjiWk7O/pon27Yvsed4Uys/3hwsq4i++R2vaSyZ1TVx82
-	ripqQ5Iq9voFUFWsDyUvXPdQFgQM1GKGWzTZUNudb0a0jzqqm9yIhdim1C62TRbeo521AUeyXhQ
-	tlYfZPtk2VKDxrjvPI4nSO7CHN20usFivmhyJi3iPmqa6c1pWskx1Fta5KZOmYSpkxj0M0BfBMG
-	ANm5mirdizSDJGfmHq6ZNHhyJ+IMn5KQgymr16V8KEvHeRDdUa33gbbplrY04M7Q5mqc/fsZ3mO
-	r5hCFn9OoWlq91qnFQrs4VdtL+fUQtN7uZb43pfCbOycTAmpCrbYcV0SN3TPdb43RAenG6+z0iZ
-	3sUlYVXjIHWM1HIQwwSVVwiloKkMovrEewMnIl+Sx+4iNIztP8XyDC6TgFSD8FHKh4UHbGu0nhO
-	inQ8Uu+QE14rRZHAmSLeTBjhioUjKyx4cVwiQASlWkRWyMRlD8f8hzO6ZNyNdMo4sl0K3ahInz7
-	zcHJgXGU7+xOjcPV7Xabbsbg/av2tCs/DFcPgE4SEibuKbozHPstyJk+cW5VXUW1mfceCw0fzSo
-	71oF3SjBzGJKxSzCcPBu5Kpg4wQGK8VwFLBvmym1Pu48mN/LkfByxMpy9TsNG+eFTpZfDaS2GJJ
-	7lW1EC354y9SOEKE=
-X-Received: by 2002:a17:90b:380f:b0:3ac:9599:a689 with SMTP id 98e67ed59e1d1-3b166d02addmr1882552a91.34.1794289194303;
-        Mon, 09 Nov 2026 21:39:54 -0800 (PST)
-Received: from google.com ([2a00:79e0:2031:6:e137:9384:7cd8:6e40])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b168ff86e7sm1041404a91.2.2026.11.09.21.39.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2026 21:39:53 -0800 (PST)
-Date: Tue, 10 Nov 2026 14:39:43 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Jens Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>, 
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, 
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
-	Jaegeuk Kim <jaegeuk@kernel.org>, Eric Biggers <ebiggers@kernel.org>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, David Laight <david.laight.linux@gmail.com>, 
-	Sungguk <sungguk.na@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
-	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v2 13/15] lib/lz4: switch the decompressor to the
- vendored sources
-Message-ID: <avKtyCOOmK3AH0xy@google.com>
-References: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
- <CGME20261106144310eucas1p1d60fe5c2e0170c49f38a3142bb1d8f94@eucas1p1.samsung.com>
- <20261106-lz4-vendor-upstream-v2-13-ee04c3f0d7dc@samsung.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jNzKw5SzRz2yCr
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Nov 2026 18:48:34 +1100 (AEDT)
+Received: from localhost.localdomain (unknown [124.243.154.138])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 5421a057c;
+	Tue, 10 Nov 2026 15:48:26 +0800 (GMT+08:00)
+From: Wenyuan Xu <sereno.xu@deepseek.com>
+To: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH v2 1/3] erofs-utils: lib: avoid duplicate overlay origin xattrs
+Date: Tue, 10 Nov 2026 07:48:20 +0000
+Message-ID: <20261110074822.292859-1-sereno.xu@deepseek.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -112,46 +49,189 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261106-lz4-vendor-upstream-v2-13-ee04c3f0d7dc@samsung.com>
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS autolearn=ham
-	autolearn_force=no version=4.0.1
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0aa1c46dffbc03a3kunmfb1181274ba029
+X-HM-MType: 1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCGRhOVh5ITkgfTR1CSE1IGlYVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSU9VSU9IVUpOT1VKSENZV1kWGg8SFR0UWUFZT0tIVU
+	pLSUJDQkpVSktLVUtZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=d2WkbmvOHse84X3eP1JbIaMisxUZftm4cBj1eX0j09SlLDUHbXQwPcCYaclpGOCFaFfxttq+PY8uuXlbbm5NJb4BsEz6qYIGuyuxjbRctM6Dmo4HpK4dHALmmg0Ne+GHqgOIP2lS9ajF64xZxeHcBXFrbyHhbVKqkoObZIcqoHs=; s=default; c=relaxed/relaxed; d=deepseek.com; v=1;
+	bh=vozIMRZRw4OfnTQmm83KF+9bVM74yKlG4ay6P0WN/N8=;
+	h=date:mime-version:subject:message-id:from;
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-On (26/11/06 15:42), Michal Wilczynski wrote:
-[..]
-> diff --git a/drivers/block/zram/backend_lz4.c b/drivers/block/zram/backend_lz4.c
-> index 50265e3ce256490994cb6dae32a45da376e408e0..b9b8a5f678c155442fa3fd2c1984e45182e6fc38 100644
-> --- a/drivers/block/zram/backend_lz4.c
-> +++ b/drivers/block/zram/backend_lz4.c
-> @@ -84,7 +84,7 @@ static int lz4_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
->  		if (!zctx->mem)
->  			goto error;
->  	} else {
-> -		zctx->dstrm = kzalloc_obj(*zctx->dstrm);
-> +		zctx->dstrm = kzalloc(LZ4_MEM_DECOMPRESS, GFP_KERNEL);
->  		if (!zctx->dstrm)
->  			goto error;
->  
-> diff --git a/drivers/block/zram/backend_lz4hc.c b/drivers/block/zram/backend_lz4hc.c
-> index e7ee3740219852f079d1e0866da6b213a3f3a583..1e09c93016264259c149e2913b2819571b56fab6 100644
-> --- a/drivers/block/zram/backend_lz4hc.c
-> +++ b/drivers/block/zram/backend_lz4hc.c
-> @@ -65,7 +65,7 @@ static int lz4hc_create(struct zcomp_params *params, struct zcomp_ctx *ctx)
->  		if (!zctx->mem)
->  			goto error;
->  	} else {
-> -		zctx->dstrm = kzalloc_obj(*zctx->dstrm);
-> +		zctx->dstrm = kzalloc(LZ4_MEM_DECOMPRESS, GFP_KERNEL);
->  		if (!zctx->dstrm)
->  			goto error;
+Empty origin xattrs were introduced to mark directories produced by
+offline layer merging that retain whiteouts for use with additional
+lower layers. This keeps OverlayFS from exposing whiteouts when such a
+directory has no matching lower directory and would otherwise be
+iterated directly [1].
 
-Ditto, outdated zram code.
+If a whiteout's parent directory already has a trusted.overlay.origin
+xattr, image construction can append another origin xattr with an empty
+value. This produces duplicate attributes with the same name. When the
+original value is nonempty, the empty attribute can hide it when reading
+the resulting image.
 
-My ask would be to not squash zram changes with lz4 changes, when (iff)
-possible.
+[1] https://lore.kernel.org/all/6a43ee5c-cc25-ff9f-1198-7c2b445d3775@linux.alibaba.com/
+
+Fixes: 1d9a3368e254 ("erofs-utils: lib: set OVL_XATTR_ORIGIN for directories with whiteouts")
+Assisted-by: LLM
+Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
+---
+v1: https://lore.kernel.org/all/20261107042703.3392000-1-sereno.xu@deepseek.com/
+---
+ include/erofs/internal.h |  1 +
+ include/erofs/xattr.h    |  1 +
+ lib/inode.c              |  7 +++++--
+ lib/tar.c                |  2 ++
+ lib/xattr.c              | 30 ++++++++++++++++++------------
+ 5 files changed, 27 insertions(+), 14 deletions(-)
+
+diff --git a/include/erofs/internal.h b/include/erofs/internal.h
+index 19e38fb..87c7b9a 100644
+--- a/include/erofs/internal.h
++++ b/include/erofs/internal.h
+@@ -269,6 +269,7 @@ struct erofs_inode {
+ 	char idata_type;
+ 	bool lazy_tailblock;
+ 	bool opaque;
++	bool origin;		/* with an origin xattr */
+ 	/* OVL: non-merge dir that may contain whiteout entries */
+ 	bool whiteouts;
+ 	bool dot_omitted;
+diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
+index d12c292..a729b98 100644
+--- a/include/erofs/xattr.h
++++ b/include/erofs/xattr.h
+@@ -48,6 +48,7 @@ int erofs_vfs_setxattr(struct erofs_inode *inode, const char *name,
+ int erofs_set_opaque_xattr(struct erofs_inode *inode);
+ void erofs_clear_opaque_xattr(struct erofs_inode *inode);
+ bool erofs_get_opaque_from_disk(struct erofs_inode *inode);
++bool erofs_test_origin_xattr(const char *name);
+ int erofs_set_origin_xattr(struct erofs_inode *inode);
+ int erofs_read_xattrs_from_disk(struct erofs_inode *inode);
+ 
+diff --git a/lib/inode.c b/lib/inode.c
+index da29b5a..d0ab536 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -2134,8 +2134,11 @@ static int erofs_mkfs_handle_inode(const struct erofs_mkfs_btctx *ctx,
+ 	/* strip all unnecessary overlayfs xattrs when ovlfs_strip is enabled */
+ 	if (params->ovlfs_strip)
+ 		erofs_clear_opaque_xattr(inode);
+-	else if (inode->whiteouts)
+-		erofs_set_origin_xattr(inode);
++	else if (inode->whiteouts) {
++		ret = erofs_set_origin_xattr(inode);
++		if (ret)
++			return ret;
++	}
+ 
+ 	if (!S_ISDIR(inode->i_mode)) {
+ 		ret = erofs_mkfs_begin_nondirectory(ctx, inode);
+diff --git a/lib/tar.c b/lib/tar.c
+index 83b3115..14b2225 100644
+--- a/lib/tar.c
++++ b/lib/tar.c
+@@ -418,6 +418,8 @@ int tarerofs_apply_xattrs(struct erofs_inode *inode, struct list_head *xattrs)
+ 		item->kv[item->namelen] = '\0';
+ 		erofs_dbg("Recording xattr(%s)=\"%.*s\" (of %u bytes) to file %s",
+ 			  item->kv, vsz, v, vsz, inode->i_srcpath);
++		if (erofs_test_origin_xattr(item->kv))
++			inode->origin = true;
+ 		ret = erofs_vfs_setxattr(inode, item->kv, v, vsz);
+ 		if (ret == -ENODATA)
+ 			erofs_err("Failed to set xattr(%s)=%.*s to file %s",
+diff --git a/lib/xattr.c b/lib/xattr.c
+index d86d94a..4097298 100644
+--- a/lib/xattr.c
++++ b/lib/xattr.c
+@@ -451,7 +451,7 @@ static bool erofs_is_skipped_xattr(const char *key)
+ }
+ 
+ static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
+-				 mode_t mode, struct list_head *ixattrs)
++				 mode_t mode, struct erofs_inode *inode)
+ {
+ 	ssize_t kllen = erofs_sys_llistxattr(path, NULL, 0);
+ 	char *keylst, *key, *klend;
+@@ -506,8 +506,10 @@ static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
+ 			goto err;
+ 		}
+ 
+-		if (ixattrs) {
+-			ret = erofs_inode_xattr_add(ixattrs, item);
++		if (inode) {
++			if (erofs_test_origin_xattr(key))
++				inode->origin = true;
++			ret = erofs_inode_xattr_add(&inode->i_xattrs, item);
+ 			if (ret < 0)
+ 				goto err;
+ 		}
+@@ -519,8 +521,8 @@ out:
+ 	item = erofs_get_selabel_xattr(sbi, path, mode);
+ 	if (IS_ERR(item))
+ 		return PTR_ERR(item);
+-	if (item && ixattrs)
+-		ret = erofs_inode_xattr_add(ixattrs, item);
++	if (item && inode)
++		ret = erofs_inode_xattr_add(&inode->i_xattrs, item);
+ 	return ret;
+ 
+ err:
+@@ -607,8 +609,16 @@ bool erofs_get_opaque_from_disk(struct erofs_inode *inode)
+ 	return (erofs_getxattr(inode, OVL_XATTR_OPAQUE, NULL, 0) >= 0);
+ }
+ 
++bool erofs_test_origin_xattr(const char *name)
++{
++	return !strcmp(name, OVL_XATTR_ORIGIN);
++}
++
+ int erofs_set_origin_xattr(struct erofs_inode *inode)
+ {
++	if (inode->origin)
++		return 0;
++	inode->origin = true;
+ 	return erofs_vfs_setxattr(inode, OVL_XATTR_ORIGIN, NULL, 0);
+ }
+ 
+@@ -658,10 +668,9 @@ static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
+ int erofs_scan_file_xattrs(struct erofs_inode *inode)
+ {
+ 	int ret;
+-	struct list_head *ixattrs = &inode->i_xattrs;
+ 
+ 	ret = read_xattrs_from_file(inode->sbi, inode->i_srcpath,
+-				    inode->i_mode, ixattrs);
++				    inode->i_mode, inode);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -720,13 +729,10 @@ int erofs_read_xattrs_from_disk(struct erofs_inode *inode)
+ 				goto out;
+ 			}
+ 			DBG_BUGON(ret != size);
+-		} else if (S_ISDIR(inode->i_mode) &&
+-			   !strcmp(key, OVL_XATTR_ORIGIN)) {
+-			ret = 0;
+-			inode->whiteouts = true;
+-			continue;
+ 		}
+ 
++		if (erofs_test_origin_xattr(key))
++			inode->origin = true;
+ 		ret = erofs_vfs_setxattr(inode, key, value, size);
+ 		free(value);
+ 		if (ret)
+-- 
+2.43.0
+
 
