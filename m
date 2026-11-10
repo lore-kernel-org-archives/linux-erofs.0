@@ -2,51 +2,51 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6090606DA03
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:20:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB101607FB5D
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 09:20:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kTLpHzIi
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XaFZlFw/
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1L32f2Cz3cWy;
-	Tue, 10 Nov 2026 20:18:51 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302331;
-	cv=none; b=PBc0yUBFk5I0zGb7agCDf0TCBI+nUUBw5SypBCUAFmyLfgqm0hOJTrvOM25jY9ZxKtLhu5AlytXYfs3C2s/g4Q1PstrXzhTwPD/wmBUNdVAP1BROo8TgrXSeb9rIwqWfOfHVDhdpwXHCbkGjd8Pph7Jbun9dWvwH6J4tQVDvYL2RizJYhMP2y873jXYlyA7QebDYKLck4pvIZtxGgGvhUsacQ50/q7UxTUUk+kUd33tJ6h2zF2tlIeRSxBEm3tUz60RpbhmeBsMfLnhLTU2/9lJ/OMUFQPQAXVfCJ/o+1whRuQT43IHT9s1EVm/6kGCCSpkzHPY9K/wxKcRPl2Otpw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jP1LB1N59z3cZV;
+	Tue, 10 Nov 2026 20:18:58 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794302338;
+	cv=none; b=AvTANxmmbEwu1tmEe1U9fiDaGE23kIepzAQPwcqhLRMd5pftrgw0pAyDuPMvRnE+ejhJQzPnNzcbqgkYb5emzsDxTf5WUC/inhkQea2V9R8HtzRW8sq9ndM8RpE7edwfJVwWaVRv0YnrXKuvW25NiscDpT7aXgJfgHrjbBp9frZijGsZZzRJy2rlpxMhtp/QlsbwD/wrQ4tcdSjfJU7bplo8a3l+bsCQTFQjJvo6Ujki6vY7m3VEB8u3zGlfeN2BS/5kjswQxjPa3//BgVKHEUjmOecXaVv7yXUrLqlN9ba332xIie41XtEQ4ag2tSu7HHSAEuvSSc4DhqGNo+nqWw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794302331; c=relaxed/relaxed;
-	bh=gl42dR2sxHaP3ITJS3b/B04ib5WpCUL9VRtP4KLsRoM=;
+	t=1794302338; c=relaxed/relaxed;
+	bh=3vbBpJ70QQUgTHc+9S4BdJlbLsLxsrAejDAnX1SbNic=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=V+Ispj60nx2Qy7Lq87chBfiAFILbHs+JdgICS5VYEa/Hd4CIgl6wCxwrj2z5H1kcfkTdb4Nv3KCHxQX17m6WdmS2vZftiGkWIJA3E9oF+ZJQDbgirY6ut7x7hTAbWuPN9UGjItIRTajDyGJNIo5smhZ4A6Uvjw99a+lnRnLzliFkgSySM2crAvv1z3oSJOEeT2Fy/lNSHXZ70/itzvjpNsC1IpZ9J2AjLVEwkJgDb5ORKeLKeDNWPQzy1yIQmhKocV17NF1uUajydM7g/TJ+1+HfyvczB/4kU8i398XriLOwEt7+HF7f8Ds85CngNBwaBTYoZ8Kf/OHePxbT2Sc5CA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kTLpHzIi; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=iUdIibDB2ozpzg9XTejUBZtul5VFSH3F9+rzCg6U1CTvR7CW5b6Udi4Wqt8cAFZl2/csRp1/9yqVodLyKwEKJdWdGpvpp6pdluYZG2eJGM4XmrBEArkZP8K02iMvGLnoT1DuYjCakjUSjCqKYGGCkwaGB5fIcEowDFBmvl7xc/gdxeLq8E1Edy4Ffi8vO3sPo0Q/A0iQwXTk5F+rzfDqWZXpgAQD/T6KTNlvZtOfGrYMn+AAER4I5hm6JgsA8rzen31NS1R0z4+6qdJ8jnJRvmNFNfLwr5bD/IQxAGnrloxfqZaJOt7D4yC3byP276UtHy4DW7Shgx6S4K5HeL3FUQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XaFZlFw/; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kTLpHzIi;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XaFZlFw/;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1L25gM3z30Wd;
-	Tue, 10 Nov 2026 20:18:50 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jP1L945xQz3cZQ;
+	Tue, 10 Nov 2026 20:18:57 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id DAF6063808;
+	by tor.source.kernel.org (Postfix) with ESMTP id ABE826380F;
+	Tue, 10 Nov 2026 09:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4BE1F0089F;
 	Tue, 10 Nov 2026 09:18:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44CC51F008A1;
-	Tue, 10 Nov 2026 09:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794302328;
-	bh=gl42dR2sxHaP3ITJS3b/B04ib5WpCUL9VRtP4KLsRoM=;
+	s=k20260515; t=1794302335;
+	bh=3vbBpJ70QQUgTHc+9S4BdJlbLsLxsrAejDAnX1SbNic=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=kTLpHzIiEoHD/GMs6J5o0BY79JvOwuUY76u4r4LtuPpprEn+sEXP1gtvybcHlSLtT
-	 CmJYU8iAHI/ofaZXWihJ5XxShjsnWfKREnaREBGEhVpJuVA8UxIujLE4opfHxMa4l2
-	 4bvvQUPUjvQ2EsFdGM14Zv2VXWcqMXokoHGLWd7/ZTwsxC4J9iKJbm5nnnjuBRICkU
-	 3Q/oQzewdcDhdx+fyfkGitRE0raCCijhxDU/xYg/eIt2ZjWUYaKm5ljV/gc4aZMDUG
-	 Xo7ddzkxLrqw+Yw44oZ3PVfS7jJUGpuyM3cYrfutFlXsGLkg0INiBaZLGiYPLlJfeW
-	 ZQQCq/yJeXwMA==
+	b=XaFZlFw/DdnrRtOVsZEGp6QUGtmIPGuUZ+N4Hdx0OM0hwO0dbNjERxcTuZMYTcqjH
+	 niXGeBr0dTqT4XuSBUJ4fHJ8LPa5mQ0gDOgO3p3iTEzXRwE29SgFUYzxoeoORUG48o
+	 4DJ6Rk3Cvuwko+rTIDQL/lX2vrxaez+zErrVL/jJfRbWQLh2oJpIux07YdOMODEWT1
+	 AOcuJ+CDnO6LeM9EEmN9aS0LHpgFim9TfKS15MTiXRxDbWwt1Q2uZLl1zL9z5geSoA
+	 YWA/+bXNEPPKIhhzJ78YCVVL+ahtQQQJ2oXlHwFAREVtyR2al+Mwd8OYF0Lie832Vc
+	 YrFaKf6APBZQQ==
 From: Christian Brauner <brauner@kernel.org>
-Date: Tue, 10 Nov 2026 10:14:41 +0100
-Subject: [PATCH RFC 25/41] pstore: use fc_init_pseudo()
+Date: Tue, 10 Nov 2026 10:14:42 +0100
+Subject: [PATCH RFC 26/41] xenfs: use fc_init_pseudo()
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,7 +60,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261110-work-loop-pseudo-v1-25-4c998976c6c7@kernel.org>
+Message-Id: <20261110-work-loop-pseudo-v1-26-4c998976c6c7@kernel.org>
 References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 In-Reply-To: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -81,12 +81,12 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=882; i=brauner@kernel.org;
- h=from:subject:message-id; bh=JyexvfbQ5pzTQXeLd6YfvhDNydDQY3kHD9zcB9wbg2k=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erAx2J15TcWtFdu9W+eIHjgye9faLyYyW74GeK1Uu
- /LQcab9to5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJ9Nxl+M0aJKtZkDT715G8
- vUqnmxUTdvZHiW417mNNuXFzkjPT9FuMDEfPTDuhOseiqbXY1vy/93S+RZWzPGUXneAoPhv++bH
- pOWYA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1017; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=xO/6EKTyizodOr3jpQQP+lr/++u9/c+Tcs9J04rmnys=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWR9erBpDZsiO/PvrRUOZYzHr09ZKmN5JzQjsOPDecc1T
+ gv0mD6s6ihlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZjIvSqG/3GRPk4+yw9m6Lz9
+ kr3Yn+deca/qnJO3fHSPGiyKaKxs38HwV3xiCl/tWo1fM/4fmOj0yLklovHKITOdd0+MZx7UWyL
+ 0lg8A
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -97,35 +97,38 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Initialize pstore as a pseudo filesystem. This raises SB_I_PSEUDO and
-also SB_I_NOEXEC and SB_I_NODEV. pstore never holds executables or
+Initialize xenfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+also SB_I_NOEXEC and SB_I_NODEV. xenfs never holds executables or
 device nodes.
+
+SB_I_NOEXEC also refuses PROT_EXEC mappings. xenfs maps the xenstore
+page and guest memory through privcmd, both data.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/pstore/inode.c | 2 ++
+ drivers/xen/xenfs/super.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/fs/pstore/inode.c b/fs/pstore/inode.c
-index cf499ba72702..4658561cf90b 100644
---- a/fs/pstore/inode.c
-+++ b/fs/pstore/inode.c
-@@ -18,6 +18,7 @@
- #include <linux/ramfs.h>
- #include <linux/fs_parser.h>
+diff --git a/drivers/xen/xenfs/super.c b/drivers/xen/xenfs/super.c
+index 37ea7c5c0346..aba7d038ed73 100644
+--- a/drivers/xen/xenfs/super.c
++++ b/drivers/xen/xenfs/super.c
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/fs.h>
  #include <linux/fs_context.h>
 +#include <linux/pseudo_fs.h>
- #include <linux/sched.h>
  #include <linux/magic.h>
- #include <linux/pstore.h>
-@@ -491,6 +492,7 @@ static int pstore_init_fs_context(struct fs_context *fc)
- 	ctx->kmsg_bytes = kmsg_bytes;
  
- 	fc->fs_private = ctx;
+ #include <xen/xen.h>
+@@ -80,6 +81,7 @@ static const struct fs_context_operations xenfs_context_ops = {
+ 
+ static int xenfs_init_fs_context(struct fs_context *fc)
+ {
 +	fc_init_pseudo(fc);
- 	fc->ops = &pstore_context_ops;
- 
+ 	fc->ops = &xenfs_context_ops;
  	return 0;
+ }
 
 -- 
 2.53.0
