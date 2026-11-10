@@ -1,43 +1,46 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3C04606A96E
-	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 07:48:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96518606A32A
+	for <linux-erofs@archiver.kernel.org>; Tue, 10 Nov 2026 07:48:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO
+	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=NeUC5vhe
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jNzL039k9z2yKn;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jNzL02DYDz2yDD;
 	Tue, 10 Nov 2026 18:48:40 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=156.224.81.211
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=103.209.128.12
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794296920;
-	cv=none; b=gK1EpufYCi9PGCNjROH5UhCpgGV/5Y63nymlA5ziCFMhjqYEgPyVFvKLV48BZqr1Ru4ziT8Hpaaw+6JL/JG7uyv4D/JdMJYMXqmKaD3y1YSz/zDRKna/aVRfXmXPCma22eO4DB7Oy+PdngFkssCgAcKty27oCUgn+ZG9O+yy7LSqUlhsinn0egLJOLdmN/1gPbZS2ymc8C2BrrSJ3TcuaVwFFfI+5dP5bWFZ9mfhXoAoacqXxDQg2cOM1W1QJAEzveZsSxYerhGrcweS/lyE2Y0Ru0vY3ZAmjC9GVuTP6QPwgSA7RA+bePV2jhUgURe4qXhUVAohthhO1XBSENPBmg==
+	cv=none; b=UpIpCgFo8SCNAYmXfWAQEHPRvzHo5Lv5hikzvSF/V/KL6I18XlhIV1UGKbmlFaiAPLIwX8iSgTQOaT67yQHFYAw8hGXjPORd6joBNL6XSgD2dkG7XK35yIm4mkdWH/kokn00pymlr4HNqbBCvMDCO502oq77iGQUNinWVRPhXDIg9N6Qdh6u8I8NTISk+lAQZYEmoF3rUkH3YKMLpt8cQiIjDKCRFyFaNcGMhd97hvqww7c7wSMCpfSPTVQNmxcEBYZsCQHAC2KJbAA0QtVOGyhlVQ7rZtK8mVv60zYZjlbfkMy4rmU8KRZ9Tv8DGnYVaLX6PtT8iZbcumaeywRjGA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1794296920; c=relaxed/relaxed;
-	bh=vozIMRZRw4OfnTQmm83KF+9bVM74yKlG4ay6P0WN/N8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=ZrAxkm2PSLp6rQM0Y7yUiUEJ4hyd2GaDwftUgriEneFBWBRCqqP/OMRv8/mMZlsjSuwM/goyJrIYF7lbWu/Bds4sR0LKUKyoQPWgfCYVddBnCl1msBMMMgntWKqIWyaGtMt8fHAFnAaYiqHX8wcVGcEsCqwhghIlkd5wZSb74zqCYU8zMZBzMC44Vk/mm4hyxGISXG8mdxAaPNkMcTvPGaOMiYC88r0DJ0OQo5Oq2Nxd53/oaemxaVs9ajJ7a8xoTPD+pXAvPWrjMzrurQDKodYbo24FSdA4iOeMUW867xvh16SNBtJEZdNOzvQbJhD2VXnb9ZbH0DEKx+9Q0DSVgg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO; dkim-atps=neutral; spf=pass (client-ip=156.224.81.211; helo=mail-m81211.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
+	bh=sbFyqcwQLAbw7xvb8gmDxPtUnFsWkRLg6qhy/SS5UmQ=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=geNE/LNYW6lA/C4zubV6J+g69/DyotMEQIYFt+EIDCyPF1a3Xnu8avA/smJ32mw2Oy1aEvYw0rmfmmP1BJiL681htNYZTUbF+ogUuRBGKXKqpiqUCXFeVgwZmmF/n2rSZepZgDSpXOL6AYeCh1B4hILAaFhw1VTokYNG/KervtVxD9b1Zv8n1vL7RHXAe3JZW2LRkME04Qaa4yISRvPAqlty5T0sEbJK/SOJhmbaRdx/qPkjj93OXe0NpeA0Q6wcnaF/03QmWDiIfhUcL+qdV5pkBGNPZc8SURxi7zGFkFr1nOlhylkwBsJJC3DNqyzbwQPgbZcxc0Jza8TrpCZzDw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=NeUC5vhe; dkim-atps=neutral; spf=pass (client-ip=103.209.128.12; helo=mail-m12812.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=d2WkbmvO;
+	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=NeUC5vhe;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=156.224.81.211; helo=mail-m81211.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
-Received: from mail-m81211.xmail.ntesmail.com (mail-m81211.xmail.ntesmail.com [156.224.81.211])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=103.209.128.12; helo=mail-m12812.netease.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
+Received: from mail-m12812.netease.com (mail-m12812.netease.com [103.209.128.12])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jNzKw5SzRz2yCr
-	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Nov 2026 18:48:34 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jNzKw5Q5Tz2xfK
+	for <linux-erofs@lists.ozlabs.org>; Tue, 10 Nov 2026 18:48:33 +1100 (AEDT)
 Received: from localhost.localdomain (unknown [124.243.154.138])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 5421a057c;
-	Tue, 10 Nov 2026 15:48:26 +0800 (GMT+08:00)
+	by smtp.qiye.163.com (Hmail) with ESMTP id 5421a058f;
+	Tue, 10 Nov 2026 15:48:28 +0800 (GMT+08:00)
 From: Wenyuan Xu <sereno.xu@deepseek.com>
 To: xiang@kernel.org,
 	linux-erofs@lists.ozlabs.org
-Subject: [PATCH v2 1/3] erofs-utils: lib: avoid duplicate overlay origin xattrs
-Date: Tue, 10 Nov 2026 07:48:20 +0000
-Message-ID: <20261110074822.292859-1-sereno.xu@deepseek.com>
+Subject: [PATCH v2 2/3] erofs-utils: lib: avoid duplicate overlay opaque xattrs
+Date: Tue, 10 Nov 2026 07:48:21 +0000
+Message-ID: <20261110074822.292859-2-sereno.xu@deepseek.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261110074822.292859-1-sereno.xu@deepseek.com>
+References: <20261110074822.292859-1-sereno.xu@deepseek.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -50,15 +53,15 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0aa1c46dffbc03a3kunmfb1181274ba029
+X-HM-Tid: 0aa1c46e0c9c03a3kunmfb1181274ba059
 X-HM-MType: 1
 X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCGRhOVh5ITkgfTR1CSE1IGlYVFA
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDTEJOVkpMS08ZTExOT0NOQ1YVFA
 	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSU9VSU9IVUpOT1VKSENZV1kWGg8SFR0UWUFZT0tIVU
-	pLSUJDQkpVSktLVUtZBg++
+	pLSUJDQ0xVSktLVUtZBg++
 DKIM-Signature: a=rsa-sha256;
-	b=d2WkbmvOHse84X3eP1JbIaMisxUZftm4cBj1eX0j09SlLDUHbXQwPcCYaclpGOCFaFfxttq+PY8uuXlbbm5NJb4BsEz6qYIGuyuxjbRctM6Dmo4HpK4dHALmmg0Ne+GHqgOIP2lS9ajF64xZxeHcBXFrbyHhbVKqkoObZIcqoHs=; s=default; c=relaxed/relaxed; d=deepseek.com; v=1;
-	bh=vozIMRZRw4OfnTQmm83KF+9bVM74yKlG4ay6P0WN/N8=;
+	b=NeUC5vheDYFMpCJypnYckSWt57p7qDSZTbZqb0KM5xQNNAzhM7wM2ZxDswy/5A54MUo23skXX1XgUfC8aXCfW4OuHe3QMuF5xZZYOf48OJ6icysXcG/4nSPMAyzBJTFJgbZJevvG+7AZZlMnEyVObovK8NibLtSEjZOg26Qz+tM=; s=default; c=relaxed/relaxed; d=deepseek.com; v=1;
+	bh=sbFyqcwQLAbw7xvb8gmDxPtUnFsWkRLg6qhy/SS5UmQ=;
 	h=date:mime-version:subject:message-id:from;
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
@@ -67,170 +70,95 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Empty origin xattrs were introduced to mark directories produced by
-offline layer merging that retain whiteouts for use with additional
-lower layers. This keeps OverlayFS from exposing whiteouts when such a
-directory has no matching lower directory and would otherwise be
-iterated directly [1].
+Importing a TAR archive that contains both a trusted.overlay.opaque
+PAX attribute and a .wh..wh..opq entry for the same directory can
+produce duplicate opaque xattrs, regardless of their order. Repeated
+.wh..wh..opq entries can also trigger this problem.
 
-If a whiteout's parent directory already has a trusted.overlay.origin
-xattr, image construction can append another origin xattr with an empty
-value. This produces duplicate attributes with the same name. When the
-original value is nonempty, the empty attribute can hide it when reading
-the resulting image.
-
-[1] https://lore.kernel.org/all/6a43ee5c-cc25-ff9f-1198-7c2b445d3775@linux.alibaba.com/
-
-Fixes: 1d9a3368e254 ("erofs-utils: lib: set OVL_XATTR_ORIGIN for directories with whiteouts")
+Fixes: 95d315fd7958 ("erofs-utils: introduce tarerofs")
 Assisted-by: LLM
 Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
 ---
-v1: https://lore.kernel.org/all/20261107042703.3392000-1-sereno.xu@deepseek.com/
----
- include/erofs/internal.h |  1 +
- include/erofs/xattr.h    |  1 +
- lib/inode.c              |  7 +++++--
- lib/tar.c                |  2 ++
- lib/xattr.c              | 30 ++++++++++++++++++------------
- 5 files changed, 27 insertions(+), 14 deletions(-)
+ include/erofs/xattr.h |  1 +
+ lib/tar.c             |  6 +++++-
+ lib/xattr.c           | 11 +++++++++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/include/erofs/internal.h b/include/erofs/internal.h
-index 19e38fb..87c7b9a 100644
---- a/include/erofs/internal.h
-+++ b/include/erofs/internal.h
-@@ -269,6 +269,7 @@ struct erofs_inode {
- 	char idata_type;
- 	bool lazy_tailblock;
- 	bool opaque;
-+	bool origin;		/* with an origin xattr */
- 	/* OVL: non-merge dir that may contain whiteout entries */
- 	bool whiteouts;
- 	bool dot_omitted;
 diff --git a/include/erofs/xattr.h b/include/erofs/xattr.h
-index d12c292..a729b98 100644
+index a729b98..3ef1a25 100644
 --- a/include/erofs/xattr.h
 +++ b/include/erofs/xattr.h
-@@ -48,6 +48,7 @@ int erofs_vfs_setxattr(struct erofs_inode *inode, const char *name,
+@@ -45,6 +45,7 @@ int erofs_setxattr(struct erofs_inode *inode, int index, const char *name,
+ 		   const void *value, size_t size);
+ int erofs_vfs_setxattr(struct erofs_inode *inode, const char *name,
+ 		       const void *value, size_t size);
++bool erofs_test_opaque_xattr(const char *name);
  int erofs_set_opaque_xattr(struct erofs_inode *inode);
  void erofs_clear_opaque_xattr(struct erofs_inode *inode);
  bool erofs_get_opaque_from_disk(struct erofs_inode *inode);
-+bool erofs_test_origin_xattr(const char *name);
- int erofs_set_origin_xattr(struct erofs_inode *inode);
- int erofs_read_xattrs_from_disk(struct erofs_inode *inode);
- 
-diff --git a/lib/inode.c b/lib/inode.c
-index da29b5a..d0ab536 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -2134,8 +2134,11 @@ static int erofs_mkfs_handle_inode(const struct erofs_mkfs_btctx *ctx,
- 	/* strip all unnecessary overlayfs xattrs when ovlfs_strip is enabled */
- 	if (params->ovlfs_strip)
- 		erofs_clear_opaque_xattr(inode);
--	else if (inode->whiteouts)
--		erofs_set_origin_xattr(inode);
-+	else if (inode->whiteouts) {
-+		ret = erofs_set_origin_xattr(inode);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	if (!S_ISDIR(inode->i_mode)) {
- 		ret = erofs_mkfs_begin_nondirectory(ctx, inode);
 diff --git a/lib/tar.c b/lib/tar.c
-index 83b3115..14b2225 100644
+index 14b2225..899e82c 100644
 --- a/lib/tar.c
 +++ b/lib/tar.c
-@@ -418,6 +418,8 @@ int tarerofs_apply_xattrs(struct erofs_inode *inode, struct list_head *xattrs)
+@@ -418,8 +418,13 @@ int tarerofs_apply_xattrs(struct erofs_inode *inode, struct list_head *xattrs)
  		item->kv[item->namelen] = '\0';
  		erofs_dbg("Recording xattr(%s)=\"%.*s\" (of %u bytes) to file %s",
  			  item->kv, vsz, v, vsz, inode->i_srcpath);
-+		if (erofs_test_origin_xattr(item->kv))
-+			inode->origin = true;
++		/* a .wh..wh..opq preceds trusted.overlay.opaque xattr  */
++		if (inode->opaque && erofs_test_opaque_xattr(item->kv))
++			continue;
+ 		if (erofs_test_origin_xattr(item->kv))
+ 			inode->origin = true;
++		if (erofs_test_opaque_xattr(item->kv))
++			inode->opaque |= S_ISDIR(inode->i_mode);
  		ret = erofs_vfs_setxattr(inode, item->kv, v, vsz);
  		if (ret == -ENODATA)
  			erofs_err("Failed to set xattr(%s)=%.*s to file %s",
+@@ -1082,7 +1087,6 @@ out_eot:
+ 		 * needed if the tar tree is used soon, thus we have no chance
+ 		 * to generate it from xattrs.  No impact to mergefs.
+ 		 */
+-		d->inode->opaque = true;
+ 		ret = erofs_set_opaque_xattr(d->inode);
+ 		goto out;
+ 	} else if (th->typeflag == '1') {	/* hard link cases */
 diff --git a/lib/xattr.c b/lib/xattr.c
-index d86d94a..4097298 100644
+index 4097298..78e2830 100644
 --- a/lib/xattr.c
 +++ b/lib/xattr.c
-@@ -451,7 +451,7 @@ static bool erofs_is_skipped_xattr(const char *key)
- }
- 
- static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
--				 mode_t mode, struct list_head *ixattrs)
-+				 mode_t mode, struct erofs_inode *inode)
- {
- 	ssize_t kllen = erofs_sys_llistxattr(path, NULL, 0);
- 	char *keylst, *key, *klend;
-@@ -506,8 +506,10 @@ static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
- 			goto err;
- 		}
- 
--		if (ixattrs) {
--			ret = erofs_inode_xattr_add(ixattrs, item);
-+		if (inode) {
-+			if (erofs_test_origin_xattr(key))
-+				inode->origin = true;
-+			ret = erofs_inode_xattr_add(&inode->i_xattrs, item);
+@@ -509,6 +509,8 @@ static int read_xattrs_from_file(struct erofs_sb_info *sbi, const char *path,
+ 		if (inode) {
+ 			if (erofs_test_origin_xattr(key))
+ 				inode->origin = true;
++			if (erofs_test_opaque_xattr(key))
++				inode->opaque |= S_ISDIR(inode->i_mode);
+ 			ret = erofs_inode_xattr_add(&inode->i_xattrs, item);
  			if (ret < 0)
  				goto err;
- 		}
-@@ -519,8 +521,8 @@ out:
- 	item = erofs_get_selabel_xattr(sbi, path, mode);
- 	if (IS_ERR(item))
- 		return PTR_ERR(item);
--	if (item && ixattrs)
--		ret = erofs_inode_xattr_add(ixattrs, item);
-+	if (item && inode)
-+		ret = erofs_inode_xattr_add(&inode->i_xattrs, item);
- 	return ret;
- 
- err:
-@@ -607,8 +609,16 @@ bool erofs_get_opaque_from_disk(struct erofs_inode *inode)
- 	return (erofs_getxattr(inode, OVL_XATTR_OPAQUE, NULL, 0) >= 0);
+@@ -594,14 +596,23 @@ static void erofs_removexattr(struct erofs_inode *inode, const char *key)
+ 	}
  }
  
-+bool erofs_test_origin_xattr(const char *name)
++bool erofs_test_opaque_xattr(const char *name)
 +{
-+	return !strcmp(name, OVL_XATTR_ORIGIN);
++	return !strcmp(name, OVL_XATTR_OPAQUE);
 +}
 +
- int erofs_set_origin_xattr(struct erofs_inode *inode)
+ int erofs_set_opaque_xattr(struct erofs_inode *inode)
  {
-+	if (inode->origin)
++	if (inode->opaque)
 +		return 0;
-+	inode->origin = true;
- 	return erofs_vfs_setxattr(inode, OVL_XATTR_ORIGIN, NULL, 0);
++	inode->opaque = true;
+ 	return erofs_vfs_setxattr(inode, OVL_XATTR_OPAQUE, "y", 1);
  }
  
-@@ -658,10 +668,9 @@ static int erofs_droid_xattr_set_caps(struct erofs_inode *inode)
- int erofs_scan_file_xattrs(struct erofs_inode *inode)
+ void erofs_clear_opaque_xattr(struct erofs_inode *inode)
  {
- 	int ret;
--	struct list_head *ixattrs = &inode->i_xattrs;
+ 	erofs_removexattr(inode, OVL_XATTR_OPAQUE);
++	inode->opaque = false;
+ }
  
- 	ret = read_xattrs_from_file(inode->sbi, inode->i_srcpath,
--				    inode->i_mode, ixattrs);
-+				    inode->i_mode, inode);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -720,13 +729,10 @@ int erofs_read_xattrs_from_disk(struct erofs_inode *inode)
- 				goto out;
- 			}
- 			DBG_BUGON(ret != size);
--		} else if (S_ISDIR(inode->i_mode) &&
--			   !strcmp(key, OVL_XATTR_ORIGIN)) {
--			ret = 0;
--			inode->whiteouts = true;
--			continue;
- 		}
- 
-+		if (erofs_test_origin_xattr(key))
-+			inode->origin = true;
- 		ret = erofs_vfs_setxattr(inode, key, value, size);
- 		free(value);
- 		if (ret)
+ bool erofs_get_opaque_from_disk(struct erofs_inode *inode)
 -- 
 2.43.0
 
