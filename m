@@ -2,30 +2,30 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 477C060A2612
-	for <linux-erofs@archiver.kernel.org>; Wed, 11 Nov 2026 15:04:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD2FB606A337
+	for <linux-erofs@archiver.kernel.org>; Wed, 11 Nov 2026 15:05:09 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jPmyv6wS0z3bSw;
-	Thu, 12 Nov 2026 02:04:55 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jPmz83g5Bz3bbf;
+	Thu, 12 Nov 2026 02:05:08 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=213.95.11.211
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794409495;
-	cv=none; b=PfhRlgqeZO7Lq/W9E5nZcueMjtLf52BcB9tLqiLFzrqFaAfnf9+5rnLLVLmGUjyBBS6b5e/4xnqSLzbHq59bFpKNDVJZSwaIFgmjWpfzOlzBB/3cCvWC8HPFaEw8tySugCPXkZUsQwIonwy+QUrqO6cbu/TYJUe8rlZjXN/igBUrTjwDa1tT4cudyNLXiF9cSAOvDeHD17ep61xpEGbAP8EvjMYkNPdofP9wb6vH21lfkCaXD15qJrWOgoWRWL4bYKJjpjTzOfgK0NPD63dyE6vAFoM4PONnKxNicTrY/ValDotCJJ1QZSyD0ix4g2v8yLRzvleyqAooi+qtBhQRng==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794409508;
+	cv=none; b=E6APxikqo9QlG55PLB38X2qd7zDaCKLOa+YY7ML9OzLeemi5O+TIx+XDb54iIjM4DSr8ctsIUvINpQ6JUqxy+26c+vYi9fXunW5LFhw4UJgywdoDjV/Di6vBdvK7PgKmOHCaqnfKydgDiR9EaO57+3XfijcqVSuT92s0VT5nlFfR2nRDaHxcDUtvDcd/CzgzIBXRdRBuOBEh4hk9EiTi+D7/UdxhDQoeYkmeaI1sTWuL8/n3A5yxZqFf1RbSsR6w87vb3D31oy4xqOf8W0qe75o/N3AVNuS1By262d+L8PVrIhsbb7+9kXHkfsL31q6raTjTIGKl1zQzVBGwFcZaMQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794409495; c=relaxed/relaxed;
+	t=1794409508; c=relaxed/relaxed;
 	bh=M7NmYC/Iylm9myghHwqILim55SAUt9QrM+UZYk0eJlw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g4SBo5fILeQOqW9UCX/P60y6moMwBV1zH/0rjgQWcXgMZiwFWOIYb/kQkv7m6zgCXJ7avGwk69wsPC03Ne/wiSOn+Y9qPtG8MNMCBb2t1gacx38BM/DOJoj09MsFjfasQVULXgqBFaZlsfoZkKe2xwWxvZNqOVWTBeNmivS9h2XXLqYAAXrKbpxyP/BGAWJceD73ewc9gAuq0v52g+wQLsGHXGOQ0sfCFAUTAQI8B5ggICk1of3BPu6S3wve8iKJpDDAlL+BWzOBSIpoIHqLx27PeJIpBnG4Qd1nB10KyvqDJVcVfGAUZwAq/IsJhY+Yb8Sp9KWW9PfKws/4R/UxFw==
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vm3Try4/i4rxnanVj8RTQjr/IfGph+hG1Jr0X5xem9Ih4ZXQt/GXbnzXxKshCwqUv2AxL/6Nvr8yZDesKSEzko49e2Q9SJPR3CwY6C5UNDTaN/8+tfAvjGxEAo5jIAaW2sO4JLdEDJQCktCZAJRJuGVQDQTun1LKB7f6E3BXne9mGU3Sxq6z+1Qg3Yd2XvXd2K6H6rv6/gUy7y6d+2+AXwLZiHLhzSE/EYsbU4Gij55whDnbnfL6PdFcBb/73hIeh5oxrdProzOkU3sWMiQ8YBxxghBGWc74J4urkQf9EH5zqaZRXMC9yt2iycnVRv8jmzxX1paXVKr1HnSYfRf7oQ==
 ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de; spf=pass (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org) smtp.mailfrom=lst.de
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=lst.de
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=lst.de (client-ip=213.95.11.211; helo=verein.lst.de; envelope-from=hch@lst.de; receiver=lists.ozlabs.org)
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jPmyv1xbDz3bTj;
-	Thu, 12 Nov 2026 02:04:55 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jPmz75hW9z30WS;
+	Thu, 12 Nov 2026 02:05:07 +1100 (AEDT)
 Received: by verein.lst.de (Postfix, from userid 2407)
-	id A445568D12; Wed, 11 Nov 2026 16:04:50 +0100 (CET)
-Date: Wed, 11 Nov 2026 16:04:49 +0100
+	id F080D68D13; Wed, 11 Nov 2026 16:05:02 +0100 (CET)
+Date: Wed, 11 Nov 2026 16:05:02 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Christian Brauner <brauner@kernel.org>
 Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
@@ -43,9 +43,9 @@ Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>,
 	linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	linux-usb@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
 	linux-erofs@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH RFC 06/41] proc: use fc_init_pseudo()
-Message-ID: <20261111150449.GC10644@lst.de>
-References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org> <20261110-work-loop-pseudo-v1-6-4c998976c6c7@kernel.org>
+Subject: Re: [PATCH RFC 08/41] mqueue: use fc_init_pseudo()
+Message-ID: <20261111150502.GD10644@lst.de>
+References: <20261110-work-loop-pseudo-v1-0-4c998976c6c7@kernel.org> <20261110-work-loop-pseudo-v1-8-4c998976c6c7@kernel.org>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -59,7 +59,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261110-work-loop-pseudo-v1-6-4c998976c6c7@kernel.org>
+In-Reply-To: <20261110-work-loop-pseudo-v1-8-4c998976c6c7@kernel.org>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
