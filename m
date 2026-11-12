@@ -2,82 +2,82 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1FD0606A31C
-	for <linux-erofs@archiver.kernel.org>; Thu, 12 Nov 2026 12:47:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C65DE606A323
+	for <linux-erofs@archiver.kernel.org>; Thu, 12 Nov 2026 12:47:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IZrqVrUZ
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MfeYONuc
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jQKtD08zfz308H;
-	Thu, 12 Nov 2026 23:47:48 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::62b"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794487667;
-	cv=none; b=hQp2ZVfPivXWwLB8mjzz9jbEGGh8cpbvVknUdSv3Bwxdjnl7fw6PBwzEB7VP2pLEkM15qrxmTlZuJm+gK56PqurI4bc6RFe7nd1xDXGJhcAetXbK+myLtgozn0410NwC+k40ZGZNJPhKsdZK8aBLdxt5nYerjrZdNpTDs3A5K8jDzw8aG7QCJ/WCMWo4HJ44iXA/ewubtulvpPpvuaQQqqVquhlP8lKLRFCItXFAWwJE2yDRvXWSlL+AyeMM/nBFuxQhA5VMJZiAyR4ZsDou/xr1Jge26/WxTupNhtk0VOX0uu5A+r/8Ya3Hz8n5cnE5oTvHnVWUsVS0dbceeSiOzA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jQKtJ3Qnrz30C6;
+	Thu, 12 Nov 2026 23:47:52 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1031"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794487672;
+	cv=none; b=YLkywbcNF8v+ODV3653yWyYsN2yVeOFel4QQa4lheT+xow7hTnObkvfd/Q7n3ukE/NbCslYlOKIWP5cgdt8NHANyhYBAGHXbDQ3ktcfClhyvgSriSvcxQNpwtXwV75BckVZ05STPxVcZSG+l0y3ZPilAyJkr1iN1ECr7d2V3nocPenNdBIaPXnMXdOqYDpv1wO9X60vBtpvQJRSK8wQSUHIZpoKJF6jDHG/B/31B/h/pWtxHKFaUgLMnm9jFifSPbnzv2no57uSXrgHNQ2FxvFONOQNkl01u1nSAZGTpQmQqxvE5M7PgXwuG5/E2tuYLCPwhmf2Uok4WgvXnArBevw==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794487667; c=relaxed/relaxed;
-	bh=Ccf2tA+u0ITNQSGnxfCbG0ulPNf26II2Qmu3vURLPYM=;
+	t=1794487672; c=relaxed/relaxed;
+	bh=s3g6J5Tc4r2n68A+dQuf9qYuUA77cnOiSmvV5T2YQoI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ft7elTHfJviQPfer+sN63aDjm18wzeo1lGTF+T/RoamIya6lMcmyVqTtjV+AWQzHmKa3pxVvruq+FScf2eOh5GbyJ0/OUnyS/CJYj8VMgN9Z2arKrDtXUkAtGFwc1LHVCvN46tOsWcBJX117WBzrYygVBCyLETDInEAeyWmlzlDXHjd6eW/ae6kpSxvljgHu1yYk1HIgGMQWIwVdKw31zIncAML0dOCd3ivDQPSrOnSDoSiSB6wTjloX+aiLw7hcbvq1iqdKn2od0UJb9K1Jgl2XOXZFbnumkGSbAZsnlmaovlhojQAO+jujzPfiSOTsnDs2dMISDE5dKpPLvdGwgA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IZrqVrUZ; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 MIME-Version; b=hxKr0ogk3xtK7mm1oa0MY1LQWt5gNSVGhMClYYTtNMewSL4Op3GKbbs2pxRyIjLbXg9fQU1qhM6k8gVB2Mh6WptAc4tizG5/aU4JVr8lWa0R5soKUeqpY/LFbAw2D0p9RgmKiKx8wR8S/K4xLvkMv8mxuEOQQGvFPkpqb4h2hN0wtVrDh0gUHc0BMl2DwLZUryDwFnhTOiSxHrFuRPQiRfEaXtuq4/SpjRrhjFmYlXOZhQduOfCQhw5v4AxEKIg6+gQ16UvOqe+sm6nMnCkAn49TrdzDXkJr0w4Taf1qekM1qf6czOeK4JSRMct1YIkMeUMb0ejBLzBjf18pvtLfFg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MfeYONuc; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1031; helo=mail-pj1-x1031.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IZrqVrUZ;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MfeYONuc;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::62b; helo=mail-pl1-x62b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::1031; helo=mail-pj1-x1031.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jQKtC348sz2xly
-	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Nov 2026 23:47:47 +1100 (AEDT)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-2e987a2ba0cso24757145ad.3
-        for <linux-erofs@lists.ozlabs.org>; Thu, 12 Nov 2026 04:47:47 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jQKtH4xRbz2xly
+	for <linux-erofs@lists.ozlabs.org>; Thu, 12 Nov 2026 23:47:51 +1100 (AEDT)
+Received: by mail-pj1-x1031.google.com with SMTP id 98e67ed59e1d1-3b0d09df973so3336910a91.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 12 Nov 2026 04:47:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794487665; x=1795092465; darn=lists.ozlabs.org;
+        d=gmail.com; s=20260707; t=1794487669; x=1795092469; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Ccf2tA+u0ITNQSGnxfCbG0ulPNf26II2Qmu3vURLPYM=;
-        b=IZrqVrUZKIbeLstCkLhxxqfUi9pVf+MC3R0CWDItNbRj2nA/aSMsQ1Cc38XcGfzlGU
-         LhMcWRStxVZoPNHhgDSzVdvsCRFIltJOklYWQyU8keGZcCkR45/XT82ilzpYQK51Efc3
-         TYcnD8D50+NeIdTXjhrxrVRXmA0K93QkoW663AeTAQb6tMjCPvAA0ubN0A/RUC/dttV8
-         kDkh/hIOhUsJq3ItlWy7ct20j2JOzjsb0xiFoPVO84FnoQYu3xArgPLVt9lHc/Q6yqNa
-         /CF8yXy4mHU2AJ1BihJQdUYJNniARubIE4tV+jrc8ra3TkAKhrmgzcmFO61VIwllM9Kt
-         aPdg==
+        bh=s3g6J5Tc4r2n68A+dQuf9qYuUA77cnOiSmvV5T2YQoI=;
+        b=MfeYONucddM4lAxQejSFDjQaC6LCPi76p9pnoukv5n/oSTVLpNA7GLo6vpIuK6nT6T
+         rptHxpEQiGahr4n6+yJ7JZOoBtBTE5rRaGVgXAi+qggPsqYkoyYtp8lKToaCl2LCEevh
+         +OSLd+o43VjBVws0J+W/EwOEQHzyQf43qZeICHzYmXn+hqwGl7H6qAxShMwJ8qChqhFt
+         Q8Fxj05kGO6JQQ64Az2fy/XaSWvcakn93Iap/RNX6YLe6xHHUYY+10sJj+Z5rQAObGm9
+         laLS3oR3urrZZOAFlKGIcspzZ5PiYG5XK1eFikEOTVMsRTAPmTHnGH8Z7COPjnnArbYO
+         y2Nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794487665; x=1795092465;
+        d=1e100.net; s=20260707; t=1794487669; x=1795092469;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Ccf2tA+u0ITNQSGnxfCbG0ulPNf26II2Qmu3vURLPYM=;
-        b=0gmb8S4voIG1LhXW8qlVfIKbpeVF1u8TYTL3jcG4xIFgAC+bg0AUYam63AzvMnnW8H
-         ynfHzyBjXhINVyvJ6CZ+RBggtGo94RhuqEK9R3LOVb3We3WqR5wI4AMd+H8G16yFje2I
-         2TYixPT2EyeeHoNx9XlsJ9GxtBphGoa50yZ/RyGoflm0IHBgN5koETE0J1u3CZf9nAu0
-         iw45he4Tm0ouW8OLREav+c+v2H1L03yKEV15c/2NkNoKcNfXahekETKfrUBAVM6suo9D
-         Pl3G/pP3XbryEPHqAvNvWgN1BHa2NoRd4EafAHQUKyeQ5axsPTP1BHpZVf06RvqDrlF8
-         UKPw==
-X-Gm-Message-State: APuU4Z8wc4Uyei/0RMd/odJidE1hh2F/cARdOcXLRb9maQ5x/aoDJ01/
-	y9wIbSfAflsHZE+FKwJrixTydu066ysV5k0iZ3tqZ5tl2WWFpxXmxdV6s8Yja6nXUPw=
-X-Gm-Gg: AYBFou1QlBWPamxJT9VT7/yL4x/gP1z4qObeXisPzyICXTOgPTVbVkj/UjgQkr6ghhP
-	AoZ8tf9DVAjP86KawzPnYwsS5avy89UePzvcSQI6G89V6A2I/xr3sy+DK0g+e/KzJ1rwlV1esmf
-	YB0US8shonhbPVb2IpY1c4kRBFWICGA+DWi+0kAhZ5UImHH/pApfv885ICgDk+3dPngU0pXAbsy
-	OLs3Ib0QKqWFvxFmYith2DL7yMXBG5lnV9+xyfiTRYWky4J0zQkpKzDUVkEx9/OtC6VCr4dq5ZZ
-	BLrrBiWZ8n2Hx6UP6qNk8Kuyx8MLbjeLKmje3084W/SErHZVZ8Md4L/rMxg8+09q8LHlsdhXKqz
-	QzEC4qyQX3pwWLE+02YqFQ5ejSeuVRo2hLYDT3n2oY6wKhElE9T77IhWf9xJWoPHJ3tRG5GJfH8
-	W7UVXVkwssp2RFa9sK77WA3UXA1P+d2e7zU936C8hu6xQWxUDrirupnOi3LcBpzAJds+O1VViE3
-	+tV3SQ2wDgHDgw3IPBnYWFqklHGgZt9Q0YvX5pT2W/zrRi5zxkTQRYkgQiRR3mjamV/8BE/nbrp
-	+Yd/Q59yIshO+XYw1/puKvIDxzBO6t1zR3XSMWItDS1+SMKO
-X-Received: by 2002:a17:902:d483:b0:2e9:3dd2:a8fe with SMTP id d9443c01a7336-2edd76c1e68mr56528045ad.21.1794487665187;
-        Thu, 12 Nov 2026 04:47:45 -0800 (PST)
+        bh=s3g6J5Tc4r2n68A+dQuf9qYuUA77cnOiSmvV5T2YQoI=;
+        b=HrYnxU+b1Y0xa0+cv4PSz51Zq2WcHzcKQVEzYvEtI6ApHf2aaUufA4WmrcHhgPL3WQ
+         dAEZ5QLTjil2SDF42rjz7MWU+cwFiA1d0b5GdeR/zeWQNSgL1GhY2EaoEBdC6OlQWXLt
+         5JzSB/19pHrer/e4rkXPxOMWN5Pd3wVvvIwdYYYhyNhsfwSmX04SK5+tMn0Z889JmmOO
+         ntz8lYN8/TIfIAyDo97N6zoUDQk2Fpsag4vtbw7BuS1p5RlasgcP6kkfr7YeVzYmbP81
+         zsV5pPNpVHd+XyXzq2CmlFgSg++JsaRg0DRus04bUtxg0E4zcQBWfesnf2wicxFjpPmo
+         4QXQ==
+X-Gm-Message-State: APuU4Z/DUinK2u0IUeKMYGYo7cqeTlnKn39FB0CCXh/y8cmgxUBFvU0T
+	JyhXMSnw8FS/jugAPkor5CK1ycLXW/7UPVYja0ZDXEB646zIPeztnH/QyGWfqXYcIgc=
+X-Gm-Gg: AYBFou1NfngKQeijCRqovvPw1BlwvNuzl/ZZJg21A3UqlMtZnf1gWnZiLkBZkd8qmPo
+	fxPUtGUMV+mWWSDrPwukH9oiyP2k2AdzurSl9IvSB3KnG8vZiLGshjFMA74IBWSvkNWM2aw9WZ0
+	isVPwomdsFewksK6dmJguR2skZgZuvn8mxFSbWh8dcAYctJmiNt2uiqB8+MKUvmsRHQDwaQLw1i
+	uPlDx2ZFYAAGiiF80PY3ZOSK3YIM2zy/fC0tV1SxnFTy76VLNgjpaNlplnMlpmV53Zz801uxbZe
+	5mZY8zHWTjSc3B4ZLDmZq+gFmarATNCX/gFUR/x3ABwBqeuJ8TzQTsJ8YFLZlLtAhiQuoFP1TRQ
+	+CFwu17uNXrbzRD+2pKW8TEISbQkeFmtMcCgx+wFKJ9zvtXLDWP9xUESfpHmvQHnLLqKEpL8Ngj
+	mn99aCGA3lqL+oP/QzBc46gRl8xcJlwE1bm0sYl5uG6eYOaqdKfoGT/STP4MIvAnBUa2OhgWokS
+	FDdTachlLracsEH/0kgqPjcyMT5Bamhgjria6iAqrBSR6b7a1eiovhCDRnZMUrct+bpiTwssypz
+	hYOmw4caFlA9gQDbStA5ywAlUbeEkyQJ1le3sQucqy8S8MeQ
+X-Received: by 2002:a17:90b:2cc3:b0:3ab:188b:c5b1 with SMTP id 98e67ed59e1d1-3b182f192fdmr5927539a91.56.1794487669425;
+        Thu, 12 Nov 2026 04:47:49 -0800 (PST)
 Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.56])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2edb6dd2225sm34189905ad.56.2026.11.12.04.47.43
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2edb6dd2225sm34189905ad.56.2026.11.12.04.47.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Nov 2026 04:47:44 -0800 (PST)
+        Thu, 12 Nov 2026 04:47:49 -0800 (PST)
 From: Yifan Zhao <stopire@gmail.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH 3/8] erofs-utils: tar: fix out-of-bounds access when trimming PAX paths
-Date: Thu, 12 Nov 2026 20:47:20 +0800
-Message-ID: <20261112124725.2774244-4-stopire@gmail.com>
+Subject: [PATCH 4/8] erofs-utils: lib: fix buffer leaks in error paths
+Date: Thu, 12 Nov 2026 20:47:21 +0800
+Message-ID: <20261112124725.2774244-5-stopire@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261112124725.2774244-1-stopire@gmail.com>
 References: <20261112124725.2774244-1-stopire@gmail.com>
@@ -101,37 +101,55 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-An embedded NUL in a PAX path makes strdup() allocate less space than
-the record length used to trim trailing slashes, causing out-of-bounds
-accesses.
+Fragment data is already written before its buffer is shrunk.
+A failed realloc() should leave the original buffer valid, so the
+fragment commit can continue without shrinking it.
 
-Use strlen() for the trim length and handle strdup() failures.
+Also fix an inline data buffer leak when loading compressed metadata
+fails during rebuild.
 
+Fixes: 84bae6acdbee ("erofs-utils: lib: keep full data until the fragment is committed")
+Fixes: 1c230a485f25 ("erofs-utils: mkfs: support rebuild mode for compressed inodes")
 Assisted-by: Codex:gpt-6-astra
 Assisted-by: Claude Code:deepseek-v4.1-flash-1017
 Signed-off-by: Yifan Zhao <stopire@gmail.com>
 ---
- lib/tar.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ lib/compress.c  | 2 ++
+ lib/fragments.c | 8 ++------
+ 2 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/lib/tar.c b/lib/tar.c
-index f5034da..bab855f 100644
---- a/lib/tar.c
-+++ b/lib/tar.c
-@@ -527,8 +527,12 @@ int tarerofs_parse_pax_header(struct erofs_iostream *ios,
- 					eh->path = NULL;
- 					continue;
- 				}
--				j = p - 1 - value;
- 				eh->path = strdup(value);
-+				if (!eh->path) {
-+					ret = -ENOMEM;
-+					goto out;
-+				}
-+				j = strlen(eh->path);
- 				while (j && eh->path[j - 1] == '/')
- 					eh->path[--j] = '\0';
- 			} else if (!strncmp(kv, "linkpath=",
+diff --git a/lib/compress.c b/lib/compress.c
+index e1cfc05..b5f75ca 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -2607,6 +2607,8 @@ int z_erofs_rebuild_load_metadata(struct erofs_sb_info *dst_sbi,
+ err_free_ei:
+ 	free(ei);
+ err_out:
++	free(inode->idata);
++	inode->idata = NULL;
+ 	list_for_each_entry_safe(ei, n, &extents, list) {
+ 		list_del(&ei->list);
+ 		free(ei);
+diff --git a/lib/fragments.c b/lib/fragments.c
+index d4e79b2..3398888 100644
+--- a/lib/fragments.c
++++ b/lib/fragments.c
+@@ -366,12 +366,8 @@ int erofs_fragment_commit(struct erofs_inode *inode, u32 tofh)
+ 		memmove(fi->data, fi->data + fi->length - sz, sz);
+ 
+ 		nb = realloc(fi->data, sz);
+-		if (!nb) {
+-			erofs_up_write(&bk->lock);
+-			fi->data = NULL;
+-			return -ENOMEM;
+-		}
+-		fi->data = nb;
++		if (nb)
++			fi->data = nb;
+ 		fi->pos = (erofs_off_t)offset;
+ 		erofs_up_write(&bk->lock);
+ 		inode->fragmentoff = fi->pos - len;
 -- 
 2.56.0
 
