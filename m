@@ -2,51 +2,51 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8016074964
-	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:09:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 214966075C4C
+	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:09:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ISqS1X59
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RP6bdqxg
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZDB5lT0z3cPx;
-	Sun, 15 Nov 2026 00:07:38 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661658;
-	cv=none; b=OW+hfrxMwEDucAWKLRGRVVSq1umUkebZQGw9K1rBXRaIGnSugi3+CH4v3lMp2iw5CgAAT7mhg3Zey8+25hEqgUl2fmhesS9G/9RCiR/lPv/QyI4EoTCFnvsmkWllShv6kKXAGPxcoy0KvcP5/8kCgFzAIWIRCYXWqFWzjykR/7V8PGg8VtYZ5mtOw4o9f3iYwtSJ456Izw8RPzIjezFkc+mdYwQVFrSL+Hqgf2NiCSV6/Gc5Q75Jt9Vd1I28Mx7FHv0MjVl3DidaTxTizYHz04c1TcWg+wEcfzVZRKaYPAxQBgwJOUe7loF0gofM9ZE9dfdauWEhSL7pTVM7Zgvd5A==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZDL5MH7z3cSk;
+	Sun, 15 Nov 2026 00:07:46 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661666;
+	cv=none; b=FB6RhJX94QXKMX2UCuGr+vziZy5oqqNcRV5tHrTfrmc41EEwBLiEpTlykSszdeDhNvix0uyio6bTW6Tg+6DUBWJQTsXfmiY7Xf2ZYkJDv6ee0W1yjxP2FbcAIhjZSOUGogozOz7EruECMLKiwieQk29T2rPGQDfUsiakgNqckGJWX9zPEl1i/j+4hhjvdcfMQvoX5DMIlkTv7irnQip02u8+daIo9Q/vzsLoxdgA18azw2V2iyaTHJ+PD6I8lTbG5ijE19+3rNf1RS7NNa3hqRJYZOkENWVGsWcOQyVAKbARLIhhc+UKjGDNO8eykIuXNw1+CeeNb7cggoGq8XhFLA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794661658; c=relaxed/relaxed;
-	bh=++ggQwwawp+5fpIFwG3B4KdeRqD55EsEpWBb7WM/wus=;
+	t=1794661666; c=relaxed/relaxed;
+	bh=PsEZAEo2EWjwlrQyS8FDrkYLrSxc4EoXaQ3VAa3T0to=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=UghXselJJp8X0CkyOa7tBdpAq/P+2PybH/eXlpu9Z4Ir0wWQraafVBedi9KKPo997xxhFQd68RqYrzqKAI0O6H9LtQZYfO99SbcDY96gE4iS77W6mNnOtueMJ2xtaJccNU83YtJYD0QenvP1BvN3k8LjHzMBlQvg6KxIlJ8DyfPN/TR+N7rvsGI07cy+bXvdNrSStPnp+br4uD9DCOQ+yO82MLAIDhR9ytAvFpvVUlsSn+f/Sb92qmpEsGQNzFRChRcJZbRCHnh5CEsTQJcHjtrr5erOSPWMxTLK5xQ3XSAWRNM+yucxLwpj4PkOWt1gOLB/rlE6mMCO2KKYrge2cw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ISqS1X59; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=RVe8jV01f4R2o4Fbep9ntOlJT2wI9mara3tk816vLvFtHbw7WyP+3QfCb/LL+2NWviQ1/rrznyiqtPDfTLm+AIasuzgow8XdjcRuDEkLQ24w2Ga1elOvyc4Ng8ydoBxmFHJPXLE+kfHG4t7PilKcMZ3wsrMqemwFL75HPgwjZd94kM3csMxM4CLlqtC4cfiRx7bfie3wqm36r3PAhjhLfdX1/pds41gF8omBHP1eRff59oXtBKOajoKQhTx+R1tSsQuYXTGh1iVB+HKO+Bd83PFPq+l4N1MOWrppVZwHsg0EWK8aXASNarhIFhBBpV7C/F8zez+Tj+snQAfMUuoAtw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RP6bdqxg; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ISqS1X59;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RP6bdqxg;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZDB22W2z3cPp;
-	Sun, 15 Nov 2026 00:07:38 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZDK6W6cz3cPp;
+	Sun, 15 Nov 2026 00:07:45 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id C2CCE464D4;
+	by tor.source.kernel.org (Postfix) with ESMTP id 0EA3F6272D;
+	Sat, 14 Nov 2026 13:07:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 254A51F000C4;
 	Sat, 14 Nov 2026 13:07:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C6731F000C7;
-	Sat, 14 Nov 2026 13:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794661656;
-	bh=++ggQwwawp+5fpIFwG3B4KdeRqD55EsEpWBb7WM/wus=;
+	s=k20260515; t=1794661663;
+	bh=PsEZAEo2EWjwlrQyS8FDrkYLrSxc4EoXaQ3VAa3T0to=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ISqS1X59OqSfExtxsOiSjr1wpv0Z7FsnoV/unXwmI2iC0oAeE1CZBnUm2rpLbQChY
-	 UlVbIerFORk8Me/5GU683vDPV9tRnmC60uPE2FjWgnWj28UM6HQcw92GM6dJnxpsla
-	 EP0uXvdgCUnVRc67H/T1UGcUcSsgA+crZYnm8xvt2wJzIa3kLO4Fm6nJf9PjOQCsNv
-	 FSz8gs4T9BgUNPq3f8HpnSRTAiJYTu/lTuBvbPvos8+G1tK0oFpzC1YL2EUS2ey9zn
-	 SEWINxYSWGGXxTx69tavZlufHiP8xSylFop7fahaOM11VSh8OruW5Bhgixy7FFv+V+
-	 ODZZedD26ol2g==
+	b=RP6bdqxgYdTOvKQFb6NUJlAnzP0iuFZn14JV3dopj4eOhvt4mal1MYZtl7BQYCoxt
+	 w45XbT2grNM6Qg55/tsCLUdM0CQBOxLR2Kunja7yy54lP9Qfg63cbpj/uCek58LMdr
+	 2g0icThdvpsN4HTsfTKz9VeiMePWjWf1Q1K5NnEjU8lTRxQrEHOb8z5qeiSteKne2v
+	 cZsD/rPxnGg04mAtEBHiWHv5l/XXKkWr1ku1sBIHTZe1CFwHTqP1ghScoLp+fr2OPo
+	 fJrxBzLLgHTvheGhtWCqgnNRz1198UueTs5pHbgLcHIkedb4JvrikevLf2qm5DDpBH
+	 /871dihUSqoKg==
 From: Christian Brauner <brauner@kernel.org>
-Date: Sat, 14 Nov 2026 14:01:58 +0100
-Subject: [PATCH RFC v2 17/42] securityfs: use fc_init_pseudo()
+Date: Sat, 14 Nov 2026 14:01:59 +0100
+Subject: [PATCH RFC v2 18/42] selinux: use fc_init_pseudo() for selinuxfs
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,7 +60,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261114-work-loop-pseudo-v2-17-98639a2286fb@kernel.org>
+Message-Id: <20261114-work-loop-pseudo-v2-18-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 In-Reply-To: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -82,12 +82,12 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  "Christian Brauner (Amutable)" <brauner@kernel.org>, 
  Alexander Mikhalitsyn <alex@amutable.com>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1094; i=brauner@kernel.org;
- h=from:subject:message-id; bh=FF9e/eJ7LhW9MgInOaUNZ5e/JVsIh5RgAJXPuTh0Dg8=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iKnMnrLSQPUw2yXBp68+bj4dIDU/cEGPtJHXzrJlj
- K0vlnZd7ShlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZhIwjxGhufubMVtdsLcrI83
- V3z50Gdhay43R1RMqFp4dcnRaZXmXYwMLWe+THc1O5jMduZaU5272ykVxUsi197p3xOIjl0gESb
- NCAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1689; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=Eg4JynB39S+cJriPMxPoEFKswaAikvmz7VyAKkVX+DM=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iKlyMVy9yP1TKKNxrIjSmW/cGdIrJik/frn0dv3to
+ /8K4+ukO0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACYSMIHhv2uEhSiX6eXHduxb
+ hf4+qrT5tnTptBUl2zO0TXL7X/736WFkWNSWEJ/+ZOJcg73v3vA+s01c+03lUdAuJu+uVeeshCM
+ ymAA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -98,37 +98,51 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Initialize securityfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-also SB_I_NOEXEC and SB_I_NODEV. securityfs never holds executables or
-device nodes.
+Initialize selinuxfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+SB_I_NOEXEC. selinuxfs never holds executables. SB_I_NOEXEC also
+refuses PROT_EXEC mappings but the status and policy files are only
+ever mapped for reading.
 
-AppArmor puts a .null device node into securityfs but only ever opens
-it via dentry_open() which doesn't care about SB_I_NODEV.
+But selinuxfs needs device nodes. The kernel replaces file descriptors
+with /sys/fs/selinux/null on exec via dentry_open() which doesn't care
+about SB_I_NODEV. Android init however opens /sys/fs/selinux/null by
+path as /dev/null doesn't exist yet at that point. So clear SB_I_NODEV
+again in sel_fill_super().
 
 Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- security/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ security/selinux/selinuxfs.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/security/inode.c b/security/inode.c
-index 0804023676741..93997a9f16fcb 100644
---- a/security/inode.c
-+++ b/security/inode.c
-@@ -14,6 +14,7 @@
- #include <linux/kobject.h>
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 310e19efff1d0..d7ae853b6d685 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -18,6 +18,7 @@
+ #include <linux/vmalloc.h>
  #include <linux/fs.h>
  #include <linux/fs_context.h>
 +#include <linux/pseudo_fs.h>
+ #include <linux/hex.h>
  #include <linux/mount.h>
- #include <linux/pagemap.h>
- #include <linux/init.h>
-@@ -64,6 +65,7 @@ static const struct fs_context_operations securityfs_context_ops = {
+ #include <linux/mutex.h>
+@@ -1852,6 +1853,9 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		/* last one */ {"", NULL, 0}
+ 	};
  
- static int securityfs_init_fs_context(struct fs_context *fc)
++	/* Android init opens the null device below by path. */
++	sb->s_iflags &= ~SB_I_NODEV;
++
+ 	ret = selinux_fs_info_create(sb);
+ 	if (ret)
+ 		goto err;
+@@ -1955,6 +1959,7 @@ static const struct fs_context_operations sel_context_ops = {
+ 
+ static int sel_init_fs_context(struct fs_context *fc)
  {
 +	fc_init_pseudo(fc);
- 	fc->ops = &securityfs_context_ops;
+ 	fc->ops = &sel_context_ops;
  	return 0;
  }
 
