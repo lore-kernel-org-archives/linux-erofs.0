@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18803606A32E
-	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:05:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95E6360A6F54
+	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:06:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=efVM9o/h
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RAVzUn3Y
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZB34bWZz30hq;
-	Sun, 15 Nov 2026 00:05:47 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661547;
-	cv=none; b=W2JFbspxkwjMWezVdWDSKAGLL1NocEA4R8SY7b/Z5wwmV7qnNj56UOCeKckDfvdAhXBZjhwiknucSwLkyzua39E6CN/7URmNV64K2jIdMot2j103MMeiiVPe01S2YSKP+TLPlFzcQ2NN/VNs6pZCbmhPe49D2V61oc9jJZiXvUDMtGGmnrKi0Y2nT5EcAGFIk1X4pQhaGvIWuQbQMASN5Rjhh9bFdj0jYrvic/GjnrJNptacqieSrHi+GN3CCUEcA9ym5HcZ0uWqRG9juxgA3sI7YSjjYyS71tc8csKwm7BVwfwxtQO6cUzsittZotaesc51IMBRkdpbXVmw+McdFw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZB961cvz3bfG;
+	Sun, 15 Nov 2026 00:05:53 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661553;
+	cv=none; b=j5ejuCuxfL7oFryxoNlzRL9ZMw7HwOFApLp9lYfOn8j8DbMiDjSSkwBDwMGrVtyoNSLGgMEyLqcCRTZA2wKu0lTT/NbUefBLmvdOSdPZBrHGgDx1w/n0Dq9Q/R38c6gwgeQXTUyIBhaEvyl29BEcucJgeMcDSZZpa3+kzTf7xiKxJdCUiV7eSQIKcLDf5er6xejGiXm3EURvEIPL6MTnbORsm40My87kXmy7RZatpmU9Z7+kbzKEV0jG5iMP8iU+w8I3mtCEBTd/KsRHoUsptktGxUsZ/PBnpK3gAjGfTtejXxqkjXXJ1Ipb9ASK4RbxfG/yRbojUgA7ozOYWRFalg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794661547; c=relaxed/relaxed;
-	bh=UFO9l/21W/p57UQi3nxXvGylhBlGyaXo8dkkR6Kzl3g=;
+	t=1794661553; c=relaxed/relaxed;
+	bh=E39AX+G/jh7TUAATD8FoQ3LTHbJD9uA3ozmx0gOpFaM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nWY1Zf4c9rSEBRbJb2Y3kb3dlmkZdVG53X5aP8L2kJXaJf7bHv15HCEx2u/BDuo0DpJ3Onv+86RtD3dPjl93+p13dZLMKgQ+GWcmT6io2KkQ95dD+wdrMUDJ6KSoOVXywRmzo6IZOeaf7foE2CHPHV4yy7qkRKGOrzPuLUZE9unrQo9FLJIwTsHknDTWVhi8NDiExoO6YS4uh4lnBzCvcNKcs25cV4f1I9hIlkM4mVY7DXdITKez68qNloxLPuwrfqD+ClXn2UKl/CNK4SNe8E3V6VUXSq+HdDJdfmzetx9ivR5u4YMwO2H74awsGgRDlfd9UdR/0klbXPH7mzzx1w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=efVM9o/h; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=d7mnq0Ydh+/rWeavOmu5LS5nmfYW3gToMxWNKyhHpWuvouybiau5h/QYAEGYF1ziWjcLcGCyAIVXlyyjmra0pqXBjzsNlzHIIuN9edeeEsmdFJc0yf2+EBU0yxpECSW/Vaesi90U2oVTCSl4EPVXyTvdTz/KaxY67N1JuMW+kctagN2q7wKCheXfBxiXzYJI7co169JlMQrEa1up6nI/nSeiEiy2saQevI4LxiPxh/XPEso7ugBQs669Qhj7IxL6J9rrggnBS10uc0duxaeUO5PaHhYVQEgqJe23KRj0sT89rvpyr6fRJRq5GhK0Cnwjah4eb5NNT0n7VxmhhxTfcQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RAVzUn3Y; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=efVM9o/h;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RAVzUn3Y;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZB25P8Kz2xjv;
-	Sun, 15 Nov 2026 00:05:46 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZB85rWYz2xjv;
+	Sun, 15 Nov 2026 00:05:52 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 8E79A6234A;
+	by sea.source.kernel.org (Postfix) with ESMTP id 1B31E40C46;
+	Sat, 14 Nov 2026 13:05:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C8A1F000CC;
 	Sat, 14 Nov 2026 13:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1041F000C5;
-	Sat, 14 Nov 2026 13:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794661544;
-	bh=UFO9l/21W/p57UQi3nxXvGylhBlGyaXo8dkkR6Kzl3g=;
+	s=k20260515; t=1794661551;
+	bh=E39AX+G/jh7TUAATD8FoQ3LTHbJD9uA3ozmx0gOpFaM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=efVM9o/ht18LNBayF3D7oOTcXQ+zQCvKSlyCayqwAYKv8bDYhkCN28KsHSlR6cMw8
-	 4vF4PVm13UDKS8+oQ2cZQEBkjysVe3A6Nrl6NtQAxof/K3X7FCHiReyLELP5MDb8hQ
-	 d2gL2CxDePyruIvRh5R3YjiY7iLYLYQu27gg+QG4usERJo01RD8CffYKDn4Arsbfb0
-	 kqmBhVnVPQD8zke3AZtVSBf8thbVIXaf/i5ZGVCckkNQ1RDwJaoqZxxDbFNlrAQ2pS
-	 KE4SKdC5qQmh16hHjDsNJDaG6MSH9S9GaVw+gzEFRuyMQOhbFY55PU1Zxdk60HYVRk
-	 7XRSI9AN43uWw==
+	b=RAVzUn3YihPEfR8QNXiJZ4kO+0Ww2rPP5SABGZnl60hGUL2Z0RR98pxZaO/RoCDhp
+	 vFYwvxbUW2TAi/HXFTMH17UIgslNBpCFe+PegPbRAYGSEPrqXonsLU/7Mi83e0RghI
+	 czwaB96M9lWGq2+Bal8IV3hGZe6UTMGaixjoty54b98sTD+UZ2KloakvmTGKcP2Jtj
+	 qKh6CkT3Y7cwABFcxmNSwVcEj2qVq/VdVxme/wkozCtmB2Ld1vYY0zFO17PwNCJ9q8
+	 9qOOW7IJz3w0BfWgmHzKZBLNseME+eb0Q9TOZs/6zDxRI/611bKgvwwKnGnKZ+bkRy
+	 yOh/Udy9zGjgQ==
 From: Christian Brauner <brauner@kernel.org>
-Date: Sat, 14 Nov 2026 14:01:42 +0100
-Subject: [PATCH RFC v2 01/42] loop: refuse backing files that aren't open
- for reading
+Date: Sat, 14 Nov 2026 14:01:43 +0100
+Subject: [PATCH RFC v2 02/42] nvmet: check that the file backend supports
+ ->{read,write}_iter
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261114-work-loop-pseudo-v2-1-98639a2286fb@kernel.org>
+Message-Id: <20261114-work-loop-pseudo-v2-2-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 In-Reply-To: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -80,15 +80,14 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, stable@vger.kernel.org, 
- Alexander Mikhalitsyn <alex@amutable.com>
+ "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1829; i=brauner@kernel.org;
- h=from:subject:message-id; bh=RNS20EKOa1D5gB/WqkZbolMxn0bhv9TmaIu0BLZLG3o=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iEk7N/1b6Zufav+udO25utxD3izgpkPn8SDLhSpbn
- xXzJ6mEd5SyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEyEfwEjwzfdzxP2LSu3zMqd
- fkThvaV5jphdtEzbnRkiz6M9DdgE2Bn+B03SrPulVrXhk4t5hOLZRXPS3k0t/7U6s9oxvnojx4J
- dXAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1291; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=//ir9fc9dMVqltiEAJAlWV+b7M4aWVaisbvAL6AhlSg=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iMn4JfhIyMuq+MC8pis+ES5tTa9bd7/WXjzJ/vXPK
+ QH3uOszOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACbys5OR4c7lBycqbVyqBPoK
+ F7087SO3W5fzvW6nkVvw5Mw915xkFRn+qe1OU1wTfjyRac5dfqezqXvv/Qotu/+h6FShzocNC3+
+ l8QAA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -99,50 +98,40 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-loop_configure() takes any file as long as it implements ->read_iter().
-Loop itself never checked whether the file was actually opened for
-reading. Buffered I/O went through vfs_iter_read() which refuses files
-without FMODE_READ. Direct I/O has called ->read_iter() of the backing
-file directly ever since loop grew support for it.
+The file backend calls ->read_iter() and ->write_iter() of the backing
+file directly but never checks that they exist. Everything that isn't a
+block device ends up in the file backend. So a namespace pointing to a
+file without them calls a NULL pointer on its first I/O. Only
+buffered_io=1 gets that far as the O_DIRECT open fails for such files.
 
-Since commit f2fed441c69b ("loop: stop using vfs_iter_{read,write} for
-buffered I/O") buffered I/O calls ->read_iter() directly as well. That
-commit was about O_DIRECT handling and the FMODE_READ check went away
-as a side effect.
+Refuse them when the namespace is enabled the same way zloop does since
+commit 0c10f8a1a7ae ("zloop: check that the zone backing file support
+->{read,write}_iter").
 
-So whoever can set up a loop device can read a file it was only allowed
-to open for writing. Open the file O_WRONLY, configure a loop device
-with it and read the contents through the loop device.
-
-Refuse backing files that aren't open for reading. Loop always reads
-from its backing file so a write-only backing file never made sense in
-the first place.
-
-Fixes: bc07c10a3603 ("block: loop: support DIO & AIO")
-Fixes: f2fed441c69b ("loop: stop using vfs_iter_{read,write} for buffered I/O")
-Cc: stable@vger.kernel.org
+Fixes: d5eff33ee6f8 ("nvmet: add simple file backed ns support")
 Reviewed-by: Jan Kara <jack@suse.cz>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/block/loop.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvme/target/io-cmd-file.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index a3325ceab484a..c96e35c3ef423 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -528,6 +528,9 @@ static void loop_assign_backing_file(struct loop_device *lo, struct file *file)
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 695963dd932ee..dfa8aa46188c8 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -47,6 +47,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+ 		return ret;
+ 	}
  
- static int loop_check_backing_file(struct file *file)
- {
-+	if (!(file->f_mode & FMODE_READ))
-+		return -EBADF;
++	if (!ns->file->f_op->read_iter || !ns->file->f_op->write_iter) {
++		ret = -EINVAL;
++		goto err;
++	}
 +
- 	if (!file->f_op->read_iter)
- 		return -EINVAL;
+ 	nvmet_file_ns_revalidate(ns);
  
+ 	/*
 
 -- 
 2.53.0
