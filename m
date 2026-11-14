@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA816606A33E
-	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:12:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07BB606A893
+	for <linux-erofs@archiver.kernel.org>; Sat, 14 Nov 2026 13:12:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hPdnrLSv
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hoFWaj8p
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZGT0vfFz3dXZ;
-	Sun, 15 Nov 2026 00:09:37 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c0a:e001:78e:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661777;
-	cv=none; b=TZ+jHZ0mw2AmvvPFfdLTUwSNotEKY+l8pg30N3ou/ATbqt7TyV71ZqT9vJ17merRKNWSU79Fa2g7gA9LWOJVvUcDWFPFdYkotBLdTAIPwX69iSELwC0vpAqNQde0xqq6aZwtx26Ll3PQjZFU78iBDKWD5faTEm0I7puH2zHUadeztff09v/7lhzLDzcVz3cK+mdZb5QUWvtx42ZeIYRiCUEikxKnQy9s6+nndmUjbW4HcYmnw4mxfxqM5uKibGy7sPQcyEpLZ1J9bqA+46fxokr55xmOXpxXXZXFRC5d6wieIDtHJJMWL3tMcsL84kEwq7DURrogDkhnxzG7qHelVw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jRZGc1jssz3dhY;
+	Sun, 15 Nov 2026 00:09:44 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794661784;
+	cv=none; b=TNERNLD0fFO8xbh8dGDAN7mDJ/fikj7x+TjGauhLbZZRtvlEB8SWGDWIoaXqmMZPTgqGnzAcdxVtd8KIGIoo0Mozu/CxCnT2hyEylSQm2w3SfonI20svnCx/fXyzx7B+RqOl1C3kKBULaovBOhOVjjcBOsZq4ruQOmHYX9t+dBrOVC49asmf3iA969XNAysqX7xd2qWzGdX5oNgoCjmm/Fth1v2vZ/LVUgey33TW1+3WhrQcixCN71utCKZCwfzCPX4jnsgLI0TCcj4Gv8eo+z/oVPEiWgzhCZ50PKt8H7cQ8fRPp78Yo/uJJpRbwE4Ax97cpZdAJMAO9Rj6J4H8Ng==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794661777; c=relaxed/relaxed;
-	bh=VQQiNDOpqfhw0WpEQK13PFU/iv1KFQKHHI1yG9J6CXI=;
+	t=1794661784; c=relaxed/relaxed;
+	bh=NDK6iLGoU71raS2SgqQLHOQWV8qCulebQnSVWkxP4N8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=O/aPVFTcIGonzK0WqGtE0oSl2u0hZEXmE/LGj8hLpEP+hrjxseyhKOTO4h6HauGA/IxhJKhiZOEr5vR5U/xESBIeOij+LjcXUfmESBzkU3VqUvwJXUfvopNmYxBvebrNVM3RiYCMUljqcufKlQsY0iMgrTO+pdhlQ3iFTodGepN8+R40yTcGAjhSalz00ilzjIvLn3HqFJ05fcL8GwnYTSvjL7sUT2trt66soMNbzGi8zSa61UkFf+Hc/ucmJ61QWvy67Wx5Kx9GjD9UsCQj/BHIO4O/knk8IkGXBSxGW7QfuezKOqw6wfm52B0mzOAHuluYbj1PKcGIq+l885ZxXQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hPdnrLSv; dkim-atps=neutral; spf=pass (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=R5dRlIcq2JsHL8mggXpDG034KCFOjYYbdLVsY1vMDsZW/0YQczGiKVPjcFTpSzLgKoJ416XyJIjRbYyZhdK22rgEo64Ao2OPjGjqyK21ue9ScgIVNo27cYfzpxBweXTx9oYBG3/+IwdaJC7ehYdMTLwH8WeQKB34nt6vnDs6JuAW49QSotqamGWMVNYcnAERh1jvUECLwjTnelLgTVkqANrlJxRsTEQes1X5+fqgv45UqonwMmQ1mCjRjWfP4xkSJc/HehRUO3TDFTc7EN0nibl4C6YUOKi/0BnQhuvRSoaNhsk7Gi3b4JG8TRc/r0srEbWHsWzMJhhfeYLor3Qqzw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hoFWaj8p; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hPdnrLSv;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hoFWaj8p;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZGS2g6jz3dXX;
-	Sun, 15 Nov 2026 00:09:36 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jRZGb2wzkz3dh2;
+	Sun, 15 Nov 2026 00:09:43 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id D5183465CE;
-	Sat, 14 Nov 2026 13:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC6A41F000C4;
-	Sat, 14 Nov 2026 13:09:28 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 8A0EB627AF;
+	Sat, 14 Nov 2026 13:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A26C1F000C5;
+	Sat, 14 Nov 2026 13:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794661774;
-	bh=VQQiNDOpqfhw0WpEQK13PFU/iv1KFQKHHI1yG9J6CXI=;
+	s=k20260515; t=1794661781;
+	bh=NDK6iLGoU71raS2SgqQLHOQWV8qCulebQnSVWkxP4N8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=hPdnrLSvIijKxqVhgZncYFJ1riM4IpNWYY8zX0cDtr3bj2nUfd/HZPMoRPQxIsnfF
-	 DaMPjcjIj1YLJkAadaq+ac00V6lcALenldxa+ypuLeNF59j7yQq8JBxIVcGftAIK9J
-	 oJLvgeew639qhyHDyTQ8PUuTOHup6ZjpZwoQIqUDLRHfDG4LKQSixZvz3hgHPHSGR5
-	 dpwpfUmcZw7lZxrLuSwTR8JtVbvS7Bs/oHTFYy93RAxjeDeApGYYrfov3VLkt/xJWH
-	 wPPbq8rtHc0wKic1Ypk+fQn/9tJOpCxIbX37BMGRzUaq2yGGKQGoSfgDtV3IYLZlfp
-	 lF2hCNHNtssPw==
+	b=hoFWaj8pvuO5W4IMFMMHBQHXMNLjNH8JHfJrDEmFAYaD9asZ5QMfu4dOUECaNFmWb
+	 f5k0eyP7Kyys7O1qt1H853aLKDmH4CIdCdqekph1EhrZbDKl0mxNkgwIVT9HDOt3XC
+	 O3bGQDa7op33lAEoqksi8s58BT8ulOMAO60OcbJMkq0yL+u5csuTYRPB7smWs86ksl
+	 ospRai6EuGNd+GhCYkKlfBdmljxPJpsYewArnoRX5o2L7xJTjyoZG5c+NVbvTvPVPv
+	 JUbdkCHF4KynQMxadnOeQj/61m6YmnVQxmfl/9pKanW0zQl5nFhfpaBX+TBYt4fp5N
+	 X2KWpck2qoGkQ==
 From: Christian Brauner <brauner@kernel.org>
-Date: Sat, 14 Nov 2026 14:02:15 +0100
-Subject: [PATCH RFC v2 34/42] loop: refuse files on pseudo filesystems as
- backing files
+Date: Sat, 14 Nov 2026 14:02:16 +0100
+Subject: [PATCH RFC v2 35/42] zloop: refuse zone files on pseudo
+ filesystems
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261114-work-loop-pseudo-v2-34-98639a2286fb@kernel.org>
+Message-Id: <20261114-work-loop-pseudo-v2-35-98639a2286fb@kernel.org>
 References: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 In-Reply-To: <20261114-work-loop-pseudo-v2-0-98639a2286fb@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -82,12 +82,12 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3745; i=brauner@kernel.org;
- h=from:subject:message-id; bh=uVejF7TG5lNB+KlVeH9oWZ72FFSLLOo68t1IwqUCfW8=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iOndk8naYnP82AqB3h1Fkd9lpt7fmfPG6ENPQqbjn
- V1vqjZu6yhlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZjIr2hGhkXahobeJrW7761Z
- /zvh90kpx6wb1uwvkt8V9fP/2Cg1PZGRYbmEVRl7+zPxbOvv/1bqvHQ4V9SW/+c46+dNT+7nXDu
- nzA0A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1408; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=FWktvag3hP7CxJ2aHsFycQWntpQ2NlX5K0UkpLEDOgs=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9iOmTbNEV636a62R6kHG9SdDEX8xMuUodXbnngjbwb
+ l/iW72lo5SFQYyLQVZMkcWh3SRcbjlPxWajTA2YOaxMIEMYuDgFYCJWJgz/E+5wxiw8Ms/ho0RZ
+ slhBp+vsmI/Z9zf941dJmu0vfvbnSoa/svdmna/i63v7pKntle3q1EqNfZxyTU7nC55fEOXNvXy
+ KEQA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -98,97 +98,40 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Currently loop accepts any regular file that implements ->read_iter() as
-a backing file and any that also implements ->write_iter() as a writable
-one. That includes files on procfs, sysfs and other pseudo filesystems.
-For example, /proc/kcore attaches read-only as a loop device the size of
-the kernel's virtual address space, 64 PiB with 5-level paging. sysfs
-attributes attach read-write as 4096 byte loop devices. Writing a block
-to the loop device of /sys/kernel/mm/transparent_hugepage/enabled
-changes the THP setting.
+zloop opens its zone files by name below the base directory but a bind
+mount can put any file there, including a procfs or sysfs file. Refuse
+files on pseudo filesystems as zone files just like loop does by
+switching to file_check_backing().
 
-That's not just nonsensical, it can be abused. Loop calls ->read_iter()
-and ->write_iter() of the backing file directly from its worker which
-runs with kernel credentials. But pseudo files enforce part of their
-access rules at read and write time against current. Dozens of sysfs
-->show() and ->store() methods call capable(). Behind a loop device all
-of these checks are done against the loop worker instead of the task
-that opened the file. And setting up a loop device requires no
-capabilities, only access to the device nodes. So on v7.4-rc1:
-
-- uid 0 without any capabilities can't write to /sys/kernel/reboot/mode
-  as mode_store() requires CAP_SYS_BOOT. Writing "warm" through a loop
-  device works.
-
-- uid 0 without any capabilities can't read the files in
-  /sys/firmware/dmi/entries/*/ as dmi_sysfs_attr_show() requires
-  CAP_SYS_ADMIN. Reading them through a loop device works.
-
-- An unprivileged container that was handed a loop device can't change
-  gro_flush_timeout of its own network devices as
-  gro_flush_timeout_store() requires CAP_NET_ADMIN in the initial user
-  namespace. Writing it through a loop device works.
-
-The same goes for hard_offline_page, the md and sd attributes, rfkill
-and others.
-
-Refuse files on pseudo filesystems as loop backing files by switching to
-file_check_backing(). Note that it looks through overlayfs so stacking
-overlayfs on top of sysfs doesn't get around this.
-
-The helper also does the file type, open mode and method checks that
-loop did itself so far. The check for a regular file or a block device
-now happens before the loop device is locked and it looks at the inode
-of the file instead of the host of ->f_mapping. For regular files and
-block devices both have the same type.
+Note that the helper only accepts regular files. So far zloop took
+anything with ->read_iter() and ->write_iter() as a zone file. That
+includes character devices, FIFOs and block devices if someone put them
+where zloop expects a zone file. Zone files are created by zloop itself
+and zloop truncates them to size and to reset and finish zones which
+only works for regular files. So refuse everything else.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/block/loop.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ drivers/block/zloop.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index c96e35c3ef423..776bd063f900c 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -492,7 +492,6 @@ static inline int is_loop_device(struct file *file)
- 
- static int loop_validate_file(struct file *file, struct block_device *bdev)
- {
--	struct inode	*inode = file->f_mapping->host;
- 	struct file	*f = file;
- 
- 	/* Avoid recursion */
-@@ -510,8 +509,6 @@ static int loop_validate_file(struct file *file, struct block_device *bdev)
- 		rmb();
- 		f = l->lo_backing_file;
+diff --git a/drivers/block/zloop.c b/drivers/block/zloop.c
+index 65634a39b0bfc..6f79b9ddbbe00 100644
+--- a/drivers/block/zloop.c
++++ b/drivers/block/zloop.c
+@@ -1132,10 +1132,9 @@ static int zloop_init_zone(struct zloop_device *zlo, struct zloop_options *opts,
+ 		return PTR_ERR(zone->file);
  	}
--	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
--		return -EINVAL;
- 	return 0;
- }
  
-@@ -528,16 +525,10 @@ static void loop_assign_backing_file(struct loop_device *lo, struct file *file)
+-	if (!zone->file->f_op->read_iter || !zone->file->f_op->write_iter) {
+-		ret = -EINVAL;
++	ret = file_check_backing(zone->file, FMODE_READ | FMODE_WRITE, 0);
++	if (ret)
+ 		goto out_fput;
+-	}
  
- static int loop_check_backing_file(struct file *file)
- {
--	if (!(file->f_mode & FMODE_READ))
--		return -EBADF;
--
--	if (!file->f_op->read_iter)
--		return -EINVAL;
--
--	if ((file->f_mode & FMODE_WRITE) && !file->f_op->write_iter)
--		return -EINVAL;
--
--	return 0;
-+	/* A backing file that isn't open for writing gives a read-only device. */
-+	return file_check_backing(file,
-+				  FMODE_READ | (file->f_mode & FMODE_WRITE),
-+				  S_IFBLK);
- }
- 
- /* loop sysfs attributes */
+ 	if (zlo->block_size) {
+ 		ret = zloop_get_block_size(zlo, zone);
 
 -- 
 2.53.0
