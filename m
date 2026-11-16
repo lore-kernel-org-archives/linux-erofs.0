@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DFD0606AB47
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:13:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B37C4606AB45
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:13:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b8+ShhPz
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U7641dzb
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlXv4LBTz2yfl;
-	Mon, 16 Nov 2026 22:11:11 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827471;
-	cv=none; b=OKH7O/7/eJxMj5y7BAnNV5UooVadl1YJKeYaK3XgQgy1sMOJggfpl6Y+Hw6wI1Ah04374KoeFE4qCqXKWt1UDEn5tSO1cXYehGdMj90wvBmqxHU72wUj+oesI4JCupp2Qzwy8uD4fbUky8olpe8ITgL+uYxP+OS/OgQ35GY9QKiljXBDXBxvEnnvt/VTLK6X5v08aOJ4bQpn3kgSKgfKlWQro/s0iM5E2TEbKSm9Im2bY1LcOI++WlqmSdjswCJsBh32oSSC0CiGH7ZtrYX27r5JdY+1f8wjshC3ZWKJD5NK9uqeSDE8NL1aTn5dX5w//hfl/IObdZXHkBDPWU0r7Q==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlY25CGgz3dX0;
+	Mon, 16 Nov 2026 22:11:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827478;
+	cv=none; b=Mm3XFBEizv2yi8+aEPdNenQ4nxkNzM8XPU/r9EuJi7NMsMB/PpJJw1boVAUDgOp5KjlI9Tji+3F/qV/4KPzUbuMRDTRJ8Y162R2VgM+Ah0nck4H5Q06d9+D8Z3Dc+lUUUuWkE1/0Z4w68GwAs5YZZuw3rjG050lBPMaohxoqyRvNq70HvWcjX0MYMdJfZiZdIV/8vW0Xz9bY8iDwYVEOLe19c9hrW+dgiIBFD6ndjyIZ6k4rboIbiXdybwXatskpHe8t7ClCiWNzPuv1Ed2vNJithkh1G9PAzfnJKbtm7LyX+tj6Lamc/74F3Y6UdHrzjzPwi0NZCOmUXYuH9j4Ahg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794827471; c=relaxed/relaxed;
-	bh=OTEjlmIJyKpC5NfEWKTxGQBI4o98SYAhIwo6Ai+LDGM=;
+	t=1794827478; c=relaxed/relaxed;
+	bh=YaBmWD0H2e/byZAd7Xmvk9z8GUGshWVsh+H9VIaIL8k=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gJBGczaWrGuEUp0ZYsV1tLt7lFoiO/0/81PFyVifDxTNclQv93b2XZemlMJEKmrHSS2pqK+LYHa66byouURmvojwW0dR3FKe9w9tC2Tv8uZhf9G0RQCOQOL+9EzkLScY4arqoe7dqaH0pMOOtn7s7/DnMKBhzRMAfJaPxb86x3lpZzT4QfkDx4Ajo83aThEDaesvtekdhI+IrVufWqxEmk8rMdWhp2PLxCT3VqEArldcGGLAS5M8DgNO3UGtkBk60M2xYjSkqp6/YyiNHTwo/Im12ERfEdzwZ2zCFmls30N4fpfIQbxVPPevIVorLxv9TtO0slRTgH+L1N4NF2updg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b8+ShhPz; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=SMJVc/IMb2F1tMqu1RZhE8zEX8Eaflw69fu/YIS3zioMswINWDtVKWQIT+iGRvSRaUjmqpbA9L6CLW07UucleAj7J4W04Dmt5SoN2RYOYmHeuCBYXAq+Ek52wthqXJFzlyC6dqYOS13NN2fQ5Oln8CK1JlzYKtIVCzRX9o6HaakvH8TlREM2utVt7RtfUygH4wYpsV3iH8+cccbBpwJlApHrkrAJX60+GSaoyN2EynYaHut+TM5V/rbXpVi6lh3z93SeHvHdtPseBfXTLTbtgoqR7Gqwxe5KAlw4lcDW+OaGlcu28sLiT90m/Ui3+taAW919HxlHA6kuVQjrMjlgmg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U7641dzb; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b8+ShhPz;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=U7641dzb;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlXt5WJYz2xnn;
-	Mon, 16 Nov 2026 22:11:10 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlY200Sbz2xtC;
+	Mon, 16 Nov 2026 22:11:17 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id E0A6F62964;
+	by sea.source.kernel.org (Postfix) with ESMTP id 53E4842DAA;
+	Mon, 16 Nov 2026 11:11:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD541F000CC;
 	Mon, 16 Nov 2026 11:11:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B90BD1F000C4;
-	Mon, 16 Nov 2026 11:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794827468;
-	bh=OTEjlmIJyKpC5NfEWKTxGQBI4o98SYAhIwo6Ai+LDGM=;
+	s=k20260515; t=1794827476;
+	bh=YaBmWD0H2e/byZAd7Xmvk9z8GUGshWVsh+H9VIaIL8k=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=b8+ShhPzXQ5lKArD/6+ZRe9DOjMyoKKAtnYUlLtEIbco9DLALBR0Fd2WDzfzWc/xq
-	 +KykUFg8yMY6Kd78+glVS3d4yeckJ0NZgym4qTmABG1DSqtV08TKvEgKTSRPYYc8FP
-	 3A/zUYyTBLJdxk3fLBWngqH38gEefnGvMYwPDcaoLTEerXzCHabY1vE4quu1HkYEqI
-	 xK7UXhuJplVmiu7BnozU6NuKxVhigBCbUzntJkdDKhMU1U4LXEjJVGGRKv6uioBtRs
-	 sd3pKHijxRAVRCt9esuvtmGbmGhGQspe3OfnCiNM1Ut6Q2kagZYzQsqGYzonRHSJSV
-	 uP0mNwhmOYf2A==
+	b=U7641dzbHi68FgoVcp+Qc4aB66pQAxq0SE1VggFUvf3UptU6PSOSPxEuUVckdRFis
+	 gBdbXWAgknUxf2WOR6QRrK3mJ7qo4sKt2MVBW1KDfKbm9AEAp5P0WwCNwKFdlGvNSy
+	 V+LVCf2Qz9d+7FNEGVOUuPu12FvHNYURFOX6j7vwsicSvTt2onQWRzpOR7NkfIWHRv
+	 54vr7WI+NATWXTFWM2Ht/34FIxDP08XFbN+qBvortmw0+AQaDGektha4t5P60B/Z7W
+	 Rlh6fXap3z/icrBIH9mQxI7rbDe6cWHLoTt0lp7fefcljhZ916IZ4wrFIl7C8tMdpx
+	 jCqLwaSdQUg0Q==
 From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 16 Nov 2026 12:05:14 +0100
-Subject: [PATCH RFC v3 41/44] usb: gadget: f_mass_storage: refuse files on
- pseudo filesystems
+Date: Mon, 16 Nov 2026 12:05:15 +0100
+Subject: [PATCH RFC v3 42/44] erofs: refuse files on pseudo filesystems as
+ backing files
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-work-loop-pseudo-v3-41-8cbbea1cf34f@kernel.org>
+Message-Id: <20261116-work-loop-pseudo-v3-42-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 In-Reply-To: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -81,15 +81,15 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Alexander Mikhalitsyn <alex@amutable.com>, 
+ Gao Xiang <xiang@kernel.org>, Alexander Mikhalitsyn <alex@amutable.com>, 
  Chris Down <chris@chrisdown.name>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2207; i=brauner@kernel.org;
- h=from:subject:message-id; bh=9yOpMEvSpwTZ88CI4cJoJKFDpbu7ZmjHFE7v8Gz8hhc=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etynd0NX1vPeFOdEtq9nL7ydJOxr3SZTcqJWrC/8P
- 8+eTSY8HaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABNpsmJk2P/2xMUG9fKOCS+q
- pmtt5+OefHRG0P2je5ZsqZU7vHHpSW+GvxKn1gcduJD7d9+yy53iOseiZErr8u6GsuasXRM//eL
- OvXwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1701; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=zgPAmU25yXmDAhDS6CiCz+zo4qFZ1Bc8aFsU5Ev1fq4=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etw/L55Nunlnx5t7vJ/X/+JYMbt61QHto2pZr1jCR
+ HcvcfmU2lHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjARwyhGhgu3NIKv371gIt3e
+ 8vqomtbEY4GBy5Y4t/xe8OHknsJosW2MDH/6VfjO+i712/2j3JGf97jpsQb1eOXvkkXpJpPWOPU
+ 9YAEA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -100,58 +100,47 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-fsg_lun_open() takes any regular file as the backing file of a LUN. The
-file-storage kthread then reads and writes it with kernel_read() and
-kernel_write() on behalf of the USB host. With a procfs or sysfs file
-behind a LUN the host gets to read and write kernel interfaces with
-kernel credentials. Refuse files on pseudo filesystems just like loop
-does by switching to file_check_backing().
+File-backed mounts take any regular file as the image and the same goes
+for the extra devices of such a mount. erofs reads them with the
+credentials of the mounter so this doesn't hand out anything the mounter
+couldn't read anyway. But files on pseudo filesystems aren't images.
+Refuse them just like loop does.
 
-The helper also does the file type and readability checks. So the
-messages for an unsuitable backing file become one. It looks at the
-inode of the file instead of the host of ->f_mapping. For regular files
-and block devices both have the same type. It also wants ->read_iter()
-where FMODE_CAN_READ was enough so far. But kernel_read() never worked
-without ->read_iter() anyway.
+file_check_backing() also checks that the file is open for reading. So
+a source file descriptor that erofs can't read from fails the mount
+right away instead of on the first read.
 
+Reviewed-by: Gao Xiang <xiang@kernel.org>
 Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 Reviewed-by: Chris Down <chris@chrisdown.name>
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/usb/gadget/function/storage_common.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ fs/erofs/super.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/storage_common.c b/drivers/usb/gadget/function/storage_common.c
-index 75831f2c7abeb..af0c37a9fe029 100644
---- a/drivers/usb/gadget/function/storage_common.c
-+++ b/drivers/usb/gadget/function/storage_common.c
-@@ -205,23 +205,18 @@ int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
- 	if (!(filp->f_mode & FMODE_WRITE))
- 		ro = 1;
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index ce05557bd9983..517a289b9395c 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -158,7 +158,7 @@ static int erofs_init_device(struct erofs_buf *buf, struct super_block *sb,
+ 		if (!erofs_is_fileio_mode(sbi)) {
+ 			dif->dax_dev = fs_dax_get_by_bdev(file_bdev(file),
+ 					&dif->dax_part_off, NULL, NULL);
+-		} else if (!S_ISREG(file_inode(file)->i_mode)) {
++		} else if (file_check_backing(file, FMODE_READ, 0)) {
+ 			fput(file);
+ 			return -EINVAL;
+ 		}
+@@ -835,6 +835,9 @@ static int erofs_file_get_tree(struct fs_context *fc)
+ {
+ 	struct erofs_sb_info *sbi = fc->s_fs_info;
  
--	inode = filp->f_mapping->host;
--	if ((!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))) {
--		LINFO(curlun, "invalid file type: %s\n", filename);
--		goto out;
--	}
--
- 	/*
- 	 * If we can't read the file, it's no good.
- 	 * If we can't write the file, use it read-only.
- 	 */
--	if (!(filp->f_mode & FMODE_CAN_READ)) {
--		LINFO(curlun, "file not readable: %s\n", filename);
-+	if (file_check_backing(filp, FMODE_READ, S_IFBLK)) {
-+		LINFO(curlun, "invalid backing file: %s\n", filename);
- 		goto out;
- 	}
- 	if (!(filp->f_mode & FMODE_CAN_WRITE))
- 		ro = 1;
++	if (file_check_backing(sbi->dif0.file, FMODE_READ, 0))
++		return invalfc(fc, "source can't be used as a backing file");
++
+ 	if (!test_opt(&sbi->opt, SUPERBLOCK_SHARE))
+ 		return get_tree_nodev(fc, erofs_fc_fill_super);
  
-+	inode = filp->f_mapping->host;
- 	size = i_size_read(inode);
- 	if (size < 0) {
- 		LINFO(curlun, "unable to find file size: %s\n", filename);
 
 -- 
 2.53.0
