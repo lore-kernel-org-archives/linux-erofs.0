@@ -2,52 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30BAC606A32C
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:12:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E917606A31C
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:13:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NaYwloll
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tsq4iuTK
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlXT5VmXz3dTC;
-	Mon, 16 Nov 2026 22:10:49 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827449;
-	cv=none; b=B5hTGAe9bDd7rPtYIh+9oq8ZqfMkbr42K+KxyQX7mnPj9UQxcs/emyQdOBdZeT2a5nzXHz2p26X15y/o2KVsMIHeb++h9pTb8TxkzAOn86A/rqNngRyLexmLO3bT4qa3nPKhkI9hIZwu9nypyKsmPJ0cBlphu19QZusbiVOXDE6v7xRCqJRt0wo/utnmSLKGbKgBujNFo56iU0iaYZUC4Kn7eN7pHqhGhYctN6CIwGzO3LaKOIQyXJ7FccxCzGGVFBZilRtAoiwA/It9UkcbHH4b1pNi6oiF0u5Rl7k8V4zdt7zXOHhv73tQo0d/DqLUeVXIloaDVIZx2VwTW+ecsA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlXd26nzz3dT8;
+	Mon, 16 Nov 2026 22:10:57 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827457;
+	cv=none; b=ZB9eskLlLyrmR1yV+43Ve5AADlNyGO1eXO81QVuOQpMDi0ukszDfze3CmMOkKyBzWePVXlgXE0PhsmBT/JtsRmH5JHXP79BG/nDZajLZHuRZ2F//Bcn7EbHPYcWq3heTrpOU6lc/egEIZxIv0JsCpWj9e55y4FbPmx9mOXLzTCo9SSrF//0KySIRRgo3HYi1u560KFS0xyltKWayB/oGbAd+Y2mZamCJB0j3Ml5Gbfl/A4zlxRmAp2KZgNFIdAjmagOSMKKsC+5k9/GfPUJq+owsi6FNwT6SHTisDKcz3dLjv9zqr8Pw3Oax83901Q268+Z0r8Rzy5WRQWj5dpFZBQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794827449; c=relaxed/relaxed;
-	bh=zLEVq+Bpv9BnXZuXWTCC/0nvI0V4xS0vAuEcIsGc5V4=;
+	t=1794827457; c=relaxed/relaxed;
+	bh=BY87H/RnXilQq13XAhtvlglG6136WbkekRPXJvo2I3U=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=me4dmHhFj3zUe+/Hhmp5J3o6hTLKmxVAoZbdD+l1tu3oqXzECgx0vQrBHXgRAN0yuLoWUNgm66STq8cy73krCKew7FX47iu0MtTiqEdobLjDM/5+PewMN18tfjbNhqhvYD/wrL9JNk9luoPn4/JP7hZLF6NvRvBfGFE1LsUP+A1mUG+ZQy1wn041I5QmebCnkcI+UvXUolUckc4D6SGVYJqRq5e9WETMtEjud+aCCXjlPkb/M5DHaMnmNZHyD5+wh4C0Y32RkiTfG2doBHgvMS2yrvlH3XKFBH2UoJoYGcC6FujYMkjj1iQ1qnQ6laFaJa84ws3ravfrngJ03u4igw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NaYwloll; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=JFwu332jOkBxk7HOcq6PeS5DAWZF20GvN2mDqz09NYdX0+pYgO0UrtGOL/lWpcbotMJbbpA5o5JN7TAn70stI24zShWAZTtpCBD4nh3P22bUC6vv/WRdsVdq+6AZBNMuFF8TrMq35gT3zTUapffw+hOyfik+mxeCxd9eG6Q+TLnhrMOn93d1sllli9T7IrKVemGBOdnvK78RSgIQkD3QpzvvU5x8K2MKGpBkw+Ikx1fqVS+ogDU99ld46AZkbMpMVxBZp6PPA+Ixrcxwj8Olr3VcHDwzIyX92VlX8ENWh5vqRPY7uWcQOI1cXomugYcEQM7oU9gxjqoj5BHTs0V/Kw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tsq4iuTK; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NaYwloll;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tsq4iuTK;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlXS6Zxgz3dT8;
-	Mon, 16 Nov 2026 22:10:48 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlXc2wNcz3dRt;
+	Mon, 16 Nov 2026 22:10:56 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 1333A6296B;
+	by tor.source.kernel.org (Postfix) with ESMTP id 82A4762972;
+	Mon, 16 Nov 2026 11:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 416851F000C5;
 	Mon, 16 Nov 2026 11:10:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C3E1F000C4;
-	Mon, 16 Nov 2026 11:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794827446;
-	bh=zLEVq+Bpv9BnXZuXWTCC/0nvI0V4xS0vAuEcIsGc5V4=;
+	s=k20260515; t=1794827454;
+	bh=BY87H/RnXilQq13XAhtvlglG6136WbkekRPXJvo2I3U=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=NaYwlolld2jESWvGwOaWTxEbVaAHPZNh1LLvFE6S5MpCcqk+cf+N1nQf8Dku2zsdc
-	 XyHOtJ8BMGc1mA3Vrxn4Eg8Q093MTrz9Iup09iiuZHg7wX4L2QsIw7SS3rcteqNV4x
-	 b2D0jxB3MFKFxVIJVhXxLhRSg7PnHC/W5FlkEc/+kxEk8S4+luBw2VcOlfQxewVtA2
-	 Je4f2PghzObAunRtq7HCf0FD4sQiGwd31Mb5U6ODKV2wDoPSHpEqY7liE2IB/srDhO
-	 TJV0xsiM7pK3poFBzZlAc0Ax4uP8AaKDIftyXzMvuQ3xcrXUli/E6mrcx/WrTrnOUK
-	 ao8EBSnzLQ2lQ==
+	b=Tsq4iuTKRhulkomOLwfJCGY7RSUTospv3OqWJbcYQQFjEoKupjSCxw6Yy3rPq4pB9
+	 +LrXvKA4rBly7ufMqZGGURI/PkATv40fMYkjtpqcL/tNHRyeTByFbJTZmujbH0d7/Q
+	 HXCq2zQGevHC5tGi3GM/YXAFadxr211gKZs+efK2OMgZEBHzheaSEy+WXOjCe8RO5r
+	 TJ2bRHJjwjB/ITjzevhBLxBTbfuTMUOIvIjO5xZFZMBmnzadWnSvOl1+uUswfItRJz
+	 cvn+ZB4G6vMTJzmJfSaWRJJZDIQQXhCz05Bm/gc8LbBO51UdG9XgtkJRygpVExqJdR
+	 0R8YByohYWTAQ==
 From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 16 Nov 2026 12:05:11 +0100
-Subject: [PATCH RFC v3 38/44] nvmet: refuse files on pseudo filesystems as
- namespace backing files
+Date: Mon, 16 Nov 2026 12:05:12 +0100
+Subject: [PATCH RFC v3 39/44] target: fileio: refuse files on pseudo
+ filesystems as backing files
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -61,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-work-loop-pseudo-v3-38-8cbbea1cf34f@kernel.org>
+Message-Id: <20261116-work-loop-pseudo-v3-39-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 In-Reply-To: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -81,14 +81,14 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chris Down <chris@chrisdown.name>
+ Sashiko <sashiko-bot@kernel.org>, Chris Down <chris@chrisdown.name>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1522; i=brauner@kernel.org;
- h=from:subject:message-id; bh=tRTfMWpi6lEvvGl+lxY+pO25cW/8KtdlIZFwjvLJslM=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etxtsODnTr4jerrvH7gkzS+68Piv7P69JfsYWHfKz
- ZL03KHzv6OUhUGMi0FWTJHFod0kXG45T8Vmo0wNmDmsTCBDGLg4BWAiu6oZ/nC0OV4+zWbuG5Od
- WKaZOmHv+rI3Rj5uPGlXu0xNsxL5oxgZJuv++PSw7/mNRcX/gqK/z/nk5+TzYvUj1cNC/H+yOEQ
- Y+AA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2223; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=11gfWGw/ZwPDfVFtqD+CkdePFs+glK5xVNQbp3ek2T8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etzj8cs54I/rlC7xuCARluu5a1aodKvyswTvkD6zv
+ 1dfVPVMRykLgxgXg6yYIotDu0m43HKeis1GmRowc1iZQIYwcHEKwETirBj+e2jMajfMFJqpekRG
+ aqlo40Pe5TUVy7c/+DD7XlLpsaZOLoa/knzXPN++Mv3K99Ndbp9ymKjRnUWue9I2sb1mqWq5pLu
+ bHQA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -99,43 +99,59 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-The file backend takes any file that can be opened for reading and
-writing. With buffered_io=1 that includes files on procfs or sysfs which
-then get read and written by a kernel worker on behalf of the host.
-Refuse files on pseudo filesystems just like loop does by switching to
-file_check_backing().
+fd_dev_name can name any file including files on procfs or sysfs. The
+initiator then gets to read and write kernel interfaces through the LUN
+with kernel credentials. Refuse files on pseudo filesystems just like
+loop does by switching to file_check_backing().
 
-Note that the helper only accepts regular files and block devices. A
-block device ends up in the file backend when buffered_io is set. But
-so far the file backend also took anything else with ->read_iter() and
-->write_iter() such as character devices and FIFOs. The size of the
-namespace is the size of the inode which is zero for all of them. So
-such a namespace was unusable anyway. Refuse them.
+Do the same for the protection file. With DIF protection enabled the
+fileio backend keeps the protection information in a second file. It is
+named like the backing file with ".protection" appended and
+fd_init_prot() opens it by path. Whatever that path leads to was taken
+without any checks.
 
+Note that the helper only accepts regular files and block devices as
+backing file and only regular files as protection file. So far the
+backing file could be anything with ->read_iter() and ->write_iter()
+including character devices and FIFOs.
+
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/all/sashiko-outbox-206765@kernel.org
 Reviewed-by: Chris Down <chris@chrisdown.name>
 Tested-by: Chris Down <chris@chrisdown.name>
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/nvme/target/io-cmd-file.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/target/target_core_file.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index dfa8aa46188c8..2249ad3bb46d8 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -47,10 +47,9 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+diff --git a/drivers/target/target_core_file.c b/drivers/target/target_core_file.c
+index a5391e57e9aa5..c747cc4a647ff 100644
+--- a/drivers/target/target_core_file.c
++++ b/drivers/target/target_core_file.c
+@@ -145,8 +145,8 @@ static int fd_configure_device(struct se_device *dev)
+ 	}
+ 	fd_dev->fd_file = file;
+ 
+-	if (!file->f_op->read_iter || !file->f_op->write_iter) {
+-		pr_err("FILEIO: %s lacks ->read_iter or ->write_iter\n",
++	if (file_check_backing(file, FMODE_READ | FMODE_WRITE, S_IFBLK)) {
++		pr_err("FILEIO: %s can't be used as a backing file\n",
+ 		       fd_dev->fd_dev_name);
+ 		ret = -EINVAL;
+ 		goto fail;
+@@ -861,6 +861,12 @@ static int fd_init_prot(struct se_device *dev)
+ 		ret = PTR_ERR(prot_file);
  		return ret;
  	}
++
++	if (file_check_backing(prot_file, FMODE_READ | FMODE_WRITE, 0)) {
++		pr_err("FILEIO: %s can't be used as a protection file\n", buf);
++		filp_close(prot_file, NULL);
++		return -EINVAL;
++	}
+ 	fd_dev->fd_prot_file = prot_file;
  
--	if (!ns->file->f_op->read_iter || !ns->file->f_op->write_iter) {
--		ret = -EINVAL;
-+	ret = file_check_backing(ns->file, FMODE_READ | FMODE_WRITE, S_IFBLK);
-+	if (ret)
- 		goto err;
--	}
- 
- 	nvmet_file_ns_revalidate(ns);
- 
+ 	return 0;
 
 -- 
 2.53.0
