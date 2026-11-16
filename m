@@ -2,51 +2,51 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FEDC60781E6
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:09:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAFB9606D7AA
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:09:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YvkLPRy/
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ThaPefJk
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlTC4YD8z3c2V;
-	Mon, 16 Nov 2026 22:07:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlTM41ttz3c3x;
+	Mon, 16 Nov 2026 22:08:07 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827279;
-	cv=none; b=BqNBdCc6v0Z4KgHsK2jXczpn8ZklqmYrMEFj9YebFmbFgKojAh0QwqQ809s02iWtAhSDbunW+Y0zdRegX70RcekvPD6DreBLy2J9cjFFld344cH9dpfAdrha7gMdOhRBKUqcEUo3M1Kf9rG2GXj4pthreuNYwntKS94GkzBu8TiI5qnm55hsEzvmarpmQL4L0rP+OOM/49iVnDawR4EwbqXZj9eRp3D9EaDoTDNf6SJQPv7nRKuZNQwZ+AkK5VxMfpStVkwuH/ZN0eNpxWwSIypECiE6iPd+InWz7VqI4C3pjrtfCAz0IqHoUZY3StBL/tmpSnDRX5kGShMRnUBPeg==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827287;
+	cv=none; b=kbLdw74r0Sc9ONuHzCk6V+DnFCFhGDnsDuoGLyQJKJR0ye/cSiB/IkOc2tQ/sqHBjXD9mnBfm9yDP9hnOXfAGoFk/kBsBkCm4rmEr2m4orSDN6ZvQ5FrXAyWyrwNqjQ2tM/0xcSLsG5zXP+OxNg55pRBxXnF7WO2r8q668hsxiM3j5hLD4NbNXlKhiExnmulWSfvBEJihYVTQprnjfOMpS8MZWkCgd4/jTfKIrb5+zx2/O8xlxDoFBFTahQ8nfQXZUMdGNrrVHS+kMZvG0mUQ8zC4ElnDk3m3jgqzJtjtOJs0cgVaxUIEdhjc9KtQTkfo0yV9u+NAVagK9QcMlcyTg==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794827279; c=relaxed/relaxed;
-	bh=PqfeLGmjk4y0+kxRkxjSur2IdVXjx1oPYJuREevbBc0=;
+	t=1794827287; c=relaxed/relaxed;
+	bh=/UpKqXd1Q8PiwEiW91lGeEUdsRaeGgHVBpYK/fx91FQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=g/EGJtPd8XUz9ioAx3E/+UpOeL452G8adHT3zYxWxIXv431B5XM5cGo1H77lrNSXLl3BSxBUjPjfw8t5KickPu7dYx7fqGgzW9nyRmFmi6scUvRSPxAPL8PvEhFjBdfR+cc4NiIgXfqDQxrn3+BVTxywnkYLK5a9W7tBpuLN67JDMRTUh+vze4F+UzgBabZ9bfbgv3bQxTcd4Dh4Ftmkn6FFQYFuAT//VyXHyHIGcH+u2+Cms010FMecuafO/Cf6W3fP9oXKEwFmRKMHgGI1i/TVSosLp2mUJnrolAQ8p+MM8fA4jbRZmhfbmnZ+PR/l5Zk1VaIYzUR+xQ7XHLWsWg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YvkLPRy/; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=mlqio6+3jpxl/iAx8tjNyRem90QCB8B2Jsei+NL9Ce8kWmB7lYCKWRbEPmuBifXb90HU2Xs/E+2P1LxKlsdV9/A6Pwdu3/qVdS8es0SmMNtxQLxdFV6g2tDAKC9vYtyFR23vpMzT+EZxXTJqv5h+tuI3QGrL0BgCumJo6bmLA6s6FR9ZdnCg2IFr7exEaLuMK28ECN9KmtsvLkOFyDmnpPi+5xMmlytyzI4M3DeLbtAETi7Q+BlOTRkgqfIC+6btUmlTEm9WEo/Z0zdO4uaj71ReZgkxlHtX2JbfvD6JepXlz5fRz++q7vq1VzJXo92GoYdPOEx8D2/tJAGBIMndpQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ThaPefJk; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YvkLPRy/;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ThaPefJk;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
 Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlTC0Dmrz3bTf;
-	Mon, 16 Nov 2026 22:07:59 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlTM0BFWz3bTf;
+	Mon, 16 Nov 2026 22:08:07 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 83C1F41A97;
+	by sea.source.kernel.org (Postfix) with ESMTP id 82E44462CB;
+	Mon, 16 Nov 2026 11:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E153D1F000C4;
 	Mon, 16 Nov 2026 11:07:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88D961F000C5;
-	Mon, 16 Nov 2026 11:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794827277;
-	bh=PqfeLGmjk4y0+kxRkxjSur2IdVXjx1oPYJuREevbBc0=;
+	s=k20260515; t=1794827285;
+	bh=/UpKqXd1Q8PiwEiW91lGeEUdsRaeGgHVBpYK/fx91FQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=YvkLPRy/TdN3pcwscLXBhpcduUBjYfqgxZuCJwXsSL+UDnogKKD+92Xz/+diWB7NI
-	 0mqTTOVlCiRH9R0uBfT3YiIB2BmI3UU7ll0jcE3kk2lC7TLroBC6Pkv/qkjCb2pKNw
-	 zDc5Qqdo1HgBsZBD3BoeHwLBK/Raft20V7BmIejOzs9J/6v/WXVyn+g9CQ2gGm+AqX
-	 J1BdMMjoyxnVFZYvSfydNC+8KMf09MmPJr+eYY10D9OpdtxnRAAZVeQJdaGrm0Le+R
-	 4Rzjk+4/AJ7X87jNNtb5qnMUVnAQtEquA0JDBGjIxtZx98uV2qTRkccJqkx7xTRA3w
-	 c7AFtct/ZdTHA==
+	b=ThaPefJkzYID6A/gJ8BD95JHrrRcoJDueFApgfCzzf6m8AFEdrOPX1V/N0Ou5MSFE
+	 3MisKv2jAnh8Lq68niVuDDcQgUlU9KBmq1TWQenImwyQsFWqYvNjMCUA6JECgAVC5Z
+	 eCzHZrAVshZEsT9OLL1LKL8EXLhOWYBuwDyPsI88o0Rflk04BSpkmzvraWAQ+wW1P4
+	 lJTEA6hSyLJvmV54IXpt4SUS6mx/j+/M7f4C24pf7Qhx12uczYw4UemP32oaW2sS5n
+	 2peCadUpW/SatJlkDR04CbDtgimV2EQJ4ss/0BvVQFYbPY9qCuNlO9CEhSFfF6dtOq
+	 nUL3+tjJpm9Gg==
 From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 16 Nov 2026 12:04:48 +0100
-Subject: [PATCH RFC v3 15/44] tracefs: use fc_init_pseudo()
+Date: Mon, 16 Nov 2026 12:04:49 +0100
+Subject: [PATCH RFC v3 16/44] configfs: use fc_init_pseudo()
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,7 +60,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-work-loop-pseudo-v3-15-8cbbea1cf34f@kernel.org>
+Message-Id: <20261116-work-loop-pseudo-v3-16-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 In-Reply-To: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -80,15 +80,15 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
  "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Alexander Mikhalitsyn <alex@amutable.com>, 
+ Breno Leitao <leitao@debian.org>, Alexander Mikhalitsyn <alex@amutable.com>, 
  Chris Down <chris@chrisdown.name>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1157; i=brauner@kernel.org;
- h=from:subject:message-id; bh=jWsk7jA40wU8aE/ukx0Eq/KUmnvJ+ql3poj8uK0lOp0=;
- b=kA0DAAoWkcYbwGV43KIByyZiAGr643Cha2aEDzogEHXFHDf4ItcyB4+yUL4ANkviCVs/P6sGm
- 4h1BAAWCgAdFiEEQIc0Vx6nDHizMmkokcYbwGV43KIFAmr643AACgkQkcYbwGV43KI/pwEA638U
- 1d15U79N804Xlrmzg1WVT0YbKUtsgjGXa9iRx+MA/RH2I1+OACZjxtKr5OTHN7a/GnbvmGcfgyl
- DomehAAUO
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1100; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=arBHZovnHktbx+8dxEhh1iDCO+7a7q/uQBzsyfGCKl8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9elz4yo7/8fTyqPtLu0x0Zv8tjtQzyl68wOHUusK4U
+ 1piFu/4O0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACayW5nhn4LuCbVth/nnv61W
+ jll948YM7hL1TRmv/gSG7k93fv59SRTDP6tHgrPsfflmcXKeOZ47jc/ugU3PlsV14pWbp3dNO/K
+ lkwUA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -99,39 +99,37 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Initialize tracefs as a pseudo filesystem. This raises SB_I_PSEUDO and
-also SB_I_NOEXEC and SB_I_NODEV. tracefs never holds executables or
+Initialize configfs as a pseudo filesystem. This raises SB_I_PSEUDO and
+also SB_I_NOEXEC and SB_I_NODEV. configfs never holds executables or
 device nodes.
 
-SB_I_NOEXEC also refuses PROT_EXEC mappings. The only tracefs files
-that can be mapped are the ring buffers and __rb_map_vma() refuses
-VM_EXEC already.
-
+Reviewed-by: Jan Kara <jack@suse.cz>
+Acked-by: Breno Leitao <leitao@debian.org>
 Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 Reviewed-by: Chris Down <chris@chrisdown.name>
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/tracefs/inode.c | 2 ++
+ fs/configfs/mount.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index 5020365ca7048..e04febd868eb4 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -12,6 +12,7 @@
+diff --git a/fs/configfs/mount.c b/fs/configfs/mount.c
+index d8cac1cbf3bd5..60ba24e7ae2b9 100644
+--- a/fs/configfs/mount.c
++++ b/fs/configfs/mount.c
+@@ -13,6 +13,7 @@
  #include <linux/module.h>
- #include <linux/fs.h>
+ #include <linux/mount.h>
  #include <linux/fs_context.h>
 +#include <linux/pseudo_fs.h>
- #include <linux/fs_parser.h>
- #include <linux/kobject.h>
- #include <linux/namei.h>
-@@ -510,6 +511,7 @@ static int tracefs_init_fs_context(struct fs_context *fc)
- 	fsi->mode = TRACEFS_DEFAULT_MODE;
+ #include <linux/pagemap.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
+@@ -106,6 +107,7 @@ static const struct fs_context_operations configfs_context_ops = {
  
- 	fc->s_fs_info = fsi;
+ static int configfs_init_fs_context(struct fs_context *fc)
+ {
 +	fc_init_pseudo(fc);
- 	fc->ops = &tracefs_context_ops;
+ 	fc->ops = &configfs_context_ops;
  	return 0;
  }
 
