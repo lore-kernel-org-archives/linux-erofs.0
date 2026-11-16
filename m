@@ -2,51 +2,52 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD355606A8BD
-	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:11:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36A42606A32F
+	for <linux-erofs@archiver.kernel.org>; Mon, 16 Nov 2026 11:12:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SGTpzw+u
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XFkCPZLO
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlWf4PhJz3cky;
-	Mon, 16 Nov 2026 22:10:06 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2600:3c04:e001:324:0:1991:8:25"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827406;
-	cv=none; b=RK3CftsMMfpQ9eE0x9hPlXD6eKQH5r02Njs0BSe8LNdMtdi+gImxkDjy9rea2v1xUx+whYbBzhL7IKHoZqF0t8IJXGkLyPSEsQpqmE46BEMomqPDlpg7LfdvxS3hJCxKwBD0UEI9MaGW21IaiXIIKOry+Sq5+ZYgRKng6gLrJXnLazsGCAdkGxoIGFFjGDJpUm7eT4ftozr+p4MOQWOvMUf5fTLxDtXudoKTTjzyhsbG1xXAUwZdBIamGF21kavexBBP0i7L3i9+Cb5vYqly/G73lnjdtlW92982cfI2A072y7G3XlHiE58sRAHUgpSksTpTGZn/4VzQb5QvpWFTmA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jSlWn5z5pz3d8p;
+	Mon, 16 Nov 2026 22:10:13 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794827413;
+	cv=none; b=K2iE2bTCDK6myrZbtjrOk0u9meaRPcWG6YWhcMAqS4pPdW2uOnF+ylM3GxyVvLKPDMnEaYLroT1G4Qh8+9f1SK5r0VAmWS5jIgUCmrcLvxdilCsPziiuFT0Q760GUlYo7TT4p72Zd83P8jH1aM5Rq9RgtGPWYD6Cm88cRPMk7ODFN58k/5ccE/0+/pN+tnwpfxC9E2rtWaTNtI02dHjvL3hHwxYXtJm02POpBIxMONUILSSd9yFp4Q+R6DVlTKHjsfQrDQZaoFFRUOJDnHPu8wL5p6doi/R4wQo+tUebNUbjVFB0mvahCRqCtbJABTbP0bV995lwE2flqmXXxyG8YA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794827406; c=relaxed/relaxed;
-	bh=yVy0s500r+s0cQTnrdL3iNQJg4cLMTqv2Ys59F9WF6I=;
+	t=1794827413; c=relaxed/relaxed;
+	bh=64fy1ZrurHksDYaEdeBVzwJEogDQqSWMHixC8IXM43k=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NR+jCGT7uHPnjnkQmOISb79xMY7KibPChGXRa8hsgvIYYs9NtKe1RY1CU+Exb8oJSqeZAaA80wjN3RF/NvO/0CvMCON6WmGWwbY9B6w3NOUaSDLpGhtnl/+SXDCtl+SW1aWraY8dy6FoORMf7jKDGNwK09xpiBhJYKCC6akyupj5bRh83QTi+wWiEWhj0+X7nv+ObSLPmTVTWOBTmNuh3uQ+o4++R8vvK2k4TIE6M7O9cPwV549RfMDpmqSWJS3uFrXh1FRHVOWNM+aO/ElScs49yMxBbkagQRmZWvWJx/4KUiLBd7lAM4fXS2QYghzej4zap17BI6gteVcQlvdDOg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SGTpzw+u; dkim-atps=neutral; spf=pass (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 In-Reply-To:To:Cc; b=ea0oSIbXE5U0QIxnEDRt/m6wQ15Sgik88yIUaXqViQlSVnuI/af8k9h/2RI7gGhuvYjE57/6CMtLAlmz4KGPjWgkaUdZnW40J3O1HBlop1T3MCF1vPO1Db/4L/VTnWA6japaJFi/6Iub/fC19LIzmKEOayhP5gVt8SlaAkPkWmVkFs2y5nELFHK8+sX/KtD2sbwDupn5IgdJOyHy1z9Z8NABezxp6oT75Ft+Q+wzWayeks39DhiVwsofAXkQsMrlREkBFD7rlb5/OWFgVLl3GC+bVyp8DYNJC1v/q8lHc7BEUYMRPgaq/ZjhBYBZppcxmOZ99dyKnox1EhKGaG54vg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XFkCPZLO; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SGTpzw+u;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XFkCPZLO;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
-Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=brauner@kernel.org; receiver=lists.ozlabs.org)
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlWf0JcTz3cgx;
-	Mon, 16 Nov 2026 22:10:06 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jSlWm72DGz3d1P;
+	Mon, 16 Nov 2026 22:10:12 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 1B75362894;
+	by tor.source.kernel.org (Postfix) with ESMTP id 1E44A6292B;
+	Mon, 16 Nov 2026 11:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 483D51F000C5;
 	Mon, 16 Nov 2026 11:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD1B01F000CC;
-	Mon, 16 Nov 2026 11:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794827403;
-	bh=yVy0s500r+s0cQTnrdL3iNQJg4cLMTqv2Ys59F9WF6I=;
+	s=k20260515; t=1794827410;
+	bh=64fy1ZrurHksDYaEdeBVzwJEogDQqSWMHixC8IXM43k=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=SGTpzw+uOaYvP/qWVmonGrGKiT2oLbT2udCcq4O82u3mG1fLwCQ9o8RLyYUJt4Z2Q
-	 dpAapsEVRxr6oLO/o2rGmqb9CAmt3ErlRs8wAxbEiyz6v0DU4LBOoVm5BMqcicnomC
-	 B8WEPz6Gu99rGym2zbIvLEILBo00aGvsodfuAxEMd8k/D48PrDTO0QuTGdS8US31n4
-	 Vg8bRB/rVTd/Yp5SFsM+N5GWLqI4Smmmis/xMColxtYtlNVNFPYfrZpPd5XgHFtufK
-	 ewpaVp+9XS6onapcIs28W27un4PxSx+n0soDqly36XgM/Z1PmufEv2uBMoEdpSk13h
-	 SXrkbTRXnHaqQ==
+	b=XFkCPZLOyT6temTwAkvo4voI/JBsg/Z4henG9tv1l4AP+unIyDGq5gVd+SYbfTNkW
+	 J2q+A4W9ncbFM3o2CJeB1KlGFOQOyWo8ySYnVIO/5YximXo+mSB8h+1obwLjCcGEvW
+	 A1UXSeiotXqdUuyPaAj9hOORnO/ihLGR8bgH8DCMlnoWpdtPxHllMf91dA7wxs97Eq
+	 yjHuVmibG1NowwYf+Q8JcoJLbSPOUKYKONh6M5SqznmTuA/gM7dxnMZNsRN9PfbJft
+	 +J4kIRFgBCIHj5EPRzp5FFbIDcQ2AbpmpaJCmFvcccbVtq7fFVdRiQ+kdhPCTlwHV7
+	 761XGVhpeq4Nw==
 From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 16 Nov 2026 12:05:05 +0100
-Subject: [PATCH RFC v3 32/44] usb: gadget: gadgetfs: use fc_init_pseudo()
+Date: Mon, 16 Nov 2026 12:05:06 +0100
+Subject: [PATCH RFC v3 33/44] ovl: refuse data-only layers on pseudo
+ filesystems
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -60,7 +61,7 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261116-work-loop-pseudo-v3-32-8cbbea1cf34f@kernel.org>
+Message-Id: <20261116-work-loop-pseudo-v3-33-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 In-Reply-To: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -79,15 +80,14 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>,
  linuxppc-dev@lists.ozlabs.org, linux-usb@vger.kernel.org, 
  Amir Goldstein <amir73il@gmail.com>, linux-erofs@lists.ozlabs.org, 
  linux-kselftest@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chris Down <chris@chrisdown.name>
+ "Christian Brauner (Amutable)" <brauner@kernel.org>
 X-Mailer: b4 0.17-dev-ce4c1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1030; i=brauner@kernel.org;
- h=from:subject:message-id; bh=u0nui1vhf/EmwTq6q2RWgl78HrRK/CPPLvMnc/CZqnI=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etws9fufFq9729RbGXNDfxxYdCtSQifp+r0vMT801
- iTNP1vv21HKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRn48YGT5xPd4gYXzpZPj6
- D6f+qX0Qv9TBUcF6ePfLds7DTysVTzQx/I8rXd4sEjq3bduNK/7X+v/Kqk9YyOWe3dsRZqm+TvT
- IXF4A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1983; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=Smh6T1OxDytywEa5/SA4YQOn0qat/3OEFq2S8CKkHFQ=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWT9etzKv1zn0/fF8VbJ056U/V2j8fZ05/RKp3DlWuv16
+ b/0c+MfdZSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEzkkz0jw/FI3n9/PH4HhZ1d
+ ys8rckDxnqnu2en5RiGRkRGiO5TUohkZnmV/WFDrXXLFbNEWtocf1uvk3Hommj2NYaaXF8OJCE4
+ pHgA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -98,36 +98,52 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Initialize gadgetfs as a pseudo filesystem. This raises SB_I_PSEUDO and
-also SB_I_NOEXEC and SB_I_NODEV. gadgetfs never holds executables or
-device nodes.
+The data of a metacopy file can live in a data-only layer. overlayfs
+doesn't look that data up when it looks up the file. It only remembers
+the absolute redirect and looks up the data lazily the first time
+someone needs it. So until then nothing can tell which filesystem holds
+the data of such a file.
 
-Reviewed-by: Chris Down <chris@chrisdown.name>
+But a data-only layer has no business being a pseudo filesystem in the
+first place. All it does is hold the data of metacopy files and the
+regular files of a pseudo filesystem are kernel interfaces, not storage.
+So let's refuse data-only layers on superblocks with SB_I_PSEUDO at
+mount time.
+
+Data-only layers can be added via the "::" separator in "lowerdir=" and
+via "datadir+" by path or by file descriptor. All of them end up at the
+end of ctx->lower. So a single check in ovl_get_lowerstack() covers all
+of them.
+
+Note that regular lower layers on pseudo filesystems are left alone.
+Stacking overlayfs on top of sysfs keeps working.
+
+Suggested-by: Amir Goldstein <amir73il@gmail.com>
+Link: https://lore.kernel.org/all/CAOQ4uxhGxpBtMZ5kfuzR1tQAewiecoX7UjXQRo91QjJHH9T_Yw@mail.gmail.com
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/overlayfs/super.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 7f6d8460152f9..8490e5d0351e1 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/fs.h>
- #include <linux/fs_context.h>
-+#include <linux/pseudo_fs.h>
- #include <linux/pagemap.h>
- #include <linux/uts.h>
- #include <linux/wait.h>
-@@ -2223,6 +2224,7 @@ static const struct fs_context_operations gadgetfs_context_ops = {
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 39d4d57dec230..719c2569dfeaf 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1237,6 +1237,14 @@ static struct ovl_entry *ovl_get_lowerstack(struct super_block *sb,
+ 	for (i = 0; i < ctx->nr; i++) {
+ 		l = &ctx->lower[i];
  
- static int gadgetfs_init_fs_context(struct fs_context *fc)
- {
-+	fc_init_pseudo(fc);
- 	fc->ops = &gadgetfs_context_ops;
- 	return 0;
- }
++		/* Pseudo filesystems don't hold data for metacopy files. */
++		if (i >= ctx->nr - ctx->nr_data &&
++		    (l->path.dentry->d_sb->s_iflags & SB_I_PSEUDO)) {
++			pr_err("filesystem on %s not supported as data-only layer\n",
++			       l->name);
++			return ERR_PTR(-EINVAL);
++		}
++
+ 		err = ovl_lower_dir(l->name, &l->path, ofs, &sb->s_stack_depth);
+ 		if (err)
+ 			return ERR_PTR(err);
 
 -- 
 2.53.0
