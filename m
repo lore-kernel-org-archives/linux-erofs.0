@@ -1,87 +1,108 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0007C606A31C
-	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 07:27:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBC3606A8A7
+	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 08:25:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs
+	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=AwFmaPGP
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jTGX75hCjz2yDc;
-	Tue, 17 Nov 2026 18:27:19 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::42b"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794900439;
-	cv=none; b=c2/kXvWhOyxFJ4gH078vZKuEECUhWpf+cjD1SfhuC9NCOUVCk4a6v3wLcFCt+DR398ug42SULwilHwCBVaEpqY5aSKKYlFtWQJxXt1Z8uOxdi0qPsC+69C6jlcuoN8P52RTVwjchTMMrXl8tVqflpIWML6KJ6Eb9qdH07KvU7zsy4ekoFYJ1PSv+37FkN8Znv/uXRilNEtZCs59JoZ4UvzGp2E/lMyPtXYKasg9zZmXOkKldhRKCQOIcxuVqwboJuq37N+nbp5xu70gxY5Lz47RT3XlIKT3nlIjpeQ7WkOOdztlz9bRQaX5lnyMo//HXZf06daU8/i1oG5ONzF9TPQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jTHqZ180jz2xqL;
+	Tue, 17 Nov 2026 19:25:46 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::42c"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794903946;
+	cv=none; b=bvuKGTC4yqJK/a5IyDfwexWJzoWJ/P0rkn0nnDO5F9syNXvjD0NaxVPzQyJx/bcFzJIDzp9IOykIjSW+0FP6iq2jsxri9KP7fUQgsXwCOuyh0LC9os3PWTqfrB+PsuudSceeKialxx3FpEeRjjGc3KtUuq7ZaB486ay6rcqIF8bpMbbFaxNZBUhRCSqS9f+/5+5pQnVF9Iqrbr+Lg71al9vOhlKmmEOJpurLwtotJCNHng0Jf5M9MKpc2LHwCI06bHQ3sCkl1GmPUScKgmraVsQ4yaEjcvnmoGAZt3Jr51OeVENt4dL4UN1PewNQJtB21fOT1+a7BGmv97yizKcIlQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794900439; c=relaxed/relaxed;
-	bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jruVBwUCqjWr31CSooW29QBgo2TgrMNRGvW2Ht1CZ6sNJF53MqOnmj44WS/fDaWsElZng+ken38DXACV7rApxK2StdttTC7ACsV/PpJjBN4C9VMt5/42DFfN3zc7UB3lI7GsyLWfVtcVtVO5Cz9taMTgrtCVQXe62HJnThEGlcrJfQ9z3dGbWEyQMKfg56WOF3lc9G3m7tJtvyOx91A/WoC5KYHh0W1uUfs0MVV07N7xfNb9znX4pxAUGmQVywITaSWFweyPPYvAn3bjQkWZRTy8HFTuyKUMCjFFeu78em+dnLszhi0AQES9/aUeyFpuPdoyw2ZDmoZhcSrjr70qpA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::42b; helo=mail-pf1-x42b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1794903946; c=relaxed/relaxed;
+	bh=UGlayfD5Z/El6cdpm6ie0HDMH84kD107OWGXScU9uXE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=SaLuNEe/uhwANvMhxcZHtfkKtbKf6zQouYl8O1Mh5VbCi734f2+5dJ1ac4VWpICy3TEuDr8x8Z5pm6uI7W6KOtovdBa+qbyCQJphmp2zKkR6aIBv8KfoMPXBkE/db2WBj7z6oAdy1gEG+A0yRj8vcX2f5+NSoxSiEYiCrV/3uZAN6ilcutOY6MPGLzp1pW8rFwXj6mqgCkl4wKBLvWccyQJHrxDtyhOcrF3HaG4xznk1lG0N9u3z821Cj5J59S/fKfHSPyVLLXCLndtRum75HJX39YUkUqiosisWB7gxCaajGOjJUQcoxlS6/3yzLFVzw0/uFu0tQdqppqvbk98yEw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=AwFmaPGP; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
+Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs;
+	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=AwFmaPGP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42b; helo=mail-pf1-x42b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::42c; helo=mail-wr1-x42c.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTGX70xRMz2xPb
-	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 18:27:19 +1100 (AEDT)
-Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-8b2382bf051so2421028b3a.3
-        for <linux-erofs@lists.ozlabs.org>; Mon, 16 Nov 2026 23:27:19 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTHqX2XVdz2xcB
+	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 19:25:43 +1100 (AEDT)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-492690dd5daso4102905f8f.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 00:25:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794900437; x=1795505237; darn=lists.ozlabs.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
-        b=bt5DAlfs8QJW14ak/qY7P5tXzyKNt9+VUuuJ5xcEaIUs5guAdHy4ioqr9TMnZLxt+M
-         Z1flceqVWc8dZgZPQ8zqOx7xiLZaDELMg9h0Xdzegiagr9BGf1APcEE3cfJyfcV6qiMN
-         zsCHFycOwsyfGqJfyF47ceyzacJD3oALeAQdYsYSMbn07u/3uMF+nxHNcvsGrNiMDh76
-         mUn04W/8V2fcmmc7+kr5kvnR/qDd89L5y8uqxXe7YWiMzMq3HUnfzqqieVUXJzLaVAEk
-         ONFvoDxAdVdbJ/6bZlfFKrbVMEFNz+EHg+/Bb6BsVkJcaPUWtzZcXtIoD+KnOFaX4zgb
-         2rzw==
+        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794903939; x=1795508739; darn=lists.ozlabs.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=UGlayfD5Z/El6cdpm6ie0HDMH84kD107OWGXScU9uXE=;
+        b=AwFmaPGPuIXOViNyk6pmcqmLhTQwuACZPJFO3M2+oRpxfugVuPhR21n2qSq6KeCyWC
+         TiWiZK48QLDBKz2zGBeRXH2QjQoap+bx690jAST9BmYF8f97b5MLlmjuha/0o1y+zh/x
+         C5zAE3sYkZuRn9XG2EI/Bmkv4IJnwWsiewuQROH6m2bqYKkM28s8HWGLC4M37lGLvbKU
+         6FIXY+Y3d5tIIG7yJoIp7zGu10ZleairYmRE40BB2xlK5f7ldG+6v5zAv/cf3j8yXDhD
+         rOjLGBgaqIwGxL+gWKs3QK4eQ+DFTgIzHEz+i7g87aazrvMZrv5KSJJK1m8Y34OVfgFZ
+         Xp4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794900437; x=1795505237;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
-        b=T0+jd8MEKK9ZKZRAMsOVaZ8quj18qfI5OdPW8gSAHieEgD517UZmQ03dOxOLuN+Z/5
-         PeqzamD52lh97829CWR34nYK7Q3wq2tdU9ZOkVrNDnoz/lMHtGD3iWTFJX/TrFzWo26d
-         +zwg3GQnSnS8/dzpcyD0FVr0l+R8yaLhek2VrJmAvO57NpfwslUUS9Qv1Z4Vb1BByZhs
-         NG9YeVujEozZ1qU28e9/RIqoD1X0UTbfxB4WtChkZh0IB7Ye2BR0KoXMUaHBwGRlU+6Z
-         65z9lBQj1S9pr32Io2Re3htGqMKrhq8aG4yKNlNZgGpyCmFJC4di8vxm0wRbTCeAlorx
-         T6ZA==
-X-Gm-Message-State: APuU4Z96ZMAYsI/6twCujEyXXRTow4wWO7SnL1EGRn1fgKlhFC8Hz+tw
-	OfROKIBRjVg1s/XIABseqxb8pbQbKdA+JqKSRrPNmbZ3M4eCjk1mvl2kgXc+oykbFRE=
-X-Gm-Gg: AYBFou29dBqlWt8HhMBY/YMNM/1hlPVLB1WOaDpOcsAVirYnCYKiyjQby/+bcqQzitl
-	65QJ2iMnWzKskb75cqO/5I2e7dh4Z7QPYooRivjxFSWoMc9UQBuuzfeFjKkkNwpkvo16+lYzyfh
-	vd1ww/6b5yW8nc0E1nTGtWcFNArjJPERCU5mK9+fkK9Klndjz3fzc52wGaGmk3AwVVKwNFL4krH
-	bIY4DP1t8IqbU5GeQ93OWAfTgDu6uumhTPIqCbE0PPH53jOjITG59O0vAxoarN3y+ONBT6Smr+H
-	gS03jMa0rIyYKbg4C3AEu+WdmaGThrjgTm3P1ih2+os9u5qzoFllaezLgn2GrjAYztGdHCmlARw
-	eZ1wrU2sG0xI2/NY+G+mmqKHx7GxTdmRo5tkfc4+lHTJS33PFwm7xLvPHV7+GFWsc+SSPestqNN
-	+kcY1ZmQuXVKrfRS6G2XzqhQ+GyW4wliOuzxTiG1rQ/lEot/SCxA9VeEOolszMLpdveWiRiXWsx
-	8XT7QxWTDVcs6v14SOJRwAHjR+EqTZnOoJDoWpOhyhFexrhmfjIRppNcxM6Pz1FMq7E9G5svOys
-	6/8H6c+5udCrPcZS1hgySSlovs8O6jQBT5RHVjQQijJV1fdN
-X-Received: by 2002:a05:6a00:4ac7:b0:88b:7712:6e21 with SMTP id d2e1a72fcca58-8beb81061aamr11073873b3a.33.1794900437479;
-        Mon, 16 Nov 2026 23:27:17 -0800 (PST)
-Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.56])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bed2055031sm4940716b3a.39.2026.11.16.23.27.15
+        d=1e100.net; s=20260707; t=1794903939; x=1795508739;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=UGlayfD5Z/El6cdpm6ie0HDMH84kD107OWGXScU9uXE=;
+        b=eCxPT9MxJ+n0Jk3GhDzSRnSgYuTPzhGjGmcZ0x+MGkjAhlf5XbvclSeoAJ0L6S/3ed
+         0FGyVa1KwZiGCE+67+x9TvrADQkmca+ZtKDrZ6X0IkbZncak9VOHcrz2YyVWHvR4Xrz7
+         Ftpaggh4ZwoHCxU/VbsWkxAUDhfw1rxnotMDwjULG4ddd4EWs1YuoYK0lXZfoQzvDpaH
+         WKBxmTMznfpAFXa4mVR0xDbBe6SBo1ewWWCnHxhwUXgQt6gJ5E2scsx5gOsD955gbrog
+         aAUmI1q0VOKQ15MaI9/SdiufJu7HDZmfUAwPn4c8sEBnIhABUDrlEGFN9vHeuqqFJBb6
+         45qQ==
+X-Forwarded-Encrypted: i=1; AL+hErFnAQi9e/10HF3rps6FK9FcefjSZaUQBxNUqDlZX+h3ivZZRzDTMHQIlv2y+LF1lKQpLybBacnYcfB0Jg==@lists.ozlabs.org
+X-Gm-Message-State: APuU4Z8dfj/BTNzu4w9nmWUhvrgEl5z1AByr1um1bTo25DetnhQyGB7B
+	D6e/DJwuHqj4XJ36KcG2T4l5N+Eiy2p9beXVoFL2JYEFNVTllEwYVZTtdGp6x5w+wiYd
+X-Gm-Gg: AZFdTZdHb/wUuPImBbeHUYdC+co+ON9CGMn6FSum5CyJFlgajHcFYEKZkuzlDFBwAYe
+	/BZp5cQBIw0nnagdLYvyNR1Cw4n03FKymTws/0TUoh8WBwuzjqtnPSktVMVZOSSTrzg1QLUbPNe
+	nC6kIEeyuueTejy58LGujIMGxFM6r5/J9G0OTfPurIOvKozhMh2EDwSOB+PFscIcO3GMqLd7pH7
+	/sMqrlFthwVYiIEcqSyLBNi61Zu/xjGkFWfHKLxWAActGArfTylow4RckZouSB/ggAE0yvXunAh
+	aOUYmZtKhaGmSYfdUB2dFl0i4vgAe94frEyrE9+M91MhzK70rBJwkRjZ0aT0lgyuyWW55d2bArN
+	OyM6E+mR+k4/aVhHRzSox8Nya44sKmmDCb0rZMLjn4J6hun3MoXM89aY/5xadHVjth+inumssxm
+	MXqvYrNPIRN7dXQ3PcdxHFCTJdvHnPWydpQgZk+6FQSN6Yom1JLKMVT9uHYw8aNWSHhq1vRRCRJ
+	I5OL42P8DDQoAkIi9BgFSapeigeLfIjrGoyW7VAbykwy3MK+p5cA/7jCpn3EMI76kCPpJipvnnc
+	Q/e+R83rsq7BrSLBymFKHwSXtlYhYhe2vVtwqEh5KpsT21mySCmbtz6CNfL0cxu3GzK96K2y9tl
+	cmmyOkUKunIFdy9uGmSI7YjMWhBXvioZb96mjsjPfeCQi72Lr/frDj+6FlQQeQpFRQRnSkVGEoU
+	geRA==
+X-Received: by 2002:a05:6000:2084:b0:492:46e:d4ce with SMTP id ffacd0b85a97d-49c6fd932c8mr25238543f8f.13.1794903938925;
+        Tue, 17 Nov 2026 00:25:38 -0800 (PST)
+Received: from ?IPv6:2003:cf:572c:2800:de4c:6789:33ce:97c2? (p200300cf572c2800de4c678933ce97c2.dip0.t-ipconnect.de. [2003:cf:572c:2800:de4c:6789:33ce:97c2])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-49c5ff2be55sm26907832f8f.28.2026.11.17.00.25.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 23:27:17 -0800 (PST)
-From: Yifan Zhao <stopire@gmail.com>
-To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH v2 9/9] erofs-utils: lib: bound OCI blob reads to the requested length
-Date: Tue, 17 Nov 2026 15:26:29 +0800
-Message-ID: <e82d7487404ff5b400bdb0429b99fea00ed5b31f.1794899782.git.stopire@gmail.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <cover.1794899782.git.stopire@gmail.com>
-References: <20261112124725.2774244-1-stopire@gmail.com> <cover.1794899782.git.stopire@gmail.com>
+        Tue, 17 Nov 2026 00:25:38 -0800 (PST)
+Message-ID: <a9124bf1c858cef3e8ac06b1b2396dcb0e19e2a5.camel@amutable.com>
+Subject: Re: [PATCH RFC v3 02/44] nvmet: check that the file backend
+ supports ->{read,write}_iter
+From: Alexander Mikhalitsyn <alex@amutable.com>
+To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
+ Bacik	 <josef@toxicpanda.com>, Christoph Hellwig <hch@lst.de>, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nvme@lists.infradead.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Jan Kara <jack@suse.cz>, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, 	driver-core@lists.linux.dev,
+ linux-mm@kvack.org, bpf@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-nfs@vger.kernel.org,
+ netdev@vger.kernel.org, 	fuse-devel@lists.linux.dev,
+ linux-efi@vger.kernel.org, 	xen-devel@lists.xenproject.org,
+ ocfs2-devel@lists.linux.dev, 	linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, 	linux-usb@vger.kernel.org, Amir Goldstein
+ <amir73il@gmail.com>, 	linux-erofs@lists.ozlabs.org,
+ linux-kselftest@vger.kernel.org, Chris Down	 <chris@chrisdown.name>
+Date: Tue, 17 Nov 2026 09:25:36 +0100
+In-Reply-To: <20261116-work-loop-pseudo-v3-2-8cbbea1cf34f@kernel.org>
+References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
+	 <20261116-work-loop-pseudo-v3-2-8cbbea1cf34f@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2-0+deb13u1 
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -93,37 +114,57 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=4.0.1
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Fixes: ec0ae531ade8 ("erofs-utils: add NBD-backed OCI image mounting")
-Assisted-by: Codex:gpt-6-astra
-Assisted-by: Antigravity CLI:gemini-4-carbon
-Assisted-by: Claude Code:deepseek-v4.1-flash-1017
-Signed-off-by: Yifan Zhao <stopire@gmail.com>
----
- lib/remotes/oci.c | 1 +
- 1 file changed, 1 insertion(+)
+On Mon, 2026-11-16 at 12:04 +0100, Christian Brauner wrote:
+> The file backend calls ->read_iter() and ->write_iter() of the
+> backing
+> file directly but never checks that they exist. Everything that isn't
+> a
+> block device ends up in the file backend. So a namespace pointing to
+> a
+> file without them calls a NULL pointer on its first I/O. Only
+> buffered_io=3D1 gets that far as the O_DIRECT open fails for such
+> files.
+>=20
+> Refuse them when the namespace is enabled the same way zloop does
+> since
+> commit 0c10f8a1a7ae ("zloop: check that the zone backing file support
+> ->{read,write}_iter").
+>=20
+> Fixes: d5eff33ee6f8 ("nvmet: add simple file backed ns support")
+> Reviewed-by: Jan Kara <jack@suse.cz>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Chris Down <chris@chrisdown.name>
 
-diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
-index 948d699..3e86e91 100644
---- a/lib/remotes/oci.c
-+++ b/lib/remotes/oci.c
-@@ -1491,6 +1491,7 @@ static ssize_t ocierofs_io_pread(struct erofs_vfile *vf, void *buf, size_t len,
- 		return ret;
- 
- 	if (download_buf && download_size > 0) {
-+		download_size = min_t(size_t, download_size, len);
- 		memcpy(buf, download_buf, download_size);
- 		free(download_buf);
- 		return download_size;
--- 
-2.56.0
+Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> ---
+> =C2=A0drivers/nvme/target/io-cmd-file.c | 5 +++++
+> =C2=A01 file changed, 5 insertions(+)
+>=20
+> diff --git a/drivers/nvme/target/io-cmd-file.c
+> b/drivers/nvme/target/io-cmd-file.c
+> index 695963dd932ee..dfa8aa46188c8 100644
+> --- a/drivers/nvme/target/io-cmd-file.c
+> +++ b/drivers/nvme/target/io-cmd-file.c
+> @@ -47,6 +47,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+> =C2=A0		return ret;
+> =C2=A0	}
+> =C2=A0
+> +	if (!ns->file->f_op->read_iter || !ns->file->f_op-
+> >write_iter) {
+> +		ret =3D -EINVAL;
+> +		goto err;
+> +	}
+> +
+> =C2=A0	nvmet_file_ns_revalidate(ns);
+> =C2=A0
+> =C2=A0	/*
 
