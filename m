@@ -2,81 +2,81 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A13D6606A338
-	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 08:26:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558D6606A31C
+	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 08:27:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=JTgW99Kd
+	dkim=pass (2048-bit key) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=EzHGtbsw
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jTHrn1yLSz2yRn;
-	Tue, 17 Nov 2026 19:26:49 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::436"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794904009;
-	cv=none; b=TGDIGIEw1m7qszObRzmUNbpMmI13n2i8AhoQP4yUCsVi0U1MqmdPPznXpIKPi0bRxnv8Jvhnom5JWtbPJFGdg4hPxtG59PTcqaBmpesicqRsYdAW42DVOlk+fdlC6rXnocrTlf1N7xn/PU/Qzr/77SQfsq9trWDnWXWJT2r9POuGlV+48sBfgx6cVC6k6j5dd0warp1h9u1VdNlNgtpfNNKKOwKuRVm6iXwY99ZASSKKNS58zrkz753kqFDlQwURfEoDV5s3SqEK2KprOItqiIXsUe2GNt3zdG3UX1ZMTvV1jlyAlafqJSXp93ianmL4g9NeOvEKoFIuW0v9dAWtXQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jTHsH0Kr2z2yfS;
+	Tue, 17 Nov 2026 19:27:15 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::335"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794904034;
+	cv=none; b=SHjcLwjvQQKqjg4sSKjUPa7J+9mxWlmoz7RhjBUsqezMPQEwOQbYJ/BWCSO3T1fm9a2sqrTG1Edh2lq3OgAMdpVCixiF4J/cBS+GhDPdnIUPlmSoIJcGxB+eozTOghHARx1nZdrx6ive5T4FRes4xzhUNNkg6JydbTQmSKm2R3IZG2tkozEP30cx9wxBEGPtGWx941QqTceaVa2RtJ54PRFUdX4FY3pqp+2R29vSkI8+eMQeNf9auPwmKDJxc+X9hoJc9vgt7pNiw9+AfWDdtTYEsuHcec42OBGrmgF+Smc90ntFNIlQ8BWDAz0/MH/xQPFSWhuxcfarm+2brHCLXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794904009; c=relaxed/relaxed;
-	bh=zuUcsMvbqw5dxN0Fzu67367bPJAUtTqv88LLlRQCTVU=;
+	t=1794904034; c=relaxed/relaxed;
+	bh=o7Ds5Sp5DChQJ6GHa3pEkVZuOErJkij7LbLCUPT9+Pc=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ZZUqA3yOetFN/zbVcPOpnE3pBn1DAB+PoxLqXLnop1Gs9uMOppzrwQhJ1j7F+eJytJcsRwx/NsFOGwSzmwTnZ+7ibKJ2kthY2LUNgkMkyDCbMsxsSeteFZqWHGANJCRLqp2rv5CGXEUDzXQdC0ZdDozUZgGnMWEcCcG/GFJ/gdQhfkzSfvE/B62KOzMZlLu8yik3IHXKv9gcVeu4PNDjAc5Bs23LJNOtko1R5aMEaTz/bCvC/g56qdm5kAb2qMlvx7enYD096MQxPkyp3HsJUNfE1LV4t1xahqjFo6Vuz529SYPB536NXQ982FtfW6tNSayfqyUiglZ+XAi053nlSg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=JTgW99Kd; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
+	 Content-Type:MIME-Version; b=QBqs2Fv0DmJbMEF5caAidCNarIkiyjReqi/+b7Q+kqPXXKfcPbqdi7Yc5AIWcp0cVt0QV8no3GUA6hI5M2+NXe+P35Xbmsw2HTgpIK0XT9fyxrMK1hqCW56CRTRzc6UcETds+aMTGNJQo7WNCul9tE/kOo6GL8Ft/g+MlWoYhGQ6lqE9sWA06BH6rWLkIfT41370j7lcec6GgMs24Yqc033PdwN8e4YiOdw1JefEjH0Ix7INSdrBj8ywgRhP4F7KdknGITD14ciU2gVPMI7fiT0INGo9kmDDbKNsArkN5aoZbUk1vbqbFu5oc0ruMHcfubqco0Fof2jx7PRJ59UMZg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com; dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=EzHGtbsw; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::335; helo=mail-wm1-x335.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org) smtp.mailfrom=amutable.com
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=amutable.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=JTgW99Kd;
+	dkim=pass (2048-bit key; unprotected) header.d=amutable-com.20260707.gappssmtp.com header.i=@amutable-com.20260707.gappssmtp.com header.a=rsa-sha256 header.s=20260707 header.b=EzHGtbsw;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::436; helo=mail-wr1-x436.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=amutable.com (client-ip=2a00:1450:4864:20::335; helo=mail-wm1-x335.google.com; envelope-from=alex@amutable.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTHrm1ZPGz2yD8
-	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 19:26:48 +1100 (AEDT)
-Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-4a358881793so374284f8f.0
-        for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 00:26:47 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTHsG0h6kz2yYd
+	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 19:27:13 +1100 (AEDT)
+Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-4a2000d5fb1so21934075e9.1
+        for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 00:27:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794904004; x=1795508804; darn=lists.ozlabs.org;
+        d=amutable-com.20260707.gappssmtp.com; s=20260707; t=1794904030; x=1795508830; darn=lists.ozlabs.org;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
          :cc:subject:date:message-id:reply-to:content-type;
-        bh=zuUcsMvbqw5dxN0Fzu67367bPJAUtTqv88LLlRQCTVU=;
-        b=JTgW99Kd4BsiByFVYcf8RXZHxX91pIoM/e8I06s1vA+HqGs3H3NoR5grFAwDdpfsP/
-         +73JsinLnNSAfgg49DoYoUTcG06RhV2aal4yfANnd+v+7iVFm/Si5uHApSYnDWu9jImA
-         3mWPU9DdPvsSiR5nVaEzolkIFiZnbS7Elkl7BGBR5rXlyZnNhaHcVTV6S8xYp4zw0QN3
-         wSYLqtFkkveMlxI7WzP8Mfc3p+IbWFaZHqvllw60Dyo/hdUZveipBey/1BehcgufphwK
-         3+Auvw1h9B8OfFq/2c5fNme9/CU0aY+ljetBc4sZ2hoWmpYCaBmLiZxo3SaSm1TmjIva
-         Us6Q==
+        bh=o7Ds5Sp5DChQJ6GHa3pEkVZuOErJkij7LbLCUPT9+Pc=;
+        b=EzHGtbswIamnLOXfvPcwYvMv7Q4Rzy1RBFSMS/Jp2BpvmL/9QUqtvZ+4EfxZc53qPE
+         q9oBCkSVuYoWwwCAb6vAfaPtXgsekttw4t6J4XqrRMhW2Px3HuNGis0/YVCASryVqGoh
+         uWLu7SZp1VFetmj7/EDG/Lxjpo6F91AxWvjXt4WzstLJAVNp6GP0a50EoYyymllfOK9w
+         iCbaUukIOsuQ431EKix0ckptrFHFPGso2julCV9+bxwlpOzkdseT4X4Vf0UDgvfd8uR/
+         KXcnU5721CK+kNPSFjiO16xqb1liHd/iXjZQYKtB8EjIuDvYe+PZSFOvIYQyQoCpgn3n
+         tZ9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794904004; x=1795508804;
+        d=1e100.net; s=20260707; t=1794904030; x=1795508830;
         h=mime-version:user-agent:content-transfer-encoding:content-type
          :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=zuUcsMvbqw5dxN0Fzu67367bPJAUtTqv88LLlRQCTVU=;
-        b=uUKDXtbLi39QvtFO+Fii3cVAVEgo5jaEYXffPM2QloVwI8sW5eM2YphrHLQWc9lynP
-         sT5wFWy1Uw/Mz/si/0q5qRzUGGTOGSXXFLTwbE9hD3ipnylRqgq8X7O9DCbxpdQHLhS/
-         e5NfCvY5o50RFAzwiQ+CQebz+G0xYq4/DmLawtIHC+JrldWQJfFNe9YZ8ps7GzOAs5xr
-         x6KVDmkJ5smz5UFKHDiFiFttLn4TWdGz/6ETy4QQ8tMmVyjENOwV81CBUGOZjilIn9aL
-         Q1FPkffzr2CMtkiZWkoWL+GewgQMc0YZYs00ulxBE6k5wDjWOUgRUYiY2CooLHWsak18
-         inhA==
-X-Forwarded-Encrypted: i=1; AL+hErGER7cdQ8vKNskKosiCrbdMDSGBY4gHXf8aITopO85sHR0xPC4I8Sn+BJ6cvOEZQZmHRK1nq662R0dJOA==@lists.ozlabs.org
-X-Gm-Message-State: APuU4Z/fm8eQUTxCkomlyj/N4yTjV3t+QJLA1PeH93sT8Ibqd7kbNOms
-	YFNgbseblcNVIZnjorM+dBAun7m37CBNy10aHfRiXnHYZEbBbXMZSKP2bELl11eudxMN
-X-Gm-Gg: AZFdTZdrp9ZkL6Ji+TkgnkPzxHfQWumid9cROn9u+vthsy1dJNqTNvxcNm1taDuUDUK
-	jz70+g6DHml74PrA8vW2hPJCcS2jVJmtVktpzjXAgAAi2U/vW/uJVSu9gzjr+1W9c1/HFmiwDVl
-	cAM7uo4StKmwoT0gAX2jdstSp0vv8QZiRuDI2siWvd4S+lzQLjVhMK2ukSQlBhWHU1nrSRc3lhX
-	JrOgUKyb5UaI9LsjXtYD2UPqtVkeE6oMVYL93StKd2MSV8tIML9kDzGrlvrFwvjpRHAFXVR9rsR
-	AmaskkSejQhQyCAbfQ3tbZPQyMDxhxuwvs5DtGPUtZ6ly8A094P0FpdBmpuydLDpfSvYS5wne92
-	f9JYa4sBc8nnVtRsdWx9x54RPo3N91UY1z+Bg5T7yPuwtZMo2wvxtxWp+5i/PcjIAYmw6l3Ypyg
-	9drTJEf6qwws2sbr0/AIpm2pinyDTvGyX9puuU3dLtE6SGg4Z+7YStGbGNWuXoq7za5LGOrUCSW
-	jEao8xG3j3IfYbl7GbfuQFKWdT+V+JwTpozNzPmq572/VBOVWar5kAs7BUdU5R1CpZQsXxJG+Ck
-	DXvXo/uBdmRvBnuoMKBzyFrJ7JIKJaiacqWmKySJglxSouzNDHIfeTeF5mceWSdEMoxX0Ug21iz
-	RzuH9HLkF8BRtdyjfxHSf/6qBuvhxGazONFatqaJjKPRcQmm2kXddj4zR
-X-Received: by 2002:a05:6000:2009:b0:4a5:2e5b:51c2 with SMTP id ffacd0b85a97d-4a52e6a947bmr243585f8f.29.1794904004601;
-        Tue, 17 Nov 2026 00:26:44 -0800 (PST)
+        bh=o7Ds5Sp5DChQJ6GHa3pEkVZuOErJkij7LbLCUPT9+Pc=;
+        b=k4sNB3VvTQLjXIRiY/0lmjEbHL2agLJRZsSlbjX8zcrZW43ItX16Q2phRVNczlmfke
+         R2M7Zah+v294at0a4B57UiJwRghoccab3rqTUpF+K4UqER8eh01qwt6TOm/Fwzmh0tpT
+         U9gSDlfVKSas0tETsyhi2vBlRHBdCqBYg/ACKyfJw9md9QPQ5Ie0lfR7+DoAurV2mwiQ
+         OlGjmP9pOkDbnvjtY4t9zw2ohKB6oSyz7iWWgxCtm2zG+T7QZHoFUqI2ddRHAX2IHnlS
+         u+EgdzKFMh90Jw2hqnSqM+9Z7rtCGtznsphJiz7BD6qapoUWRLbEyTJ7+WmOO1YZB2X6
+         kdlQ==
+X-Forwarded-Encrypted: i=1; AL+hErEpRpS9C0QTRIuqAzqaR0xRhsxi5GvFlMh+FIe1qNAkRFcbRN/ndUupIOyLgJfQtahePcLAhfYn6MvEeg==@lists.ozlabs.org
+X-Gm-Message-State: APuU4Z9eS1S/M1/LNOxfaDzS0RbhcZ/IUgx0aqIw5dIFLf1OMZ3CwmSs
+	bfVqcmcN7lhx4rMB+yR+vEBCMs9QJ1qH1YLQiVjlpF/VzwGdewmA4ZZW711mXYWvK6gV
+X-Gm-Gg: AYBFou0tQryOsU5vwi6rdzJ8YhySMwLzNc5DUcBQS9h18ITq8s4SoWyEVb93DDlXur9
+	nYXHQOGiFcedLMUlQyYQv/w56w2U8J72qP1InGSbHgnCjkkB8/6UrrrLpzSZ4U0LgsMwW0n6rp8
+	ApAVuFFoxpCM/YQmgPEGFIQ8zD3Z2qGYUvDOCtHizvQAyS4Dj2qFnEgnBV/ZfDVTrb2qq4hJC8r
+	PMGC81on9Pm1NzC3PwuJyOhBnqTDmfn1Uqkc7TSrli1IvF+YBYBVaR8T4EX7WAKhO6GsrS3JU5p
+	6b8UC6jncbrSH4VwT8C0/v5G26yUWNeVNAbv17u8/SRV/FUvghjOyucobX4Thu/wd9iHiGnLNTC
+	pkpOmRWxk29n6n3RCuGHRxFx3sOBLGw3Fe5jI0fH/0IwlloeRG0p9LCxNAFuX8s58HPgly1MvbK
+	9FH/Et1CG57G/kGHzNaZhXAxs7F+RLrzUnHp48vrGI1mi/q+UNKjaBKARJFoKz+wHQqIY2oDmS8
+	qHaaLzRC++5jVr0C9AgKsTxP0QxnUqrLPpQsOlAVAUl+UJev6Le+N6QUgfB/hHzuHh3IJKf0YF7
+	ddTDWRP5//dlJbqv/ENqb3mTJNPRqs8Ns76eWm3vzWosgXG+Zl/VOqMIhAthPHNRtGQLSjdTmQ3
+	pN+uDqma6J3Jfn8AKmVUB4K2rVwCw8BP7p5ryqtKmU7N97P0rgMeOcA1I
+X-Received: by 2002:a05:600c:3494:b0:4bb:6c71:b268 with SMTP id 5b1f17b1804b1-4bb6c71c232mr134135095e9.6.1794904030378;
+        Tue, 17 Nov 2026 00:27:10 -0800 (PST)
 Received: from ?IPv6:2003:cf:572c:2800:de4c:6789:33ce:97c2? (p200300cf572c2800de4c678933ce97c2.dip0.t-ipconnect.de. [2003:cf:572c:2800:de4c:6789:33ce:97c2])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4a4de4cb1c3sm977858f8f.8.2026.11.17.00.26.43
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb7838c912sm45730155e9.4.2026.11.17.00.27.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Nov 2026 00:26:44 -0800 (PST)
-Message-ID: <c43d70badf41f62f8e149ac024bab3df979fa756.camel@amutable.com>
-Subject: Re: [PATCH RFC v3 11/44] failfs: use fc_init_pseudo()
+        Tue, 17 Nov 2026 00:27:10 -0800 (PST)
+Message-ID: <0ec7b8c90cc456b24e5b19c1db673d497ae43735.camel@amutable.com>
+Subject: Re: [PATCH RFC v3 12/44] rust_binderfs: use fc_init_pseudo()
 From: Alexander Mikhalitsyn <alex@amutable.com>
 To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
 Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
@@ -93,11 +93,11 @@ Cc: Jann Horn <jannh@google.com>, Chris Mason <mason@kernel.org>, Josef
  ocfs2-devel@lists.linux.dev, 	linux-s390@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, 	linux-usb@vger.kernel.org, Amir Goldstein
  <amir73il@gmail.com>, 	linux-erofs@lists.ozlabs.org,
- linux-kselftest@vger.kernel.org, Chris Down	 <chris@chrisdown.name>
-Date: Tue, 17 Nov 2026 09:26:42 +0100
-In-Reply-To: <20261116-work-loop-pseudo-v3-11-8cbbea1cf34f@kernel.org>
+ linux-kselftest@vger.kernel.org
+Date: Tue, 17 Nov 2026 09:27:08 +0100
+In-Reply-To: <20261116-work-loop-pseudo-v3-12-8cbbea1cf34f@kernel.org>
 References: <20261116-work-loop-pseudo-v3-0-8cbbea1cf34f@kernel.org>
-	 <20261116-work-loop-pseudo-v3-11-8cbbea1cf34f@kernel.org>
+	 <20261116-work-loop-pseudo-v3-12-8cbbea1cf34f@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.56.2-0+deb13u1 
@@ -120,40 +120,48 @@ X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
 On Mon, 2026-11-16 at 12:04 +0100, Christian Brauner wrote:
-> Initialize failfs as a pseudo filesystem instead of raising
-> SB_I_NOEXEC and SB_I_NODEV by hand. This adds SB_I_PSEUDO.
+> Initialize binderfs as a pseudo filesystem instead of raising
+> SB_I_NOEXEC
+> by hand. This adds SB_I_PSEUDO. binderfs_fill_super() keeps clearing
+> SB_I_NODEV for the binder device nodes.
 >=20
-> Reviewed-by: Jan Kara <jack@suse.cz>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Chris Down <chris@chrisdown.name>
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Reviewed-by: Alexander Mikhalitsyn <alex@amutable.com>
 
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 > ---
-> =C2=A0fs/failfs.c | 3 ++-
+> =C2=A0drivers/android/binder/rust_binderfs.c | 3 ++-
 > =C2=A01 file changed, 2 insertions(+), 1 deletion(-)
 >=20
-> diff --git a/fs/failfs.c b/fs/failfs.c
-> index 437cdc981c2de..f03334f361c0e 100644
-> --- a/fs/failfs.c
-> +++ b/fs/failfs.c
+> diff --git a/drivers/android/binder/rust_binderfs.c
+> b/drivers/android/binder/rust_binderfs.c
+> index 5f020226720db..04468c5b5c116 100644
+> --- a/drivers/android/binder/rust_binderfs.c
+> +++ b/drivers/android/binder/rust_binderfs.c
 > @@ -3,6 +3,7 @@
+> =C2=A0#include <linux/compiler_types.h>
+> =C2=A0#include <linux/errno.h>
 > =C2=A0#include <linux/fs.h>
-> =C2=A0#include <linux/fs/super_types.h>
-> =C2=A0#include <linux/fs_context.h>
 > +#include <linux/pseudo_fs.h>
-> =C2=A0#include <linux/fs_struct.h>
-> =C2=A0#include <linux/magic.h>
-> =C2=A0#include <linux/mount.h>
-> @@ -132,7 +133,7 @@ static int failfs_init_fs_context(struct
+> =C2=A0#include <linux/fsnotify.h>
+> =C2=A0#include <linux/gfp.h>
+> =C2=A0#include <linux/idr.h>
+> @@ -667,7 +668,6 @@ static int binderfs_fill_super(struct super_block
+> *sb, struct fs_context *fc)
+> =C2=A0	 * necessary and safe.
+> =C2=A0	 */
+> =C2=A0	sb->s_iflags &=3D ~SB_I_NODEV;
+> -	sb->s_iflags |=3D SB_I_NOEXEC;
+> =C2=A0	sb->s_magic =3D RUST_BINDERFS_SUPER_MAGIC;
+> =C2=A0	sb->s_op =3D &binderfs_super_ops;
+> =C2=A0	sb->s_time_gran =3D 1;
+> @@ -759,6 +759,7 @@ static int binderfs_init_fs_context(struct
 > fs_context *fc)
-> =C2=A0	fc->ops		=3D &failfs_context_ops;
-> =C2=A0	fc->global	=3D true;
-> =C2=A0	fc->sb_flags	|=3D SB_NOUSER;
-> -	fc->s_iflags	|=3D SB_I_NOEXEC | SB_I_NODEV;
-> +	fc_init_pseudo(fc);
-> =C2=A0	return 0;
-> =C2=A0}
+> =C2=A0	ctx->stats_mode =3D binderfs_stats_mode_unset;
 > =C2=A0
+> =C2=A0	fc->fs_private =3D ctx;
+> +	fc_init_pseudo(fc);
+> =C2=A0	fc->ops =3D &binderfs_fs_context_ops;
+> =C2=A0
+> =C2=A0	return 0;
 
