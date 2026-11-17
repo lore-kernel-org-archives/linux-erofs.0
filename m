@@ -2,83 +2,83 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 922F0606A31C
-	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 07:27:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0007C606A31C
+	for <linux-erofs@archiver.kernel.org>; Tue, 17 Nov 2026 07:27:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mv+WsRQN
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jTGX566ggz2y8r;
-	Tue, 17 Nov 2026 18:27:17 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::52d"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794900437;
-	cv=none; b=CZBA7D6O9CqhmZSIN/7PCvZnpbNb6JCYtSA3W2OQCR6P/qqivi7RgARBHUkji7c8zBleJQmaQAYUd+PegSCoD7QgBLeQycf/SawKIS0btvSEkqH56QhK4V7O+szCDo/cru4fnAbd2RcJUGv63HoHU4HeI+FGrtEsrmf3pgNRSNLSIpZ/mGbbEl0Zy2dfTJeIqhQFFubykRjYuQt0wTG1XjQmtrjdPvMfS1+hI+tWKPdksVmF+INVwr3fiF4NYWr3MsEg3yyR1bV8RQi1gL2bZjQs8tj3Gt7D4opgfDQwpDFUyCO5VIJsUMI9tHyxj7PgQobQLMGPX0OKuDmZwpKsug==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jTGX75hCjz2yDc;
+	Tue, 17 Nov 2026 18:27:19 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::42b"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1794900439;
+	cv=none; b=c2/kXvWhOyxFJ4gH078vZKuEECUhWpf+cjD1SfhuC9NCOUVCk4a6v3wLcFCt+DR398ug42SULwilHwCBVaEpqY5aSKKYlFtWQJxXt1Z8uOxdi0qPsC+69C6jlcuoN8P52RTVwjchTMMrXl8tVqflpIWML6KJ6Eb9qdH07KvU7zsy4ekoFYJ1PSv+37FkN8Znv/uXRilNEtZCs59JoZ4UvzGp2E/lMyPtXYKasg9zZmXOkKldhRKCQOIcxuVqwboJuq37N+nbp5xu70gxY5Lz47RT3XlIKT3nlIjpeQ7WkOOdztlz9bRQaX5lnyMo//HXZf06daU8/i1oG5ONzF9TPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1794900437; c=relaxed/relaxed;
-	bh=LalScOsTvJgML23cf1jg/B/LAQgoGo10yA782Z4To7g=;
+	t=1794900439; c=relaxed/relaxed;
+	bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oBnKpUTqv4qY5fNCeQY4IkTMtNAoErT2dfJUIOowFLRjO1OWDicxnsNl9bFEz04QID8hZ3j5USkVTcLrq1PIUCr+VHMGjBMYDqG0rosfw8P9kVXCIFC8Fjk6YrRIt4AXX6UQsYktdoDYBPJJTRf2UvAk9gMbCSoDDejESnVsa4QNC98ansLKPST0tNErlvhCTq51YnAmoIM3CG0I7Rv6YrcEfMbSKCFBrlTvu4SE5FfUEWTpWz6qvSXoTNjxZUiHwsQmCVSvo/V/x0f2W6ZgtG4T4XlkeckSMdSKZsPu1h5EiTC4SXB138y2+/b2kY7sjkyLxUNGl4vWpNbV5FmbbQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mv+WsRQN; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::52d; helo=mail-pg1-x52d.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
+	 MIME-Version; b=jruVBwUCqjWr31CSooW29QBgo2TgrMNRGvW2Ht1CZ6sNJF53MqOnmj44WS/fDaWsElZng+ken38DXACV7rApxK2StdttTC7ACsV/PpJjBN4C9VMt5/42DFfN3zc7UB3lI7GsyLWfVtcVtVO5Cz9taMTgrtCVQXe62HJnThEGlcrJfQ9z3dGbWEyQMKfg56WOF3lc9G3m7tJtvyOx91A/WoC5KYHh0W1uUfs0MVV07N7xfNb9znX4pxAUGmQVywITaSWFweyPPYvAn3bjQkWZRTy8HFTuyKUMCjFFeu78em+dnLszhi0AQES9/aUeyFpuPdoyw2ZDmoZhcSrjr70qpA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::42b; helo=mail-pf1-x42b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Mv+WsRQN;
+	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bt5DAlfs;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::52d; helo=mail-pg1-x52d.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::42b; helo=mail-pf1-x42b.google.com; envelope-from=stopire@gmail.com; receiver=lists.ozlabs.org)
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTGX523x7z2xPb
-	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 18:27:17 +1100 (AEDT)
-Received: by mail-pg1-x52d.google.com with SMTP id 41be03b00d2f7-cc147d86bebso494452a12.0
-        for <linux-erofs@lists.ozlabs.org>; Mon, 16 Nov 2026 23:27:17 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jTGX70xRMz2xPb
+	for <linux-erofs@lists.ozlabs.org>; Tue, 17 Nov 2026 18:27:19 +1100 (AEDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-8b2382bf051so2421028b3a.3
+        for <linux-erofs@lists.ozlabs.org>; Mon, 16 Nov 2026 23:27:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794900435; x=1795505235; darn=lists.ozlabs.org;
+        d=gmail.com; s=20260707; t=1794900437; x=1795505237; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=LalScOsTvJgML23cf1jg/B/LAQgoGo10yA782Z4To7g=;
-        b=Mv+WsRQNvBlfXVp5Q+vmgmHLhsSyaXv904bt9Vgon3BSvHC28mysM705dYwkZrAqJj
-         6/4NrSo5yW+VxWqESjtuel4qoxVOvi6juFIZI7c28e1NgFcx5yM0iP7OKlTHscWBKiTn
-         bqvIBmEWzgNatDBK+jF+Zl3qQJbiun6jox5dzQgzBL1HE3jmsQ2iVV/cn3iXsjJeC3uP
-         fmu9xaMii8U9QtkCK1w6zeQTzU5tX8BzIMe0qA0M4x9MCUaHsb2cT3dNjVWFL4psokTA
-         qp7ZquDioUQcPNBuoRtJ8Yikvb5IOvq4fp24mNGwwmDoma7n6jnDax9fDzzqEuhih/Uw
-         gCCQ==
+        bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
+        b=bt5DAlfs8QJW14ak/qY7P5tXzyKNt9+VUuuJ5xcEaIUs5guAdHy4ioqr9TMnZLxt+M
+         Z1flceqVWc8dZgZPQ8zqOx7xiLZaDELMg9h0Xdzegiagr9BGf1APcEE3cfJyfcV6qiMN
+         zsCHFycOwsyfGqJfyF47ceyzacJD3oALeAQdYsYSMbn07u/3uMF+nxHNcvsGrNiMDh76
+         mUn04W/8V2fcmmc7+kr5kvnR/qDd89L5y8uqxXe7YWiMzMq3HUnfzqqieVUXJzLaVAEk
+         ONFvoDxAdVdbJ/6bZlfFKrbVMEFNz+EHg+/Bb6BsVkJcaPUWtzZcXtIoD+KnOFaX4zgb
+         2rzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794900435; x=1795505235;
+        d=1e100.net; s=20260707; t=1794900437; x=1795505237;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LalScOsTvJgML23cf1jg/B/LAQgoGo10yA782Z4To7g=;
-        b=qBQ3KdrCKHfNYLgkMh5ToNjjuYBEmRnTubvyawnnS8zBkIa7W6DK0gj4PAr7qlI9NX
-         J2GKCPRLI1mHBny8P2o/fmilkF2KxgUaCVzqCLvyKs2lWn4DC/I2LAv+J5FvFhLOXJnO
-         rQxunKJc3xg7nTAsMK8WI15Ig0ei/PZF4HewrpVdAD7AoooDHbMalpKcdeU7FbYcoAJ4
-         k4lchMvho0swn9PnUZiZWqk7v4lZaG1Pe4gKuQRE4kRgG5BFuGoJmBSG5nAx25WbEwi6
-         tpF5unLB9ID7sFHi6ZX/7rhPu1TlewyDmOUXg6yJ5SGlLtgFpN2e3w7vDsCUThAA4/m6
-         NIRw==
-X-Gm-Message-State: APuU4Z8Pi0j3xzGPQesvwo3JP83aFHHgkyekHJc4Mt1//mHAe7mwK9qw
-	Jj7Br0rOL5OOVNN6nrE8gyylrhJfr3S3uPytGqg4V/A982b3fzOVargDSNQyKLIYjoY=
-X-Gm-Gg: AYBFou2e2uzQa/3Rmgx9VYijBl7MoFXWxGWyCmhHrHj8PZd0Rx7BiFo58ap/9fjP4XY
-	e6LxNXbaC8npVUoom6PqxRJO72sA9gbPkvwTyqiEZDnCeDOqkcw0pFmSlvEEnpeExshr4W1uxRF
-	u8kQX4M19agV7zXE/xhnW1mMsIxXCPV/LOUh1LvTXLhuIcWMYfuYm3JgWJRm926YCP652XGRHAN
-	L00gTQgYr7NEx9D9dq1lhuCkBqs2QdfBx6+2Due7V/kqM3JQdIi62W2bufjEMcXfWERV+DTAy8g
-	z/bef55qFfeYLJDNr+w3hUv8JIstbIiuE1xaV6CNGBwlX9IVS2R9UykoabMpgKkW6lw7UqmoJt5
-	3qyy3S+qpOYaYzXBHSYZzEM1HkEWF25IBfZrJ90uPvVRUrK63pjcB8nyrlrGbjvTeIfuT0QRtuA
-	awM2gqgxrCsSuIpDg1tqqieJr87zZzsaEnZpUIAOeUNX38B/8Q0L8LqgRfwXGXsRQE/DbKmPCuM
-	CNSv9+5u1JkrL1NHo5uNFfyjCUDNvq0LMVj9HZtMyXtXWA44uJ9kK7Y4tEExTZw8oj/X/syCIXv
-	zWvzvK6innaAQFyXR9IqiAUOIts/fRQbKePLw/D+MGbN/F7d
-X-Received: by 2002:a05:6a21:7913:b0:3fc:d7b5:94d5 with SMTP id adf61e73a8af0-3fd2bfc4f07mr852955637.32.1794900434804;
-        Mon, 16 Nov 2026 23:27:14 -0800 (PST)
+        bh=J86r6FThI6DtLCNmBjeYTLCokWyMce2ndHyeeqE2eR4=;
+        b=T0+jd8MEKK9ZKZRAMsOVaZ8quj18qfI5OdPW8gSAHieEgD517UZmQ03dOxOLuN+Z/5
+         PeqzamD52lh97829CWR34nYK7Q3wq2tdU9ZOkVrNDnoz/lMHtGD3iWTFJX/TrFzWo26d
+         +zwg3GQnSnS8/dzpcyD0FVr0l+R8yaLhek2VrJmAvO57NpfwslUUS9Qv1Z4Vb1BByZhs
+         NG9YeVujEozZ1qU28e9/RIqoD1X0UTbfxB4WtChkZh0IB7Ye2BR0KoXMUaHBwGRlU+6Z
+         65z9lBQj1S9pr32Io2Re3htGqMKrhq8aG4yKNlNZgGpyCmFJC4di8vxm0wRbTCeAlorx
+         T6ZA==
+X-Gm-Message-State: APuU4Z96ZMAYsI/6twCujEyXXRTow4wWO7SnL1EGRn1fgKlhFC8Hz+tw
+	OfROKIBRjVg1s/XIABseqxb8pbQbKdA+JqKSRrPNmbZ3M4eCjk1mvl2kgXc+oykbFRE=
+X-Gm-Gg: AYBFou29dBqlWt8HhMBY/YMNM/1hlPVLB1WOaDpOcsAVirYnCYKiyjQby/+bcqQzitl
+	65QJ2iMnWzKskb75cqO/5I2e7dh4Z7QPYooRivjxFSWoMc9UQBuuzfeFjKkkNwpkvo16+lYzyfh
+	vd1ww/6b5yW8nc0E1nTGtWcFNArjJPERCU5mK9+fkK9Klndjz3fzc52wGaGmk3AwVVKwNFL4krH
+	bIY4DP1t8IqbU5GeQ93OWAfTgDu6uumhTPIqCbE0PPH53jOjITG59O0vAxoarN3y+ONBT6Smr+H
+	gS03jMa0rIyYKbg4C3AEu+WdmaGThrjgTm3P1ih2+os9u5qzoFllaezLgn2GrjAYztGdHCmlARw
+	eZ1wrU2sG0xI2/NY+G+mmqKHx7GxTdmRo5tkfc4+lHTJS33PFwm7xLvPHV7+GFWsc+SSPestqNN
+	+kcY1ZmQuXVKrfRS6G2XzqhQ+GyW4wliOuzxTiG1rQ/lEot/SCxA9VeEOolszMLpdveWiRiXWsx
+	8XT7QxWTDVcs6v14SOJRwAHjR+EqTZnOoJDoWpOhyhFexrhmfjIRppNcxM6Pz1FMq7E9G5svOys
+	6/8H6c+5udCrPcZS1hgySSlovs8O6jQBT5RHVjQQijJV1fdN
+X-Received: by 2002:a05:6a00:4ac7:b0:88b:7712:6e21 with SMTP id d2e1a72fcca58-8beb81061aamr11073873b3a.33.1794900437479;
+        Mon, 16 Nov 2026 23:27:17 -0800 (PST)
 Received: from zyf-laptop.tail52ade4.ts.net ([124.70.231.56])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bed2055031sm4940716b3a.39.2026.11.16.23.27.13
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8bed2055031sm4940716b3a.39.2026.11.16.23.27.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Nov 2026 23:27:14 -0800 (PST)
+        Mon, 16 Nov 2026 23:27:17 -0800 (PST)
 From: Yifan Zhao <stopire@gmail.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: xiang@kernel.org,
 	Yifan Zhao <stopire@gmail.com>
-Subject: [PATCH v2 8/9] erofs-utils: ublk: report the handler's real I/O result
-Date: Tue, 17 Nov 2026 15:26:28 +0800
-Message-ID: <8026f063911c25390932710b7afb11de19c61514.1794899782.git.stopire@gmail.com>
+Subject: [PATCH v2 9/9] erofs-utils: lib: bound OCI blob reads to the requested length
+Date: Tue, 17 Nov 2026 15:26:29 +0800
+Message-ID: <e82d7487404ff5b400bdb0429b99fea00ed5b31f.1794899782.git.stopire@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <cover.1794899782.git.stopire@gmail.com>
 References: <20261112124725.2774244-1-stopire@gmail.com> <cover.1794899782.git.stopire@gmail.com>
@@ -102,31 +102,27 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Respect the handler's actual I/O result instead of always committing
-the full requested transfer length, which falsely reported incomplete
-transfers as complete.
-
-Fixes: 799c933bbefb ("erofs-utils: add ublk userspace block device backend")
+Fixes: ec0ae531ade8 ("erofs-utils: add NBD-backed OCI image mounting")
 Assisted-by: Codex:gpt-6-astra
+Assisted-by: Antigravity CLI:gemini-4-carbon
 Assisted-by: Claude Code:deepseek-v4.1-flash-1017
 Signed-off-by: Yifan Zhao <stopire@gmail.com>
 ---
- lib/backends/ublk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/remotes/oci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/backends/ublk.c b/lib/backends/ublk.c
-index d2c5e19..7fa88d9 100644
---- a/lib/backends/ublk.c
-+++ b/lib/backends/ublk.c
-@@ -630,7 +630,7 @@ static int ublk_handle_io(struct erofs_ublk_queue *q, int tag)
- 		if (ret < 0)
- 			io->result = ret;
- 		else
--			io->result = req.nr_sectors << 9;
-+			io->result = req.result;
- 	} else {
- 		io->result = -EOPNOTSUPP;
- 	}
+diff --git a/lib/remotes/oci.c b/lib/remotes/oci.c
+index 948d699..3e86e91 100644
+--- a/lib/remotes/oci.c
++++ b/lib/remotes/oci.c
+@@ -1491,6 +1491,7 @@ static ssize_t ocierofs_io_pread(struct erofs_vfile *vf, void *buf, size_t len,
+ 		return ret;
+ 
+ 	if (download_buf && download_size > 0) {
++		download_size = min_t(size_t, download_size, len);
+ 		memcpy(buf, download_buf, download_size);
+ 		free(download_buf);
+ 		return download_size;
 -- 
 2.56.0
 
