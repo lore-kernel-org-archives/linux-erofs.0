@@ -1,62 +1,64 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05154606A320
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Nov 2026 21:17:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56370606A338
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Nov 2026 21:40:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OhcmJSW+
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UY92mI76
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jVrsd2Kzbz2xLh;
-	Fri, 20 Nov 2026 08:17:57 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jVsMg4n2Dz2xL1;
+	Fri, 20 Nov 2026 08:40:31 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.105.4.254
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795123077;
-	cv=none; b=lBDMPTa1FQskc+3KUGdePmV/3uHVkowWwwswbLNfZVhiAT5ZYNj/mXaNitaTC0k4v8aEFlp56k9SThj+kecroLOyaRv27MuE6bV9zF1SrCokexXYLSDPCC5penpyEOvUuPedWrH/vzkp972NmwzwT84X74ow8j0UUwbdCNBmSogbTbJLqNpZWexwOoUnmJVY66zigEpyRccaS1+AM5xTtbCkF2/ZEhyQUdmVqzAcUg7ESkoGPXdEnTHB8k5O3JAwReSmbyPOLr3NSmfcqTEZuB80+MBQc/E7N8sGPa0mkRIRvJoEE81rrQZ2foXzLGF+MlFsbpkMHA74M+NqeyoY4Q==
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795124431;
+	cv=none; b=GcV9XYaJllDUnGwpfF7kWb8Ap8WYa9m/tvP84yt/j+YFX7okZ+jNPyrPVwvQJ9eneJ+v/u4AJJb/bbf9gwP5fwbfcagaxEJ2PhMsf99slC2F8M6CSWSD+JOrPHFB5W9gBaDSc0VjMMhQbwPK7MR66mDJ56Atkkf1qeD9v1WpvDP08a5MUiGgrQl/0vkK0D2rCQz7udKf0yvvXCaDq8UF+ko0VyOnSgk9mfvvLBtl8YOqLboC5MUi+dxvOpzo+VQZhdMswM9HY1hyHi1smXx79xPSlqualP1deJbJuBxhrqiZefIzNA1ykk0bcKizUHwzaj/Rb2C8Q2WtkZyHFvKcYQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795123077; c=relaxed/relaxed;
-	bh=Fse7p9SsspMc7R+vIhuooBKhCKsbu9xtP3buzFRAVxQ=;
+	t=1795124431; c=relaxed/relaxed;
+	bh=6BvNyHgvViv9IZmuvvYxPHjZklGMCfTMavfke1LQWLY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JNkymxbQw6DpAb0iFc6X1DVjJ+bDlIZarC/urNq0C7erIdmbswHqkP/6XmnEEKkQTBMGNL+QnYUZ/a21PIK5+xT2e0z+Hx9z8kxsrl/JE4Xeh9fjx/dscxRzkNqwt7LQK/+4lQ1fE4ykqKTHOHcrIeLpBKv373uXQZZTdsgD3g1MlIDcdk/sC7NCX7/4phwZZrwz06zEWBE3LuhA/TVA6bry3izPTRANls9edIo87Ik9RsneDvr7Y6/BaIbMF6k4qsblaIN6wXw/a8lO576qoyOsmf5Up+LufmivCkDDFBa8xiOXJQsah+71OHR3OnH/yDHPx+bduKOyUtBd9UF48w==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OhcmJSW+; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=J6Uq3osRQFy1rZq6sD0NvMFdi9cmEgqOVLGvv1puz26Jm8RP2L6VRKhgtz/zLtVHGX5a8QVrtkDelh39hah02OZkZhlTCkBGiULSVKS6QUx2JIXFfsq2+q2QFzXeOpHz/yrHPCObdgKQSoQ2b085Dc69bzQKXqw9nqxBlii5z0Q19Ks1iXfc/f2hwLKzuZ8PZIBnkRi8IsPSgzeP38EvFRu1pT2wP1eNts61M8U2DhwNewJ7zUXduIqowxV5snkVfIEzLYT6G4Dzyfi65GIIrJZ9ZHlSawcveGgnNLLuzoR0xLbdjR4Yp/848nf4DIycBrAfhwFGvFt9GvJgW9Dyxg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UY92mI76; dkim-atps=neutral; spf=pass (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OhcmJSW+;
+	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UY92mI76;
 	dkim-atps=neutral
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=xiang@kernel.org; receiver=lists.ozlabs.org)
 Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jVrsc4rDtz2xLF
-	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 08:17:56 +1100 (AEDT)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jVsMf40mXz2xH7
+	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 08:40:30 +1100 (AEDT)
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by tor.source.kernel.org (Postfix) with ESMTP id 1643060416;
-	Thu, 19 Nov 2026 21:17:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E00021F000C6;
-	Thu, 19 Nov 2026 21:17:51 +0000 (UTC)
+	by tor.source.kernel.org (Postfix) with ESMTP id 28396626E4;
+	Thu, 19 Nov 2026 21:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B851F000C0;
+	Thu, 19 Nov 2026 21:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795123073;
-	bh=Fse7p9SsspMc7R+vIhuooBKhCKsbu9xtP3buzFRAVxQ=;
+	s=k20260515; t=1795124427;
+	bh=6BvNyHgvViv9IZmuvvYxPHjZklGMCfTMavfke1LQWLY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=OhcmJSW+nehYY3c7/OCCcVRGjCMN25K8S9b1UYXtuiQ1qDL2wWHpMOazcNpCRIVvJ
-	 OMe3AdIyhF/t+S7TqEJlqMy5EBxG4XkDZzSpQJaIMSZF5J/De+l36MC3N/HOiBXy7m
-	 uYPxtEGS+QC3d2rgrJWPyTyHeqcL5/CKCfmmRSaDcgMHMNXs6xzFgkVuGJR+nfRBCX
-	 9hKAwlxRq9T/SlhiSVyEDGrV6bFEpra4/K0q9JEVxbUd7zA4Szr3vm3LvM+upB49GU
-	 3FqSjRho6zvKl2UwXK2+QwO+VtNu2o2wecFWhIT1oLoEd4kBUWwK6+e4Y7TTxLa929
-	 0ETJmYNOmVmmA==
-Date: Thu, 19 Nov 2026 22:17:47 +0100
+	b=UY92mI76u/GrLHGRSW9U2aYfpLifGf0FrRQz14MIS6aPNp+bdi849ODOyJlX8IZif
+	 ihhrZ51v2tlrmZemnZK69RTNyEwp2yVK78RaxCKf0IhZgAP2N/5i6XRSpouHsgMC7B
+	 2lcrt1cs1PUJDGYblXRv4zKOqD/wv1X525cJI3uB8QWGgQwaDfLCltOGI2hAFASr/a
+	 SxBPQaunwTUzNrgzhZeMhmVvzsNUgidxjBETtT9GEtQrGbrqGLahvOP0MuNaKRL655
+	 8hSM0rIl/4jiQHtpv6fSp17ztwuHFgXrbVzN8CbJWF6/Dy/TvPITyxQAocPCmBMtR4
+	 tPROyGoz6wnXQ==
+Date: Thu, 19 Nov 2026 22:40:15 +0100
 From: Gao Xiang <xiang@kernel.org>
-To: Wenjie Qi <qwjhust@gmail.com>
-Cc: xiang@kernel.org, chao@kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org, shengyong1@xiaomi.com,
-	yangyongpeng@xiaomi.com, qiwenjie@xiaomi.com
-Subject: Re: [PATCH] erofs: enable buffered RWF_DONTCACHE reads
-Message-ID: <av9ne1tKVIBQgCI0@MacBookPro.fritz.box>
-Mail-Followup-To: Wenjie Qi <qwjhust@gmail.com>, xiang@kernel.org,
-	chao@kernel.org, linux-erofs@lists.ozlabs.org,
-	linux-fsdevel@vger.kernel.org, shengyong1@xiaomi.com,
-	yangyongpeng@xiaomi.com, qiwenjie@xiaomi.com
-References: <b168501806b41e3f0be15efec4b54b371d8dd4e1.1795059802.git.qiwenjie@xiaomi.com>
+To: Friendy Su <friendy.su@sony.com>
+Cc: xiang@kernel.org, chao@kernel.org, jack@suse.cz, amir73il@gmail.com,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	Yuezhang Mo <Yuezhang.Mo@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>
+Subject: Re: [PATCH v2] erofs: set SB_I_ALLOW_HSM for bdev-based mounts
+Message-ID: <av9svyT3otgEEDgX@MacBookPro.fritz.box>
+Mail-Followup-To: Friendy Su <friendy.su@sony.com>, xiang@kernel.org,
+	chao@kernel.org, jack@suse.cz, amir73il@gmail.com,
+	linux-erofs@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	Yuezhang Mo <Yuezhang.Mo@sony.com>,
+	Daniel Palmer <daniel.palmer@sony.com>
+References: <20261023021635.2852395-1-friendy.su@sony.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -70,63 +72,102 @@ X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <b168501806b41e3f0be15efec4b54b371d8dd4e1.1795059802.git.qiwenjie@xiaomi.com>
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+In-Reply-To: <20261023021635.2852395-1-friendy.su@sony.com>
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS
-	autolearn=ham autolearn_force=no version=4.0.1
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
+	SPF_PASS autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-On Thu, Nov 19, 2026 at 11:52:50AM +0800, Wenjie Qi wrote:
-> From: Wenjie Qi <qiwenjie@xiaomi.com>
-> 
-> EROFS uses filemap_read() for buffered reads, including the inode-sharing
-> path, which preserves request flags when cloning the kiocb.
-> 
-> Advertise FOP_DONTCACHE in both file operation tables so preadv2() callers
-> can request that newly instantiated file-cache folios be dropped after
-> consumption. This is useful for one-pass reads that need not retain data
-> in the page cache.
-> 
-> For compressed reads, retain trailing readmore and propagate dropbehind
-> to the single-folio neighbor lookup. Readahead expansion already marks
-> new folios through readahead_control. Suppress prefix readmore so it
-> cannot refill pages already consumed and evicted. Ordinary readmore is
-> unchanged.
-> 
-> Tested sequential reads of 1-GiB files with 1-MiB requests on NVMe-backed
-> LZ4 and Zstd EROFS images in x86-64 QEMU/KVM with two vCPUs and 2 GiB RAM.
-> Each reader ran with memory.max=255852544 (244 MiB) and
-> memory.swap.max=0. Normal and dontcache ran in ten paired rounds per
-> layout, alternating their order and using a fresh guest for each run.
-> 
-> Results are arithmetic means of ten runs. Memory values average the
-> run-level time-weighted memory.current means. Percentage changes are
-> relative to normal reads:
-> 
->                     MiB/s                  Mean memory, MiB
->  Layout   normal/dontcache  change    normal/dontcache  change
->  LZ4      2513.57/6350.61  +152.65%      169.53/17.39   -89.74%
->  Zstd     2535.57/4066.49   +60.38%      179.01/18.17   -89.85%
-> 
-> In this test, dontcache reduced average cgroup memory by about 90%,
-> left no consumed file pages resident and recorded no memcg reclaim
-> scans or steals. Both layouts were faster in all ten pairs. This
-> offers a smaller cache footprint for one-pass reads on memory-constrained
-> systems.
-> 
-> Signed-off-by: Wenjie Qi <qiwenjie@xiaomi.com>
-> Signed-off-by: Sheng Yong <shengyong1@xiaomi.com>
-> Reviewed-by: Yongpeng Yang <yangyongpeng@xiaomi.com>
+Hi Friendy,
 
-Yeah, that was in my own plan too but I never find a slot, thank you.
+On Fri, Oct 23, 2026 at 10:16:35AM +0800, Friendy Su wrote:
+> SB_I_ALLOW_HSM makes erofs support fanotify FAN_PRE_ACCESS event
+> for bdev-based mounts. file-backed mounts do not support this.
+> 
+> This is for use case that erofs file data is not available on
+> local block device at mount, but need to be filled at fanotify
+> FAN_PRE_ACCESS event handler.
+> 
+> E.g. format erofs to blob mode, meta data on /dev/pmem0, file data
+> on blob device /dev/pmem1. The file content in blob device is dummy.
+> 
+> mount as below:
+> 
+> $ sudo mount -o dax,device=/dev/pmem1 /dev/pmem0 /mnt/erofs/
+> 
+> In FAN_PRE_ACCESS handler, actual file content is fetched from remote
+> then filled into the DAX mounted block device /dev/pmem1.
 
-It would be useful for one-time load on large files like AI models
-and these numbers are impressive:
+
+Set SB_I_ALLOW_HSM to enable fanotify FAN_PRE_ACCESS events for
+bdev-backed mounts. File-backed mounts are not supported.
+
+This allows EROFS to handle cases where file data is not available
+locally at mount time and needs to be fetched on demand by a
+FAN_PRE_ACCESS event handler.
+
+For example, an EROFS image can use blob mode with metadata stored
+on /dev/pmem0 and file data on /dev/pmem1, where the latter initially
+contains dummy data.
+
+The filesystem can be mounted with:
+
+    mount -o dax,device=/dev/pmem1 /dev/pmem0 /mnt/erofs
+
+On receiving a FAN_PRE_ACCESS event, the handler fetches the actual
+file data from a remote source and fills the corresponding blocks
+on /dev/pmem1 before access proceeds.
+
+
+> 
+> Signed-off-by: Friendy Su <friendy.su@sony.com>
+> Reviewed-by: Yuezhang Mo <Yuezhang.Mo@sony.com>
+> Reviewed-by: Daniel Palmer <daniel.palmer@sony.com>
+> ---
+>  fs/erofs/super.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+> index 0967aace9f7f..be8728b8d116 100644
+> --- a/fs/erofs/super.c
+> +++ b/fs/erofs/super.c
+> @@ -667,6 +667,15 @@ static int erofs_fc_fill_super(struct super_block *sb, struct fs_context *fc)
+>  		errorfc(fc, "FSDAX is not allowed when inode_share is on");
+>  		return -EINVAL;
+>  	}
+> +	if (!erofs_is_fileio_mode(sbi)) {
+> +		/*
+> +		 * Only enable HSM to support fanotify FAN_PRE_ACCESS event
+> +		 * under block device backed mounts.
+> +		 * For file-backed mounts, do not enable since erofs-utils
+> +		 * has already supported FAN_PRE_ACCESS event on backend image.
+> +		 */
+
+Could you just change it to
+
+		 * Follow other filesystems by supporting FAN_PRE_ACCESS events
+		 * only on bdev-backed mount. Don't bother with file-backed mounts.
+
+I hope we could avoid mentioning user-space details
+in the kernel codebase directly.
+
+Could you send a new version as I suggested, otherwise
+it looks good to me,
 
 Reviewed-by: Gao Xiang <xiang@kernel.org>
 
 Thanks,
 Gao Xiang
+
+> +		sb->s_iflags |= SB_I_ALLOW_HSM;
+> +	}
+>  
+>  	sbi->blkszbits = PAGE_SHIFT;
+>  	if (erofs_is_fileio_mode(sbi)) {
+> -- 
+> 2.34.1
+> 
+> 
 
