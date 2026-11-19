@@ -2,83 +2,82 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2B48606A320
-	for <linux-erofs@archiver.kernel.org>; Thu, 19 Nov 2026 05:57:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E77F606A320
+	for <linux-erofs@archiver.kernel.org>; Thu, 19 Nov 2026 07:46:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Gt1Irr/u
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=UylIE8HA
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jVSR70mf6z2y2R;
-	Thu, 19 Nov 2026 16:57:07 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::52a"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795067827;
-	cv=none; b=iHf4pyrTGPDuQk5pgsOfpqxrOKMXatyaWaUUsRwBu0whYOR3OC6y3AXFaJQOn8AloNtvvEfilEwIaY0gZB2EauSYwGSMntx9ZvZbcIv75PqbX56R3g6uE7qpSqQtjiXQohkM61wxFJfN9BodZYvZxuAP2WmVKWVt8VwDab6auwTY3fZarri9madjte3JM5s/hZmixI8HpOn7awKdlgl2SjeE7b/gwDhAmwNm4BtWs03tOrrGoOkL6Ldoz3eBrxiwEDsk9e9fWKUw7E/kaq26HW28YGiaN+q0jKmwda0epLeweQAVmuos9aIxj0Hn9hQXPJJkmTzsftkic+18Bys36g==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jVVsK1LYnz2y0B;
+	Thu, 19 Nov 2026 18:46:29 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::234"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795074389;
+	cv=none; b=CxOlze7tNv6zzRFJ+Tj2dPa8DyRu5cyXU9rsjm0nS4SsysxuUU/wHgWuqQBDymXC/ZBwqeme3bX1Pe7VkJGmozZksqHdjvqWdNpbwxPI+ClCbtOy447tRRfS0ndCcW9FemqMiyV/mxbtpOO0fYdgBuvSgMqgZLqG34CBwsHzyg8VbA4lUdAq1LCvf3EFjx+hLGbVqWxqwWFH/fwG/KIzw/y7X081eUfBTzomRVfXZpHfec0ios1+L8FTcdXsuDnrK70+MAjip3C8DgkZLymV6OKFFIwvQqekDSPNUnuswekbaq6sj48XhmLelf8GhA0oDExeNzxMBwCrmlehChYtXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795067827; c=relaxed/relaxed;
-	bh=rEpqto8+d8Qs3aykCxzet9fQe1+1d0lHLcmek2w7oLQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=E2e/4HrFJD1CjgevMYYmDUr6OPpNNTLgMRZC39UuIXDPIPchKA+cIPzhjPYRnOfooOGCD4DTl8rMvcroz7mCCuzD69NLnajPQd4fM6lVxwRt6/ud1SEeYf8Zldz/TObRhl8wt/kCnU186MdBRbfxMozzDrALD+sYVxRnUI/D5RFsccxZNoJjzM63aDfjirewKg5LOpuIvx1pzjwGLro3Rm4aQ812/HCO1xc83n2cQrF2TzC97mT3V3vaYlPltkciqBWVwfpkKkhXt7KEErWmJSTaLY6Rg8ZDKT1kJrb6PTcRFHptt0NzxetKonLomU2e0LzNAnSxq8D0oSrbjJapnA==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com; dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Gt1Irr/u; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::52a; helo=mail-pg1-x52a.google.com; envelope-from=leeonion.muyu@gmail.com; receiver=lists.ozlabs.org) smtp.mailfrom=gmail.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	t=1795074389; c=relaxed/relaxed;
+	bh=UZs/dyfpjoJoO16/1CzXQFr98TVpXrDM+hkMGo/Y928=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Uk5sWRj6JhsX5CQWEiTuPj5T2DbvRmzgDPFl7gOfOAP5MYIfqCioiljEmRvpT1mCxV3W9xqAn6sN/sxl4yld/quHwqmIe6M1jiueevJhlLpFBwN6cH5Rs8RwS4OJ76e9NLB+Ef0fGjBQAHvaN+n4/zY7DX/UUnBzbrAF/T8wFzka+XQMqarItEWosRTe8runESH0JLajzRQjvsevVaELhGFyGb52yQgitqbf3eiCgkRjCfE5OsM/1W3qm0FJjFIPJYNO4IXViL5WomygCDUzeyQtxCbtfG47i5+fDvMjunXlnYS/fynZIvt4IblzjYGh+Qjv2TaNs2PzDVyjfOMGCw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org; dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=UylIE8HA; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::234; helo=mail-oi1-x234.google.com; envelope-from=uekawa@chromium.org; receiver=lists.ozlabs.org) smtp.mailfrom=chromium.org
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Gt1Irr/u;
+	dkim=pass (1024-bit key; unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=UylIE8HA;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=gmail.com (client-ip=2607:f8b0:4864:20::52a; helo=mail-pg1-x52a.google.com; envelope-from=leeonion.muyu@gmail.com; receiver=lists.ozlabs.org)
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=chromium.org (client-ip=2607:f8b0:4864:20::234; helo=mail-oi1-x234.google.com; envelope-from=uekawa@chromium.org; receiver=lists.ozlabs.org)
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jVSR55rP7z2y0B
-	for <linux-erofs@lists.ozlabs.org>; Thu, 19 Nov 2026 16:57:05 +1100 (AEDT)
-Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-cd62c570b5dso1488383a12.2
-        for <linux-erofs@lists.ozlabs.org>; Wed, 18 Nov 2026 21:57:05 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jVVsH2mkcz2xlk
+	for <linux-erofs@lists.ozlabs.org>; Thu, 19 Nov 2026 18:46:26 +1100 (AEDT)
+Received: by mail-oi1-x234.google.com with SMTP id 5614622812f47-563a0462094so908541b6e.1
+        for <linux-erofs@lists.ozlabs.org>; Wed, 18 Nov 2026 23:46:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795067823; x=1795672623; darn=lists.ozlabs.org;
+        d=chromium.org; s=google; t=1795074383; x=1795679183; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rEpqto8+d8Qs3aykCxzet9fQe1+1d0lHLcmek2w7oLQ=;
-        b=Gt1Irr/up553KANDkj7B8AJAAK4udKhz+dgdhz9SgvxPqFfCP0OyYB6PqutFO3Jmd/
-         3NbRzhDH7+BH8zOqaOcLhUybqcdEZppaxZebn5MjdCES44EpxAAMTa4UjReSlJxrpskL
-         TzsDRxdW3b/YmRmqaA7FkN3xA2OmpxQxHGFFJWYxAEzYzyz8uBqaErehjAR4o/aXVKCj
-         kYVXbV4L5gyECAKTCH+PoZb0UsZ5en8IJVtMJCjTetHHovLp+vS9wRMwq7rKTU2PHThQ
-         PBOQa4phXtavnCEVFkQRhcMbqdxJRmVXb0OSxZK8R+cO2uHw5aXONEfPu+qjCzVJ+xtx
-         EesQ==
+        bh=UZs/dyfpjoJoO16/1CzXQFr98TVpXrDM+hkMGo/Y928=;
+        b=UylIE8HAmPoipzPDkF7b1ERWYIzQQA7yGTdhTKHwW7BwXfsE68D7KpVshTsllc8TaI
+         jQRYKR/jcM5pRLTrXgXBHgPLUSshIOJ4wyg8HK7LMBMQzauFx1RcZCv4rsxLiZOirH1O
+         TNqJC7QQ0uiap/e47Kga5t6uccHPpIrKS3HpA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795067823; x=1795672623;
+        d=1e100.net; s=20260707; t=1795074383; x=1795679183;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=rEpqto8+d8Qs3aykCxzet9fQe1+1d0lHLcmek2w7oLQ=;
-        b=P0eQQIWLcLKFENKYEqm1VWOzKSG/U82Bvoh6xcqCZFIWVwAsUoGeCPvGjlhgh8sUSH
-         F4mJczDb37P5LbzNNHtt149vF/4/9ARs2hNigEDRBZxsh7g7hNlRQpF3pP88ZgOONX6g
-         wSDSaljubznjyUQzzu2kVjYL2vggHNqzgt9R9u23+UwsgqrrKoZq3fLE2941iumNyKgE
-         WxnBWtTxT9bOLCIxpeD2TeHbyTZQK3GPyVxZbkyclQB9jb+BSaKRsIrTUa5eN2uukb0Q
-         ouvd4zvbNrtRHjfx/CitXPITOj6b+kI7pI8YI1Jhzq1jJBlcg35iQklCwzmzxzACLsGT
-         RJfQ==
-X-Gm-Message-State: APuU4Z/G8urEh2NVAzftLX2RQZPRDhhLx1TRjNqnwktHYf84RezqFFC7
-	fzJYHEMLhNIa+k/K3RenzVBe8DmixlkUaEVLKzd3AqWhVcJevA6IObyDuU4h7H2l
-X-Gm-Gg: AZFdTZf5pPBO+MyTwsG+GxKt4edaHE/hm/+5oB3vil9sh6AV5NDrIh6sAMztFPjQTmv
-	YFUoHCXD/fX7rNr9PGCD5R81H1uWLVlp1emjIERVssPI3maGyFnutWqToAmQ1WGQGec6QqY8xHV
-	QDn+NICpT2d/nqxLSWQ+RCu3N00pTvJdgDF++IqNYc7rz+s7/YNy8xbZ9EMiKESHFYjieLqwo1i
-	sWaMOUQHCtcgLtW2KvygANb+mfMJjfCw9bYGavbAfeBXQuOp0Wc9uLVMjeSL8o+Fe/CN1itLrnP
-	7BDw538CV01pUp/NBKqYSBaE/3zEzhLzSle3AuL2z9vUDgGn20s3DZO8Jhmlj+ABEJs4WzlswH9
-	XAiUK94llFhMIResVB3adhleyifeJCQb6fmhzDiXEg0KT1Xbf5fycDoz+3s3Fk2krP/E1JSQjVX
-	j/6G8tJymI0u8/+aU3YudgrPkMMkH/4Cv0PFvCV9G3BaUIl4QIVxTCf4V1l9+PvaRfHJc0leiiP
-	edymN6mwyXMF1QaiNG6sAA4us4TuS6wFFE3drdZh2nVF9F1H+E3KAdsVapQAkXsfIfp6mLZgIiS
-	SRFcIZ1WF6KTA4sxMn40+yyhZM3eq/Hclg==
-X-Received: by 2002:a17:90b:1b0e:b0:3b1:3598:f881 with SMTP id 98e67ed59e1d1-3b3d07c9e3dmr5750370a91.53.1795067823072;
-        Wed, 18 Nov 2026 21:57:03 -0800 (PST)
-Received: from server225.. ([39.170.101.209])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b405d6349bsm868812a91.9.2026.11.18.21.57.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Nov 2026 21:57:02 -0800 (PST)
-From: Ping Li <leeonion.muyu@gmail.com>
+        bh=UZs/dyfpjoJoO16/1CzXQFr98TVpXrDM+hkMGo/Y928=;
+        b=YJpp40vr/CU1laDw7gZuLDZ576XzTt/RYQsXkIraQD4Gl8AOB0a+SzcjDSHtfwLEZu
+         rlTSsXtnAJs1IuNr9BIBvm6sJeAylvR0ESvXJ0x19rTpvIIcKIeuSgDY77yT6TWDZLli
+         2fqcgF0PU3Am66+FCN7UJeA84i2YC8FhDvdshyS6yzccCU8FitD9zgH6utV6KhTLSld6
+         qIMuLqLIf/8SuwEz1B2xer0g+9OI4AbpwjQnSoNmbKB/oBm+Zy9A4ZwvzrquX6MUDhwc
+         VuA+aFmmw+DgOCWJQrpOSCqyWwt31tbGKMoA4tdlw4PverwYkQjSMt1c+leFP3Ox+a1j
+         uTvg==
+X-Gm-Message-State: APuU4Z/FlPaxEsCt2Ei+XfAAkUr+HXARrtNU0vYai8vBAl7WStIH2ILQ
+	UUpdgCh0JdYDxj8MEgJBf0Yo5Z2pBOQkwc6HunvBUTZaGV3Gf0Fay0ceLF6gQOfPidFpknB9ucF
+	aGH2JfeyG
+X-Gm-Gg: AYBFou3rCB/OpsXLWyWHLJ+n6zctnOQkqYxC6+anxhhs0Ws0zPYF1sSTybHF8qogQnn
+	CpPYb+XzZ/m2uNft5l+9UB3zrrJfUlqrQ+cGnpweXjdcGHpFhmgBQzWCy/ict05z8e2et2YVPO+
+	SCiiGRnw3aKtpYyo2P2a+okYIAfy9oTION4+eKuwcVG9121QwYFdOwGsJARopgEpPmQ/ICoqZIq
+	trhkWy4SeiYFSCnOmJ46v24YdVICkg0vZkbVUrV3NdeY/DRijNzCudPFRVsIswx9/FLtB1978nN
+	FPgjFHk00UUZO/nrX4DJOIgjPpGsqDLgolZAw64s3otuqapZ6nUx5O/qKF6pM8/le8YOpAy0RDS
+	HPV9120k6CVFQXr8Tc3Gxg113SkPLwtM3ArHsRZQBS8v8b8+7SvuyjGn2laMntj8O+PkOgDs05Y
+	+VYeHMZhj+S1c0bEJdkEFcCv8esl7C2ff0xnL5jv2Ikxtp2bsByX1APZpcQqje9dCobYPRMw0Ga
+	UeUztkxVQhfbClDXKWIGIB4Sd+eMS2PI3AwmjvF4a6+05Ib3fsY92IJHPKoSmIRT+frQwJlUg9T
+	Z3ZChYEfriiU/62w3lA8gZideAVt77d66ucaXzagR325EsUsjUSaVKsb7vILWla6PBDvHYQ=
+X-Received: by 2002:a05:6808:1513:b0:576:4595:9837 with SMTP id 5614622812f47-57742f42bf2mr5751842b6e.46.1795074383478;
+        Wed, 18 Nov 2026 23:46:23 -0800 (PST)
+Received: from localhost (139.118.171.34.bc.googleusercontent.com. [34.171.118.139])
+        by smtp.gmail.com with UTF8SMTPSA id 5614622812f47-5777a2bbc1bsm3397857b6e.5.2026.11.18.23.46.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 Nov 2026 23:46:22 -0800 (PST)
+From: Junichi Uekawa <uekawa@chromium.org>
 To: linux-erofs@lists.ozlabs.org
-Cc: xiang@kernel.org,
-	chao@kernel.org,
-	Ping Li <leeonion.muyu@gmail.com>
-Subject: [PATCH] erofs-utils: fsck: return nonzero exit code on superblock checksum failure
-Date: Thu, 19 Nov 2026 13:56:55 +0800
-Message-Id: <20261119055655.3909032-1-leeonion.muyu@gmail.com>
-X-Mailer: git-send-email 2.34.1
+Cc: hsiangkao@linux.alibaba.com,
+	sarthakkukreti@google.com,
+	jaegeuk@google.com,
+	Junichi Uekawa <uekawa@chromium.org>
+Subject: [PATCH 1/2] erofs-utils: lib: use one-shot EVP_Digest() in erofs_sha256()
+Date: Thu, 19 Nov 2026 16:46:21 +0900
+Message-ID: <20261119074622.2199394-1-uekawa@chromium.org>
+X-Mailer: git-send-email 2.56.1.750.gf70dc682cf-goog
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -91,45 +90,80 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=4.0.1
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-When the superblock checksum fails to verify, main() jumps to the
-exit_put_super label without setting "err", bypassing the conversion
-of fsckcfg.corrupted into -EFSCORRUPTED.  As a result, fsck.erofs
-prints "failed to verify superblock checksum" but exits with 0, so
-callers gating on the exit code (e.g. boot scripts) silently miss
-superblock corruption.
+Commit 26ea086bf721 ("erofs-utils: prefer using OpenSSL for SHA256")
+calls EVP_MD_CTX_set_flags(md.ctx, EVP_MD_CTX_FLAG_ONESHOT) in
+erofs_sha256(), which breaks compilation against BoringSSL because
+BoringSSL does not define EVP_MD_CTX_FLAG_ONESHOT. It also heap-allocates
+and frees an EVP_MD_CTX on every one-shot erofs_sha256() call, and leaks
+md->ctx if EVP_DigestFinal_ex() fails in erofs_sha256_done().
 
-Set the error code before jumping so the exit code matches the
-message.
+Use one-shot EVP_Digest(..., EVP_sha256(), NULL) in erofs_sha256() under
+__USE_OPENSSL_SHA256 (matching s3erofs_sigv4_header() in
+lib/remotes/s3.c), and free md->ctx unconditionally in
+erofs_sha256_done(). OpenSSL's EVP_Digest() already sets
+EVP_MD_CTX_FLAG_ONESHOT internally, while BoringSSL's EVP_Digest() uses
+a stack-allocated context with zero heap allocations.
 
-Fixes: f44043561491 ("erofs-utils: introduce fsck.erofs")
-Signed-off-by: Ping Li <leeonion.muyu@gmail.com>
+On AMD EPYC 7B13 (x86_64 SHA-NI), median erofs_sha256() throughput:
+- LibTomCrypt scalar (--without-openssl): 216.2 MiB/s (4 KiB),
+  210.4 MiB/s (32 KiB)
+- EVP_MD_CTX_new + EVP_MD_CTX_FLAG_ONESHOT (OpenSSL 3.6.5):
+  1332.6 MiB/s (4 KiB), 1481.4 MiB/s (32 KiB)
+- EVP_Digest() one-shot (OpenSSL 3.6.5): 1341.3 MiB/s (4 KiB),
+  1469.5 MiB/s (32 KiB)
+- EVP_Digest() one-shot (BoringSSL): 1468.2 MiB/s (4 KiB),
+  1509.2 MiB/s (32 KiB)
+
+Fixes: 26ea086bf721 ("erofs-utils: prefer using OpenSSL for SHA256")
+Signed-off-by: Junichi Uekawa <uekawa@chromium.org>
 ---
- fsck/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/sha256.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fsck/main.c b/fsck/main.c
-index b2d8f1a..2ca1078 100644
---- a/fsck/main.c
-+++ b/fsck/main.c
-@@ -1174,6 +1174,7 @@ int main(int argc, char *argv[])
- 	    erofs_superblock_csum_verify(&g_sbi)) {
- 		fsckcfg.corrupted = true;
- 		erofs_err("failed to verify superblock checksum");
-+		err = -EFSCORRUPTED;
- 		goto exit_put_super;
- 	}
+diff --git a/lib/sha256.c b/lib/sha256.c
+index 6eefda4..cf14c3c 100644
+--- a/lib/sha256.c
++++ b/lib/sha256.c
+@@ -38,9 +38,9 @@ int erofs_sha256_done(struct sha256_state *md, unsigned char *out)
+ 	if (!md->ctx)
+ 		return -1;
+ 	ret = EVP_DigestFinal_ex(md->ctx, out, &mdsize);
++	EVP_MD_CTX_free(md->ctx);
+ 	if (ret != 1)
+ 		return -1;
+-	EVP_MD_CTX_free(md->ctx);
+ 	return 0;
+ }
+ #else
+@@ -228,14 +228,18 @@ int erofs_sha256_done(struct sha256_state *md, unsigned char *out)
+ void erofs_sha256(const unsigned char *in, unsigned long in_size,
+ 		  unsigned char out[32])
+ {
++#ifdef __USE_OPENSSL_SHA256
++	unsigned int mdsize;
++	int ret = EVP_Digest(in, in_size, out, &mdsize, EVP_sha256(), NULL);
++
++	DBG_BUGON(ret != 1);
++#else
+ 	struct sha256_state md;
  
-
-base-commit: f36cadb5c563995ab3aa8572a60ed6b721b9557d
+ 	erofs_sha256_init(&md);
+-#ifdef __USE_OPENSSL_SHA256
+-	EVP_MD_CTX_set_flags(md.ctx, EVP_MD_CTX_FLAG_ONESHOT);
+-#endif
+ 	erofs_sha256_process(&md, in, in_size);
+ 	erofs_sha256_done(&md, out);
++#endif
+ }
+ 
+ #ifdef UNITTEST
 -- 
-2.34.1
-
+2.56.1.750.gf70dc682cf-goog
 
