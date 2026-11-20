@@ -2,45 +2,87 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6357F606A330
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Nov 2026 09:56:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12ABF606A331
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Nov 2026 10:46:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=Ro/lQahU
+	dkim=pass (2048-bit key, unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jW9hJ6sWQz2xpt;
-	Fri, 20 Nov 2026 20:56:00 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=160.236.53.16
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795168560;
-	cv=none; b=HvFl0kiaz26Ltm2Tqe76+ksClgQuv3UgJmYRXknZC8Lr+wRixn+1qTKw+cCsFunS558eanbTPSo7Y6YXy05x/svI5jwtWMgQfJ2QQNaaRNvdN1KPdH+C1ALswZjhQrvOIxz50+2AsUCs1nJwpssuP/G4MkWNcyUj72GRE2+BqNJSvahKIwEHOFiZ0Bba+n5e+YnV2ovi9m4AiXDxNl6d8U1k3auQUR7N4ssVS2RCVl+NjQGjPd3zaZoy7NaG+Mx6hjDTVKLtJxw+yXEzNquEW0asl+1VyIhChhxXXfgehxZYSK1sLYicT11yeE1DWpIoGfVjXiw3x9ej638Jp0YAOQ==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jWBpL5ZL7z2yQn;
+	Fri, 20 Nov 2026 21:46:18 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::435"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795171578;
+	cv=none; b=Y1FvdNlBEu7IL4qThXVkAXD4SK1TSq42ErBF/9mSuZNTrcDF3LaenR1zNNjCTyo+11D+Q0Hab668JkzTSCembUbNziJl1b/dlVArtlVFqjkYifaDzHX8N+5mJkKDKbCuU65hYKNGZLs80NG8K7VgHxQBwR6Sqrzc/qBQdPnXTs+BgdeYUg/Yg0w+SECmjEWEU+Wa4AXjjkdNEh3fb+aZFXBrnEjfTamxCzdIMClT1oh007zeZBu301ITPA0RPJ0RP++nKtr1MRdjw2tsX+BQJp77SjkPNNxNNlrJBKROxHfS9H+w0ksDfXH0lk5J5XDU0UZwqcZjtVjw5DMFWIyDSQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795168560; c=relaxed/relaxed;
-	bh=GbBRSi0E9QODWRMrtQDtnR319HHjRRGdOAHmb8HM6GE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=SJLMiBo+e1IZjlhOk3iFBT6ar6XV+ZAoIAfsZhox/F4KIoglxYJp3RCFxQ/mMZU9rZJqQA+4sVUQ0wr6ukt92dAGI5eyBtEQFqjzu0KoXrIrH3jg5KqFOi9YF4I7hcewDmghbak4o+xp4m/pYY5uE9j6uHoQ+g+KFG79AuaZtiz3cpGtG/VAjd/+pcp1EO/LHGaTIc4PaTIsoyXBTvmUSDW98T13Y/JZntJEpZPMx4sYcNxOKXtgOeR0UDiYgd7cT6mNFwoX7tzjnCawVUNyZxIcK4IOXIeD7Gqo1lwbjJ8gB5z/OxiN8nc9IRwFLyfUEgd3tnJOefEZa7Kh04nvjw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=Ro/lQahU; dkim-atps=neutral; spf=pass (client-ip=160.236.53.16; helo=mail-m1602365316.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com
+	t=1795171578; c=relaxed/relaxed;
+	bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dT4Ji3ltNpQVioRHVQtt/Ywg92cWVGLNTCfgD5TsqrrD4/sKO1CdnTRK3YGUNR3iCn2Syae0EGVV0E0U55uqDP+dHKdhKVaNWALTd+GWaMJiCIKRW8iGv1cgn+ZVOTUT6GiwRdM/bSGrx7kQVpjar1lvGPJp/46XX9aDR+KppTWP0m5ItYcg3XyzUO+Lqk+vOHf/m5D/ubqRH5WK11WW1naaQGtKP2z7K9Kxnvj1VQYEJqw9VLtKWmaCVyxx1+EjG3eZIQor9M/lHJce9yMdo4HITFFXSWcF4zU1zm6A3MJSoEw5iSriNGbM4Azxgxg3gb5CZ1qE5bso+WLYEx86mg==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::435; helo=mail-wr1-x435.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=Ro/lQahU;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=160.236.53.16; helo=mail-m1602365316.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
-Received: from mail-m1602365316.xmail.ntesmail.com (mail-m1602365316.xmail.ntesmail.com [160.236.53.16])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::435; helo=mail-wr1-x435.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jW9hG0Fgmz2yQl
-	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 20:55:55 +1100 (AEDT)
-Received: from localhost.localdomain (unknown [124.243.154.139])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 556b0cc05;
-	Fri, 20 Nov 2026 17:55:50 +0800 (GMT+08:00)
-From: Wenyuan Xu <sereno.xu@deepseek.com>
-To: xiang@kernel.org,
-	linux-erofs@lists.ozlabs.org
-Subject: [PATCH 2/2] erofs-utils: tests: cover opaque dirs across multiple rebuild stages
-Date: Fri, 20 Nov 2026 09:55:43 +0000
-Message-ID: <20261120095543.2927739-2-sereno.xu@deepseek.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261120095543.2927739-1-sereno.xu@deepseek.com>
-References: <20261120095543.2927739-1-sereno.xu@deepseek.com>
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jWBpK51Qxz2yQl
+	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 21:46:17 +1100 (AEDT)
+Received: by mail-wr1-x435.google.com with SMTP id ffacd0b85a97d-48e09aa5264so357476f8f.2
+        for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 02:46:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=docker.com; s=google; t=1795171574; x=1795776374; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
+        b=pEvRxvtP29dWpgG2bMhVH65iTVZZJBwcMZDss7hM4GQA/9YYaQ+UMjcKmcIvmk0JVr
+         26w3nv2eUkWBoqVVNzO2DsLlThCiqWOYTmOHHpym1MMoM3AqqAcRYkLXEget7nGGLLmC
+         sQhnwJEEsqG3A1CN4a4Ybo+KeB8MjUyZnxxkPScUN8XTSO7BsJgvWq6UrfMPYObjveT3
+         iKHOfXVIzaIARJdlCrv98B2PuFfvnxQZBe8DvAWnOoTYkgcviOjGHTzuLWgz1uK2W+Bz
+         rGVWIKErIpwO936uuOcOwGm5fbNF+RFYhzrTzrvFNfSH3bqeM66x5f2dEyWPz2vX474C
+         TUQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795171574; x=1795776374;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
+        b=2uy6QO71zfOrb0FflPb7T9X81Jl9fDFWk3tKVJ0k+dX/5FkdiqNKIelg8J/nKXvWTw
+         xBtNLEnGxZl6942YXisRCh4XFJHb9iiQt6eqqQGMmxlFthsKus1uLcoa0wIUK2bbXiKK
+         bhj9DsLa3yvMR2F85gjxK85joXd06yGblJkDiMQttKDBYUnu5aMiXD87wG9m6jXO5+Y9
+         9ENVDA8/ZvXFiH0nUtf5hy3hSqebXk1oUMTiNIxPWO/7p1Qe5LNJSp2j2K62OfbK/XZb
+         R3CiTfGb3grT9TCgYcxaqIMWPUbcnUgamEeH24ztEY5fkg2c4AySiTCelKYymuNpLHCd
+         ZsgA==
+X-Gm-Message-State: APuU4Z8jPcywJ+x0SzoQc78jlstospbzTyyhEEgN/hhpmr2OJJcNQDun
+	AXeeNiSyPfLasxkdgcF3jLm4zilaosmy159U2CSi9UyPnIROO4OG9lae1n/dz9l47s1vJUQy9u3
+	qQVYXa7M=
+X-Gm-Gg: AZFdTZc3X0Cb+bM+KhRDGOLdg3UbmeloU2FU88oulc532yjVm/GEubckfhgQwxF3oRm
+	w5/eM+TachLowY/H1pmtc7CpHQ6+4FeP60AVIsAIuLfsFbwkgckHmjz05G5BHiXjgGuuhIRhdEA
+	V5n2PX5Qf9hf7BZZMHpsRVK2TCoRsLbL/gJ/wACnLxTHRVMBAXfek5ER0LBSZ45s2a0jcMzetVN
+	70FL2BAqJFmeYk9gCu7Rq36ek1Ib2lddeDasDt4yowbbneAzQ4/Y0vfpo1Yqvb/8TSHSNWywdXv
+	tIt8FZmYh4rLTF1LNOVtuWpdBIePCFTkNop+/SQZ9Vgs/Kq8abBIhZHjS0OdpMCqJnj4M+OaQFZ
+	abHhAN+TWK7Bda6gptCjMEdmrXkZMzKv64Gmf4WCg7YssIR8QCgv7eH3sNY7FPNRqqlyS1o3kWZ
+	zkBiVFSle/qXLbJSm13fX1IL3yUbOtB62BIheUArQ5AZ8RrJ9SsMgffHBAHUH2MV18ji8xQV3zO
+	U5VVTQwhfBsZ8a9l9kFYlFh01OVz1j4/KG8kxxJXzvaDVYvvdW5n6hkwBjoOgkugC4D0s6UckN/
+	TtqYCHwejaDA9lyGUfJtZeySCJmo2Jtcyz6wrdxwF49CRVlMxKKnVrvgVc0beDs=
+X-Received: by 2002:a5d:5f86:0:b0:4ac:f79a:28ab with SMTP id ffacd0b85a97d-4acf79a2aa2mr2250494f8f.8.1795171574207;
+        Fri, 20 Nov 2026 02:46:14 -0800 (PST)
+Received: from F7R9GP321C.fritz.box ([2a02:8108:8388:6600:5888:55e8:d901:aec])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6b110d56sm4795522f8f.40.2026.11.20.02.46.13
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 20 Nov 2026 02:46:13 -0800 (PST)
+From: Gao Xiang <xiang.gao@docker.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Wenyuan Xu <sereno.xu@deepseek.com>,
+	Gao Xiang <xiang.gao@docker.com>
+Subject: [PATCH v2 3/5] erofs-utils: mkfs: init root inode in local source mode
+Date: Fri, 20 Nov 2026 11:46:04 +0100
+Message-ID: <20261120104606.25056-3-xiang.gao@docker.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20261120104606.25056-1-xiang.gao@docker.com>
+References: <20261120104606.25056-1-xiang.gao@docker.com>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -53,162 +95,130 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0aa1f8623cfb03a3kunm115447d663c4f9
-X-HM-MType: 1
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaQxlLVk8ZQxhNGkxDTkIeS1YVFA
-	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSU9VSU9IVUpOT1VKSEJZV1kWGg8SFR0UWUFZT0tIVU
-	pLSU9PT0hVSktLVUpCS0tZBg++
-DKIM-Signature: a=rsa-sha256;
-	b=Ro/lQahU6l4Y+TNb2uHZ5LlANZSIdtZUN1YowoOWSjwGEM7iGNmxHIp/fXLnaY1bXIT/d4pBMiT+b6xxpHLjZOAk1kFayuwGgD2BS5hLt8QUjAj4mvdThf91v6SxgIsFUqsNwpydWq2nyqEYG5K2slyjxofS8r+tP8lngFQYlvw=; c=relaxed/relaxed; s=default; d=deepseek.com; v=1;
-	bh=GbBRSi0E9QODWRMrtQDtnR319HHjRRGdOAHmb8HM6GE=;
-	h=date:mime-version:subject:message-id:from;
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
 	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Add erofs/034 to verify that opaque directory semantics survive multiple
-rebuilds.  The test creates three layers directly:
+From: Wenyuan Xu <sereno.xu@deepseek.com>
 
-  layer1: dir/old
-  layer2: dir is a 0:0 whiteout
-  layer3: dir/new
+Initialize the root inode in local source mode so other input modes
+can supply their own root directory metadata.
 
-It first rebuilds layer2 and layer3 into layer2_3.erofs, then mounts
-layer1 and layer2_3 together as overlayfs lower dirs and checks that only
-dir/new is visible.
-
-Finally, it rebuilds layer1 with layer2_3 into merged.erofs.  Mount the
-final image and check that only dir/new is visible.  If the intermediate
-or merged directory loses its opaque marker, dir/old from layer1
-reappears.
-
-All builds use --ovlfs-strip=0 so whiteouts and opaque markers are
-retained.
-
-Assisted-by: LLM
 Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
+Signed-off-by: Gao Xiang <xiang.gao@docker.com>
 ---
- tests/Makefile.am   |  3 ++
- tests/erofs/034     | 81 +++++++++++++++++++++++++++++++++++++++++++++
- tests/erofs/034.out |  2 ++
- 3 files changed, 86 insertions(+)
- create mode 100755 tests/erofs/034
- create mode 100644 tests/erofs/034.out
+ include/erofs/inode.h |  2 ++
+ lib/inode.c           | 30 ++++--------------------------
+ mkfs/main.c           | 10 ++++++++++
+ 3 files changed, 16 insertions(+), 26 deletions(-)
 
-diff --git a/tests/Makefile.am b/tests/Makefile.am
-index f64ca83..4ed042f 100644
---- a/tests/Makefile.am
-+++ b/tests/Makefile.am
-@@ -138,6 +138,9 @@ TESTS += erofs/032
- # 033 - preserve overlay xattrs without adding duplicate names
- TESTS += erofs/033
+diff --git a/include/erofs/inode.h b/include/erofs/inode.h
+index 8c22dae..6745a73 100644
+--- a/include/erofs/inode.h
++++ b/include/erofs/inode.h
+@@ -42,6 +42,8 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks,
+ bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d);
+ int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
+ 		       erofs_os_stat_t *st, const char *path);
++int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
++			    erofs_os_stat_t *st, const char *path);
+ struct erofs_inode *erofs_new_inode(struct erofs_sb_info *sbi);
+ int erofs_importer_load_tree(struct erofs_importer *im, bool rebuild,
+ 			     bool incremental);
+diff --git a/lib/inode.c b/lib/inode.c
+index b8ca8f4..2099d38 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -1335,7 +1335,7 @@ int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
+ 	return 0;
+ }
  
-+# 034 - preserve opaque dirs across multiple rebuild stages
-+TESTS += erofs/034
-+
- # NEW TEST CASE HERE
- # TESTS += erofs/999
+-static int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
++int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
+ 			    erofs_os_stat_t *st, const char *path)
+ {
+ 	const struct erofs_importer_params *params = im->params;
+@@ -2268,30 +2268,6 @@ struct erofs_mkfs_buildtree_ctx {
+ 	struct erofs_importer *im;
+ 	bool rebuild, incremental;
+ };
+-#ifndef EROFS_MT_ENABLED
+-#define __erofs_mkfs_build_tree erofs_mkfs_build_tree
+-#endif
+-
+-static int __erofs_mkfs_build_tree(const struct erofs_mkfs_btctx *ctx)
+-{
+-	struct erofs_importer *im = ctx->im;
+-
+-	if (!ctx->rebuild) {
+-		struct erofs_importer_params *params = im->params;
+-		erofs_os_stat_t st;
+-		int err;
+-
+-		err = erofs_os_lstat(params->source, &st);
+-		if (err)
+-			return -errno;
+-
+-		err = erofs_fill_inode(im, im->root, &st, params->source);
+-		if (err)
+-			return err;
+-	}
+-	return erofs_mkfs_dump_tree(ctx);
+-}
+-
+ #ifdef EROFS_MT_ENABLED
  
-diff --git a/tests/erofs/034 b/tests/erofs/034
-new file mode 100755
-index 0000000..1ce34c4
---- /dev/null
-+++ b/tests/erofs/034
-@@ -0,0 +1,81 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0+
-+#
-+# Rebuild must preserve whiteout semantics across multiple merge stages.
-+#
-+seq=`basename $0`
-+seqres=$RESULT_DIR/$(echo $0 | awk '{print $((NF-1))"/"$NF}' FS="/")
+ #ifdef HAVE_SYS_RESOURCE_H
+@@ -2358,7 +2334,7 @@ static int erofs_mkfs_build_tree(struct erofs_mkfs_btctx *ctx)
+ 	if (err)
+ 		goto fail;
+ 
+-	err = __erofs_mkfs_build_tree(ctx);
++	err = erofs_mkfs_dump_tree(ctx);
+ 	erofs_mkfs_go(ctx, ~0, NULL, 0);
+ 	err2 = pthread_join(sbi->dfops_worker, &retval);
+ 	DBG_BUGON(!q->exited);
+@@ -2377,6 +2353,8 @@ fail:
+ 	free(q);
+ 	return err;
+ }
++#else
++#define erofs_mkfs_build_tree erofs_mkfs_dump_tree
+ #endif
+ 
+ int erofs_importer_load_tree(struct erofs_importer *im, bool rebuild,
+diff --git a/mkfs/main.c b/mkfs/main.c
+index f75225b..dbda00e 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1950,6 +1950,8 @@ int main(int argc, char **argv)
+ 	}
+ 
+ 	if (source_mode == EROFS_MKFS_SOURCE_LOCALDIR) {
++		erofs_os_stat_t st;
 +
-+. "${srcdir}/common/rc"
-+
-+localdir=$tmp/$seq
-+
-+cleanup()
-+{
-+	cd /
-+	for mp in mnt layer2_3-mnt layer1-mnt; do
-+		$UMOUNT_PROG "$localdir/$mp" >/dev/null 2>&1
-+	done
-+	rm -rf $tmp.*
-+}
-+
-+_require_root
-+_require_erofs
-+_require_overlayfs
-+
-+rm -f $seqres.full
-+mkdir -p "$localdir/layer1/dir" "$localdir/layer2" "$localdir/layer3/dir" \
-+	"$localdir/layer1-mnt" "$localdir/layer2_3-mnt" "$localdir/mnt" ||
-+	_fail "mkdir failed"
-+
-+printf old > "$localdir/layer1/dir/old" || _fail "cannot create layer1 file"
-+mknod "$localdir/layer2/dir" c 0 0 >> $seqres.full 2>&1 ||
-+	_notrun "cannot create whiteouts"
-+printf new > "$localdir/layer3/dir/new" || _fail "cannot create layer3 file"
-+
-+echo "QA output created by $seq"
-+
-+$MKFS_EROFS_PROG --ovlfs-strip=0 "$localdir/layer1.erofs" \
-+	"$localdir/layer1" >> $seqres.full 2>&1 || _fail "mkfs failed"
-+$MKFS_EROFS_PROG --ovlfs-strip=0 "$localdir/layer2.erofs" \
-+	"$localdir/layer2" >> $seqres.full 2>&1 || _fail "mkfs failed"
-+$MKFS_EROFS_PROG --ovlfs-strip=0 "$localdir/layer3.erofs" \
-+	"$localdir/layer3" >> $seqres.full 2>&1 || _fail "mkfs failed"
-+
-+# Merge layer2 and layer3 first.
-+$MKFS_EROFS_PROG --clean=data --ovlfs-strip=0 "$localdir/layer2_3.erofs" \
-+	"$localdir/layer2.erofs" "$localdir/layer3.erofs" \
-+	>> $seqres.full 2>&1 || _fail "mkfs failed"
-+
-+# The intermediate image must hide dir/old from layer1 when mounted
-+# together with it as overlayfs lower dirs.
-+$MOUNT_PROG -t erofs -o loop,ro "$localdir/layer1.erofs" \
-+	"$localdir/layer1-mnt" >> $seqres.full 2>&1 || _fail "mount failed"
-+$MOUNT_PROG -t erofs -o loop,ro "$localdir/layer2_3.erofs" \
-+	"$localdir/layer2_3-mnt" >> $seqres.full 2>&1 || _fail "mount failed"
-+$MOUNT_PROG -t overlay overlay \
-+	-o "lowerdir=$localdir/layer2_3-mnt:$localdir/layer1-mnt" \
-+	"$localdir/mnt" >> $seqres.full 2>&1 || _fail "overlay mount failed"
-+[ -f "$localdir/mnt/dir/new" ] || _fail "recreated dir/new lost"
-+[ ! -e "$localdir/mnt/dir/old" ] || _fail "deleted dir/old reappeared"
-+$UMOUNT_PROG "$localdir/mnt" >> $seqres.full 2>&1 || _fail "unmount failed"
-+$UMOUNT_PROG "$localdir/layer2_3-mnt" >> $seqres.full 2>&1 ||
-+	_fail "unmount failed"
-+$UMOUNT_PROG "$localdir/layer1-mnt" >> $seqres.full 2>&1 ||
-+	_fail "unmount failed"
-+
-+# Then merge layer1 with the intermediate image.
-+$MKFS_EROFS_PROG --clean=data --ovlfs-strip=0 "$localdir/merged.erofs" \
-+	"$localdir/layer1.erofs" "$localdir/layer2_3.erofs" \
-+	>> $seqres.full 2>&1 || _fail "mkfs failed"
-+
-+# The final image must only expose dir/new.
-+SCRATCH_DEV=$localdir/merged.erofs
-+_scratch_mount >> $seqres.full 2>&1
-+[ -f "$SCRATCH_MNT/dir/new" ] || _fail "recreated dir/new lost"
-+[ ! -e "$SCRATCH_MNT/dir/old" ] || _fail "deleted dir/old reappeared"
-+_scratch_unmount >> $seqres.full 2>&1 || _fail "unmount failed"
-+
-+echo Silence is golden
-+status=0
-+exit 0
-diff --git a/tests/erofs/034.out b/tests/erofs/034.out
-new file mode 100644
-index 0000000..4c8873c
---- /dev/null
-+++ b/tests/erofs/034.out
-@@ -0,0 +1,2 @@
-+QA output created by 034
-+Silence is golden
+ 		err = erofs_load_shared_xattrs_from_path(&g_sbi, cfg.c_src_path,
+ 						mkfscfg.inlinexattr_tolerance);
+ 		if (err) {
+@@ -1971,6 +1973,14 @@ int main(int argc, char **argv)
+ 			err = PTR_ERR(root);
+ 			goto exit;
+ 		}
++		err = erofs_os_lstat(cfg.c_src_path, &st);
++		if (err) {
++			err = -errno;
++			goto exit;
++		}
++		err = erofs_fill_inode(&importer, root, &st, cfg.c_src_path);
++		if (err)
++			goto exit;
+ 	} else {
+ 		err = erofs_xattr_flush_name_prefixes(&importer,
+ 						      mkfs_plain_xattr_pfx);
 -- 
-2.43.0
+2.54.0 (Apple Git-157)
 
 
