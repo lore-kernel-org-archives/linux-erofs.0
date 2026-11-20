@@ -2,84 +2,84 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12ABF606A331
-	for <linux-erofs@archiver.kernel.org>; Fri, 20 Nov 2026 10:46:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97E14606A339
+	for <linux-erofs@archiver.kernel.org>; Fri, 20 Nov 2026 10:46:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP
+	dkim=pass (2048-bit key) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=qsXzlb98
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jWBpL5ZL7z2yQn;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jWBpL5q72z2yR1;
 	Fri, 20 Nov 2026 21:46:18 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::435"
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::42b"
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795171578;
-	cv=none; b=Y1FvdNlBEu7IL4qThXVkAXD4SK1TSq42ErBF/9mSuZNTrcDF3LaenR1zNNjCTyo+11D+Q0Hab668JkzTSCembUbNziJl1b/dlVArtlVFqjkYifaDzHX8N+5mJkKDKbCuU65hYKNGZLs80NG8K7VgHxQBwR6Sqrzc/qBQdPnXTs+BgdeYUg/Yg0w+SECmjEWEU+Wa4AXjjkdNEh3fb+aZFXBrnEjfTamxCzdIMClT1oh007zeZBu301ITPA0RPJ0RP++nKtr1MRdjw2tsX+BQJp77SjkPNNxNNlrJBKROxHfS9H+w0ksDfXH0lk5J5XDU0UZwqcZjtVjw5DMFWIyDSQ==
+	cv=none; b=FsvZKf0iwmXn8ghWLlVSW2M+fDYp9799u+KsYHX+hYjSvWuRFbJtVJ/LCMaNI7XWFobFkHDs/5xD/3+7k2MXNdngCx3zXJ5qzKuanoFJWoJKOiH8RoIO01HYBzRxqXJk/PT9c4rE1dxQ0dbdp+8ZHJZyM8IUWXJTNs8aCGMwYs5vnbCMg1aj/J/4Pm0IE8bxvXDoxljRhyJsVRkri8RRlaUhxtyKzYcqSr7E/a4yvoGKSEzue5A1w79U4hOg8mV32XRGYtfWNrBkN00sDQTNpmvDW3cWmI2opwtb8h6cMOqvB5bFSjJ/kaGtrE7FgpM9pSHnQK+J9KJlgjmJjKD5XA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1795171578; c=relaxed/relaxed;
-	bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
+	bh=RSuO3+c9F+Z8zrc/YHyBJ7Aq0YU81J2dUu3uJC9jvbI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dT4Ji3ltNpQVioRHVQtt/Ywg92cWVGLNTCfgD5TsqrrD4/sKO1CdnTRK3YGUNR3iCn2Syae0EGVV0E0U55uqDP+dHKdhKVaNWALTd+GWaMJiCIKRW8iGv1cgn+ZVOTUT6GiwRdM/bSGrx7kQVpjar1lvGPJp/46XX9aDR+KppTWP0m5ItYcg3XyzUO+Lqk+vOHf/m5D/ubqRH5WK11WW1naaQGtKP2z7K9Kxnvj1VQYEJqw9VLtKWmaCVyxx1+EjG3eZIQor9M/lHJce9yMdo4HITFFXSWcF4zU1zm6A3MJSoEw5iSriNGbM4Azxgxg3gb5CZ1qE5bso+WLYEx86mg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::435; helo=mail-wr1-x435.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+	 MIME-Version; b=XPXKaj2fOxMaIzDtgEuKhgE+HutFibSTaOBdU2GpOVaopD+fswezuKQizcl/Fs02neWi7RqgYTwYBiNryT94eZegA7rBUFq/hrjWi72xegFYI4MQserlZ+m+7rgE4jytgnFEOkwyXlYhe4sg14vMU7QyKGy0rTAZpXc+ood0h5R13OqQ942V3uAt14BbhYYNrRJRAre2UR+1olUOlyXNsSUwmetFjuz1vZBUWz1SnqBeN5dmP5d25rmAgbiTe4lUv0BqnxAajXbD/D6Q0bwPB9Of2CKTBmhudNwrw8B0S7Of98ucMxzWSBilB99utPyNKu/T/xJU2CSIs1ewlR/ZBA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=qsXzlb98; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::42b; helo=mail-wr1-x42b.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=pEvRxvtP;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=qsXzlb98;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::435; helo=mail-wr1-x435.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::42b; helo=mail-wr1-x42b.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jWBpK51Qxz2yQl
-	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 21:46:17 +1100 (AEDT)
-Received: by mail-wr1-x435.google.com with SMTP id ffacd0b85a97d-48e09aa5264so357476f8f.2
-        for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 02:46:17 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jWBpJ6ZdQz2xpt
+	for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 21:46:16 +1100 (AEDT)
+Received: by mail-wr1-x42b.google.com with SMTP id ffacd0b85a97d-4a3e706b5dfso455993f8f.2
+        for <linux-erofs@lists.ozlabs.org>; Fri, 20 Nov 2026 02:46:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=docker.com; s=google; t=1795171574; x=1795776374; darn=lists.ozlabs.org;
+        d=docker.com; s=google; t=1795171573; x=1795776373; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
-        b=pEvRxvtP29dWpgG2bMhVH65iTVZZJBwcMZDss7hM4GQA/9YYaQ+UMjcKmcIvmk0JVr
-         26w3nv2eUkWBoqVVNzO2DsLlThCiqWOYTmOHHpym1MMoM3AqqAcRYkLXEget7nGGLLmC
-         sQhnwJEEsqG3A1CN4a4Ybo+KeB8MjUyZnxxkPScUN8XTSO7BsJgvWq6UrfMPYObjveT3
-         iKHOfXVIzaIARJdlCrv98B2PuFfvnxQZBe8DvAWnOoTYkgcviOjGHTzuLWgz1uK2W+Bz
-         rGVWIKErIpwO936uuOcOwGm5fbNF+RFYhzrTzrvFNfSH3bqeM66x5f2dEyWPz2vX474C
-         TUQQ==
+        bh=RSuO3+c9F+Z8zrc/YHyBJ7Aq0YU81J2dUu3uJC9jvbI=;
+        b=qsXzlb98Uk2RCNJTZulbXe8LEnyTjjZP3pXhDt+Yx5ugw1RWPqLmvUZtmreTojb73M
+         Vh+Pk4dxXCBZqPz3nTjixKsvKTY6Rpr99I+srEgValbE1JxQjxaKOCb+mbfLBgrRXSud
+         JGrc0wocSjuCt1eTCBCpRBKGySFIbgk0cQwa8ZJLfRmsNDc3rZ1r0ql+YlJikYOeMy/T
+         xrEac164LJo4J67BJCLqvhbtJuklgQ0u0wOFvY1WIG1SwtVDxnymc4wa8rUzYl+O2Lwq
+         QE+u4RCE7R7yMu1Ad7L0RWuMuH2SaylCJcs35Wl2ohck3lh492lyvY1VRYjCy0gPOHVo
+         hNfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795171574; x=1795776374;
+        d=1e100.net; s=20260707; t=1795171573; x=1795776373;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gNTLUga29PYZDEKAe3GgXqxunGoJ/QvxGmIi6onS/nA=;
-        b=2uy6QO71zfOrb0FflPb7T9X81Jl9fDFWk3tKVJ0k+dX/5FkdiqNKIelg8J/nKXvWTw
-         xBtNLEnGxZl6942YXisRCh4XFJHb9iiQt6eqqQGMmxlFthsKus1uLcoa0wIUK2bbXiKK
-         bhj9DsLa3yvMR2F85gjxK85joXd06yGblJkDiMQttKDBYUnu5aMiXD87wG9m6jXO5+Y9
-         9ENVDA8/ZvXFiH0nUtf5hy3hSqebXk1oUMTiNIxPWO/7p1Qe5LNJSp2j2K62OfbK/XZb
-         R3CiTfGb3grT9TCgYcxaqIMWPUbcnUgamEeH24ztEY5fkg2c4AySiTCelKYymuNpLHCd
-         ZsgA==
-X-Gm-Message-State: APuU4Z8jPcywJ+x0SzoQc78jlstospbzTyyhEEgN/hhpmr2OJJcNQDun
-	AXeeNiSyPfLasxkdgcF3jLm4zilaosmy159U2CSi9UyPnIROO4OG9lae1n/dz9l47s1vJUQy9u3
-	qQVYXa7M=
-X-Gm-Gg: AZFdTZc3X0Cb+bM+KhRDGOLdg3UbmeloU2FU88oulc532yjVm/GEubckfhgQwxF3oRm
-	w5/eM+TachLowY/H1pmtc7CpHQ6+4FeP60AVIsAIuLfsFbwkgckHmjz05G5BHiXjgGuuhIRhdEA
-	V5n2PX5Qf9hf7BZZMHpsRVK2TCoRsLbL/gJ/wACnLxTHRVMBAXfek5ER0LBSZ45s2a0jcMzetVN
-	70FL2BAqJFmeYk9gCu7Rq36ek1Ib2lddeDasDt4yowbbneAzQ4/Y0vfpo1Yqvb/8TSHSNWywdXv
-	tIt8FZmYh4rLTF1LNOVtuWpdBIePCFTkNop+/SQZ9Vgs/Kq8abBIhZHjS0OdpMCqJnj4M+OaQFZ
-	abHhAN+TWK7Bda6gptCjMEdmrXkZMzKv64Gmf4WCg7YssIR8QCgv7eH3sNY7FPNRqqlyS1o3kWZ
-	zkBiVFSle/qXLbJSm13fX1IL3yUbOtB62BIheUArQ5AZ8RrJ9SsMgffHBAHUH2MV18ji8xQV3zO
-	U5VVTQwhfBsZ8a9l9kFYlFh01OVz1j4/KG8kxxJXzvaDVYvvdW5n6hkwBjoOgkugC4D0s6UckN/
-	TtqYCHwejaDA9lyGUfJtZeySCJmo2Jtcyz6wrdxwF49CRVlMxKKnVrvgVc0beDs=
-X-Received: by 2002:a5d:5f86:0:b0:4ac:f79a:28ab with SMTP id ffacd0b85a97d-4acf79a2aa2mr2250494f8f.8.1795171574207;
-        Fri, 20 Nov 2026 02:46:14 -0800 (PST)
+        bh=RSuO3+c9F+Z8zrc/YHyBJ7Aq0YU81J2dUu3uJC9jvbI=;
+        b=RLGkSEQ7duPMm+KRU92IcPlPJIqS2Yl3wmZgKsNF+iR7KrAwrgs16tlONGrf2FEE8x
+         HA61TwUgU7IMCDxOaImbNyBlHsS1fVfDdyx0vUopw9YZPsdUSSb3CFK42Ar1uWSo+vk2
+         RLqX+FhonVHQDkFBBODNg69Qpn+9ITG2eor4gJeZM0yDKWZrDDFijTp0aRd1tDgGoqmC
+         Wwn1oFKq54kEnbCKQEQ3cOYREnaqgfgTYBS/ZTxgbaBCstMhdn4DojP/ONQVfpQjpmSR
+         9B8vQDo6PbNfEdNkiKRm1EqVD+KCpg1Q39AEd1Z3NhLAQoZi3eqF/oDX1P62w0uxXhfh
+         LIzw==
+X-Gm-Message-State: APuU4Z9BURVQY20TukciVKA0Cz4NGbXqOlcxwfL04MDVDzHfQf/yiK08
+	uj1e5lQGev7QUN35TQNiHNjvtk9iM6mhgulPreAMYppUU06FvbfxCDH5HPjabC6M3LNTU8ZaOKW
+	/AI8V1r4=
+X-Gm-Gg: AZFdTZeoB/Q9Vj6pSz0JG3CW3LGN3FnU8o/IvMOQMUgoyRiRwcX4xXj6v9g/y6JKVfD
+	XUkp2/ZCbx3bAtdSGU0IEwHNf1RkqJm8mFFmT23hUlw2b4hij/TgQG7s5zumfIKKZ3mxbrw7KD2
+	p99dD6hOCT4Byd63eFO++PwV2CQLeJbvWIvniq3b2ysNDQTNf0fUCkKyN7k1qUvnQ/Sq4S3mlXY
+	jQDdGAKwTPQRHbT6yxuQ5kjx+uy0V1MpqJhPmr39YgYOYDjMGnSb18EajGxVz2ATXEDSQf3oTmy
+	O2bHO9x0C5ZRALDfL9o+/S3TiQFNSveUWHwgjH7wuO68W9hO1ijtHVNKYQNI/hi4ZTpy8E0VcXp
+	babYd873+YFndg4IobZr1UoahRv6MNsTGZeheFwIcLaSjX4IG5Fk2P+Dn+ofNWNvNyB3PuWE2if
+	B+4cHjtwuEgy+vAhzqiFtHRSloVL8iVE5EKJ4gcvZGgXmDlshtSucwAkmTHO+SZbNDz7NkeIfQz
+	rG6TKv0M+1kkRPYE4AW6kvPi4v4OSUYvCiR41oJEbPCMqhiScKahUFjm2whdLVrSdwGTQRNo28v
+	3t4tYZuoZ4X6efGubLCp4coF37nwInocJjSBVKnLnJ9cQOmEM7I6TD38CTHFtvNXAzgC0+6JHtQ
+	PxzZ9kDI=
+X-Received: by 2002:a05:6000:4541:b0:4aa:d196:f329 with SMTP id ffacd0b85a97d-4abb4c7afc6mr3550437f8f.27.1795171572657;
+        Fri, 20 Nov 2026 02:46:12 -0800 (PST)
 Received: from F7R9GP321C.fritz.box ([2a02:8108:8388:6600:5888:55e8:d901:aec])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6b110d56sm4795522f8f.40.2026.11.20.02.46.13
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4ab6b110d56sm4795522f8f.40.2026.11.20.02.46.11
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 20 Nov 2026 02:46:13 -0800 (PST)
+        Fri, 20 Nov 2026 02:46:12 -0800 (PST)
 From: Gao Xiang <xiang.gao@docker.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Wenyuan Xu <sereno.xu@deepseek.com>,
-	Gao Xiang <xiang.gao@docker.com>
-Subject: [PATCH v2 3/5] erofs-utils: mkfs: init root inode in local source mode
-Date: Fri, 20 Nov 2026 11:46:04 +0100
-Message-ID: <20261120104606.25056-3-xiang.gao@docker.com>
+Cc: Gao Xiang <xiang.gao@docker.com>
+Subject: [PATCH v2 2/5] erofs-utils: lib: drop unresolved symlink target dentries
+Date: Fri, 20 Nov 2026 11:46:03 +0100
+Message-ID: <20261120104606.25056-2-xiang.gao@docker.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261120104606.25056-1-xiang.gao@docker.com>
 References: <20261120104606.25056-1-xiang.gao@docker.com>
@@ -102,122 +102,34 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-From: Wenyuan Xu <sereno.xu@deepseek.com>
+Resolving a dangling intermediate symlink leaves an UNKNOWN dentry
+pointing to its parent inode.  Remove this placeholder and return
+ENOENT when the target does not exist.
 
-Initialize the root inode in local source mode so other input modes
-can supply their own root directory metadata.
-
-Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
+Fixes: fd041ac99272 ("erofs-utils: lib: follow symlinks on intermediate tar path components")
+Assisted-by: ChatGPT:gpt-6.1-sol
 Signed-off-by: Gao Xiang <xiang.gao@docker.com>
 ---
- include/erofs/inode.h |  2 ++
- lib/inode.c           | 30 ++++--------------------------
- mkfs/main.c           | 10 ++++++++++
- 3 files changed, 16 insertions(+), 26 deletions(-)
+ lib/rebuild.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/erofs/inode.h b/include/erofs/inode.h
-index 8c22dae..6745a73 100644
---- a/include/erofs/inode.h
-+++ b/include/erofs/inode.h
-@@ -42,6 +42,8 @@ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks,
- bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d);
- int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
- 		       erofs_os_stat_t *st, const char *path);
-+int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
-+			    erofs_os_stat_t *st, const char *path);
- struct erofs_inode *erofs_new_inode(struct erofs_sb_info *sbi);
- int erofs_importer_load_tree(struct erofs_importer *im, bool rebuild,
- 			     bool incremental);
-diff --git a/lib/inode.c b/lib/inode.c
-index b8ca8f4..2099d38 100644
---- a/lib/inode.c
-+++ b/lib/inode.c
-@@ -1335,7 +1335,7 @@ int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
- 	return 0;
- }
- 
--static int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
-+int erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
- 			    erofs_os_stat_t *st, const char *path)
- {
- 	const struct erofs_importer_params *params = im->params;
-@@ -2268,30 +2268,6 @@ struct erofs_mkfs_buildtree_ctx {
- 	struct erofs_importer *im;
- 	bool rebuild, incremental;
- };
--#ifndef EROFS_MT_ENABLED
--#define __erofs_mkfs_build_tree erofs_mkfs_build_tree
--#endif
--
--static int __erofs_mkfs_build_tree(const struct erofs_mkfs_btctx *ctx)
--{
--	struct erofs_importer *im = ctx->im;
--
--	if (!ctx->rebuild) {
--		struct erofs_importer_params *params = im->params;
--		erofs_os_stat_t st;
--		int err;
--
--		err = erofs_os_lstat(params->source, &st);
--		if (err)
--			return -errno;
--
--		err = erofs_fill_inode(im, im->root, &st, params->source);
--		if (err)
--			return err;
--	}
--	return erofs_mkfs_dump_tree(ctx);
--}
--
- #ifdef EROFS_MT_ENABLED
- 
- #ifdef HAVE_SYS_RESOURCE_H
-@@ -2358,7 +2334,7 @@ static int erofs_mkfs_build_tree(struct erofs_mkfs_btctx *ctx)
- 	if (err)
- 		goto fail;
- 
--	err = __erofs_mkfs_build_tree(ctx);
-+	err = erofs_mkfs_dump_tree(ctx);
- 	erofs_mkfs_go(ctx, ~0, NULL, 0);
- 	err2 = pthread_join(sbi->dfops_worker, &retval);
- 	DBG_BUGON(!q->exited);
-@@ -2377,6 +2353,8 @@ fail:
- 	free(q);
- 	return err;
- }
-+#else
-+#define erofs_mkfs_build_tree erofs_mkfs_dump_tree
- #endif
- 
- int erofs_importer_load_tree(struct erofs_importer *im, bool rebuild,
-diff --git a/mkfs/main.c b/mkfs/main.c
-index f75225b..dbda00e 100644
---- a/mkfs/main.c
-+++ b/mkfs/main.c
-@@ -1950,6 +1950,8 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (source_mode == EROFS_MKFS_SOURCE_LOCALDIR) {
-+		erofs_os_stat_t st;
-+
- 		err = erofs_load_shared_xattrs_from_path(&g_sbi, cfg.c_src_path,
- 						mkfscfg.inlinexattr_tolerance);
- 		if (err) {
-@@ -1971,6 +1973,14 @@ int main(int argc, char **argv)
- 			err = PTR_ERR(root);
- 			goto exit;
- 		}
-+		err = erofs_os_lstat(cfg.c_src_path, &st);
-+		if (err) {
-+			err = -errno;
-+			goto exit;
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index a5dd4f3..96aeb0a 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -127,6 +127,12 @@ static struct erofs_dentry *erofs_rebuild_follow_link(struct erofs_inode *root,
+ 					       &dumb_wh, &dumb_opq, false, depth);
+ 		if (IS_ERR(d) || !d || d->type == EROFS_FT_DIR)
+ 			return d;
++		if (d->type == EROFS_FT_UNKNOWN) {
++			/* The unresolved target does not own an inode. */
++			list_del(&d->d_child);
++			free(d);
++			return ERR_PTR(-ENOENT);
 +		}
-+		err = erofs_fill_inode(&importer, root, &st, cfg.c_src_path);
-+		if (err)
-+			goto exit;
- 	} else {
- 		err = erofs_xattr_flush_name_prefixes(&importer,
- 						      mkfs_plain_xattr_pfx);
+ 		if (d->type != EROFS_FT_SYMLINK)
+ 			return ERR_PTR(-ENOTDIR);
+ 		/* the target is itself a symlink: keep following the chain */
 -- 
 2.54.0 (Apple Git-157)
 
