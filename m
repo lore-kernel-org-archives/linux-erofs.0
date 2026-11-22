@@ -2,18 +2,19 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48520606A32A
-	for <linux-erofs@archiver.kernel.org>; Sun, 22 Nov 2026 03:12:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4A68606A320
+	for <linux-erofs@archiver.kernel.org>; Sun, 22 Nov 2026 03:12:16 +0000 (UTC)
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jXDdR0T6Rz2yQG;
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jXDdR5Twcz2yMk;
 	Sun, 22 Nov 2026 14:12:11 +1100 (AEDT)
 Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=159.226.251.21
 ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795317131;
-	cv=none; b=WkHUyorHQzFykMoFjH+4oOEYnaj0NMewf+Cr+SEobre2Xg3ei+dL9+Tcl9d4jJ4F1xMXbz+Z7ZExUcctLu37LZQDMLvO3SB3d1zEPjkkJ1pbbQ5V5sxGqAwkIB38I00ww8kwwzad1/nij6S83HJ+7EJR1AIVQNqTpl45PFVqF+lDXamQ5Mln4d3lOIfDBEQy7/l9jaaX8VRh1KubezISLnKQmtLC7HmuFt14ZNooLpQkDfdxOlL4rJ73SlFeoh2LvltFrcq87GDI4/gul/3NILBIqV34yo9/JoRHq/e8hAZAan+s6LnGy2eq3LJcmrMr6TC2+iJesF2/BQJiJmE1OA==
+	cv=none; b=fZyuRQU9u0bAta1AJizXxoRPZ/8spb0O+4NO5ZpgNy2zpbnWNCQW4pk8HwFpfZz+Nn12GkGIOxFIUjwzo2CwutQonvHUL4pQaRj8NRg8B2MUyoCpK9heB6OPeX4fxX8wPrnYpSiFzs7buVokeCraZZWluDEtARDmJwCp1ym/QsxnEpbO4K9ii63fyIEFcnxPgoaHVFVOgDQ7MAbUT/HKRrp1OaVTAebHWofQ3chB+5RgAHux9R8kClZLFs7BvTFujS5gza0+kaYCFMIu1MMKfxCPbhFb1BVCdp/IiObd1hJaSeMNAe6B1HGZPELNBqTDZOr7mKj0fhT/4mFqbi2PmA==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
 	t=1795317131; c=relaxed/relaxed;
-	bh=pzj026Pw3u7TCg6fcU61XBmFQt2ZGMmoyynDkc5E00Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BxuWD+B74BxrzcqoWL0IB6lKmsqXYpU5LFykArAiyOrfoYugkkslAaoqDX2GtQVQFGyUNqPRlDvHtsfmsSI/wDmlkU86N27+22lTM46DRdXICuZLiQotGFoIlZGWmyJ6Ap8q0XU4cpnYHjoOqJZRMND6eB0Y8VpK02q0SM0kq08R4dlESLdVIBEcFt7ABPwU11gSPcw0GUfJHBHXF7f6gPqPTaqfk9zgsfet/a70NQXwwWUXGBFtolyhfpWR+XI9QMX78ku2kozVmFNebRt2s6nwq4KDK4duY+tZxfCGlWChFDjI+rJDlv7jSCjqx62LVFUMbGdXA5xuVlyjYcj6Mg==
+	bh=CiHCt/6ywjpOw7NYMUwbkbU2j7qoIzofHPU+v+aosKE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HeM7lCt72gUbKdIM5cH2/KM/c774aSE1yyxQnq1Cbj2lDQDFLfZWw805rRrPjcAG6UvtIXX7a4wysaNcdWmFA1KSAciWVMlZPlUWpmIcgxBbJao9gdCzytrcMV5QLhGNjobZffLBWbUjwWw/VJBpMczu5PBZe0jNfNvKo5J2hRO1tcEokNEDAEhRS+cKVTswAL2ede3SLmNSOPPadND6sURHDKOu2XaGlJ9L7Jj4FpcncI7BvONsCapYKZwyD4zWhm4JcxfaKW38fcUfQEgZqrJFtKrmDOnSnPWCL3t+z9xzyUVZbWkDlCuw3CppJv9dMbO3vcWFD4V2JQOSThGkiQ==
 ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mails.ucas.ac.cn; spf=pass (client-ip=159.226.251.21; helo=cstnet.cn; envelope-from=yanmengdie24@mails.ucas.ac.cn; receiver=lists.ozlabs.org) smtp.mailfrom=mails.ucas.ac.cn
 Authentication-Results: lists.ozlabs.org; dmarc=none (p=none dis=none) header.from=mails.ucas.ac.cn
 Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=mails.ucas.ac.cn (client-ip=159.226.251.21; helo=cstnet.cn; envelope-from=yanmengdie24@mails.ucas.ac.cn; receiver=lists.ozlabs.org)
@@ -21,20 +22,22 @@ Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jXDdL4ZTxz2yMk
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jXDdL4V25z2yMP
 	for <linux-erofs@lists.ozlabs.org>; Sun, 22 Nov 2026 14:12:05 +1100 (AEDT)
 Received: from localhost.localdomain (unknown [36.110.52.2])
-	by APP-01 (Coremail) with SMTP id qwCowAAnUvy6WwJrpQZzAQ--.19540S2;
+	by APP-01 (Coremail) with SMTP id qwCowAAnUvy6WwJrpQZzAQ--.19540S4;
 	Sun, 22 Nov 2026 11:04:33 +0800 (CST)
 From: Mengdie Yan <yanmengdie24@mails.ucas.ac.cn>
 To: linux-erofs@lists.ozlabs.org
 Cc: Mengdie Yan <yanmengdie24@mails.ucas.ac.cn>,
 	Gao Xiang <xiang@kernel.org>,
 	Chengyu Zhu <hudsonzhu@tencent.com>
-Subject: [PATCH 0/4] erofs-utils: mkfs: add --hot-file-list for cold-start locality
-Date: Sun, 22 Nov 2026 11:04:19 +0800
-Message-ID: <cover.1795283997.git.yanmengdie24@mails.ucas.ac.cn>
+Subject: [PATCH 2/4] erofs-utils: mkfs: preserve hot file placement during compression
+Date: Sun, 22 Nov 2026 11:04:21 +0800
+Message-ID: <e6411ea79c5b54e64c2b16fdf8772600ad93986a.1795283998.git.yanmengdie24@mails.ucas.ac.cn>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <cover.1795283997.git.yanmengdie24@mails.ucas.ac.cn>
+References: <cover.1795283997.git.yanmengdie24@mails.ucas.ac.cn>
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -47,90 +50,158 @@ Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowAAnUvy6WwJrpQZzAQ--.19540S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7KryxWw1fJw1DZr1ftw1kKrg_yoW8KF17p3
-	98Ka4fJrZ5Z342y393Zr40ga4fXayrAry5W3W7XryxZFy5Jr1vqas5KFn0gFyUGrWrGayU
-	Zry2v398urn8A37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvj14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-	6F4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr
-	1j6F4UJwAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40E
-	FcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280aVAFwI0_Gr
-	1j6F4UJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS
-	5cI20VAGYxC7MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
-	8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWU
-	twCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
-	0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_
-	Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjfU5X
-	dbUUUUU
+X-CM-TRANSID:qwCowAAnUvy6WwJrpQZzAQ--.19540S4
+X-Coremail-Antispam: 1UD129KBjvJXoW3Jr4fWrykJFyxCF4UWryUZFb_yoW7ZFWxpF
+	1Fka48X395XFyjk3WxZr4FqFyYgFWfJr4UWw1rXrn3t3W5GFyIqF10yrn8AFWUWrZ5X3yq
+	vwsFv34Uur4DG3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUPj14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jryl82xGYIkIc2
+	x26xkF7I0E14v26r1I6r4UM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+	Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1l84
+	ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr0_Cr1U
+	M2vYz4IE04k24VAvwVAKI4IrM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64
+	kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q6rW5McIj6I8E87Iv67AKxVW8Jr0_Cr1U
+	McvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I64
+	8v4I1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
+	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrx
+	kI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v2
+	6r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8Jw
+	CI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfU5LvKUUUU
+	U
 X-CM-SenderInfo: 51dqzv5qjgxvysu6ztxlovh3xfdvhtffof0/
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=4.0.1
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Hi,
+Allow hot files to be compressed, but keep them out of fragment packing.
+Fragments move file tails into the packed inode, which is written after
+all other data, so hot tails would end up far away from the hot area.
 
-When a container image is lazily loaded, its first start reads a small
-and mostly fixed set of files, whose data is spread across the image in
-directory traversal order.  This turns the cold start into many small
-random reads.
+Since hot files are not packed, their tails can be inlined even if
+fragments are enabled.  Don't mark them as interlaced in that case,
+as inline pclusters are never interlaced.
 
-This series adds a --hot-file-list option to mkfs.erofs:
+Inline tails, data deduplication and extent deduplication only place data
+next to the inode or reference data written earlier, so they are kept as
+is.
 
-  mkfs.erofs --hot-file-list=startup.list foo.erofs rootfs/
+Signed-off-by: Mengdie Yan <yanmengdie24@mails.ucas.ac.cn>
+---
+ lib/compress.c   | 19 +++++++++++++++----
+ man/mkfs.erofs.1 | 10 ++++++----
+ mkfs/main.c      |  6 ------
+ 3 files changed, 21 insertions(+), 14 deletions(-)
 
-The list holds one image-relative path per line, typically recorded
-from a startup trace.  Data of the listed regular files is allocated
-ahead of other files in list order, while unlisted files keep their
-relative order.  Directories and symlinks along the listed paths are
-prioritized as well.  Paths are resolved inside the image root, and
-missing entries are reported and skipped.  Without the option, the
-output is unchanged.
-
-Patch 1 adds the list parser and a hot pass in erofs_mkfs_dump_tree()
-for local directories.  Patch 2 supports compression and keeps hot
-files out of fragments, since the packed inode is written last.
-Patches 3 and 4 add tar and OCI imports, where paths are resolved
-against the final imported tree.
-
-With elasticsearch:8.13.0 and a list recorded from a real startup (610
-regular files, 441 MB), reading the hot files in order from a cold loop
-device took 573 ms instead of 793 ms (-28%, median of 15 pairs).
-
-Tested with local directory, tar and OCI sources and various compression
-options; image contents were verified with fsck.erofs and kernel mounts.
-
-A regression test for experimental-tests is sent separately.
-
-This series is based on erofs-utils dev at 652a204d0ec6.
-
-Thanks,
-Mengdie Yan
-
-Mengdie Yan (4):
-  erofs-utils: mkfs: prioritize hot files in directory sources
-  erofs-utils: mkfs: preserve hot file placement during compression
-  erofs-utils: mkfs: support hot file lists for full TAR imports
-  erofs-utils: mkfs: support hot file lists for full OCI imports
-
- include/erofs/hotfile.h  |  25 ++
- include/erofs/internal.h |  11 +
- lib/Makefile.am          |   2 +
- lib/compress.c           |  19 +-
- lib/hotfile.c            | 754 +++++++++++++++++++++++++++++++++++++++
- lib/inode.c              | 202 ++++++++++-
- man/mkfs.erofs.1         |  24 ++
- mkfs/main.c              |  65 ++++
- 8 files changed, 1091 insertions(+), 11 deletions(-)
- create mode 100644 include/erofs/hotfile.h
- create mode 100644 lib/hotfile.c
-
-
-base-commit: 652a204d0ec628c887df88c95f76073502704c52
+diff --git a/lib/compress.c b/lib/compress.c
+index e764e44..56e559b 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -599,7 +599,8 @@ static int __z_erofs_compress_one(struct z_erofs_compress_sctx *ctx,
+ 	bool is_packed_inode = erofs_is_packed_inode(inode);
+ 	bool tsg = (ctx->seg_idx + 1 >= ictx->seg_num), final = !ctx->remaining;
+ 	bool may_packing = (params->fragments && tsg && final && !is_packed_inode &&
+-			    !erofs_is_metabox_inode(inode));
++			    !erofs_is_metabox_inode(inode) &&
++			    !erofs_inode_is_hotfile(inode));
+ 	bool data_unaligned = ictx->data_unaligned;
+ 	bool may_inline = (params->ztailpacking && !data_unaligned && tsg &&
+ 			   final && !may_packing);
+@@ -1343,6 +1344,7 @@ int z_erofs_compress_segment(struct z_erofs_compress_sctx *ctx,
+ 	struct erofs_inode *inode = ictx->inode;
+ 	bool frag = params->fragments && !erofs_is_packed_inode(inode) &&
+ 		!erofs_is_metabox_inode(inode) &&
++		!erofs_inode_is_hotfile(inode) &&
+ 		ctx->seg_idx >= ictx->seg_num - 1;
+ 	struct erofs_vfile *vf = ictx->vf;
+ 	int ret;
+@@ -1978,7 +1980,8 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 	struct erofs_sb_info *sbi = inode->sbi;
+ 	struct z_erofs_compress_ictx *ictx;
+ 	bool frag = params->fragments && !erofs_is_packed_inode(inode) &&
+-		!erofs_is_metabox_inode(inode);
++		!erofs_is_metabox_inode(inode) &&
++		!erofs_inode_is_hotfile(inode);
+ 	bool all_fragments = params->all_fragments && frag;
+ 
+ 	/* initialize per-file compression setting */
+@@ -2018,6 +2021,9 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 	}
+ 	ictx->im = im;
+ 	ictx->inode = inode;
++	/* hot files are never packed, skip the fragment tail queue */
++	if (erofs_inode_is_hotfile(inode))
++		ictx->tofh = ~0U;
+ 	ictx->device_id = !params->fragments && !params->dedupe &&
+ 		!erofs_is_packed_inode(inode) &&
+ 		!erofs_is_metabox_inode(inode) &&
+@@ -2067,8 +2073,12 @@ void *erofs_prepare_compressed_file(struct erofs_importer *im,
+ 			params->max_compressed_extent_size;
+ 		ictx->data_unaligned = false;
+ 	}
++	/*
++	 * Hot files are not packed, so their tails may be inlined; inline
++	 * pclusters are never interlaced.
++	 */
+ 	if (params->fragments && params->dedupe != EROFS_DEDUPE_FORCE_ON &&
+-	    !ictx->data_unaligned)
++	    !ictx->data_unaligned && !erofs_inode_is_hotfile(inode))
+ 		inode->z_advise |= Z_EROFS_ADVISE_INTERLACED_PCLUSTER;
+ 
+ 	init_list_head(&ictx->extents);
+@@ -2094,7 +2104,8 @@ int erofs_begin_compressed_file(struct z_erofs_compress_ictx *ictx)
+ 	const struct erofs_importer_params *params = ictx->im->params;
+ 	struct erofs_inode *inode = ictx->inode;
+ 	bool frag = params->fragments && !erofs_is_packed_inode(inode) &&
+-		!erofs_is_metabox_inode(inode);
++		!erofs_is_metabox_inode(inode) &&
++		!erofs_inode_is_hotfile(inode);
+ 	bool all_fragments = params->all_fragments && frag;
+ 	int ret;
+ 
+diff --git a/man/mkfs.erofs.1 b/man/mkfs.erofs.1
+index f8157b4..f06ff9b 100644
+--- a/man/mkfs.erofs.1
++++ b/man/mkfs.erofs.1
+@@ -316,13 +316,15 @@ directory sources.
+ Leading slashes refer to the image root.  Empty lines and lines starting
+ with # are ignored; other spaces are part of the filename.  Use ./ to list
+ a filename beginning with #.
+-Hot regular files are scheduled in list order before cold files.
+-Unlisted files retain their relative traversal order.
++Hot regular files are scheduled in list order before cold files while keeping
++compression enabled.  Unlisted files retain their relative traversal order.
+ Hardlink aliases share the earliest matching rank.
+-Symlinks are resolved within the image root, including intermediate components.
++Symlinks, including intermediate ones, are resolved within the image root
++and are prioritized together with their targets.
+ Parent directories are also prioritized.  Entries ending in \fI/\fR prioritize
+ the directory without recursively marking its children hot.
+-This option currently requires uncompressed builds.
++Hot files are never packed into fragments, since that would move their
++tails out of the hot area.
+ Data deduplication and chunk sharing are kept, so hot files may still
+ share physical extents with other files.
+ This is file-level data ordering: directory compression, metadata zones and
+diff --git a/mkfs/main.c b/mkfs/main.c
+index f5044ba..299f2cd 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1940,12 +1940,6 @@ int main(int argc, char **argv)
+ 	if (err)
+ 		goto exit;
+ 
+-	if (erofs_hotfile_enabled() && g_sbi.available_compr_algs) {
+-		erofs_err("--hot-file-list requires uncompressed output");
+-		err = -EOPNOTSUPP;
+-		goto exit;
+-	}
+-
+ 	if (importer_params.dedupe == EROFS_DEDUPE_FORCE_ON &&
+ 	    g_sbi.available_compr_algs) {
+ 		err = z_erofs_dedupe_init(erofs_blksiz(&g_sbi));
 -- 
 2.50.1 (Apple Git-155)
 
