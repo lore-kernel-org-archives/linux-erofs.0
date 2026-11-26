@@ -2,83 +2,85 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38691606A31E
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 12:02:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEA72606A31C
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 12:02:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=0mCrPwB5
+	dkim=pass (2048-bit key) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MOkQqRg+
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jZwCW00q6z2yMP;
-	Thu, 26 Nov 2026 23:02:30 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::336"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795694550;
-	cv=none; b=Ev2KlY2h6ksGoLW56F7KgdxlFDIkpjhohChaB3fEfhseRYVUko/m/Ruqp7UOs9kSdlrDBjP8iP2D4oa6+vvaleLIWHM3FjxqLb8R5ixp1NFTfqdLXfrQWRT+pI/isKjfpJ2StHnl6xF8H619q/iF7P75IPr7tHF0gxsvjyln6kLQc/tNqTE0lt9l3T4UHaL/ysaFvnd12WXS/Sw2s6AXWXKURFO3bY6z3bfdpSNntAxmMwJavVp9S2TEdohT96E+PpQ6dbd7F+33EGAxgJTq84nVirsdWRP6J8ov4NOr7shCrD37/ZWOKxFHy54f/0u9tUUOCEUgTcHTb4xrCa5q1w==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jZwCX5FWvz2yMn;
+	Thu, 26 Nov 2026 23:02:32 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::430"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795694552;
+	cv=none; b=EN1BqpNIwdpcGh9TyVrr2zEquhuLEKdJ/knTcAUgG8R/UP5mtUiKYB/RAW2Rfi+L9qgs9HOIuZ99s1xBOtZDPArn7oJUmEKLA9SiA7sW9JCrBx2QP/evAxxOeyTbmOlyDgjieU8MetocSBKcHoEymKcsn/lVVUww2lhLc2wOzSZMmYrfNWsm5mvpfw9AecfKhk/hS/MPS0/9TfC1j3tx4stRgsA9ArzhA1aZAIbYZcG3IpWoj8b2kaSQ4GLXCV6ep0rV9eKUU5NHeO049RjkqwIW328QSUELpJ/kLLAo70oeGxxtPS+GziYgQU6N4RnzYAPDKXt4siWRDLfRW2otMQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795694550; c=relaxed/relaxed;
-	bh=jBJowxRInZhomdZqGHvuyQQZbuT1ccn+2ig4X6S/L9E=;
+	t=1795694552; c=relaxed/relaxed;
+	bh=5WitMIIPBMQ+fy11e7KoLi9kf18Fj8BbYz+JxjBvR5k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VXvH00zjb4NHRKxOh0WjRhOAEm6YWloV7CVfV6spYDwvUGCJlwTuFOvs1bnxsakFSlcoo0pRCve3iird5dG+f/GQ1z/GV9Kdz016V3JZWl0dGo1nhtej/O4SWZ4vsq93Xz8173LfSEQthWq6Bn/QYCxse2HJtTkFty7Eb3p59X7ECSQnm+/PuBpn4UYJFogEeDGAFGDG8qY5AHR0B5dMYoe35QnQf6iqKE73Hq8NIjb5y0CZ6sxoIX4XRMye636aJ7MNz4V37/lSyxtHw46Cr7HZ0aNeGQHfk6MG0gaCqs9JklvuXYhuNo8sJ4VEqFd98FDObpU/szWdTWa60JhAMg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=0mCrPwB5; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::336; helo=mail-wm1-x336.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+	 MIME-Version; b=VFRCtr9YmT9SHsXZ2EXH5LyJaRA5XEGQfQmTNNwZPXGoV8FMKqRz/jXNdGrIQpe8SLW64qrvkGWcAUzCey8aFuPHceZ3XLi0I6/JmBmvh4tJ1aWAeZcD7J8yhfg2iEWNRsLA/R2cM0WhxXS+U9LfpVCw7so0i+hgGkpBBW+3LoFQquo27AbVWvDVL3qmfoyMDlF2IijEAYDW8tPXNPHSgVCNu3WxJzITlodp4VMlufCvKSboz3ONp7fccTW4w01uI9IIH5tYUM3xxxjUsGGweGKUePjnwDoTnFDxiaIXSjcoOcJKFVkzsvpS9bK59a13ei4nwleXnqgqbwBo7TFFqQ==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MOkQqRg+; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::430; helo=mail-wr1-x430.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=0mCrPwB5;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MOkQqRg+;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::336; helo=mail-wm1-x336.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::430; helo=mail-wr1-x430.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZwCT4Dt0z2yLY
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 23:02:29 +1100 (AEDT)
-Received: by mail-wm1-x336.google.com with SMTP id 5b1f17b1804b1-4a9a8d6cea8so89278125e9.1
-        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 04:02:29 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZwCW2bGPz2yLH
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 23:02:31 +1100 (AEDT)
+Received: by mail-wr1-x430.google.com with SMTP id ffacd0b85a97d-4a5024b3c28so4565765f8f.0
+        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 04:02:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=docker.com; s=google; t=1795694546; x=1796299346; darn=lists.ozlabs.org;
+        d=docker.com; s=google; t=1795694548; x=1796299348; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=jBJowxRInZhomdZqGHvuyQQZbuT1ccn+2ig4X6S/L9E=;
-        b=0mCrPwB5E5zEcaAr4vYrxkaTpCLYa8RDd3yvzlzhR6+1thv15rM7k8xN0yisvjCJFa
-         HcprdTFAHg2JbhiErY6MFA6RUZpb4BdcVQVT+SOHdMo83K+KkmwgS0r1vqcxB9ZiXAQj
-         L+1WI1AfGNZ/Xiph8wFFICaQwoSmmfKqcyRZ4U3algr7HQPuNvl/z/131RpTUitRsW9I
-         0CjcJJ+Jhn6Bgs6hEPSSnnjuzdgJOQOIjkLaVuaMBAytlXXhKZLF+PqSoDg731JdZ/ma
-         5p4w2BihyG3X3rTWxQ0jwyk26VDnno6a4GR/aOoOxpWnNbSYXMCHZ5s8lxXUQcrU+bVG
-         MXcQ==
+        bh=5WitMIIPBMQ+fy11e7KoLi9kf18Fj8BbYz+JxjBvR5k=;
+        b=MOkQqRg+sVnKPHkzW/+ZWcTlm24TSR0cP49Lh87wpjhiLzo68XNMp9VTQJlnNwAvga
+         IfUd3RwIR6svUp+xn1s791P7NbFXq8yJey/j3sliZvzWji4i2E3AjyTWR+LdoXYPPdC0
+         jUvVO+x4tVdtCR6InsFV7qqAq3osOuHhd1DvlCZRX7ZhDzHrf0viEmbD+bY3zvPhVqv0
+         lv7Syn1hN5t1UMbVg1WsEg5aFS2YT33D8sxVa01E39ViCc20TVALG0yXf2gzLCHRH8qg
+         gDYa/twQ1PX7/A1ccENRJUCGKLIwyubNyOZjgMBgx4vF52xrgO689ComqdWCkCjhvSku
+         aQLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795694546; x=1796299346;
+        d=1e100.net; s=20260707; t=1795694548; x=1796299348;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=jBJowxRInZhomdZqGHvuyQQZbuT1ccn+2ig4X6S/L9E=;
-        b=mGi5D+vEOS3X2hZEjmqVaCOWdDsHzmBOGGgyqQRIqANfiwK6DvbL4OtBNRImGsSxq/
-         Owj3LmvSaK57X7FyA2ZwUA39MCFiZ8j5fa40QZV5PkHhZrOmwEaxERZYFLiiwVsoozew
-         gZWbRZxF5/DmquXNTYUKL4sZIRyVOXG9YvevTOysmJ46S9uiOvUASxHvOdb/o5O9os9V
-         ey54b3DFE2w59tvgHpJhmgXckHIMgNQJLKpFxI0i/9T6eGGRpexOVp9Gny1me9r0z36j
-         fMXMaqKtF9ao65/YdmG3F8nscgb0HnbPIN2/IYDn73cvUmhiwH14cUe5jTVX3hbutMAd
-         WH8Q==
-X-Gm-Message-State: APuU4Z+lnHMvrbImMl3gBz/lTKRipvCVu74F+LnkYbJhdMCL6t1yqWH8
-	5RIPm1V/VNPk7zuvUpMIXBiwVyvDKXAH/gO/QBZ1L8M0towaUqV9Ki+Jj1MYfKKCMaJw6I8qs1A
-	FdF/UWBA=
-X-Gm-Gg: AZFdTZfinvQUGBR1nAiu2IMvTfdNQQfGoPi2vMInfnWse830HS3Hor/On8X6JSSxqIF
-	AGgCvU8CaMfc/s6zw7Z2C3ECK14xWzaIPPAlp6fRsl0N2vB1mtC2PqojJm6dOZU4l0C/60NsHCv
-	aWq0aQU3niTqyFiDuWwJIXZ6VM/+g1clF4VjDQYAMRc+BoG14R2eGPrYcD8vBUuPNktQ1e2zAgx
-	+u1Di+A5nDTFJQaI5Q5I4v/jdKz9abs//b3G7mrSINWQcqFSIY9l4LAQUprHVz5OjY8nI2IKy2P
-	jaGf+i6bDFuCvv8rLAneLQUchNps51FmYfr8s4N0ODT0dUdJLqNUBBflegH13ahbj0ix75y0Y69
-	8PzLLmK5Bo5LAEdj7C4fcDJUPO0ox5JLYeovtyA39xGUEdJlXCoXVwz85cSthD82yTnWLWXnLj7
-	LV1GMIuuo6uEImsgemD1MQbv1Nw1Du/5KBshmBeV7x94FtdK7jLPbtTWCcVfrsBsiHQK7ZNfrLa
-	ClveINRWj8O7jNnWgU7aWKmdo2EndwNtsK88r+L3KeYTKCosMEl8FJ8YNHoyULgFAhHqJR/vZ4v
-	5ICPYDmd/ucetiT4CD/rdvxP/zhIuZOYrtJyM2EotV3gUZG62OYTTbS63DhZHpgrKpb6Jw==
-X-Received: by 2002:a05:600c:4504:b0:4b4:a551:681a with SMTP id 5b1f17b1804b1-4bb887fc396mr425493125e9.3.1795694546051;
-        Thu, 26 Nov 2026 04:02:26 -0800 (PST)
+        bh=5WitMIIPBMQ+fy11e7KoLi9kf18Fj8BbYz+JxjBvR5k=;
+        b=aie4dorS1oBtD+CdDoy3PKnLW+fSq1Rx5inBQxeoZ7T1S4sn/c6v8x0MLueMSexbjv
+         aZMoZkl200TZSCQpJN0QPCM2Iab/P5DsvzLfHfsJvJ+92V0VVKSKw9+qLziLgUOO+8Mb
+         EwZVAtfYLm63FmSoUJ8DgV5JJemo6lgadRyND1gENuwKy0CbgtBrIXdmjohYoRc1koF9
+         5MaxqhD4SbcdfmJWwfeAlWhcxzcbcj07BMMtWnlfBV8WYP5hRJNKoLmhZiJYDLoE6Bav
+         a62cTqBr7fpHD5o6VU6AaWOFo6ODr70VNXVA9S5YAUYcaMNG9kiSBivS9k14imQ2qdIR
+         bCzw==
+X-Gm-Message-State: APuU4Z9fHfsXIqO015xNyKtQWORfFFvP5tsRQeyiUO31+C8Bu6209UTk
+	sy5Cc5TxHf7nWDbQL6YoPPCduA4GPA/Eqm/mXecGQZD/szH1qYaGlI9DMHx7j+OZ4rOSmJSFWY7
+	zAR2B/b8=
+X-Gm-Gg: AZFdTZdrdDIVcQLYOw52jbOSN3zESzmWSOz3LAo/QfAn3w/L5nlQfDQ802kauv+3Ppg
+	9XJh1BH6pIMljmD+e58DURmh7w+D/V4wSpOMW/jyXPOUJvck7rEbEG6MwQhOWiw5uJQ19GEKjFu
+	Bi8S4NUZtAiwX6r7CITRbGugb47qgUPM7IdnXfUzfujBRqnnwwoCegXpfhKsAY6WNQP+cJt9U50
+	TzLe9lALitk+Y12enZFo6uEhGPm6SJk0BRfGZhTX3Djz3005ITTadmZsxlSS7XgKlI2LDEB8t3J
+	7tsyQ8hiotYXf9KMNLb8BPVk4oe7xALS5yG+gV8RVRMK420O4KBGJUhnpwT0Uk0MEyGRjvPQCAo
+	7uZdJ/OfJIWR9kXV2rKXLLIX/5bhvXulk9sO8S5Y6RD7xvRFor3cmgxL75mOsz9dH77lalSJ6ix
+	Zl+McGKc6oo/ZMFWPWHw4MNMBf7XRk8Tk+tp+zmLoMebZqAYPL1YJnHcWhafc9RaMEtS/BbZcN1
+	gXs2Alod5t58+gqZas1JHOWMxnbvYkySHwHcBsd6N33kDcW2WzBZvyvgZd21yoTYpucjThEcZAG
+	xX9NjPDVcr+7DfO6L8ddwDUQygExEMzUO900lg6pvEHZMTMKGoks2jS7cyovBVofKyYr1nGs/nA
+	hp2YC5H+zsyTXMA==
+X-Received: by 2002:a05:600c:c086:b0:4bb:ab2c:67f7 with SMTP id 5b1f17b1804b1-4bbab2c6d69mr25656945e9.8.1795694547661;
+        Thu, 26 Nov 2026 04:02:27 -0800 (PST)
 Received: from F7R9GP321C.fritz.box ([2a02:8108:8388:6600:6060:1d3a:5489:cf84])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm819402455e9.13.2026.11.26.04.02.25
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm819402455e9.13.2026.11.26.04.02.26
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 26 Nov 2026 04:02:25 -0800 (PST)
+        Thu, 26 Nov 2026 04:02:27 -0800 (PST)
 From: Gao Xiang <xiang.gao@docker.com>
 To: linux-erofs@lists.ozlabs.org
-Cc: Gao Xiang <xiang.gao@docker.com>
-Subject: [PATCH v3 02/10] erofs-utils: lib: reject overflowing device-table offsets
-Date: Thu, 26 Nov 2026 13:02:13 +0100
-Message-ID: <20261126120221.4384-2-xiang.gao@docker.com>
+Cc: Yifan Zhao <stopire@gmail.com>,
+	Gao Xiang <xiang.gao@docker.com>
+Subject: [PATCH v3 03/10] erofs-utils: lib: fix large chunk index writes
+Date: Thu, 26 Nov 2026 13:02:14 +0100
+Message-ID: <20261126120221.4384-3-xiang.gao@docker.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261126120221.4384-1-xiang.gao@docker.com>
 References: <20261126120221.4384-1-xiang.gao@docker.com>
@@ -101,53 +103,126 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-The on-disk devt_slotoff field is a 16-bit index of 128-byte slots.
-Incremental builds can allocate a device table beyond this limit,
-truncating the offset and making the superblock point into unrelated
-image data.
+From: Yifan Zhao <stopire@gmail.com>
 
-Check the slot offset before assigning it to devt_slotoff and return
--EOVERFLOW if it does not fit.  Revoke the buffer allocation and free the
-device array on failure.
+For large chunk index tables, int cannot hold the write result and the
+32-bit offset into the chunk pointer array can wrap around.  Inode
+metadata size calculations can overflow as well.
 
-Fixes: 7550a30c332c ("erofs-utils: enable incremental builds")
+Use 64-bit types for the write result, buffer offsets and metadata size.
+Use erofs_inode_meta_size() for the root inode size check too.
+
+Fixes: 03cbf7b8f7f7 ("erofs-utils: mkfs: support chunk-based uncompressed files")
+Fixes: bbebbbda4b27 ("erofs-utils: lib: consolidate erofs_iflush()")
 Assisted-by: Codex:gpt-6.1-sol
+Signed-off-by: Yifan Zhao <stopire@gmail.com>
 Signed-off-by: Gao Xiang <xiang.gao@docker.com>
 ---
- lib/super.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ lib/blobchunk.c      |  7 ++++---
+ lib/inode.c          | 19 +++++++++----------
+ lib/liberofs_chunk.h |  4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/lib/super.c b/lib/super.c
-index db8f23f..920d572 100644
---- a/lib/super.c
-+++ b/lib/super.c
-@@ -391,6 +391,7 @@ int erofs_superblock_csum_verify(struct erofs_sb_info *sbi)
- int erofs_mkfs_init_devices(struct erofs_sb_info *sbi, unsigned int devices)
- {
- 	struct erofs_buffer_head *bh;
-+	erofs_off_t slotoff;
+diff --git a/lib/blobchunk.c b/lib/blobchunk.c
+index 8217512..a3a88d3 100644
+--- a/lib/blobchunk.c
++++ b/lib/blobchunk.c
+@@ -192,8 +192,8 @@ void erofs_inode_fixup_chunkformat(struct erofs_inode *inode)
+ 		inode->u.chunkformat |= EROFS_CHUNK_FORMAT_48BIT;
+ }
  
- 	if (!devices)
- 		return 0;
-@@ -407,9 +408,17 @@ int erofs_mkfs_init_devices(struct erofs_sb_info *sbi, unsigned int devices)
- 		return PTR_ERR(bh);
- 	}
- 	erofs_mapbh(NULL, bh->block);
-+	slotoff = erofs_btell(bh, false) / EROFS_DEVT_SLOT_SIZE;
-+	/* the on-disk devt_slotoff is a 16-bit index */
-+	if (slotoff > UINT16_MAX) {
-+		erofs_bdrop(bh, true);
-+		free(sbi->devs);
-+		sbi->devs = NULL;
-+		return -EOVERFLOW;
-+	}
- 	bh->op = &erofs_skip_write_bhops;
- 	sbi->bh_devt = bh;
--	sbi->devt_slotoff = erofs_btell(bh, false) / EROFS_DEVT_SLOT_SIZE;
-+	sbi->devt_slotoff = slotoff;
- 	sbi->extra_devices = devices;
- 	erofs_sb_set_device_table(sbi);
- 	return 0;
+-int erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
+-			      erofs_off_t off)
++s64 erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
++				 erofs_off_t off)
+ {
+ 	struct erofs_sb_info *sbi = inode->sbi;
+ 	erofs_blk_t remaining_blks = BLK_ROUND_UP(sbi, inode->i_size);
+@@ -201,7 +201,8 @@ int erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
+ 	erofs_blk_t extent_end = EROFS_NULL_ADDR, chunkblks, addrmask;
+ 	erofs_blk_t extent_start = EROFS_NULL_ADDR;
+ 	erofs_off_t source_offset;
+-	unsigned int dst, src, unit, zeroedlen;
++	unsigned int unit, zeroedlen;
++	u64 dst, src;
+ 	bool _48bit;
+ 
+ 	if (inode->u.chunkformat & EROFS_CHUNK_FORMAT_INDEXES)
+diff --git a/lib/inode.c b/lib/inode.c
+index ad6f081..ef39a4e 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -799,7 +799,8 @@ int erofs_iflush(struct erofs_inode *inode)
+ 	struct iovec iov[2];
+ 	char *xattrs = NULL;
+ 	bool nlink_1 = true;
+-	int ret, fmt;
++	int fmt;
++	s64 ret;
+ 
+ 	DBG_BUGON(inode->nid == EROFS_NID_UNALLOCATED);
+ 	DBG_BUGON(bh && erofs_btell(bh, false) != off);
+@@ -981,11 +982,11 @@ static bool erofs_inode_need_48bit(struct erofs_inode *inode)
+ 	return false;
+ }
+ 
+-static unsigned int erofs_inode_meta_size(struct erofs_inode *inode)
++static u64 erofs_inode_meta_size(struct erofs_inode *inode)
+ {
+-	unsigned int inodesize;
++	u64 inodesize;
+ 
+-	inodesize = inode->inode_isize + inode->xattr_isize;
++	inodesize = inode->inode_isize + (u64)inode->xattr_isize;
+ 	if (inode->extent_isize)
+ 		inodesize = roundup(inodesize, 8) + inode->extent_isize;
+ 	return inodesize;
+@@ -997,7 +998,7 @@ static int erofs_prepare_inode_buffer(struct erofs_importer *im,
+ 	const struct erofs_importer_params *params = im->params;
+ 	struct erofs_sb_info *sbi = im->sbi;
+ 	struct erofs_bufmgr *ibmgr;
+-	unsigned int inodesize;
++	u64 inodesize;
+ 	struct erofs_buffer_head *bh, *ibh;
+ 
+ 	DBG_BUGON(inode->bh || inode->bh_inline);
+@@ -2443,7 +2444,8 @@ int erofs_fixup_root_inode(struct erofs_inode *root)
+ {
+ 	struct erofs_sb_info *sbi = root->sbi;
+ 	struct erofs_inode oi;
+-	unsigned int ondisk_capacity, ondisk_size;
++	unsigned int ondisk_capacity;
++	erofs_off_t ondisk_size;
+ 	char *ibuf;
+ 	int err;
+ 
+@@ -2471,10 +2473,7 @@ int erofs_fixup_root_inode(struct erofs_inode *root)
+ 	if (oi.datalayout == EROFS_INODE_FLAT_INLINE)
+ 		ondisk_capacity += erofs_blkoff(sbi, oi.i_size);
+ 
+-	ondisk_size = root->inode_isize + root->xattr_isize;
+-	if (root->extent_isize)
+-		ondisk_size = roundup(ondisk_size, 8) + root->extent_isize;
+-	ondisk_size += root->idata_size;
++	ondisk_size = erofs_inode_meta_size(root) + root->idata_size;
+ 
+ 	if (ondisk_size > ondisk_capacity) {
+ 		erofs_err("no enough room for the root inode from nid %llu",
+diff --git a/lib/liberofs_chunk.h b/lib/liberofs_chunk.h
+index 16f3d05..4ef6640 100644
+--- a/lib/liberofs_chunk.h
++++ b/lib/liberofs_chunk.h
+@@ -18,8 +18,8 @@ struct erofs_chunkitem *erofs_get_unhashed_chunk(struct erofs_sb_info *sbi,
+ 		unsigned int device_id, erofs_blk_t blkaddr,
+ 		erofs_off_t sourceoffset);
+ void erofs_inode_fixup_chunkformat(struct erofs_inode *inode);
+-int erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
+-			      erofs_off_t off);
++s64 erofs_write_chunk_indexes(struct erofs_inode *inode, struct erofs_vfile *vf,
++				 erofs_off_t off);
+ int erofs_blob_write_chunked_file(struct erofs_inode *inode, int fd,
+ 				  erofs_off_t startoff, int device_id);
+ int erofs_write_zero_inode(struct erofs_inode *inode);
 -- 
 2.54.0 (Apple Git-157)
 
