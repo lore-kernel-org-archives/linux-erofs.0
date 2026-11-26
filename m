@@ -1,67 +1,43 @@
 Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DE10606A31E
-	for <linux-erofs@archiver.kernel.org>; Tue, 24 Nov 2026 03:37:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C9FC606A31C
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 05:43:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=MBxonUp4
+	dkim=pass (1024-bit key, unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=ZBIjhV4v
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jYT5S23HDz2y2b;
-	Tue, 24 Nov 2026 14:37:16 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2607:f8b0:4864:20::1348"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795491436;
-	cv=none; b=mbGQhYG8/qIvRia1DOjE3S8jsfRMNuemcINMSaOrYscf58ori2QIxo9lr5O7ZSnXMQyIXRSNKAB26NOZtQya2YYsybMnDQNLPP/9KGG5D3MKiZP+Bvm7RxDO90FLiV8Oq+4k91KNDeZO8FRF/gkpnW2q4z/EjbfxZOa3M63kzs+EfHRhpUXzomWn11PXLWdqHcjJShAQXluUOAarG/ilKVRPKOSdOn6NzheJ3Taqe50fGXUY8OoISmv8AjVR4Uj9K72rKkI0csUEe0dTea1pzSAAi2kis4zUul4+AVr3jP7lSZrW8vEGuMPtyggiShef76UgyG4qlhifR4FJVeO2hg==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jZlnz52fhz2yDc;
+	Thu, 26 Nov 2026 16:43:19 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=8.221.36.31
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795671799;
+	cv=none; b=AuAhFaFNI4slDfPQoE6lT6xHWk3GPariD/vVaQ0Ryai7Qml8CohNA9vxJVyS/61rJqurONzL1O3F0FZFqyWKD6AGworOea8Fmed/3JbQoZQr3alSoVgW6SXav89VwDPAC6r+qcFWdWVSGi3LcJLut+5SKuZN3B0GPA0C7ZkNc+E6ssGzLfu79zm1+G8l8Gd1uDKnTNKygYE4B9Uz+aw2gmQA9aeAqn+qC4sC3MhvrSqR/ZOCKYO6yID8kezf538cl5NyyvSxJF2dlzQ84/LvL+J//vQxIrFsLCcUdvhAgwWm4TYB6xRI9D6qUz3JlW+ApE+OjRUXX9WV0buTaN+lnQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795491436; c=relaxed/relaxed;
-	bh=uDG1RJSmWdo8vSOwgeBff+qT3aagATVcwdDZ+WsiaR8=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=gyJUvEooZBlMm/uL4T7CQMZ1LDczYfWU7rRS+R3Ihv0TFSVCLp8gG8+LA0dEGFDsHhvhvCZn8lglwggSzZeFHzqpCr4tuZNiOhRwUdaaNw7224xwY/FE0fifOClDj//6Za0Ke4wQNfFfGx/WXHV+iaY9QkFeWbUuYUcxQ++bjhsAGGrEllXKhHqRueN6IVHNP8sBqBW4MCSzLiKQFOfzfVLGjEVliB7wdhnIEFPbRjE9IAZ+q0fBxUnGbJC5Zzhz+4XSfItAijRNlheyn3KjADXMCYjDhsQ3UYSDSGuiSEr40DFQILEvoTGfgA/dWCy88ML+aadxvZzlAntDxt5xXQ==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com; dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=MBxonUp4; dkim-atps=neutral; spf=pass (client-ip=2607:f8b0:4864:20::1348; helo=mail-dy1-x1348.google.com; envelope-from=3zgyfawokc-uupshfchpzonvvnsl.jvtspube-lyvmzspzaz.vgshiz.vyn@flex--nilayvaish.bounces.google.com; receiver=lists.ozlabs.org) smtp.mailfrom=flex--nilayvaish.bounces.google.com
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=reject dis=none) header.from=google.com
+	t=1795671799; c=relaxed/relaxed;
+	bh=DXEcRoC6dd9vstOaQhU671AxiuawhnM6bCRlg46P3p8=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=OK1rEMQRoqCitdQhM9T0ODryP5raG3ViDs5QASNK1ztL6Z84Wodc17uD7pNBsiOXL/Xtl6MIGxMlcphFs9mJ8dAaOjweEImUA47GqjJ5DrZVPkTsWbC5U/NUD0pvVuOC1MgBfnHBTYzBwmF0p3HlGA4qqg5+zw7yF/28D57U5jAKn0HAcpDFlCPnPjqYzlt3SnnBXtv/poCJRUDdZg2GYRpMxnsfylQQxQXqlJwJynaS8D7EoQzHgeAyZ49vuRj7gAP5V9YnrXLjvbVuEQjLwdt8z23XFCQt9RRlnstuUZ7p4yelXN/pN5uxMxNh33pjU5l1CpCrOJgkalBfviJRTA==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com; dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=ZBIjhV4v; dkim-atps=neutral; spf=pass (client-ip=8.221.36.31; helo=mail-m82213631.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org) smtp.mailfrom=deepseek.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=deepseek.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=MBxonUp4;
+	dkim=pass (1024-bit key; unprotected) header.d=deepseek.com header.i=@deepseek.com header.a=rsa-sha256 header.s=default header.b=ZBIjhV4v;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=flex--nilayvaish.bounces.google.com (client-ip=2607:f8b0:4864:20::1348; helo=mail-dy1-x1348.google.com; envelope-from=3zgyfawokc-uupshfchpzonvvnsl.jvtspube-lyvmzspzaz.vgshiz.vyn@flex--nilayvaish.bounces.google.com; receiver=lists.ozlabs.org)
-Received: from mail-dy1-x1348.google.com (mail-dy1-x1348.google.com [IPv6:2607:f8b0:4864:20::1348])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=deepseek.com (client-ip=8.221.36.31; helo=mail-m82213631.xmail.ntesmail.com; envelope-from=sereno.xu@deepseek.com; receiver=lists.ozlabs.org)
+Received: from mail-m82213631.xmail.ntesmail.com (mail-m82213631.xmail.ntesmail.com [8.221.36.31])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jYT5Q3Gxnz2xNT
-	for <linux-erofs@lists.ozlabs.org>; Tue, 24 Nov 2026 14:37:13 +1100 (AEDT)
-Received: by mail-dy1-x1348.google.com with SMTP id 5a478bee46e88-341eff9e381so6530866eec.1
-        for <linux-erofs@lists.ozlabs.org>; Mon, 23 Nov 2026 19:37:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1795491431; x=1796096231; darn=lists.ozlabs.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uDG1RJSmWdo8vSOwgeBff+qT3aagATVcwdDZ+WsiaR8=;
-        b=MBxonUp4RXZZKA96767jxMpawphtXYpMYJ1ONpB4ab37CfyRp3PoQzUM35U1lIhPin
-         44j+8wgU/PeYJKa8rdqnOd4GdbLbHcI24d08wbP6ylNPkIYpfhAj5e2l80M3uffHUy6c
-         MZmzZ7oAYfElcZzWX6Le3I9VrEAoSFDG/E0EhFT0ZHsLRxhDv0OO01GpN8pewRgivZkd
-         B4ulOAewGB1N7FrVwlbOPJVkG+okqWExugeqn9U4GH8bHchPRgmmaa7EDh5q2y5oQN5B
-         lPmlxJALRc6kaec4aNYYZn3VsyMxCQB5lynQoCarHZ+qmr/2dqWfPCFAe8VgVU9u/HuQ
-         UWyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795491431; x=1796096231;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uDG1RJSmWdo8vSOwgeBff+qT3aagATVcwdDZ+WsiaR8=;
-        b=1HUqoee70hIg/m1Fuv3dviHBvAEXPRpwZ0O172jqajzWOGz2smRU79w/pkqr/sDpp9
-         WaKFBnXaLXJuEXIHRdVeyunKA66TdHQ66xkVeqQZaUfC54y/u2sxRRIK/aSu2xHPM71x
-         n3KjC5nsB7J7Xb1VJBJo/joRSxeXIWJq/ObNlojRjlAMIkxY5Xiw8EeZQztAU8WMNT9k
-         WY7AP0tyOKdgnJjSUy4Xi09g+nRwAj8IZn5+TPcXk7VDudOxSeovUaxXAyAHNFUc63BQ
-         rHz0n//Iu3KcbREbmtI1R7DRH4cE46P/MsPm8HJDWpP5AeG2l2B5MeWlJdgofTBJ5y0m
-         FI7Q==
-X-Forwarded-Encrypted: i=1; AL+hErHQFi/A7pziIJgin9X5DHxsY+0QW7R7o6Z2pwQUG2jHIdcMtp2sal8DSLe6R2Q1aLnIT0sqC7CAEgp2fg==@lists.ozlabs.org
-X-Gm-Message-State: APuU4Z/dyMATlMJuGXYfI/U2np81+eMXSymTVopoBLZat5ZmS0qRA3yo
-	wjkMsDU6at/0689anLaV293jTr+yrKrFpx/xJJ3S2amythzeUa8I1/NZf7FkkmjwlXdNnulHXVI
-	hE2uLUZoGoVu8jkawJGpsRA==
-X-Received: from dlxx13.prod.google.com ([2002:a05:7022:408d:b0:1b2:4b00:1331])
- (user=nilayvaish job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:7022:2209:b0:1b2:43ac:d3a3 with SMTP id a92af1059eb24-1b5568b9e59mr17010052c88.24.1795491430211;
- Mon, 23 Nov 2026 19:37:10 -0800 (PST)
-Date: Mon, 23 Nov 2026 19:37:01 -0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZlnt2XCdz2xnn
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 16:43:10 +1100 (AEDT)
+Received: from localhost.localdomain (unknown [124.243.154.177])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 56105e133;
+	Thu, 26 Nov 2026 13:43:01 +0800 (GMT+08:00)
+From: Wenyuan Xu <sereno.xu@deepseek.com>
+To: xiang@kernel.org,
+	linux-erofs@lists.ozlabs.org
+Subject: [PATCH] erofs-utils: lib: persist opaque xattrs for incremental build
+Date: Thu, 26 Nov 2026 05:42:58 +0000
+Message-ID: <20261126054258.3859270-1-sereno.xu@deepseek.com>
+X-Mailer: git-send-email 2.43.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -72,66 +48,163 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
   <mailto:linux-erofs+subscribe-nomail@lists.ozlabs.org>
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.56.1.839.g22a8290db9-goog
-Message-ID: <20261124033701.832938-1-nilayvaish@google.com>
-Subject: [PATCH] erofs: use page_private() in z_erofs_is_shortlived_page()
-From: Nilay Vaish <nilayvaish@google.com>
-To: Gao Xiang <xiang@kernel.org>
-Cc: Chao Yu <chao@kernel.org>, Yue Hu <zbestahu@gmail.com>, Jingbo Xu <jefflexu@163.com>, 
-	Sandeep Dhavale <dhavale@google.com>, Hongbo Li <hongbohbli@tencent.com>, 
-	Chunhai Guo <guochunhai@vivo.com>, linux-erofs@lists.ozlabs.org, 
-	Nilay Vaish <nilayvaish@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0aa21660ee0a03a3kunm58eaefa59fa7c0
+X-HM-MType: 1
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlDSkIeVktOGBhKTBlKHUpDTlYVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlKSU9VSU9IVUpOT1VKTExZV1kWGg8SFR0UWUFZT0tIVU
+	pLSUJNSktVSktLVUtZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=ZBIjhV4vOFKGZgxsV4bv9u9o66rwmF+Hbh+d71jFKYti8hXrgfabx7PJNh+q3Q/99DF/EUA0uHcFj6pTN7oCkhDXCDV3SIlwTuUKIiyh+5zVEghtnMdjwcysdQK9bPhwJZmnkYXhuZvf1v+LtMPpVnXM4hFdvx3vTFZHZWDELvo=; c=relaxed/relaxed; s=default; d=deepseek.com; v=1;
+	bh=DXEcRoC6dd9vstOaQhU671AxiuawhnM6bCRlg46P3p8=;
+	h=date:mime-version:subject:message-id:from;
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
-	SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=4.0.1
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-Short-lived pages are marked with set_page_private(), but
-z_erofs_is_shortlived_page() tests the marker by reading page->private
-directly.
+Commit 3233deddbcc1 ("erofs-utils: lib: persist opaque xattrs for
+rebuilt merged dirs") fixed opaque xattr persistence in rebuild mode,
+but did not fix incremental mode, which merges the base image through a
+separate path.
 
-struct page is being shrunk as part of the memdesc work, and its private
-field is one of those that will move. Direct users have to go through
-the accessors before that can happen.
+When an incremental build merges a new directory over a whiteout or an
+opaque directory in the base image, the resulting directory can lose the
+opaque marker. Stacking the updated image above older layers then
+exposes entries that should remain hidden.
 
-Read the marker with page_private(), to match how it is set.
+Mark directories replacing base whiteouts opaque and inherit opaque
+xattrs while loading base directory contents. Delay inheriting the
+marker until that load so it does not prevent the contents from being
+merged. Share the on-disk whiteout lookup through erofs_nid_is_whiteout.
 
-No functional change.
-
-Signed-off-by: Nilay Vaish <nilayvaish@google.com>
+Fixes: f64d9d02576b ("erofs-utils: introduce incremental builds")
+Signed-off-by: Wenyuan Xu <sereno.xu@deepseek.com>
 ---
+ include/erofs/inode.h |  1 +
+ lib/inode.c           | 30 +++++++++++++++++-------------
+ lib/rebuild.c         | 23 +++++++++++++++++------
+ 3 files changed, 35 insertions(+), 19 deletions(-)
 
-Notes:
-    This patch was written with the help of an AI coding assistant (Gemini).
-    
-    Based on next-20261123.
-
- fs/erofs/compress.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/erofs/compress.h b/fs/erofs/compress.h
-index 84c8e52581f4..a9ff02b443a8 100644
---- a/fs/erofs/compress.h
-+++ b/fs/erofs/compress.h
-@@ -41,7 +41,7 @@ struct z_erofs_decompressor {
-  */
- static inline bool z_erofs_is_shortlived_page(struct page *page)
- {
--	return page->private == Z_EROFS_SHORTLIVED_PAGE;
-+	return page_private(page) == Z_EROFS_SHORTLIVED_PAGE;
+diff --git a/include/erofs/inode.h b/include/erofs/inode.h
+index 6745a73..5051c77 100644
+--- a/include/erofs/inode.h
++++ b/include/erofs/inode.h
+@@ -39,6 +39,7 @@ struct erofs_dentry *erofs_d_alloc(struct erofs_inode *parent,
+ 				   const char *name);
+ int erofs_allocate_inode_bh_data(struct erofs_inode *inode, erofs_blk_t nblocks,
+ 				 int device_id);
++bool erofs_nid_is_whiteout(struct erofs_sb_info *sbi, erofs_nid_t nid);
+ bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d);
+ int __erofs_fill_inode(struct erofs_importer *im, struct erofs_inode *inode,
+ 		       erofs_os_stat_t *st, const char *path);
+diff --git a/lib/inode.c b/lib/inode.c
+index ad6f081..e62bde1 100644
+--- a/lib/inode.c
++++ b/lib/inode.c
+@@ -1917,23 +1917,27 @@ err_closedir:
+ 	return ret;
  }
  
- static inline bool z_erofs_put_shortlivedpage(struct page **pagepool,
-
-base-commit: 3191063649dbf7c0d0b768e1f3655e4c5fc6edb5
-prerequisite-patch-id: d52d42a2ec9ddc2b12b3412ec0d07254b417e60f
-prerequisite-patch-id: d8338f943ba7ae297eefbb26dabc3bcfe7994461
++bool erofs_nid_is_whiteout(struct erofs_sb_info *sbi, erofs_nid_t nid)
++{
++	struct erofs_inode inode = { .sbi = sbi, .nid = nid };
++	int ret;
++
++	ret = erofs_read_inode_from_disk(&inode);
++	if (ret) {
++		erofs_err("failed to check DT_WHT: %s",
++			  erofs_strerror(ret));
++		DBG_BUGON(1);
++		return false;
++	}
++	return erofs_inode_is_whiteout(&inode);
++}
++
+ bool erofs_dentry_is_wht(struct erofs_sb_info *sbi, struct erofs_dentry *d)
+ {
+ 	if (!(d->flags & EROFS_DENTRY_FLAG_VALIDNID))
+ 		return erofs_inode_is_whiteout(d->inode);
+-	if (d->type == EROFS_FT_CHRDEV) {
+-		struct erofs_inode ei = { .sbi = sbi, .nid = d->nid };
+-		int ret;
+-
+-		ret = erofs_read_inode_from_disk(&ei);
+-		if (ret) {
+-			erofs_err("failed to check DT_WHT: %s",
+-				  erofs_strerror(ret));
+-			DBG_BUGON(1);
+-			return false;
+-		}
+-		return erofs_inode_is_whiteout(&ei);
+-	}
++	if (d->type == EROFS_FT_CHRDEV)
++		return erofs_nid_is_whiteout(sbi, d->nid);
+ 	return false;
+ }
+ 
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index e83fd52..0ab9adc 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -695,6 +695,7 @@ static int erofs_rebuild_basedir_dirent_iter(struct erofs_dir_context *ctx)
+ 		goto out;
+ 	}
+ 
++	ret = 0;
+ 	if (d->type == EROFS_FT_UNKNOWN) {
+ 		d->nid = ctx->de_nid;
+ 		d->type = ctx->de_ftype;
+@@ -709,21 +710,24 @@ static int erofs_rebuild_basedir_dirent_iter(struct erofs_dir_context *ctx)
+ 		/* The base image appears to be corrupted */
+ 		DBG_BUGON(1);
+ 		ret = -EFSCORRUPTED;
+-		goto out;
+-	} else {
++	} else if (S_ISDIR(d->inode->i_mode)) {
+ 		struct erofs_inode *inode = d->inode;
+ 
++		/* the upper directory hides this whiteout */
++		if (ctx->de_ftype == EROFS_FT_CHRDEV &&
++		    erofs_nid_is_whiteout(dir->sbi, ctx->de_nid))
++			ret = erofs_set_ovl_xattr(inode,
++					EROFS_OVL_XATTR_OPAQUE, "y", 1);
++
+ 		/* update sub-directories only for recursively loading */
+-		if (S_ISDIR(inode->i_mode) &&
+-		    (ctx->de_ftype == EROFS_FT_DIR ||
+-		     ctx->de_ftype == EROFS_FT_UNKNOWN)) {
++		if (ctx->de_ftype == EROFS_FT_DIR ||
++		    ctx->de_ftype == EROFS_FT_UNKNOWN) {
+ 			erofs_remove_ihash(inode);
+ 			inode->dev = dir->sbi->dev;
+ 			inode->i_ino[1] = ctx->de_nid;
+ 			erofs_insert_ihash(inode);
+ 		}
+ 	}
+-	ret = 0;
+ out:
+ 	free(dname);
+ 	return ret;
+@@ -758,6 +762,13 @@ int erofs_rebuild_load_basedir(struct erofs_inode *dir, u64 *nr_subdirs,
+ 		return 0;
+ 	}
+ 
++	/* the lower opaque directory gets merged */
++	if (erofs_has_ovl_xattr(&fakeinode, EROFS_OVL_XATTR_OPAQUE))
++		ret = erofs_set_ovl_xattr(dir, EROFS_OVL_XATTR_OPAQUE, "y", 1);
++	erofs_inode_free_xattrs(&fakeinode);
++	if (ret)
++		return ret;
++
+ 	ctx = (struct erofs_rebuild_dir_context) {
+ 		.ctx.dir = &fakeinode,
+ 		.ctx.cb = erofs_rebuild_basedir_dirent_iter,
 -- 
-2.56.1.839.g22a8290db9-goog
+2.43.0
 
 
