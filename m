@@ -2,50 +2,83 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D34F2606A323
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 06:50:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F26E606A31C
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 12:02:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eWf9B3YD
+	dkim=pass (2048-bit key, unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=raC4+VMI
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jZnHY6z0jz2yDc;
-	Thu, 26 Nov 2026 17:50:33 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip=172.234.252.31
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795675833;
-	cv=none; b=HF2RWaZNKbkjbVVaIGMFd5jOjWfk9oOM/uOxlnPZbF+itoyb53CKsee4bcoVCYzBRnmYBGCrQqGXOrLqqefTHqZCj+F00Y5folOJZapsnUeuFmBvBh6+R9oetXBXwHmPqnPmfYJVTj58KuJpS1wUy8blIjl2U69/4VbvCTZ6XyVXEfN5voJaqieOJDBOlZcRbjC+JUIdBscNsM+8jPKAo/an7Y9N9C8wCnFflZL3YB+g+Od7Ic/h/43ybpGb/5MIx1V0uwBltl9ekc5Cc2RZv7zHM+70+3+hY2petoiR36w9vhynzb+JVwnJrW7hwhXyVrrJQxbcovxRd+GNsI+uyw==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jZwCV75ngz2yMK;
+	Thu, 26 Nov 2026 23:02:30 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::335"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795694550;
+	cv=none; b=R4gLR9S8neSKbPSQYWRnrRvd6IEKn6mDUtgujqqTXTcDC736oSD+9sS2utGIB6b+73x1IcWt4rVZrR9bSOjvtoBQRFw1eB97F9mJvoqpc0ReapssZXP5zvYljLbeyvFoJa+h2CVyNXEOpDxNRgB5derhegPO22dWBUgSIbGY6p+Jay9TyxzkpgI5fH4kab7Ll/IKjykKD4vJIfI5aiYvnfvR/SVpv4ah9edkRW8sYBG5wAJ28iPeCKdGaFOrIVNiaXyaCO0/qbzNO+if+wx3soPIiMz68izLiDoZdYL3hj8fylHDv2uFyQ7A43wvEr+/lBGcv09pvxXB89/YNl7FoQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795675833; c=relaxed/relaxed;
-	bh=ZoiJbuRMqJkbZCgyJM9gElB2PWpxJgreaUQZdBrK56Q=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=CckOL7oz6dkOed/yjdWJY7lPd7nl7wv3cTW68r3GA7doptwOJ6s5/aF2X8vncBYKGzWVq1vuvN+DmfB5Lpi1wNSxy4jNLIPn3Js7pYJZcJXCjefETgubmxymD2+gX6GF/eRYl1y+YNs9d5gitBa9/b7Nf62vQiDdMv/G3GR+fIaTmQpd0fZQwkEaSbZe4cN33BgObJOmo0EQ+qbzdBtohdWkwhet4OY7zg8LlAJ1YqFQ4RbtoYAOhfunDrkms+6egyXAXXwZMcLkkI4ZqrYZTNhCBIKbLLa3n0/iGocvyVKOseAEattJs2u57nmQPIa33pX7y7qziOHyYWTRTeeFNg==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org; dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eWf9B3YD; dkim-atps=neutral; spf=pass (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org) smtp.mailfrom=kernel.org
-Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+	t=1795694550; c=relaxed/relaxed;
+	bh=cXJNGLDak5lG+59bL3VVFAREwJfNpUtoIfRoy1/ycYU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=X+4qfxXYCQzj2dtitCRxwPenS9MUuKqQH74jzuhEaW1xkw/ZGz4vKk98nRosCC6rujXi/gJA4PzfZVMh09rJuxkGXx939TxFHecaOyW7b9gFNzcXpK4sYJ7lY7yd/tcoI5Bx8+w7e+DVYLL7UEJ/vtIrmsIv0L0HS/3YFBIoDLk3EhR7XvJ242DfRd0r2HyDyZOYVf44GrFcNyXbYL1j8X5abecCbsA5BpUl0TUKc+d+ogZ/uQ+K30g90t4NfDiSY+K0pgQsfbx4CgBBoj6dbodrfD3kVWEOEC3BqYdQQH6bUpl04YsoY3wpbkAayoVW8pAME7rL9szHgkvPczTtzw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=raC4+VMI; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::335; helo=mail-wm1-x335.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eWf9B3YD;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=raC4+VMI;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=kernel.org (client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=chao@kernel.org; receiver=lists.ozlabs.org)
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::335; helo=mail-wm1-x335.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZnHX60s6z2xjP
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 17:50:32 +1100 (AEDT)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id 005CA44379;
-	Thu, 26 Nov 2026 06:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D711F000CA;
-	Thu, 26 Nov 2026 06:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795675829;
-	bh=ZoiJbuRMqJkbZCgyJM9gElB2PWpxJgreaUQZdBrK56Q=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To;
-	b=eWf9B3YDEwGcmRFj0Lt9FXm0+gG/uhrPtL2WQ7Yma/3o9ZVdis9nqhwEGQGTz6yvF
-	 +7SdO5QOMxHGlLH/WDSG53ZT2mno39Kr28KB3/iJmwx/nhmFleKM9/HoFy5ZMDT2YF
-	 be2GZh5/g8zGdK+v1+aLxaY4LuD5e1ufc9uYSDwuFGa2TInuz7DVvlMfdQjWWaBv+m
-	 g0XzXceuizNUtU4p2Z1MTw2Se2ZAap+kb6nEuJoFPfs/fdn5HDEM+VBDkkqsFjWcxl
-	 gLZunLqrWkO3mCvXi244BtImayYM7GprQ2lDh9v03FDAigFqHU58CK1TIQkJVbWaYs
-	 w6B5H+DFGgprg==
-Message-ID: <bc771151-b017-44fc-9643-6ab3da24c531@kernel.org>
-Date: Thu, 26 Nov 2026 14:50:25 +0800
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZwCS6mL4z2yLH
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 23:02:27 +1100 (AEDT)
+Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-4ba013938d7so65062125e9.2
+        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 04:02:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=docker.com; s=google; t=1795694544; x=1796299344; darn=lists.ozlabs.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=cXJNGLDak5lG+59bL3VVFAREwJfNpUtoIfRoy1/ycYU=;
+        b=raC4+VMIAR2jIgFpSODLiTjsyAnYpk1ma4P/SYZVy4wr0Rs1OLuuTBvFPY9ug4UatF
+         xQcVx/19Gx8RQ77LTaVyQ3JvDryoiUBJTYlwyWefEoblMqiMPgnt1OypWUadXeAPNiK2
+         wpe2r5levYwL1MhcR1haAuTts3W9gttRCWgo4RVQgcHWQSHMGv08y9TgJ1dD/FyT5WDf
+         G+aYP36dld4QyROxsDgSTTdb3wEsbXhm5/9pj9+O4+a4hXGYULR1EOTm7Uf+YmZi1zCI
+         3rb6JZGVqyM7nU6tjGnycAl3d7kmsS+cyljnswnZhRc++L3dTYubVxIEGQYsikeDglvr
+         knZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795694544; x=1796299344;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=cXJNGLDak5lG+59bL3VVFAREwJfNpUtoIfRoy1/ycYU=;
+        b=HjhwABq1Qu10T8o7dtPdX7Ia9TVN/rXwOMgGgDjRy8m0rr4a1HIv/dm7tbWNLxzANN
+         TcXtBODdRs7IBJyLtR2g/1XTQgq6g6ua8ogxMrTZqLCCpW/LKAuy7sbGn/Lxs8Asw0wm
+         Ua5ipR/k5Sw+8wSm/7nYmn+W/tBs0NPjUYshc/zdsLtWc6ksms/i0GLlOvZUBKfKWMtv
+         s3K3rEyCgUD/PGdunYwLJbv70SONLXClAf+uiuuf2X1JP8qVn0niRB1atnuTIj9473T/
+         al/sQ0yXrfaFvwofgI1g4GCZfGUPvva5OMjCMxXzbcnE4PSQrtDBOG0j26ce0Akrw8wk
+         rPyA==
+X-Gm-Message-State: APuU4Z+ffxTT0Q/DGjRaIV8ZK/xpaYsrWqi8dMVvJM5FEn7EO9yDKBgD
+	aULcA+bniQQO0biyQ13ZRFjlVnyuExJGBaG0zElbxEnnjsC9UgbyH/BxGDUjp02xbO7IxREZJuD
+	xhg5lnxQ=
+X-Gm-Gg: AZFdTZceZK+aj/+E3+ZdnhpuZho6/zIGRp5KRWVQVmPVPW7+55pw3i4QJuvnxMkeeeg
+	fuayf7EzNwMzje+4eOh31q5P7fXa774sCXC8qkJZ4qQYO0oaqbCL99gJJ5XppbH9ZMHsaHYeID3
+	xejOrUqQ03+EVgsHpgTiBMdssQdOLKOrYTOSn4Rfqyj93ZcvDl/56nwLXqmtFBRB2+Q3yyyctXE
+	XI5wxkhryjSBrQ/qk+p+XJc+JG7dSufZwAmUqNh2G2eY8EPTSwKWPXvQnzLv3ymkBXESe2UqLLU
+	PLbHGuAfz5tEKLwhnNEOyt4UZzTJdROOQToizQzprO5goygSzXvco4UKb2dpQZAprTlXJyIM8Hx
+	v57GHHuj8pMBD8wdIQFeXgMa4vgu9jjrdWmrIm2p5C2z89yjYAeuW4c6tXigrXG5JYPgWN5MlN2
+	IiKYZ+yI4PgJPUYwUaYVVl9oFPM3FbIh5k5vJ2jtc4wDoeYcxhsKrx7NDxIkIDjW8zQCos2OQ3W
+	gXANsoT5fIx1w95g9Jd5Z4i0slf8LbDe58JkF9ltR8woAubXbYkhtQKEdfxPJ0Ndpf2t7YNNjlT
+	uZoQGSHWYIzKfgwpX2HOXNmwNkG+V84jKRBU8Hg3hggrqnI2qwC4f0UNUkLhpCaBuSqy+ievnLE
+	7z4r3D+iiYJp2SAo=
+X-Received: by 2002:a05:600c:46cc:b0:4bb:69b3:2b42 with SMTP id 5b1f17b1804b1-4bb888277b3mr448258905e9.16.1795694544370;
+        Thu, 26 Nov 2026 04:02:24 -0800 (PST)
+Received: from F7R9GP321C.fritz.box ([2a02:8108:8388:6600:6060:1d3a:5489:cf84])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm819402455e9.13.2026.11.26.04.02.23
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 26 Nov 2026 04:02:23 -0800 (PST)
+From: Gao Xiang <xiang.gao@docker.com>
+To: linux-erofs@lists.ozlabs.org
+Cc: Gao Xiang <xiang.gao@docker.com>
+Subject: [PATCH v3 01/10] erofs-utils: lib: reject incremental builds with external devices
+Date: Thu, 26 Nov 2026 13:02:12 +0100
+Message-ID: <20261126120221.4384-1-xiang.gao@docker.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-erofs@lists.ozlabs.org
 List-Id: <linux-erofs.lists.ozlabs.org>
 List-Help: <mailto:linux-erofs+help@lists.ozlabs.org>
@@ -57,102 +90,53 @@ List-Subscribe: <mailto:linux-erofs+subscribe@lists.ozlabs.org>,
 Precedence: list
 X-Archived-By: <archiver.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: chao@kernel.org, linux-erofs@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, guanwentao@uniontech.com,
- niecheng1@uniontech.com, gouhaojake@163.com
-Subject: Re: [PATCH] erofs: reject turning inode_share on during remount
-To: Gou Hao <gouhao@uniontech.com>, xiang@kernel.org, zbestahu@gmail.com,
- jefflexu@163.com, dhavale@google.com, hongbohbli@tencent.com,
- guochunhai@vivo.com, hongzhen@linux.alibaba.com
-References: <20261113113204.560730-1-gouhao@uniontech.com>
-Content-Language: en-US
-From: Chao Yu <chao@kernel.org>
-In-Reply-To: <20261113113204.560730-1-gouhao@uniontech.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_PASS,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=4.0.1
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_PASS,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=4.0.1
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-On 11/13/26 19:32, Gou Hao wrote:
-> The inode_share and domain_id constraint is validated when a
-> superblock is initialized, but remount replaces the live mount options
-> with a newly parsed option set without rechecking it.
-> 
-> Therefore a filesystem mounted without domain_id can enable inode_share
-> by remount.  For an image with ishare xattrs, the next lookup of a
-> regular file then passes a NULL domain_id to
-> erofs_xattr_fill_inode_fingerprint() and crashes.
-> 
-> Since domain_id cannot be changed by remount, reject turning inode_share
-> on during remount.
-> 
-> Reproducer:
-> 
-> 	mkfs.erofs --xattr-inode-digest=erofs.fingerprint.v1 img  man/
-> 	mount img t
-> 	mount -o remount,inode_share t
-> 	ls t/
-> 
-> Full crash log:
-> 
-> [   50.416381] erofs (device loop0): mounted with root inode @ nid 37.
-> [   78.553276] BUG: kernel NULL pointer dereference, address: 0000000000000000
-> [   78.553882] #PF: supervisor read access in kernel mode
-> [   78.554326] #PF: error_code(0x0000) - not-present page
-> [   78.554762] PGD 0 P4D 0
-> [   78.555014] Oops: Oops: 0000 [#1] SMP NOPTI
-> [   78.555423] CPU: 4 UID: 0 PID: 4446 Comm: ls Kdump: loaded Not tainted 7.3.0-erofs #2 PREEMPTLAZY
-> [   78.556105] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org 04/01/2014
-> [   78.556942] RIP: 0010:strlen+0x0/0x20
-> [   78.557284] Code: f7 75 ec 31 c0 e9 40 76 02 00 48 89 f8 c3 cc cc cc cc 0f 1f 84 00 00 00 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 <80> 3f 00 74 14 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 e9 07
-> [   78.558636] RSP: 0018:ffffd2bb444afab8 EFLAGS: 00010212
-> [   78.559092] RAX: 0000000000001000 RBX: 0000000000000027 RCX: 000000000000000c
-> [   78.559652] RDX: ffffffffffffffff RSI: ffff8f2bcdef0d71 RDI: 0000000000000000
-> [   78.560267] RBP: ffff8f2bc526b000 R08: 0000000000000610 R09: 00000000e096ebe3
-> [   78.560839] R10: 0000000074d3def0 R11: 0000000085971d85 R12: ffff8f2be536fae0
-> [   78.561443] R13: ffffd2bb444afb08 R14: 0000000000000000 R15: ffff8f2bcdef0d61
-> [   78.562019] FS:  00007fe2289c94c0(0000) GS:ffff8f2f478c2000(0000) knlGS:0000000000000000
-> [   78.562673] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [   78.563133] CR2: 0000000000000000 CR3: 000000011e6ec001 CR4: 0000000000772ef0
-> [   78.563656] PKRU: 55555554
-> [   78.563892] Call Trace:
-> [   78.564111]  <TASK>
-> [   78.564315]  erofs_xattr_fill_inode_fingerprint+0x95/0x150 [erofs]
-> [   78.564785]  erofs_ishare_fill_inode+0x75/0x260 [erofs]
-> [   78.565193]  erofs_fill_inode+0x12e/0x190 [erofs]
-> [   78.565603]  erofs_iget+0x85/0xc0 [erofs]
-> [   78.565950]  erofs_lookup+0xe6/0xf0 [erofs]
-> [   78.566312]  __lookup_slow+0x5b/0x100
-> [   78.566631]  lookup_slow+0x39/0x60
-> [   78.566914]  path_lookupat+0x19b/0x2a0
-> [   78.567223]  filename_lookup+0xf0/0x200
-> [   78.567534]  ? filldir64+0x38/0x190
-> [   78.567822]  vfs_statx+0x7d/0x150
-> [   78.568096]  do_statx+0x66/0xb0
-> [   78.568367]  __x64_sys_statx+0x64/0xd0
-> [   78.568670]  do_syscall_64+0x8d/0x460
-> [   78.568974]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> [   78.569367] RIP: 0033:0x7fe228b5c0de
-> [   78.569665] Code: 2d 0d 00 ba ff ff ff ff 64 c7 00 16 00 00 00 e9 a5 fd ff ff e8 53 c0 01 00 0f 1f 00 f3 0f 1e fa 41 89 ca b8 4c 01 00 00 0f 05 <48> 3d 00 f0 ff ff 77 2a 89 c1 85 c0 74 0f 48 8b 05 05 2d 0d 00 64
-> [   78.570936] RSP: 002b:00007ffec5afe428 EFLAGS: 00000246 ORIG_RAX: 000000000000014c
-> [   78.571485] RAX: ffffffffffffffda RBX: 0000564bf6a2c498 RCX: 00007fe228b5c0de
-> [   78.572007] RDX: 0000000000000900 RSI: 00007ffec5afe560 RDI: 00000000ffffff9c
-> [   78.572532] RBP: 0000000000000002 R08: 00007ffec5afe430 R09: 00000000f6a31900
-> [   78.573061] R10: 0000000000000002 R11: 0000000000000246 R12: 0000000000000000
-> [   78.573595] R13: 0000564bf6a319f3 R14: 0000000000000000 R15: 0000564bf6a2c480
-> [   78.574130]  </TASK>
-> [   78.574334] Modules linked in: erofs loop nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 rfkill ip_set nf_tables intel_rapl_msr intel_rapl_common intel_uncore_frequency_common skx_edac_common nfit sunrpc libnvdimm snd_hda_codec_generic kvm_intel snd_hda_intel snd_hda_codec rapl snd_hda_core pcspkr snd_intel_dspcfg i2c_piix4 joydev virtio_balloon snd_hwdep i2c_smbus rtc_cmos eni_vdpa vdpa sg fuse fsdev_dax sr_mod bochs cdrom drm_shmem_helper drm_client_lib drm_kms_helper sd_mod ahci ata_generic libahci ata_piix drm libata virtio_net net_failover failover serio_raw dm_mirror dm_region_hash dm_log dm_multipath dm_mod
-> [   78.578967] CR2: 0000000000000000
-> 
-> Fixes: 5ef3208e3be5 ("erofs: introduce the page cache share feature")
-> 
-> Signed-off-by: Gou Hao <gouhao@uniontech.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
+Growing the primary device during an incremental build moves external
+devices in the unified address space.  Inherited inodes still use the old
+unified block addresses, so unchanged files can return wrong data after
+the device table is updated.
 
-Thanks,
+Reject incremental builds of images with external devices for now.
+Fix up inherited unified block addresses before allowing these builds.
+
+Fixes: 54dd7ebd10b5 ("erofs-utils: mkfs: enable `--blobdev` for flat inode layouts")
+Assisted-by: Codex:gpt-6.1-sol
+Signed-off-by: Gao Xiang <xiang.gao@docker.com>
+---
+ lib/super.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/lib/super.c b/lib/super.c
+index c6a9230..db8f23f 100644
+--- a/lib/super.c
++++ b/lib/super.c
+@@ -521,6 +521,18 @@ int erofs_mkfs_load_fs(struct erofs_sb_info *sbi, unsigned int dsunit)
+ 		return -EOPNOTSUPP;
+ 	}
+ 
++	/*
++	 * TODO: fix up unified block addresses in inherited inodes.
++	 *
++	 * Growing the primary device moves external devices in the unified
++	 * address space, while inherited inodes still use the old addresses.
++	 * Disable incremental builds with external devices for now.
++	 */
++	if (sbi->extra_devices) {
++		erofs_err("incremental builds with external devices are not supported");
++		return -EOPNOTSUPP;
++	}
++
+ 	err = erofs_io_fstat(&sbi->bdev, &u.st);
+ 	if (!err && S_ISREG(u.st.st_mode))
+ 		u.startblk = DIV_ROUND_UP(u.st.st_size, erofs_blksiz(sbi));
+-- 
+2.54.0 (Apple Git-157)
+
 
