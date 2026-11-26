@@ -2,83 +2,83 @@ Received: from lists.ozlabs.org (lists.ozlabs.org [112.213.38.117])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8913606A31E
-	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 12:02:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E186606A321
+	for <linux-erofs@archiver.kernel.org>; Thu, 26 Nov 2026 12:02:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=H1OntcLt
+	dkim=pass (2048-bit key) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MSLUK+M9
 Received: from boromir.ozlabs.org (localhost [127.0.0.1])
-	by lists.ozlabs.org (Postfix) with ESMTP id 4jZwCg0LwPz2yLY;
-	Thu, 26 Nov 2026 23:02:39 +1100 (AEDT)
-Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::433"
-ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795694559;
-	cv=none; b=H8NrNIPSAHFEtv3QocBAcw2N5Pnga2FhyJlWr/EKimCBlfMtlnz9PsENXOupTbW6n+YwltgFBq41rXWYk42FDDDLjtPFW0zLhDdrpBinvDm/8wHrKMoYjlXZlb1n7YSxzuEBWaH+VBSJVE743poGECCWxUO5NBfumOMLVGAT5Ch+6l/hgp3bQ6If0WYYExDk97LUDZ4ZSHu7i8guuBskv8Vdn7DCxRR4FCVWcOheMZcXDIVFuTWrKJPbtIOwgQHLrdXZA2pefO3HC/ohOkan/IF1SNniVH5gAs9DDaDdSBU08MLSFcRMh/fsObvLjJzuq0U2COcLN0sLmdHDN42caA==
+	by lists.ozlabs.org (Postfix) with ESMTP id 4jZwCh4WJCz2yRn;
+	Thu, 26 Nov 2026 23:02:40 +1100 (AEDT)
+Authentication-Results: lists.ozlabs.org; arc=none smtp.remote-ip="2a00:1450:4864:20::329"
+ARC-Seal: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707; t=1795694560;
+	cv=none; b=foraFt/RXtTEw3nSJxoTZip8ZEzrLt+4PjFZVIjMZWKyHXeeB2kZa2e3xOvrpiAJprxWKN13D7b+fC20Wa9ClSbb1+C0Q3gqBoyO9lQWfeB7yVichtkPsifjql4I93eUtjrYDFtQdvhShk3pyqqfS5lqbhRAjxdGILSpUY8vx1a9R//4Y+T0pvjIxHBMtO0N5mHcpQ1hNdhiVeTAvLNBqLn4XgdWQECS0geStK1K1RoK6qkvSGJKf89TRW1qyvb12xt/sg/sjq6gIAGiBAHgYpX4OYtbE8ad5ny0F4+B+u5Ks/8yCT1bTzgUKb4YlfZCgNSvzHUadXAyNpH5JjhTYQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; d=lists.ozlabs.org; s=201707;
-	t=1795694559; c=relaxed/relaxed;
-	bh=zxhG9bkNBCJCYfo3ctL4MkzaNA8rCd27AtnqQGg/eDo=;
+	t=1795694560; c=relaxed/relaxed;
+	bh=aiFY+H1tJiRP2r6rZ/RVeUBOG3zpyWowNq86MWWbAR0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cT030mxTUz04VLfeq0K1wcHzRv8xGBjw/uBAsxUrv3n9DiDLp+sDLATeSdaB0KStpxxjU0BN5ed1qsjyo7eT3b2yPjqTrthFrHQ48ZX4vk5N88EjEPg5RF8QUAyz4kXIazXFol1Lo97Q7tiysX6CD9nnbey5E/IGG6C0mC2d+vllF8exowAZpODWYTHgVColvGUOEamjUuilgg1598Mm3upLNTS0oTO9kt57I7IEr11kw3Z9DwipBviQCcBKBHDzg+ooy+E/hTn0LNcSMOcyBvH2i1Lj7jnrdstBKy83qnoc+/qPFXFOzGQzvi6K3EebqDTGjTSetyojZefRzLFvhw==
-ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=H1OntcLt; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::433; helo=mail-wr1-x433.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
+	 MIME-Version; b=ASa9PFl+h+lY2P44E0MOaqv52qrrqUWRMsBwBYcjhZBJnDvPrs+5q4T4h3DmAg3/yeiuPLL44ZX0ltlUnub2fF/TYioNqUIqZIXGxgwjLY8WPdxXGVp+4kKZdy9cxomWqJqGkig3tl+PQ+2ECwzAITJAsygOGXZnbTPxwXajuMddzzZGSEOKY5WXayKsj+rbyC6YsQFAwIvpi/m7iJdBgj5KfbdN4qiRXGUOZ/U4h+o6mMdJZk4dwSjsBXOemp3mZQ4QbrvdrIss0EUdfbAz3xPTG8KSKtbX5/stguG8MkXQt4lI8Kd6WdK1OjHhRRN19wgsw4DuDl8kt2XtbSvcsw==
+ARC-Authentication-Results: i=1; lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com; dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MSLUK+M9; dkim-atps=neutral; spf=pass (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org) smtp.mailfrom=docker.com
 Authentication-Results: lists.ozlabs.org; dmarc=pass (p=quarantine dis=none) header.from=docker.com
 Authentication-Results: lists.ozlabs.org;
-	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=H1OntcLt;
+	dkim=pass (2048-bit key; unprotected) header.d=docker.com header.i=@docker.com header.a=rsa-sha256 header.s=google header.b=MSLUK+M9;
 	dkim-atps=neutral
-Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::433; helo=mail-wr1-x433.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+Authentication-Results: lists.ozlabs.org; spf=pass (sender SPF authorized) smtp.mailfrom=docker.com (client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=xiang.gao@docker.com; receiver=lists.ozlabs.org)
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZwCf0vR7z2yR1
-	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 23:02:38 +1100 (AEDT)
-Received: by mail-wr1-x433.google.com with SMTP id ffacd0b85a97d-4a5024b3c28so4565878f8f.0
-        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 04:02:37 -0800 (PST)
+	by lists.ozlabs.org (Postfix) with ESMTPS id 4jZwCg4Mrsz2yR1
+	for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 23:02:39 +1100 (AEDT)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-4bba5e17728so16113655e9.2
+        for <linux-erofs@lists.ozlabs.org>; Thu, 26 Nov 2026 04:02:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=docker.com; s=google; t=1795694555; x=1796299355; darn=lists.ozlabs.org;
+        d=docker.com; s=google; t=1795694556; x=1796299356; darn=lists.ozlabs.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=zxhG9bkNBCJCYfo3ctL4MkzaNA8rCd27AtnqQGg/eDo=;
-        b=H1OntcLtq/MKgJJGVVQOgP/o2HQInC0UtZizSoyBZJ/4beF4wgerVZVLFyNKuULbdI
-         tF0DHa3GNcTLqfpP7B/wfoh86SzLAfjrZHDLGrJzNTpTYq2xmwVEZyX2nJTjG0xuLNl1
-         gq2Bk5e7DURN0nLvy+DeWvmHs5aIrYaMQp1FpWEWldQ+gRG+BUBfbvG1X+1S1MdjM6CO
-         jqgbJnJ9yBRFghYTnnYkdSstKfyluJKar3lVcNqe/SALCdgfOnc82ed7IMgMoav95b3t
-         S/WbKkOwA0KCsPs+2jnTAC+tyskpin0Er+ziiWGdva+Qdw1+CmN8PJ6GvMRV0Hl6s0to
-         lDaA==
+        bh=aiFY+H1tJiRP2r6rZ/RVeUBOG3zpyWowNq86MWWbAR0=;
+        b=MSLUK+M9SY07K6pEB9HaAP0olJQhWR8lD+EhSwkeYg7IBBhjTuOnTuhSH1VY7p6upu
+         HSTJdaHbLl/k0t3wAGjWfDlgnm6qV6psIDY+nvu/P9ArW0U2Zej34R1icltvbmIYYKYy
+         +TDRaq5dPDmKbnxWTjrEkFm0mXa0jBbglWh2eBMb38j/tzRw4yI9VefTLZ6PulldALxS
+         HzGBuI9lWDsBtyeR6O9Su7G8oUHQrG/zlGpS2oUKzhMaFjMul+X6oP45ui5RJjBAuiNH
+         v3N3gi9pgg8Nm6igM9iAR9VIXo62wQsTYHDPamjpPSVzNvUsZi7qB1UiN+b5oND6bkUW
+         fpJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795694555; x=1796299355;
+        d=1e100.net; s=20260707; t=1795694556; x=1796299356;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=zxhG9bkNBCJCYfo3ctL4MkzaNA8rCd27AtnqQGg/eDo=;
-        b=GWUiV4GXnTNzfTGcltdZyFmkgKfD4Dk/2QVHpotZljaoBu/Mu2eDfDF5V/Qlrba7gY
-         HJyY+NndMhUHldzQfhWZt/gyBmhH8YVs7HWOxkA6nd+yBO9GlUPTA6wgRkCGQ2l7eVzV
-         ObdjP3ailnUhWIJlMF29030QgYfv3DDQRK5V4A+fRLVXGSJjbmXpH80EHOf9hMn+5fBj
-         qQB1pdxfyyd3w0vR3SGAX/u6VKukgXut31RmfALsV3x4JoCLUVFzf9a0bHJYqxhBzMda
-         WMIaT1K0Sb3gyN3+5vIJ7NSL7uoxKDlk/wtfImhm+/vgthbGmuT5LP1mI47CVDu+yygT
-         GEJQ==
-X-Gm-Message-State: APuU4Z+cX5h4V9jTEBntRAUvdCO5pRVVyCu6LP62WWscNdfYAaMcKvMd
-	ydomIXqMHLJeOw3+cOR7hJ4+q+QgytuBTKcacfJwx++ScEwz+kkQ9NZoq/ws3riSKi1sJDh99bx
-	6ZFz+4q4=
-X-Gm-Gg: AZFdTZcQdzYwgw0KuxwHE/oO+blIOA2UKWD+Q4LTgQ5XXjC7pDf/m2/9V3+jAcADLbD
-	Y//Oati0SjJtwkGHI2ufCr5WKQycNsc9dks8sdKGfEgBjvoERzpZ+JGxWRtxs4vvyxWsVEGRVYR
-	aNVg1AU32P6lgQEr1ThPYfT+36Fw6UZtkRETfFcP0nssVRArWWTTdFQuYTwmn/M9LSgoIHX9FRs
-	TBsOyKhhFWdtC5X0Vv1YV2BviuiQ8onNc+Unr+hoCLADAolTnjCcfBoeiE79rBbgeQnui7XpTqd
-	CBVQrmRU8rEAwgiAXgq1JEWANoSZVFIOV+rTsrW5yWClu9dhs6jSk8ihH8B/sTCltRS8y89/yw4
-	MKKUCZlOplOXNgTogrgyBXpMWUttmahFK8gE4fWg/mD9dM0M2tTHilOTjrMtYexPAP+l6y6vxrd
-	Ik1aQ/qKkyTXX8vHN+iQkX1FwFUA09TSDBSt5lXauRFTxcg9wjqWf2H4hipT3wHPK5OfiNgf52P
-	xgRZ/CbDngcamwp/pX9eWo9WzHE4rQsuyjzW9pzvE3QiMho7OFq/IsD1mtfXQn7SJsiChtuAdV5
-	MxJirWm/niFBD7us1PVuMyWZ08d17mPfBDgGOIgmlr6lE3XCxq8lQIBHWxihNT+y6LiD
-X-Received: by 2002:a05:600c:a085:b0:4bb:85d9:156e with SMTP id 5b1f17b1804b1-4bb8880fe46mr413723155e9.11.1795694554769;
-        Thu, 26 Nov 2026 04:02:34 -0800 (PST)
+        bh=aiFY+H1tJiRP2r6rZ/RVeUBOG3zpyWowNq86MWWbAR0=;
+        b=IgHMYUHW+qE8tttSzXvWWN9z/jFtPuuRpfx0dRX2rAyFOtOZ5LNMX2MhfhmoBvff+B
+         GSgFt3MH9LKp6bSgrvUoNVwmAT60c9rFPCMns0d0T4dME1KfW1SEhmOGDIKIGEIMvArz
+         WdGsNEH9rqCFlPH5pQTrDoRpA+SR3HNA3vYduFfg58k2oz30Zg8k2Fe9o0IWNoxrNV2u
+         VV6NqA3sd0Pxojq1N1+s+q9X3JzXPn70/yz6xhrRqjV4fU7cuxSYHrc49kGrm4s5GjJD
+         UHPCuiuyY6Epu1oVfRyNoC+1A1gqw1MNjdZ20/UzFIYoCzS+SHulREtmysY4pjS91yvf
+         06Bg==
+X-Gm-Message-State: APuU4Z8pU4M/hzqtSKCoj9KRApEJi4bQ9zFksUXSj4ZJkmCfqB51S5LJ
+	qTWT/tdLPr/GJPJGP/Qc52nh9t4/QBlMsdytsoleFa24L889yRpLpUMv6MCySh8RXbUTJP/Cf+Y
+	tOFnGV28=
+X-Gm-Gg: AZFdTZcZMo2edleii3H8vPWG4H1I9nSg1cBhbcq1ED++g4unHyhRss6BRlg5j33iuZI
+	EdKM2oNSgK/QJ6HTh8q4uzQ2xdkr2r/+OQWtgIy150tWVXXbiLIIssi8Le8cIL9FqkzbkX+tRz8
+	Te4bDd6j72heW97dLBj6xSjMMvtjW2iWtlN5ebQwVPQKgiMtgZ8JCIzceNcAcV+uIooCBK1elt4
+	/IzDgDs4ws1xzr3yIWFZt0E1SsnyyElv9sYELv1WdUgXe2/ee4pMX93pDcqoO17hWa1+T7dre8H
+	ofl9sznqYYgLJOps7zC+wScc44i+GzqeOkU2OdKIwP3MeKioTq0xarm+S4+Wn/NhrhMXrJMREp1
+	42fMpCLQJhWOKMsNg7UjZwcqd2/HBqTkjppyKht0jVrUR5YysaiBE3KZWfDyYhdJlv7vgrNPT73
+	FFbdT95zek/HAhTm5tJgUltxSY6GJcyu4WcqFfvZmsIScVkUVDfp5Vp/yi8AGl4AIyEnVOAuieK
+	3fUor/Eo2fvckIYbi8yQ5MyXH7vjDGCyuXZDArVbvVQzd6/Bay1eDcw3MSg5aFcFDl3GOakPRMl
+	zDjIF5iK9gHUyJGdFkgnaVmdTLRaKceMypPSPlq3TEQUdXoUTdTNpk6WNNm1kvComu2Y
+X-Received: by 2002:a05:600c:3b8a:b0:4a3:59c9:a754 with SMTP id 5b1f17b1804b1-4bb8892da25mr415898025e9.22.1795694556216;
+        Thu, 26 Nov 2026 04:02:36 -0800 (PST)
 Received: from F7R9GP321C.fritz.box ([2a02:8108:8388:6600:6060:1d3a:5489:cf84])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm819402455e9.13.2026.11.26.04.02.34
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb884b7515sm819402455e9.13.2026.11.26.04.02.35
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 26 Nov 2026 04:02:34 -0800 (PST)
+        Thu, 26 Nov 2026 04:02:35 -0800 (PST)
 From: Gao Xiang <xiang.gao@docker.com>
 To: linux-erofs@lists.ozlabs.org
 Cc: Gao Xiang <xiang.gao@docker.com>
-Subject: [PATCH v3 08/10] erofs-utils: lib: add file-delta alignment callback
-Date: Thu, 26 Nov 2026 13:02:19 +0100
-Message-ID: <20261126120221.4384-8-xiang.gao@docker.com>
+Subject: [PATCH v3 09/10] erofs-utils: mkfs: give each rebuild source its own device range
+Date: Thu, 26 Nov 2026 13:02:20 +0100
+Message-ID: <20261126120221.4384-9-xiang.gao@docker.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20261126120221.4384-1-xiang.gao@docker.com>
 References: <20261126120221.4384-1-xiang.gao@docker.com>
@@ -101,173 +101,226 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 X-Spam-Checker-Version: SpamAssassin 4.0.1 (2024-03-26) on
 	aws-us-west-2-korg-listserv-alma10-1
 
-In order to select chunk sizes for file-delta updates, add a
-get_alignment callback reporting the greatest power-of-two alignment
-shared by replacement boundaries.
+Blob-index rebuilds assume that each source uses only one data device.
+This does not work when a source uses both its main image and external
+devices, or has more than one external device.
 
-Accumulate these boundaries when adding dm-snapshot exceptions and
-keep the exception array and counters in the snapshot handle.
+Set up the output device table before loading trees.  Give each source
+image and its external devices their own range of device IDs, and update
+chunk indexes and compressed extents to use the new IDs.  Keep holes as
+unmapped chunks.
+
+Keep source image filenames for VMDK paths and check chunk-index sizes
+before allocating their buffers.
 
 Assisted-by: Codex:gpt-6.1-sol
 Signed-off-by: Gao Xiang <xiang.gao@docker.com>
 ---
- lib/deltas/dm_persistent.c | 58 ++++++++++++++++++++++----------------
- lib/liberofs_file_delta.h  | 10 ++++++-
- 2 files changed, 43 insertions(+), 25 deletions(-)
+ lib/compress.c |  4 +--
+ lib/rebuild.c  | 37 ++++++++++++++++++-----
+ mkfs/main.c    | 81 ++++++++++++++++++++++----------------------------
+ 3 files changed, 68 insertions(+), 54 deletions(-)
 
-diff --git a/lib/deltas/dm_persistent.c b/lib/deltas/dm_persistent.c
-index 9e4c5c7..21f4f0d 100644
---- a/lib/deltas/dm_persistent.c
-+++ b/lib/deltas/dm_persistent.c
-@@ -24,17 +24,15 @@ struct erofs_dm_exception {
- 	erofs_off_t offset, source_offset;
- };
- 
--/* Sorted by logical file offset after opening the snapshot. */
--struct erofs_dm_exceptions {
--	struct erofs_dm_exception *entries;
--	size_t count, capacity;
--};
--
- struct erofs_dm_snap_persistent {
- 	struct erofs_file_delta fdl;
--	struct erofs_dm_exceptions exceptions;
-+	struct {
-+		/* Sorted by logical file offset after opening the snapshot. */
-+		struct erofs_dm_exception *entries;
-+		size_t count, capacity;
-+	} exceptions;
- 	struct erofs_vfile *vf;
--	erofs_off_t target_size, chunk_bytes;
-+	erofs_off_t target_size, chunk_bytes, boundary;
- };
- 
- static const struct erofs_file_delta_ops erofs_file_delta_dm_persistent_ops;
-@@ -46,35 +44,35 @@ static int erofs_dm_exception_cmp(const void *a, const void *b)
- 	return cmpsgn(ea->offset, eb->offset);
- }
- 
--static int erofs_dm_add_exception(struct erofs_dm_exceptions *exceptions,
-+static int erofs_dm_add_exception(struct erofs_dm_snap_persistent *dsp,
- 				 erofs_off_t offset,
- 				 erofs_off_t source_offset)
+diff --git a/lib/compress.c b/lib/compress.c
+index e764e44..088d5b7 100644
+--- a/lib/compress.c
++++ b/lib/compress.c
+@@ -2562,7 +2562,7 @@ int z_erofs_rebuild_load_metadata(struct erofs_sb_info *dst_sbi,
+ 				.length = map.m_llen,
+ 				.plen = erofs_blksiz(sbi),
+ 				.pstart = (pend != EROFS_NULL_ADDR ? pend : 0),
+-				.device_id = inode->dev,	/* FIXME! */
++				.device_id = inode->dev + mdev.m_deviceid,
+ 				.raw = raw,
+ 				.inlined = true,
+ 			};
+@@ -2575,7 +2575,7 @@ int z_erofs_rebuild_load_metadata(struct erofs_sb_info *dst_sbi,
+ 				.length = map.m_llen,
+ 				.plen = map.m_plen,
+ 				.pstart = mdev.m_pa,
+-				.device_id = inode->dev,	/* FIXME! */
++				.device_id = inode->dev + mdev.m_deviceid,
+ 				.partial = map.m_flags & EROFS_MAP_PARTIAL_REF,
+ 				.raw = raw,
+ 				.inlined = false,
+diff --git a/lib/rebuild.c b/lib/rebuild.c
+index 6a4aff6..85f263b 100644
+--- a/lib/rebuild.c
++++ b/lib/rebuild.c
+@@ -247,8 +247,9 @@ static int erofs_rebuild_load_chunk_index(struct erofs_sb_info *dst_sb,
+ 					  struct erofs_inode *inode)
  {
- 	struct erofs_dm_exception *p;
- 	size_t capacity;
+ 	int ret;
+-	unsigned int count, unit, chunkbits, i;
+-	struct erofs_inode_chunk_index *idx;
++	unsigned int unit, chunkbits;
++	struct erofs_chunkitem **idx;
++	u64 count, i;
+ 	erofs_off_t chunksize;
+ 	erofs_blk_t blkaddr;
  
--	if (exceptions->count == exceptions->capacity) {
--		capacity = exceptions->capacity ? exceptions->capacity * 2 : 64;
--		if (capacity < exceptions->capacity)
-+	if (dsp->exceptions.count == dsp->exceptions.capacity) {
-+		capacity = dsp->exceptions.capacity ? dsp->exceptions.capacity * 2 : 64;
-+		if (capacity < dsp->exceptions.capacity)
- 			return -E2BIG;
- 		if (capacity > SIZE_MAX / sizeof(*p))
- 			return -E2BIG;
--		p = realloc(exceptions->entries, capacity * sizeof(*p));
-+		p = realloc(dsp->exceptions.entries, capacity * sizeof(*p));
- 		if (!p)
- 			return -ENOMEM;
--		exceptions->entries = p;
--		exceptions->capacity = capacity;
-+		dsp->exceptions.entries = p;
-+		dsp->exceptions.capacity = capacity;
+@@ -274,11 +275,13 @@ static int erofs_rebuild_load_chunk_index(struct erofs_sb_info *dst_sb,
  	}
--	exceptions->entries[exceptions->count++] = (struct erofs_dm_exception) {
-+	dsp->exceptions.entries[dsp->exceptions.count++] = (struct erofs_dm_exception) {
- 		.offset = offset,
- 		.source_offset = source_offset,
- 	};
-+	dsp->boundary |= offset | (offset + dsp->chunk_bytes);
+ 
+ 	chunksize = 1ULL << chunkbits;
+-	count = DIV_ROUND_UP(inode->i_size, chunksize);
++	count = inode->i_size / chunksize + !!(inode->i_size % chunksize);
+ 
+ 	unit = sizeof(struct erofs_inode_chunk_index);
++	if (count > min_t(u64, UINT_MAX, SSIZE_MAX) / unit)
++		return -E2BIG;
+ 	inode->extent_isize = count * unit;
+-	idx = calloc(count, max(sizeof(*idx), sizeof(void *)));
++	idx = calloc(count, max_t(size_t, sizeof(*idx), unit));
+ 	if (!idx)
+ 		return -ENOMEM;
+ 	inode->chunkindexes = idx;
+@@ -294,16 +297,36 @@ static int erofs_rebuild_load_chunk_index(struct erofs_sb_info *dst_sb,
+ 		if (ret)
+ 			goto err;
+ 
+-		blkaddr = erofs_blknr(dst_sb, map.m_pa);
+-		chunk = erofs_get_unhashed_chunk(dst_sb, inode->dev, blkaddr, 0);
++		if (!(map.m_flags & EROFS_MAP_MAPPED)) {
++			chunk = erofs_get_unhashed_chunk(dst_sb, 0, EROFS_NULL_ADDR, 0);
++		} else {
++			struct erofs_sb_info *src = inode->sbi;
++			struct erofs_map_dev mdev = {
++				.m_deviceid = map.m_deviceid,
++				.m_pa = map.m_pa,
++			};
++
++			ret = erofs_map_dev(src, &mdev);
++			if (ret)
++				goto err;
++			blkaddr = erofs_blknr(src, mdev.m_pa);
++			/* dif->blocks may be 0; only uniaddr is valid for mapping */
++			if (erofs_blkoff(src, mdev.m_pa)) {
++				ret = -EFSCORRUPTED;
++				goto err;
++			}
++			chunk = erofs_get_unhashed_chunk(dst_sb,
++					inode->dev + mdev.m_deviceid, blkaddr, 0);
++		}
+ 		if (IS_ERR(chunk)) {
+ 			ret = PTR_ERR(chunk);
+ 			goto err;
+ 		}
+-		*(void **)idx++ = chunk;
++		*idx++ = chunk;
+ 
+ 	}
+ 	inode->datalayout = EROFS_INODE_CHUNK_BASED;
++	inode->u.chunkbits = chunkbits;
+ 	inode->u.chunkformat = EROFS_CHUNK_FORMAT_INDEXES;
+ 	inode->u.chunkformat |= chunkbits - dst_sb->blkszbits;
+ 	return 0;
+diff --git a/mkfs/main.c b/mkfs/main.c
+index ce93166..e9613cb 100644
+--- a/mkfs/main.c
++++ b/mkfs/main.c
+@@ -1686,7 +1686,6 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
+ 	struct erofs_device_info *devs;
+ 	struct erofs_sb_info *src;
+ 	unsigned int extra_devices = 0;
+-	erofs_blk_t nblocks;
+ 	int ret, idx;
+ 	struct erofs_rebuild_params params = { .mergeroot = root };
+ 
+@@ -1704,6 +1703,42 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
+ 		return -EINVAL;
+ 	}
+ 
++	if (params.datamode == EROFS_REBUILD_DATA_BLOB_INDEX) {
++		/* Assign device ranges in command-line order. */
++		list_for_each_entry_reverse(src, &rebuild_src_list, list) {
++			ret = erofs_read_superblock(src);
++			if (ret)
++				return ret;
++			if (src->blkszbits != g_sbi.blkszbits) {
++				erofs_err("%s: source block size differs from the output",
++					  src->dif0.src_path);
++				return -EINVAL;
++			}
++			if (src->extra_devices >= ARRAY_SIZE(src->blobfd) ||
++			    src->extra_devices >= UINT16_MAX - extra_devices)
++				return -E2BIG;
++			src->dev = extra_devices + 1;
++			extra_devices += src->extra_devices + 1;
++		}
++		ret = erofs_mkfs_init_devices(&g_sbi, extra_devices);
++		if (ret)
++			return ret;
++		list_for_each_entry(src, &rebuild_src_list, list) {
++			devs = g_sbi.devs + src->dev - 1;
++			devs[0].blocks = src->dif0.blocks;
++			/* Preserve the source filename for --vmdk-desc extent paths. */
++			devs[0].src_path = strdup(src->dif0.src_path);
++			if (!devs[0].src_path)
++				return -ENOMEM;
++			erofs_uuid_unparse_as_tag(src->uuid, (char *)devs[0].tag);
++			for (idx = 0; idx < src->extra_devices; ++idx) {
++				devs[idx + 1].blocks = src->devs[idx].blocks;
++				memcpy(devs[idx + 1].tag, src->devs[idx].tag,
++				       sizeof(devs[idx + 1].tag));
++			}
++		}
++	}
++
+ 	list_for_each_entry(src, &rebuild_src_list, list) {
+ 		src->xamgr = g_sbi.xamgr;
+ 		params.sbi = src;
+@@ -1713,50 +1748,6 @@ static int erofs_mkfs_rebuild_load_trees(struct erofs_inode *root)
+ 			erofs_err("failed to load %s", src->dif0.src_path);
+ 			return ret;
+ 		}
+-		if (src->extra_devices > 1) {
+-			erofs_err("%s: unsupported number %u of extra devices",
+-				  src->dif0.src_path, src->extra_devices);
+-			return -EOPNOTSUPP;
+-		}
+-		extra_devices += src->extra_devices;
+-	}
+-
+-	if (params.datamode == EROFS_REBUILD_DATA_RESVSP)
+-		return 0;
+-
+-	/* Each blob has either no extra device or only one device for TarFS */
+-	if (extra_devices && extra_devices != rebuild_src_count) {
+-		erofs_err("extra_devices(%u) is mismatched with source images(%u)",
+-			  extra_devices, rebuild_src_count);
+-		return -EOPNOTSUPP;
+-	}
+-
+-	if (params.datamode == EROFS_REBUILD_DATA_FULL)
+-		return 0;
+-
+-	ret = erofs_mkfs_init_devices(&g_sbi, rebuild_src_count);
+-	if (ret)
+-		return ret;
+-
+-	devs = g_sbi.devs;
+-	list_for_each_entry(src, &rebuild_src_list, list) {
+-		u8 *tag = NULL;
+-
+-		DBG_BUGON(src->dev < 1);
+-		idx = src->dev - 1;
+-		if (extra_devices) {
+-			nblocks = src->devs[0].blocks;
+-			tag = src->devs[0].tag;
+-		} else {
+-			nblocks = src->dif0.blocks;
+-			devs[idx].src_path = strdup(src->dif0.src_path);
+-		}
+-		devs[idx].blocks = nblocks;
+-		if (tag && *tag)
+-			memcpy(devs[idx].tag, tag, sizeof(devs[0].tag));
+-		else
+-			/* convert UUID of the source image to a hex string */
+-			erofs_uuid_unparse_as_tag(src->uuid, (char *)devs[idx].tag);
+ 	}
  	return 0;
  }
- 
- static int erofs_dm_parse_exceptions(struct erofs_dm_snap_persistent *dsp)
- {
--	struct erofs_dm_exceptions *exceptions = &dsp->exceptions;
- 	erofs_off_t chunk_bytes = dsp->chunk_bytes;
- 	/* Read metadata in bounded batches, independently of the dm chunk size. */
- 	struct erofs_dm_disk_exception buf[256];
-@@ -121,8 +119,8 @@ static int erofs_dm_parse_exceptions(struct erofs_dm_snap_persistent *dsp)
- 					goto out;
- 				}
- 				source_offset = new_chunk * chunk_bytes;
--				ret = erofs_dm_add_exception(exceptions,
--							     offset, source_offset);
-+				ret = erofs_dm_add_exception(dsp, offset,
-+							     source_offset);
- 				if (ret)
- 					goto out;
- 			}
-@@ -134,16 +132,16 @@ static int erofs_dm_parse_exceptions(struct erofs_dm_snap_persistent *dsp)
- 	}
- terminated:
- 	/* Exceptions are stored in commit order, not logical file order. */
--	if (exceptions->count > 1)
--		qsort(exceptions->entries, exceptions->count,
--		      sizeof(*exceptions->entries), erofs_dm_exception_cmp);
-+	if (dsp->exceptions.count > 1)
-+		qsort(dsp->exceptions.entries, dsp->exceptions.count,
-+		      sizeof(*dsp->exceptions.entries), erofs_dm_exception_cmp);
- 	/*
- 	 * The kernel reuses existing exceptions on repeated writes, but its
- 	 * loader does not reject duplicate origin chunks.  Reject them here
- 	 * rather than choosing an ambiguous mapping.
- 	 */
--	for (n = 1; n < exceptions->count; ++n) {
--		if (exceptions->entries[n - 1].offset == exceptions->entries[n].offset)
-+	for (n = 1; n < dsp->exceptions.count; ++n) {
-+		if (dsp->exceptions.entries[n - 1].offset == dsp->exceptions.entries[n].offset)
- 			return -EINVAL;
- 	}
- 	ret = 0;
-@@ -151,6 +149,17 @@ out:
- 	return ret;
- }
- 
-+static erofs_off_t erofs_dm_persistent_get_alignment(struct erofs_file_delta *fdl)
-+{
-+	struct erofs_dm_snap_persistent *dsp =
-+		container_of(fdl, struct erofs_dm_snap_persistent, fdl);
-+	erofs_off_t boundary = dsp->boundary;
-+
-+	if (!dsp->exceptions.count)
-+		return 0;
-+	return boundary ? (boundary & -boundary) : BIT_ULL(63);
-+}
-+
- static int erofs_dm_persistent_map(struct erofs_file_delta *fdl,
- 				   struct erofs_delta_map *map)
- {
-@@ -233,6 +242,7 @@ struct erofs_file_delta *erofs_dm_persistent_open(struct erofs_vfile *vf)
- }
- 
- static const struct erofs_file_delta_ops erofs_file_delta_dm_persistent_ops = {
-+	.get_alignment = erofs_dm_persistent_get_alignment,
- 	.map = erofs_dm_persistent_map,
- 	.close = erofs_dm_persistent_close,
- 	.name = "dm-persistent",
-diff --git a/lib/liberofs_file_delta.h b/lib/liberofs_file_delta.h
-index 17fb0d5..307086e 100644
---- a/lib/liberofs_file_delta.h
-+++ b/lib/liberofs_file_delta.h
-@@ -15,7 +15,15 @@ struct erofs_delta_map {
- struct erofs_file_delta;
- 
- struct erofs_file_delta_ops {
--	/* Find a replacement at or after map->offset; length 0 means none. */
-+	/*
-+	 * Maximum power-of-two boundary alignment in bytes; 0 means no updates.
-+	 * EOF need not be aligned. BIT_ULL(63) means no boundary constraint.
-+	 */
-+	erofs_off_t (*get_alignment)(struct erofs_file_delta *fdl);
-+	/*
-+	 * Find a replacement at or after map->offset; length 0 means none.
-+	 * Mappings remain stable until close; callers may scan them again.
-+	 */
- 	int (*map)(struct erofs_file_delta *fdl, struct erofs_delta_map *map);
- 	void (*close)(struct erofs_file_delta *fdl);
- 	const char *name;		/* delta format name */
 -- 
 2.54.0 (Apple Git-157)
 
